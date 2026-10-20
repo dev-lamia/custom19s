@@ -4,6 +4,10 @@
 
 ## [Unreleased] — Documentation Updated: 2026-10-20
 
+### [Changed] — Rename Job Code document label (2026-10-20)
+- [2026-10-20] In Job Code → Quality Department, renamed the visible **Job Code Documents** section heading and upload field/button label to **Quality Documents**. The technical field `job_quality_attachment_ids`, stored files, permissions, upload behavior, and Requirement Form/GDN isolation are unchanged; updated README to match.
+
+
 ### [Changed] — Job Code Quality Department: independent file uploads (2026-10-20)
 - [2026-10-20] Replaced the Job Code **Design Documents** line list in **Quality Department** with a simple **Job Code Documents** multi-file upload field (`many2many_binary`). Removed Document Type dropdown, category rows and Add a line list from **Job Code only**.
 - [2026-10-20] New Job Code files use a dedicated `sale.order.line.job_quality_attachment_ids` Many2many attachment relation, exposed as `sale.job.code.configuration.job_quality_attachment_ids` and saved via the existing SQL-view `write()` forwarding. Nothing is fetched from or sent to Requirement Form / Product Specification / GDN document lines.

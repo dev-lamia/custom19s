@@ -2,7 +2,7 @@
     'name': 'CRM Requirement Form',
     'version': '19.0.0.0',
     'category': 'CRM',
-    'summary': 'CRmm requirement form with generated customer and REQ IDs',
+    'summary': 'CRm requirement form with generated customer and REQ IDs',
     'author': 'Softeko_Lamia',
     'depends': ['crm', 'sale_crm', 'website', 'mail', 'product', 'uom', 'account', 'stock', 'purchase'],
     'assets': {

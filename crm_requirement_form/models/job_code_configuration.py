@@ -233,7 +233,7 @@ class SaleJobCodeConfiguration(models.Model):
     job_quality_attachment_ids = fields.Many2many(
         'ir.attachment',
         related='source_line_id.job_quality_attachment_ids',
-        string='Job Code Documents',
+        string='Quality Documents',
         readonly=False,
         store=False,
     )

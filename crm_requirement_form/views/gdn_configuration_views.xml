@@ -341,9 +341,9 @@
                         </group>
                     </div>
                     <div class="o_crm_req_config_card">
-                        <div class="o_crm_req_config_card_title"><i class="fa fa-paperclip"/> Job Code Documents</div>
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-paperclip"/> Quality Documents</div>
                         <p class="text-muted">Upload files for this Job Code only. Documents from Requirement Forms or GDN are not imported here.</p>
-                        <field name="job_quality_attachment_ids" string="Documents" nolabel="1" widget="many2many_binary"/>
+                        <field name="job_quality_attachment_ids" string="Quality Documents" nolabel="1" widget="many2many_binary"/>
                     </div>
                         </page>
                     </notebook>

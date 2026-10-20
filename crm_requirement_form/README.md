@@ -53,7 +53,7 @@ Users commonly work from **Requirement Forms** to submit design/product specific
 | Product Specifications | FG Type, product/dimensions, quantity, color reference, print and finish, layers, roll dimensions and document lines (Print Type/No of Colors no longer appear here) | `models/product_specification.py`, `views/requirement_form_views.xml` |
 | Sales | Optional Requirement Form relation, GDN selection/generation, GDN link, Job Code link, summary fields | `models/sale_order.py`, `views/sale_order_views.xml`, `static/src/js/gdn_link_many2one.js` |
 | GDN Configuration | Source traceability, product/design details, **Dimensions** tab (renamed from Quantity & Dimensions), design information including editable alphanumeric Print Direction, conditional Roll Details, documents and numeric layer thickness | `models/sale_order.py`, `views/gdn_configuration_views.xml` |
-| Job Code Configuration | SQL-view-based job reference per Sale Order Line, GDN-sourced Color Details / Print Type, **Bag-only Pouch Details** (read-only Bag Length/Width and editable Side/Bottom Gusset), editable production parameters, Roll-only read-only Roll Details, and **Quality Department → Job Code Documents** (independent multi-file upload, no Document Type or REQ/GDN import); One Repeat Size uses separate storage | `models/job_code_configuration.py`, `models/sale_order.py`, `views/gdn_configuration_views.xml` |
+| Job Code Configuration | SQL-view-based job reference per Sale Order Line, GDN-sourced Color Details / Print Type, **Bag-only Pouch Details** (read-only Bag Length/Width and editable Side/Bottom Gusset), editable production parameters, Roll-only read-only Roll Details, and **Quality Department → Quality Documents** (independent multi-file upload, no Document Type or REQ/GDN import); One Repeat Size uses separate storage | `models/job_code_configuration.py`, `models/sale_order.py`, `views/gdn_configuration_views.xml` |
 | Customer Ranking | Questionnaire scores, automatic/customer-average ranking, manual ranking field | `models/customer_rating.py`, `views/customer_rating_views.xml` |
 | Product setup | Finished-good types, layer thickness, category type, FG-specific product settings | `models/product_extension.py`, `views/product_template_views.xml` |
 | Purchase / Inventory | Raw-material Item Code handling on Purchase Order confirmation and Item Code history in Inventory Configuration | `models/purchase_order.py`, `views/purchase_item_code_views.xml` |
@@ -326,9 +326,9 @@ is needed and no `UndefinedColumn` SQL-view error is introduced.
 
 **Proposed staging tests (not executed):** Open Bag and Roll Job Codes to check visibility; compare Bag Length/Width to the source Sale Order Line and verify they cannot be edited; save Side/Bottom Gusset, reopen and compare persisted values; verify the legacy GDN Gusset is unchanged; check the Job Code Product Summary has Product but no Sale Product; verify Roll Details and other production inputs still work.
 
-### Job Code → Quality Department → Job Code Documents (2026-10-20)
+### Job Code → Quality Department → Quality Documents (2026-10-20)
 
-**Access:** Sales → Configuration → Job Code Configurations → Quality Department → **Job Code Documents** beneath the unchanged Ink/Adhesive/OPV/Total GSM fields.
+**Access:** Sales → Configuration → Job Code Configurations → Quality Department → **Quality Documents** beneath the unchanged Ink/Adhesive/OPV/Total GSM fields.
 
 **Behavior:** A plain multi-file upload folder (`many2many_binary`) for files associated **only with the currently opened Job Code**. There are **no Document Type fields, category rows, Add a line table, prefilled documents, or Product Specification/GDN/Requirement Form document imports**. New Job Codes start with no Job Code-specific attachments. Uploaded files are linked solely to the corresponding source Sale Order Line; saving/reopening the Job Code loads only files uploaded in this new Job Code folder. Removing a file from this folder unlinks it from the Job Code and does not intentionally modify any other document collection.
 

@@ -941,7 +941,7 @@ class SaleOrderLine(models.Model):
         'sale_order_line_job_quality_attachment_rel',
         'sale_line_id',
         'attachment_id',
-        string='Job Code Documents',
+        string='Quality Documents',
         copy=False,
         help='Files uploaded only for this Job Code; not linked to GDN or Requirement documents.',
     )
