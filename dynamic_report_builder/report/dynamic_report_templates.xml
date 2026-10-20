@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_dynamic_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="company" t-value="env.company.sudo()"/>
+                <t t-set="o" t-value="company"/>
+                <t t-set="layout_document_title" t-value="False"/>
+                <t t-set="layout_key" t-value="company.external_report_layout_id.sudo().key if company.external_report_layout_id else 'web.external_layout_standard'"/>
+                <t t-call="{{layout_key}}">
+                    <t t-set="report_data" t-value="doc.get_report_data()"/>
+                    <div class="page">
+                        <div class="text-center mb-3" t-if="doc.show_title">
+                            <h2 class="mb-1"
+                                t-att-style="'font-size:%spx; font-weight:600; line-height:1.25;' % doc.report_title_font_size">
+                                <t t-esc="doc.name"/>
+                            </h2>
+                        </div>
+                        <div class="text-center mb-3" t-if="doc.show_total_records or doc.subtitle">
+                            <p t-if="doc.subtitle" class="mb-1">
+                                <t t-esc="doc.subtitle"/>
+                            </p>
+                            <p t-if="doc.show_total_records" class="mb-2">
+                                Total Records: <t t-esc="report_data['total']"/>
+                            </p>
+                        </div>
+
+                        <table class="table table-sm table-bordered o_main_table"
+                               t-att-style="'font-size:%spx;' % doc.table_font_size">
+                            <thead>
+                                <tr>
+                                    <th t-if="doc.show_row_number"
+                                        style="width:30px; text-align:center; vertical-align:middle;">#</th>
+                                    <t t-foreach="doc._get_ordered_columns()" t-as="column">
+                                        <th t-att-style="column.get_header_style()">
+                                            <t t-esc="column.get_display_label()"/>
+                                        </th>
+                                    </t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="report_data['rows']" t-as="row">
+                                    <tr>
+                                        <td t-if="doc.show_row_number"
+                                            style="text-align:center; vertical-align:middle;">
+                                            <t t-esc="row_index + 1"/>
+                                        </td>
+                                        <t t-foreach="row" t-as="cell">
+                                            <t t-set="column" t-value="doc._get_ordered_columns()[cell_index]"/>
+                                            <td t-att-style="column.get_cell_style()">
+                                                <t t-esc="cell"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_dynamic_selected_base">
+        <t t-call="web.html_container">
+            <t t-if="config">
+                <t t-set="columns" t-value="config._get_ordered_columns()"/>
+                <t t-set="report_records"
+                   t-value="config._get_runtime_report_records(report_record_ids, docs)"/>
+                <t t-set="sections"
+                   t-value="config._get_runtime_report_sections(report_records)"/>
+                <t t-set="company" t-value="env.company.sudo()"/>
+                <t t-set="o" t-value="company"/>
+                <t t-set="layout_document_title" t-value="False"/>
+                <t t-set="layout_key" t-value="company.external_report_layout_id.sudo().key if company.external_report_layout_id else 'web.external_layout_standard'"/>
+                <t t-call="{{layout_key}}">
+                    <div class="page">
+                        <t t-set="runtime_period_label"
+                           t-value="env.context.get('dynamic_report_period_label') or report_period_label"/>
+                        <t t-set="runtime_period_value"
+                           t-value="env.context.get('dynamic_report_period_value') or report_period_value"/>
+                        <t t-set="runtime_filter_label"
+                           t-value="env.context.get('dynamic_report_filter_label') or (config.user_field_id.sudo().field_description if config.user_field_id else False)"/>
+                        <t t-set="runtime_filter_value"
+                           t-value="env.context.get('dynamic_report_filter_value') or report_user_name"/>
+
+                        <div class="mb-3" t-if="config.show_title">
+                            <h2 class="mb-1 text-center"
+                                t-att-style="'font-size:%spx; font-weight:600; line-height:1.25;' % config.report_title_font_size">
+                                <t t-esc="config.name"/>
+                            </h2>
+                            <div t-if="runtime_period_value or runtime_filter_value"
+                                 t-att-style="'font-size:%spx; line-height:1.55; text-align:right;' % config.table_font_size">
+                                <div t-if="runtime_period_value">
+                                    <strong><t t-esc="runtime_period_label or 'Date'"/>:</strong>
+                                    <span t-esc="runtime_period_value"/>
+                                </div>
+                                <div t-if="runtime_filter_value and not config.group_by_user">
+                                    <strong><t t-esc="runtime_filter_label or 'User'"/>:</strong>
+                                    <span t-esc="runtime_filter_value"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mb-3" t-if="config.show_total_records or config.subtitle">
+                            <p t-if="config.subtitle" class="mb-1">
+                                <t t-esc="config.subtitle"/>
+                            </p>
+                            <p t-if="config.show_total_records" class="mb-2">
+                                Total Records: <t t-esc="len(report_records)"/>
+                            </p>
+                        </div>
+
+                        <!-- Render the information table directly.  Avoid a
+                             nested t-call here so columns/docs remain in the
+                             same QWeb scope on every Odoo 19 PDF render. -->
+                        <t t-foreach="sections" t-as="section">
+                            <div t-if="section['label']" class="mt-2 mb-1"
+                                 t-att-style="'font-size:%spx; font-weight:600; text-align:left;' % (config.table_font_size + 1)">
+                                User: <t t-esc="section['label']"/>
+                            </div>
+                            <table class="table table-sm table-bordered o_main_table"
+                                   t-att-style="'font-size:%spx;' % config.table_font_size">
+                                <thead>
+                                    <tr>
+                                        <th t-if="config.show_row_number"
+                                            style="width:30px; text-align:center; vertical-align:middle;">#</th>
+                                        <t t-foreach="columns" t-as="column">
+                                            <th t-att-style="column.get_header_style()">
+                                                <t t-esc="column.get_display_label()"/>
+                                            </th>
+                                        </t>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="section['records']" t-as="record">
+                                        <tr>
+                                            <td t-if="config.show_row_number"
+                                                style="text-align:center; vertical-align:middle;">
+                                                <t t-esc="record_index + 1"/>
+                                            </td>
+                                            <t t-foreach="columns" t-as="column">
+                                                <td t-att-style="column.get_cell_style()">
+                                                    <t t-esc="config._format_column(record, column)"/>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

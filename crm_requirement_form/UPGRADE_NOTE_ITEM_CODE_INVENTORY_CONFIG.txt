@@ -1,0 +1,7 @@
+Version 19.0.0.36
+
+- Item Code remains generated per Purchase Order confirmation on purchase.order.line.
+- Added Inventory > Configuration > Item Codes.
+- Every confirmation creates a permanent Item Code history record.
+- Re-confirming the same PO generates the next code and keeps the older code in history.
+- Item Code is not stored on product.template.

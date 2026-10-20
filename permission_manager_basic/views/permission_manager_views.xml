@@ -1,0 +1,1171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_permission_manager_policy_list" model="ir.ui.view">
+        <field name="name">permission.manager.policy.list</field>
+        <field name="model">permission.manager.policy</field>
+        <field name="arch" type="xml">
+            <list string="Access Management" class="pm_policy_list">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="state" widget="badge"/>
+                <field name="user_ids" widget="many2many_tags"/>
+                <field name="apply_by_user_groups" optional="hide"/>
+                <field name="group_ids" widget="many2many_tags" optional="hide"/>
+                <field name="apply_all_companies"/>
+                <field name="hidden_menu_count"/>
+                <field name="model_permission_count"/>
+                <field name="field_permission_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Standalone views used by the Model Permissions smart button. -->
+    <record id="view_permission_manager_model_permission_list" model="ir.ui.view">
+        <field name="name">permission.manager.model.permission.line.list</field>
+        <field name="model">permission.manager.model.permission.line</field>
+        <field name="arch" type="xml">
+            <list string="Model Permissions">
+                <field name="model_id" string="Model"/>
+                <field name="model" string="Technical Model" optional="hide"/>
+                <field name="block_read" string="Read" optional="show"/>
+                <field name="block_create" string="Create" optional="show"/>
+                <field name="block_edit" string="Edit" optional="show"/>
+                <field name="block_delete" string="Delete" optional="show"/>
+                <field name="block_archive" string="Archive" optional="hide"/>
+                <field name="block_unarchive" string="Unarchive" optional="hide"/>
+                <field name="block_duplicate" string="Duplicate" optional="show"/>
+                <field name="block_import_data" string="Import" optional="show"/>
+                <field name="block_export_data" string="Export" optional="show"/>
+                <field name="block_spreadsheet" string="Spreadsheet" optional="show"/>
+                <field name="hide_list_view" string="Hide List" optional="show"/>
+                <field name="hide_form_view" string="Hide Form" optional="hide"/>
+                <field name="hide_kanban_view" string="Hide Kanban" optional="show"/>
+                <field name="hide_calendar_view" string="Hide Calendar" optional="hide"/>
+                <field name="hide_pivot_view" string="Hide Pivot" optional="hide"/>
+                <field name="hide_graph_view" string="Hide Graph" optional="hide"/>
+                <field name="hide_activity_view" string="Hide Activity" optional="hide"/>
+                <field name="hide_map_view" string="Hide Map" optional="hide"/>
+                <field name="hide_action_menu" string="Hide Actions Menu" optional="hide"/>
+                <field name="hide_model" string="Hide Model" optional="show"/>
+                <field name="condition_expression" string="Condition Domain" optional="hide"/>
+                <field name="policy_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_model_permission_form" model="ir.ui.view">
+        <field name="name">permission.manager.model.permission.line.form</field>
+        <field name="model">permission.manager.model.permission.line</field>
+        <field name="arch" type="xml">
+            <form string="Model Permission">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="policy_id" readonly="1"/>
+                            <field name="model_id"/>
+                            <field name="model" readonly="1"/>
+                            <field name="condition_expression"
+                                   string="Condition Domain"
+                                   widget="domain"
+                                   options="{'model': 'model'}"/>
+                        </group>
+                    </group>
+                    <separator string="Objects to Hide"/>
+                    <group>
+                        <group>
+                            <field name="report_ids" widget="many2many_tags" domain="[('model', '=', model)]"/>
+                            <field name="action_ids" widget="many2many_tags" domain="[('binding_model_id', '=', model_id)]"/>
+                            <field name="hidden_view_ids" string="Specific Views" widget="many2many_tags" domain="[('model', '=', model)]"/>
+                        </group>
+                        <group>
+                            <field name="hide_action_menu"/>
+                            <field name="hide_model"/>
+                        </group>
+                    </group>
+                    <separator string="Hide View Switcher Options"/>
+                    <group col="4">
+                        <field name="hide_list_view" string="List"/>
+                        <field name="hide_kanban_view" string="Kanban"/>
+                        <field name="hide_calendar_view" string="Calendar"/>
+                        <field name="hide_pivot_view" string="Pivot"/>
+                        <field name="hide_graph_view" string="Graph"/>
+                        <field name="hide_activity_view" string="Activity"/>
+                        <field name="hide_map_view" string="Map"/>
+                        <field name="hide_form_view" string="Form"/>
+                    </group>
+                    <separator string="Blocked Operations"/>
+                    <group>
+                        <group>
+                            <field name="block_read"/>
+                            <field name="block_edit"/>
+                            <field name="block_archive"/>
+                            <field name="block_duplicate"/>
+                            <field name="block_export_data"/>
+                        </group>
+                        <group>
+                            <field name="block_create"/>
+                            <field name="block_delete"/>
+                            <field name="block_unarchive"/>
+                            <field name="block_import_data"/>
+                            <field name="block_spreadsheet"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_model_permission_search" model="ir.ui.view">
+        <field name="name">permission.manager.model.permission.line.search</field>
+        <field name="model">permission.manager.model.permission.line</field>
+        <field name="arch" type="xml">
+            <search string="Model Permissions">
+                <field name="model_id"/>
+                <field name="model"/>
+                <filter string="Export Blocked" name="export_blocked" domain="[('block_export_data', '=', True)]"/>
+                <filter string="Import Blocked" name="import_blocked" domain="[('block_import_data', '=', True)]"/>
+                <filter string="Spreadsheet Blocked" name="spreadsheet_blocked"
+                        domain="[('block_spreadsheet', '=', True)]"/>
+                <filter string="List View Hidden" name="list_view_hidden" domain="[('hide_list_view', '=', True)]"/>
+                <filter string="Form View Hidden" name="form_view_hidden" domain="[('hide_form_view', '=', True)]"/>
+                <filter string="Kanban View Hidden" name="kanban_view_hidden" domain="[('hide_kanban_view', '=', True)]"/>
+                <filter string="Calendar View Hidden" name="calendar_view_hidden" domain="[('hide_calendar_view', '=', True)]"/>
+                <filter string="Pivot View Hidden" name="pivot_view_hidden" domain="[('hide_pivot_view', '=', True)]"/>
+                <filter string="Graph View Hidden" name="graph_view_hidden" domain="[('hide_graph_view', '=', True)]"/>
+                <filter string="Activity View Hidden" name="activity_view_hidden" domain="[('hide_activity_view', '=', True)]"/>
+                <filter string="Map View Hidden" name="map_view_hidden" domain="[('hide_map_view', '=', True)]"/>
+                <filter string="Hidden Models" name="hidden_models" domain="[('hide_model', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Standalone views used by the Search Panel smart button. -->
+    <record id="view_permission_manager_search_panel_list" model="ir.ui.view">
+        <field name="name">permission.manager.search.panel.line.list</field>
+        <field name="model">permission.manager.search.panel.line</field>
+        <field name="arch" type="xml">
+            <list string="Search Panel Access">
+                <field name="model_id" string="Model"/>
+                <field name="model" string="Technical Model" optional="hide"/>
+                <field name="hide_search_menu" optional="show"/>
+                <field name="hide_filters" optional="show"/>
+                <field name="hide_group_by" optional="show"/>
+                <field name="hide_favorites" optional="show"/>
+                <field name="hide_custom_filter" optional="show"/>
+                <field name="hide_custom_group_by" optional="show"/>
+                <field name="hide_save_current_search" optional="show"/>
+                <field name="policy_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_search_panel_form" model="ir.ui.view">
+        <field name="name">permission.manager.search.panel.line.form</field>
+        <field name="model">permission.manager.search.panel.line</field>
+        <field name="arch" type="xml">
+            <form string="Search Panel Access">
+                <sheet>
+                    <group>
+                        <field name="policy_id" readonly="1"/>
+                        <field name="model_id"/>
+                        <field name="model" readonly="1"/>
+                    </group>
+                    <separator string="Search Dropdown Access"/>
+                    <group col="4">
+                        <field name="hide_search_menu"/>
+                        <field name="hide_filters"/>
+                        <field name="hide_group_by"/>
+                        <field name="hide_favorites"/>
+                        <field name="hide_custom_filter"/>
+                        <field name="hide_custom_group_by"/>
+                        <field name="hide_save_current_search"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Standalone views used by the Record Domain Rules smart button. -->
+    <record id="view_permission_manager_record_domain_rule_list" model="ir.ui.view">
+        <field name="name">permission.manager.record.domain.rule.line.list</field>
+        <field name="model">permission.manager.record.domain.rule.line</field>
+        <field name="arch" type="xml">
+            <list string="Record Domain Rules">
+                <field name="model_id" string="Model"/>
+                <field name="filter_expression" string="Filter Expression"/>
+                <field name="current_user_field_id" string="Current User Field" optional="show"/>
+                <field name="scope_read" optional="show"/>
+                <field name="scope_write" optional="show"/>
+                <field name="scope_create" optional="show"/>
+                <field name="scope_delete" optional="show"/>
+                <field name="active" optional="show"/>
+                <field name="policy_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_record_domain_rule_form" model="ir.ui.view">
+        <field name="name">permission.manager.record.domain.rule.line.form</field>
+        <field name="model">permission.manager.record.domain.rule.line</field>
+        <field name="arch" type="xml">
+            <form string="Record Domain Rules" class="pm_record_domain_rule_form">
+                <sheet>
+                    <group col="4">
+                        <field name="policy_id" readonly="1" invisible="1"/>
+                        <field name="model_id"/>
+                        <field name="active"/>
+                        <field name="model" invisible="1"/>
+                        <field name="current_user_field_id"
+                               string="Current User Field (Optional)"
+                               domain="[('model_id', '=', model_id), ('ttype', '=', 'many2one'), ('relation', '=', 'res.users')]"
+                               options="{'no_create': True, 'no_open': True}"
+                               placeholder="Example: Salesperson"/>
+                    </group>
+                    <separator string="Filter Expression"/>
+                    <div class="pm_record_domain_expression">
+                        <field name="filter_expression"
+                               nolabel="1"
+                               widget="domain"
+                               options="{'model': 'model'}"/>
+                    </div>
+                    <separator string="Operation Scope"/>
+                    <group col="4">
+                        <field name="scope_read"/>
+                        <field name="scope_write"/>
+                        <field name="scope_create"/>
+                        <field name="scope_delete"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Compact policy editor used by the Global Controls smart button. -->
+    <record id="view_permission_manager_global_controls_form" model="ir.ui.view">
+        <field name="name">permission.manager.policy.global.controls.form</field>
+        <field name="model">permission.manager.policy</field>
+        <field name="arch" type="xml">
+            <form string="Global Controls">
+                <sheet>
+                    <group string="Company Scope">
+                        <field name="apply_all_companies"/>
+                        <field name="company_ids"
+                               widget="many2many_tags"
+                               invisible="apply_all_companies"/>
+                    </group>
+                    <group string="Security Controls" col="4">
+                        <field name="force_read_only"/>
+                        <field name="block_debug_mode"/>
+                        <field name="block_login"/>
+                        <field name="hide_export_available_fields"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_policy_form" model="ir.ui.view">
+        <field name="name">permission.manager.policy.form</field>
+        <field name="model">permission.manager.policy</field>
+        <field name="arch" type="xml">
+            <form string="Access Management" class="pm_policy_form">
+                <header>
+                    <button name="action_deactivate_policy"
+                            string="Deactivate Policy"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'active'"
+                            groups="permission_manager_basic.group_permission_manager_admin"/>
+                    <button name="action_activate_policy"
+                            string="Activate Policy"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'inactive'"
+                            groups="permission_manager_basic.group_permission_manager_admin"/>
+                    <field name="state" widget="statusbar" statusbar_visible="active,inactive"/>
+                </header>
+                <sheet class="pm_policy_sheet">
+                    <div class="pm_policy_hero">
+                        <div class="pm_policy_hero_content">
+                            <div class="pm_policy_eyebrow">Access Control Configuration</div>
+                            <div class="oe_title pm_policy_title">
+                                <label for="name"/>
+                                <h1>
+                                    <field name="name" placeholder="Example: Sales Team Restriction"/>
+                                </h1>
+                            </div>
+                            <div class="pm_policy_subtitle">Configure menu, model, field, button, tab and chatter restrictions from one clean policy screen.</div>
+                        </div>
+                    </div>
+                    <div class="oe_button_box pm_policy_stats" name="button_box">
+                        <button name="action_open_hidden_menus"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-bars">
+                            <field name="hidden_menu_count" widget="statinfo" string="Hidden Menus"/>
+                        </button>
+                        <button name="action_open_model_permissions"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-lock">
+                            <field name="model_permission_count" widget="statinfo" string="Model Permissions"/>
+                        </button>
+                        <button name="action_open_search_panel"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-search">
+                            <field name="search_panel_count" widget="statinfo" string="Search Panel"/>
+                        </button>
+                        <button name="action_open_field_permissions"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-list-alt">
+                            <field name="field_permission_count" widget="statinfo" string="Field Controls"/>
+                        </button>
+                        <button name="action_open_record_domain_rules"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-filter">
+                            <field name="record_domain_rule_count" widget="statinfo" string="Record Domains"/>
+                        </button>
+                        <button name="action_open_chatter_visibility"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-comments">
+                            <field name="chatter_visibility_count" widget="statinfo" string="Chatter Visibility"/>
+                        </button>
+                        <button name="action_open_hide_buttons_tabs"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-eye-slash">
+                            <field name="hide_button_tab_count" widget="statinfo" string="Hide Buttons/Tabs"/>
+                        </button>
+                        <button name="action_open_global_controls"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-sliders">
+                            <field name="global_control_count" widget="statinfo" string="Global Controls"/>
+                        </button>
+                    </div>
+                    <div class="pm_global_card pm_global_card_members pm_policy_assignment_card">
+                        <div class="pm_global_card_title">
+                            <span class="fa fa-users"/> Member Assignment
+                        </div>
+                        <div class="pm_global_card_hint">
+                            Apply this policy to individual users, user groups, or both.
+                        </div>
+                        <group>
+                            <field name="apply_by_user_groups"/>
+                            <field name="group_ids"
+                                   string="User Groups"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   placeholder="Select user groups for this policy"
+                                   invisible="not apply_by_user_groups"/>
+                            <field name="user_ids"
+                                   widget="many2many_tags"
+                                   placeholder="Select individual users for this policy"/>
+                        </group>
+                    </div>
+                    <notebook class="pm_policy_notebook">
+                        <page string="Hide Menus/Submenu" name="hide_menus">
+                            <field name="hidden_menu_line_ids" context="{'default_policy_id': id}">
+                                <list string="Hidden Navigation Items">
+                                    <field name="menu_id" string="Menu Entry"/>
+                                    <field name="complete_name" string="Label"/>
+                                    <field name="parent_id"/>
+                                    <field name="condition_expression" string="Condition Domain" optional="show"/>
+                                    <field name="active"/>
+                                </list>
+                                <form string="Hidden Navigation Item">
+                                    <sheet>
+                                        <group>
+                                            <field name="policy_id" readonly="1"/>
+                                            <field name="menu_id"/>
+                                            <field name="complete_name" readonly="1"/>
+                                            <field name="parent_id" readonly="1"/>
+                                            <field name="condition_expression"
+                                                   string="Condition Domain"
+                                                   widget="domain"
+                                                   options="{'model': 'res.users'}"/>
+                                            <field name="active"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Model Permissions" name="model_permissions">
+                            <field name="model_permission_line_ids" context="{'default_policy_id': id}">
+                                <list string="Model Permissions">
+                                    <field name="model_id" string="Model"/>
+                                    <field name="model" column_invisible="True"/>
+                                    <field name="report_ids" widget="many2many_tags" optional="show" domain="[('model', '=', model)]"/>
+                                    <field name="action_ids" widget="many2many_tags" optional="show" domain="[('binding_model_id', '=', model_id)]"/>
+                                    <field name="hidden_view_ids" string="Specific Views" widget="many2many_tags" optional="hide" domain="[('model', '=', model)]"/>
+                                    <field name="hide_list_view" string="Hide List" optional="show"/>
+                                    <field name="hide_form_view" string="Hide Form" optional="hide"/>
+                                    <field name="hide_kanban_view" string="Hide Kanban" optional="show"/>
+                                    <field name="hide_calendar_view" string="Hide Calendar" optional="hide"/>
+                                    <field name="hide_pivot_view" string="Hide Pivot" optional="hide"/>
+                                    <field name="hide_graph_view" string="Hide Graph" optional="hide"/>
+                                    <field name="hide_activity_view" string="Hide Activity" optional="hide"/>
+                                    <field name="hide_map_view" string="Hide Map" optional="hide"/>
+                                    <field name="condition_expression" string="Condition Domain" optional="show"/>
+                                    <field name="hide_action_menu" optional="show"/>
+                                    <field name="hide_model" optional="show"/>
+                                    <field name="block_read" optional="show"/>
+                                    <field name="block_create" optional="show"/>
+                                    <field name="block_edit" optional="show"/>
+                                    <field name="block_delete" optional="show"/>
+                                    <field name="block_archive" optional="show"/>
+                                    <field name="block_unarchive" optional="show"/>
+                                    <field name="block_duplicate" optional="show"/>
+                                    <field name="block_import_data" optional="show"/>
+                                    <field name="block_export_data" optional="show"/>
+                                    <field name="block_spreadsheet" optional="show"/>
+                                </list>
+                                <form string="Model Permission">
+                                    <sheet>
+                                        <group>
+                                            <field name="policy_id" readonly="1"/>
+                                            <field name="model_id"/>
+                                            <field name="model" readonly="1"/>
+                                            <field name="condition_expression"
+                                                   string="Condition Domain"
+                                                   widget="domain"
+                                                   options="{'model': 'model'}"/>
+                                        </group>
+                                        <group string="Objects to Hide">
+                                            <field name="report_ids" widget="many2many_tags" domain="[('model', '=', model)]"/>
+                                            <field name="action_ids" widget="many2many_tags" domain="[('binding_model_id', '=', model_id)]"/>
+                                            <field name="hidden_view_ids" string="Specific Views" widget="many2many_tags" domain="[('model', '=', model)]"/>
+                                            <field name="hide_action_menu"/>
+                                            <field name="hide_model"/>
+                                        </group>
+                                        <group string="Hide View Switcher Options" col="4">
+                                            <field name="hide_list_view" string="List"/>
+                                            <field name="hide_kanban_view" string="Kanban"/>
+                                            <field name="hide_calendar_view" string="Calendar"/>
+                                            <field name="hide_pivot_view" string="Pivot"/>
+                                            <field name="hide_graph_view" string="Graph"/>
+                                            <field name="hide_activity_view" string="Activity"/>
+                                            <field name="hide_map_view" string="Map"/>
+                                            <field name="hide_form_view" string="Form"/>
+                                        </group>
+                                        <group string="Blocked Operations" col="4">
+                                            <field name="block_read"/>
+                                            <field name="block_create"/>
+                                            <field name="block_edit"/>
+                                            <field name="block_delete"/>
+                                            <field name="block_archive"/>
+                                            <field name="block_unarchive"/>
+                                            <field name="block_duplicate"/>
+                                            <field name="block_import_data"/>
+                                            <field name="block_export_data"/>
+                                            <field name="block_spreadsheet"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Search Panel" name="search_panel">
+                            <field name="search_panel_line_ids" context="{'default_policy_id': id}">
+                                <list string="Search Panel Access">
+                                    <field name="model_id" string="Model"/>
+                                    <field name="model" string="Technical Model" optional="hide"/>
+                                    <field name="hide_search_menu" optional="show"/>
+                                    <field name="hide_filters" optional="show"/>
+                                    <field name="hide_group_by" optional="show"/>
+                                    <field name="hide_favorites" optional="show"/>
+                                    <field name="hide_custom_filter" optional="show"/>
+                                    <field name="hide_custom_group_by" optional="show"/>
+                                    <field name="hide_save_current_search" optional="show"/>
+                                </list>
+                                <form string="Search Panel Access">
+                                    <sheet>
+                                        <group>
+                                            <field name="policy_id" readonly="1"/>
+                                            <field name="model_id"/>
+                                            <field name="model" readonly="1"/>
+                                        </group>
+                                        <separator string="Search Dropdown Access"/>
+                                        <group col="4">
+                                            <field name="hide_search_menu"/>
+                                            <field name="hide_filters"/>
+                                            <field name="hide_group_by"/>
+                                            <field name="hide_favorites"/>
+                                            <field name="hide_custom_filter"/>
+                                            <field name="hide_custom_group_by"/>
+                                            <field name="hide_save_current_search"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Field Controls" name="field_controls">
+                            <div class="text-muted mb-2">
+                                Configure all field controls in one place. Leave Condition empty/[]
+                                for always-applied Hide, Read Only, or Required rules; set a condition
+                                when the same controls should apply only in a specific record state.
+                            </div>
+                            <field name="field_permission_line_ids" context="{'default_policy_id': id}">
+                                <list string="Field Controls">
+                                    <field name="model_id" string="Model"/>
+                                    <field name="field_id" string="Field" domain="[('model_id', '=', model_id)]"/>
+                                    <field name="field_name" string="Technical Field" readonly="1" optional="show"/>
+                                    <field name="hide_field" string="Hide" optional="show"/>
+                                    <field name="read_only" optional="show"/>
+                                    <field name="required" optional="show"/>
+                                    <field name="condition_expression" string="Condition" optional="show"/>
+                                    <field name="no_import" optional="show"/>
+                                    <field name="no_export" optional="show"/>
+                                    <field name="relational_field_id" optional="hide"/>
+                                    <field name="selection_domain" optional="hide"/>
+                                    <field name="enable_selection_filter" optional="show"/>
+                                    <field name="allowed_selection_value_ids" widget="many2many_tags" optional="hide"/>
+                                    <field name="allowed_related_record_line_ids" optional="hide"/>
+                                    <field name="apply_form" optional="show"/>
+                                    <field name="apply_list" optional="show"/>
+                                    <field name="apply_kanban" optional="hide"/>
+                                    <field name="apply_search" optional="hide"/>
+                                    <field name="active" optional="show"/>
+                                </list>
+                                <form string="Field Control Configuration" class="pm_field_control_form">
+                                    <sheet>
+                                        <div class="pm_field_control_intro">
+                                            <div class="pm_field_control_intro_title">
+                                                <span class="fa fa-sliders"/> Field Control Configuration
+                                            </div>
+                                            <div class="pm_field_control_intro_hint">
+                                                Select a model and field, then open any tab below and configure the rule directly.
+                                            </div>
+                                        </div>
+
+                                        <group col="4" class="pm_field_control_header">
+                                            <field name="policy_id" readonly="1" invisible="1"/>
+                                            <field name="model_id"/>
+                                            <field name="model" invisible="1"/>
+                                            <field name="field_id"
+                                                   domain="[('model_id', '=', model_id)]"/>
+                                            <field name="field_name" readonly="1"/>
+                                            <field name="field_description" readonly="1"/>
+                                            <field name="field_type" invisible="1"/>
+                                            <field name="active"/>
+                                        </group>
+
+                                        <notebook invisible="not model_id" class="pm_field_control_notebook">
+                                            <page string="Attribute Rule" name="attribute_rule">
+                                                <div class="text-muted mb-3">
+                                                    Control field visibility, editability, requirement, and the record condition where those attributes apply.
+                                                </div>
+                                                <group string="Attribute Controls" col="4">
+                                                    <field name="hide_field"/>
+                                                    <field name="read_only"/>
+                                                    <field name="required"/>
+                                                </group>
+                                                <group string="Condition">
+                                                    <field name="condition_expression"
+                                                           widget="domain"
+                                                           options="{'model': 'model'}"
+                                                           placeholder="[] = always apply"
+                                                          />
+                                                </group>
+                                                <group string="Apply On" col="4">
+                                                    <field name="apply_form"/>
+                                                    <field name="apply_list"/>
+                                                    <field name="apply_kanban"/>
+                                                    <field name="apply_search"/>
+                                                </group>
+                                            </page>
+
+                                            <page string="Domain Rule" name="domain_rule">
+                                                <div class="text-muted mb-3">
+                                                    Restrict the selectable records of a Many2one or Many2many field with a domain.
+                                                </div>
+                                                <group string="Relational Field Domain">
+                                                    <field name="relational_field_id"
+                                                           domain="[('model_id', '=', model_id), ('ttype', 'in', ['many2one', 'many2many'])]"
+                                                          />
+                                                    <field name="selection_domain"
+                                                           widget="domain"
+                                                           options="{'model': 'model'}"
+                                                          />
+                                                </group>
+                                            </page>
+
+                                            <page string="Selection / Related Value Filter" name="selection_value_filter">
+                                                <div class="text-muted mb-3">
+                                                    For a Selection field choose allowed options; for a Many2one field
+                                                    choose allowed related records (such as UOMs). Each rule applies only
+                                                    to its own model and field for users covered by this policy.
+                                                </div>
+                                                <field name="related_model" invisible="1"/>
+                                                <div class="text-muted mb-2"
+                                                     invisible="not field_id or field_type in ('selection', 'many2one')">
+                                                    This field is not a Selection or Many2one field. To filter UOM choices,
+                                                    select the Many2one Quantity UOM field on the source model, not the
+                                                    Unit Name (Char) field on the UOM model.
+                                                </div>
+                                                <group>
+                                                    <field name="enable_selection_filter"
+                                                           invisible="not field_id or field_type not in ('selection', 'many2one')"/>
+                                                    <field name="allowed_selection_value_ids"
+                                                           widget="many2many_tags"
+                                                           domain="[('field_id', '=', field_id)]"
+                                                           options="{'no_create': True, 'no_create_edit': True}"
+                                                           invisible="not enable_selection_filter or field_type != 'selection'"/>
+                                                    <field name="allowed_related_record_line_ids"
+                                                           context="{'default_relation_model': related_model}"
+                                                           invisible="not enable_selection_filter or field_type != 'many2one'">
+                                                        <list editable="bottom" string="Allowed Related Records">
+                                                            <field name="relation_model" column_invisible="True" force_save="1"/>
+                                                            <field name="record_id" widget="many2one_reference"
+                                                                   options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                                        </list>
+                                                    </field>
+                                                </group>
+                                            </page>
+                                            <page string="Import / Export" name="import_export_rule">
+                                                <div class="text-muted mb-3">
+                                                    Prevent this field from appearing in import or export field selection for users covered by the policy.
+                                                </div>
+                                                <group string="Data Access" col="4">
+                                                    <field name="no_import"/>
+                                                    <field name="no_export"/>
+                                                </group>
+                                            </page>
+                                        </notebook>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Record Domain Rules" name="record_domain_rules">
+                            <field name="record_domain_rule_line_ids"
+                                   context="{'default_policy_id': id}">
+                                <list string="Record Domain Rules">
+                                    <field name="model_id" string="Model"/>
+                                    <field name="filter_expression" string="Filter Expression"/>
+                                    <field name="current_user_field_id" string="Current User Field" optional="show"/>
+                                    <field name="scope_read" optional="show"/>
+                                    <field name="scope_write" optional="show"/>
+                                    <field name="scope_create" optional="show"/>
+                                    <field name="scope_delete" optional="show"/>
+                                    <field name="active" optional="show"/>
+                                </list>
+                                <form string="Create Record Domain Rules" class="pm_record_domain_rule_form">
+                                    <sheet>
+                                        <group col="4">
+                                            <field name="policy_id" readonly="1" invisible="1"/>
+                                            <field name="model_id"/>
+                                            <field name="active"/>
+                                            <field name="model" invisible="1"/>
+                                            <field name="current_user_field_id"
+                                                   string="Current User Field (Optional)"
+                                                   domain="[('model_id', '=', model_id), ('ttype', '=', 'many2one'), ('relation', '=', 'res.users')]"
+                                                   options="{'no_create': True, 'no_open': True}"
+                                                   placeholder="Example: Salesperson"/>
+                                        </group>
+                                        <separator string="Filter Expression"/>
+                                        <div class="pm_record_domain_expression">
+                                            <field name="filter_expression"
+                                                   nolabel="1"
+                                                   widget="domain"
+                                                   options="{'model': 'model'}"/>
+                                        </div>
+                                        <separator string="Operation Scope"/>
+                                        <group col="4">
+                                            <field name="scope_read"/>
+                                            <field name="scope_write"/>
+                                            <field name="scope_create"/>
+                                            <field name="scope_delete"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Chatter Visibility" name="chatter_visibility">
+                            <field name="chatter_visibility_line_ids" context="{'default_policy_id': id}">
+                                <list editable="bottom" string="Chatter Visibility">
+                                    <field name="model_id" string="Model"/>
+                                    <field name="hide_chatter" optional="show"/>
+                                    <field name="hide_composer" optional="show"/>
+                                    <field name="hide_log_note" optional="show"/>
+                                    <field name="hide_schedule_activity" optional="show"/>
+                                    <field name="hide_search_messages" optional="show"/>
+                                    <field name="hide_attachments" optional="show"/>
+                                    <field name="hide_followers" optional="show"/>
+                                    <field name="hide_follow_button" optional="show"/>
+                                    <field name="active" optional="show"/>
+                                </list>
+                                <form string="Chatter Visibility">
+                                    <sheet>
+                                        <group>
+                                            <field name="policy_id" readonly="1"/>
+                                            <field name="model_id"/>
+                                            <field name="model" readonly="1"/>
+                                            <field name="active"/>
+                                        </group>
+                                        <group string="Chatter Items" col="4">
+                                            <field name="hide_chatter"/>
+                                            <field name="hide_composer"/>
+                                            <field name="hide_log_note"/>
+                                            <field name="hide_schedule_activity"/>
+                                            <field name="hide_search_messages"/>
+                                            <field name="hide_attachments"/>
+                                            <field name="hide_followers"/>
+                                            <field name="hide_follow_button"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Hide Buttons/Tabs" name="hide_buttons_tabs">
+                            <field name="hide_button_tab_line_ids" context="{'default_policy_id': id}">
+                                <list string="Hide Buttons/Tabs">
+                                    <field name="model_id" string="Model"/>
+                                    <field name="hide_button_item_ids"
+                                           string="Hide Buttons"
+                                           widget="many2many_tags"
+                                           domain="[('model_id', '=', model_id), ('item_type', '=', 'button')]"/>
+                                    <field name="hide_tab_item_ids"
+                                           string="Hide Tabs"
+                                           widget="many2many_tags"
+                                           domain="[('model_id', '=', model_id), ('item_type', '=', 'tab')]"/>
+                                    <field name="condition_expression" string="Condition Domain" optional="show"/>
+                                    <field name="active"/>
+                                    <button name="action_refresh_available_items"
+                                            type="object"
+                                            string="Refresh Items"
+                                            icon="fa-refresh"/>
+                                </list>
+                                <form string="Hide Buttons/Tabs">
+                                    <header>
+                                        <button name="action_refresh_available_items"
+                                                type="object"
+                                                string="Refresh Available Items"
+                                                class="btn-secondary"/>
+                                    </header>
+                                    <sheet>
+                                        <group>
+                                            <field name="policy_id" readonly="1"/>
+                                            <field name="model_id"/>
+                                            <field name="model" readonly="1"/>
+                                            <field name="condition_expression"
+                                                   string="Condition Domain"
+                                                   widget="domain"
+                                                   options="{'model': 'model'}"/>
+                                            <field name="active"/>
+                                        </group>
+                                        <group>
+                                            <field name="hide_button_item_ids"
+                                                   widget="many2many_tags"
+                                                   domain="[('model_id', '=', model_id), ('item_type', '=', 'button')]"/>
+                                            <field name="hide_tab_item_ids"
+                                                   widget="many2many_tags"
+                                                   domain="[('model_id', '=', model_id), ('item_type', '=', 'tab')]"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Global Controls" name="global_controls">
+                            <div class="pm_global_controls_intro">
+                                <div class="pm_global_controls_icon">
+                                    <span class="fa fa-sliders"/>
+                                </div>
+                                <div>
+                                    <div class="pm_global_controls_title">Policy-wide Controls</div>
+                                    <div class="pm_global_controls_subtitle">
+                                        Configure company scope and global security behavior in one place.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pm_global_controls_grid">
+                                <div class="pm_global_card pm_global_card_company">
+                                    <div class="pm_global_card_title">
+                                        <span class="fa fa-building-o"/> Company Scope
+                                    </div>
+                                    <div class="pm_global_card_hint">
+                                        Decide whether the policy works across all companies or selected companies only.
+                                    </div>
+                                    <group>
+                                        <field name="apply_all_companies"/>
+                                        <field name="company_ids"
+                                               widget="many2many_tags"
+                                               invisible="apply_all_companies"/>
+                                    </group>
+                                </div>
+
+                                <div class="pm_global_card pm_global_card_security">
+                                    <div class="pm_global_card_title">
+                                        <span class="fa fa-shield"/> Security Controls
+                                    </div>
+                                    <div class="pm_global_card_hint">
+                                        Global restrictions that affect the assigned users throughout Odoo.
+                                    </div>
+                                    <group>
+                                        <field name="force_read_only"/>
+                                        <field name="block_debug_mode"/>
+                                        <field name="block_login"/>
+                                    </group>
+                                </div>
+
+                                <div class="pm_global_card pm_global_card_export">
+                                    <div class="pm_global_card_title">
+                                        <span class="fa fa-download"/> Export Controls
+                                    </div>
+                                    <div class="pm_global_card_hint">
+                                        Control the global export dialog experience without duplicating model-level rules.
+                                    </div>
+                                    <group>
+                                        <field name="hide_export_available_fields"/>
+                                    </group>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_hide_button_tab_line_list" model="ir.ui.view">
+        <field name="name">permission.manager.hide.button.tab.line.list</field>
+        <field name="model">permission.manager.hide.button.tab.line</field>
+        <field name="arch" type="xml">
+            <list string="Hide Buttons/Tabs">
+                <field name="policy_id"/>
+                <field name="model_id"/>
+                <field name="hide_button_item_ids" widget="many2many_tags"/>
+                <field name="hide_tab_item_ids" widget="many2many_tags"/>
+                <field name="condition_expression" string="Condition Domain" optional="show"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_hide_button_tab_line_form" model="ir.ui.view">
+        <field name="name">permission.manager.hide.button.tab.line.form</field>
+        <field name="model">permission.manager.hide.button.tab.line</field>
+        <field name="arch" type="xml">
+            <form string="Hide Buttons/Tabs">
+                <header>
+                    <button name="action_refresh_available_items"
+                            type="object"
+                            string="Refresh Available Items"
+                            class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="policy_id"/>
+                        <field name="model_id"/>
+                        <field name="model" readonly="1"/>
+                        <field name="condition_expression"
+                               string="Condition"
+                               widget="domain"
+                               options="{'model': 'model'}"/>
+                        <field name="active"/>
+                    </group>
+                    <group>
+                        <field name="hide_button_item_ids"
+                               widget="many2many_tags"
+                               domain="[('model_id', '=', model_id), ('item_type', '=', 'button')]"/>
+                        <field name="hide_tab_item_ids"
+                               widget="many2many_tags"
+                               domain="[('model_id', '=', model_id), ('item_type', '=', 'tab')]"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_permission_manager_chatter_visibility_line_list" model="ir.ui.view">
+        <field name="name">permission.manager.chatter.visibility.line.list</field>
+        <field name="model">permission.manager.chatter.visibility.line</field>
+        <field name="arch" type="xml">
+            <list string="Chatter Visibility">
+                <field name="policy_id"/>
+                <field name="model_id"/>
+                <field name="hide_chatter"/>
+                <field name="hide_composer"/>
+                <field name="hide_log_note"/>
+                <field name="hide_schedule_activity"/>
+                <field name="hide_search_messages"/>
+                <field name="hide_attachments"/>
+                <field name="hide_followers"/>
+                <field name="hide_follow_button"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_chatter_visibility_line_form" model="ir.ui.view">
+        <field name="name">permission.manager.chatter.visibility.line.form</field>
+        <field name="model">permission.manager.chatter.visibility.line</field>
+        <field name="arch" type="xml">
+            <form string="Chatter Visibility">
+                <sheet>
+                    <group>
+                        <field name="policy_id"/>
+                        <field name="model_id"/>
+                        <field name="model" readonly="1"/>
+                        <field name="active"/>
+                    </group>
+                    <group string="Chatter Items" col="4">
+                        <field name="hide_chatter"/>
+                        <field name="hide_composer"/>
+                        <field name="hide_log_note"/>
+                        <field name="hide_schedule_activity"/>
+                        <field name="hide_search_messages"/>
+                        <field name="hide_attachments"/>
+                        <field name="hide_followers"/>
+                        <field name="hide_follow_button"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_permission_manager_field_permission_line_list" model="ir.ui.view">
+        <field name="name">permission.manager.field.permission.line.list</field>
+        <field name="model">permission.manager.field.permission.line</field>
+        <field name="arch" type="xml">
+            <list string="Field Controls">
+                <field name="policy_id"/>
+                <field name="model_id"/>
+                <field name="field_id"/>
+                <field name="field_name" optional="show"/>
+                <field name="hide_field" string="Hide" optional="show"/>
+                <field name="read_only" optional="show"/>
+                <field name="required" optional="show"/>
+                <field name="condition_expression" string="Condition" optional="show"/>
+                <field name="no_import" optional="show"/>
+                <field name="no_export" optional="show"/>
+                <field name="relational_field_id" optional="hide"/>
+                <field name="selection_domain" optional="hide"/>
+                <field name="enable_selection_filter" optional="show"/>
+                <field name="allowed_selection_value_ids" widget="many2many_tags" optional="hide"/>
+                <field name="allowed_related_record_line_ids" optional="hide"/>
+                <field name="apply_form" optional="show"/>
+                <field name="apply_list" optional="show"/>
+                <field name="apply_kanban" optional="hide"/>
+                <field name="apply_search" optional="hide"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_permission_manager_field_permission_line_form" model="ir.ui.view">
+        <field name="name">permission.manager.field.permission.line.form</field>
+        <field name="model">permission.manager.field.permission.line</field>
+        <field name="arch" type="xml">
+            <form string="Field Control Configuration" class="pm_field_control_form">
+                <sheet>
+                    <div class="pm_field_control_intro">
+                        <div class="pm_field_control_intro_title">
+                            <span class="fa fa-sliders"/> Field Control Configuration
+                        </div>
+                        <div class="pm_field_control_intro_hint">
+                            Select a model and field, then open any tab below and configure the rule directly.
+                        </div>
+                    </div>
+                    <group col="4" class="pm_field_control_header">
+                        <field name="policy_id"/>
+                        <field name="model_id"/>
+                        <field name="model" invisible="1"/>
+                        <field name="field_id" domain="[('model_id', '=', model_id)]"/>
+                        <field name="field_name" readonly="1"/>
+                        <field name="field_description" readonly="1"/>
+                        <field name="field_type" invisible="1"/>
+                        <field name="active"/>
+                    </group>
+                    <notebook invisible="not model_id" class="pm_field_control_notebook">
+                        <page string="Attribute Rule" name="attribute_rule">
+                            <div class="text-muted mb-3">
+                                Control field visibility, editability, requirement, and the record condition where those attributes apply.
+                                <br/>
+                                <strong>Hide Field + Match all records is global:</strong> it hides the field from Form, List, Kanban, Search/Filter, Group By, Pivot/Graph and Export. Apply On remains relevant for Read Only, Required, and conditional Hide rules.
+                            </div>
+                            <group string="Attribute Controls" col="4">
+                                <field name="hide_field"/>
+                                <field name="read_only"/>
+                                <field name="required"/>
+                            </group>
+                            <group string="Condition">
+                                <field name="condition_expression"
+                                       widget="domain"
+                                       options="{'model': 'model'}"
+                                       placeholder="[] = always apply"
+                                      />
+                            </group>
+                            <group string="Apply On" col="4">
+                                <field name="apply_form"/>
+                                <field name="apply_list"/>
+                                <field name="apply_kanban"/>
+                                <field name="apply_search"/>
+                            </group>
+                        </page>
+                        <page string="Domain Rule" name="domain_rule">
+                            <div class="text-muted mb-3">
+                                Restrict the selectable records of a Many2one or Many2many field with a domain.
+                            </div>
+                            <group string="Relational Field Domain">
+                                <field name="relational_field_id"
+                                       domain="[('model_id', '=', model_id), ('ttype', 'in', ['many2one', 'many2many'])]"
+                                      />
+                                <field name="selection_domain"
+                                       widget="domain"
+                                       options="{'model': 'model'}"
+                                      />
+                            </group>
+                        </page>
+
+                        <page string="Selection / Related Value Filter" name="selection_value_filter">
+                            <div class="text-muted mb-3">
+                                For a Selection field choose allowed options; for a Many2one field
+                                choose allowed related records (such as UOMs). Each rule applies only
+                                to its own model and field for users covered by this policy.
+                            </div>
+                            <field name="related_model" invisible="1"/>
+                            <div class="text-muted mb-2"
+                                 invisible="not field_id or field_type in ('selection', 'many2one')">
+                                This field is not a Selection or Many2one field. To filter UOM choices,
+                                select the Many2one Quantity UOM field on the source model, not the
+                                Unit Name (Char) field on the UOM model.
+                            </div>
+                            <group>
+                                <field name="enable_selection_filter"
+                                       invisible="not field_id or field_type not in ('selection', 'many2one')"/>
+                                <field name="allowed_selection_value_ids"
+                                       widget="many2many_tags"
+                                       domain="[('field_id', '=', field_id)]"
+                                       options="{'no_create': True, 'no_create_edit': True}"
+                                       invisible="not enable_selection_filter or field_type != 'selection'"/>
+                                <field name="allowed_related_record_line_ids"
+                                       context="{'default_relation_model': related_model}"
+                                       invisible="not enable_selection_filter or field_type != 'many2one'">
+                                    <list editable="bottom" string="Allowed Related Records">
+                                        <field name="relation_model" column_invisible="True" force_save="1"/>
+                                        <field name="record_id" widget="many2one_reference"
+                                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Import / Export" name="import_export_rule">
+                            <div class="text-muted mb-3">
+                                Prevent this field from appearing in import or export field selection for users covered by the policy.
+                            </div>
+                            <group string="Data Access" col="4">
+                                <field name="no_import"/>
+                                <field name="no_export"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+
+    <record id="view_permission_manager_policy_search" model="ir.ui.view">
+        <field name="name">permission.manager.policy.search</field>
+        <field name="model">permission.manager.policy</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Policy Name"/>
+                <field name="user_ids" string="Users"/>
+                <field name="group_ids" string="User Groups"/>
+                <field name="company_ids" string="Companies"/>
+
+                <filter name="active_state"
+                        string="Active"
+                        domain="[('state', '=', 'active')]"/>
+                <filter name="inactive_state"
+                        string="Inactive"
+                        domain="[('state', '=', 'inactive')]"
+                        context="{'active_test': False}"/>
+
+                <separator/>
+                <filter name="apply_by_user_groups"
+                        string="Group Based Assignment"
+                        domain="[('apply_by_user_groups', '=', True)]"/>
+                <filter name="force_read_only"
+                        string="Force Read-Only"
+                        domain="[('force_read_only', '=', True)]"/>
+                <filter name="block_debug_mode"
+                        string="Block Debug Mode"
+                        domain="[('block_debug_mode', '=', True)]"/>
+                <filter name="block_login"
+                        string="Block Login"
+                        domain="[('block_login', '=', True)]"/>
+                <filter name="hide_export_available_fields"
+                        string="Hide Export Fields"
+                        domain="[('hide_export_available_fields', '=', True)]"/>
+
+                <separator/>
+                <filter name="all_companies"
+                        string="All Companies"
+                        domain="[('apply_all_companies', '=', True)]"/>
+                <filter name="specific_companies"
+                        string="Specific Companies"
+                        domain="[('apply_all_companies', '=', False)]"/>
+
+                <separator/>
+                <filter name="has_hidden_menus"
+                        string="Has Hidden Menus"
+                        domain="[('hidden_menu_line_ids', '!=', False)]"/>
+                <filter name="has_model_permissions"
+                        string="Has Model Permissions"
+                        domain="[('model_permission_line_ids', '!=', False)]"/>
+                <filter name="has_field_permissions"
+                        string="Has Field Controls"
+                        domain="[('field_permission_line_ids', '!=', False)]"/>
+                <filter name="has_record_domain_rules"
+                        string="Has Record Domain Rules"
+                        domain="[('record_domain_rule_line_ids', '!=', False)]"/>
+                <filter name="has_chatter_visibility"
+                        string="Has Chatter Rules"
+                        domain="[('chatter_visibility_line_ids', '!=', False)]"/>
+                <filter name="has_hidden_buttons_tabs"
+                        string="Has Hidden Buttons/Tabs"
+                        domain="[('hide_button_tab_line_ids', '!=', False)]"/>
+
+                <separator/>
+                <filter name="group_by_status"
+                        string="Status"
+                        context="{'group_by': 'state'}"/>
+                <filter name="group_by_company_scope"
+                        string="Company Scope"
+                        context="{'group_by': 'apply_all_companies'}"/>
+                <filter name="group_by_created_by"
+                        string="Created By"
+                        context="{'group_by': 'create_uid'}"/>
+                <filter name="group_by_create_month"
+                        string="Creation Month"
+                        context="{'group_by': 'create_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_permission_manager_policy" model="ir.actions.act_window">
+        <field name="name">Access Management</field>
+        <field name="res_model">permission.manager.policy</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_permission_manager_policy_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first professional permission policy.
+            </p>
+        </field>
+    </record>
+</odoo>

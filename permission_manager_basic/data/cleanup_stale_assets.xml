@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--
+        Odoo's ZIP/module import flow can leave old ir.asset records behind when
+        a previously declared frontend XML asset is removed from the manifest.
+        Remove obsolete XML assets of this module while keeping the one that is
+        currently used by the Export Data control.
+    -->
+    <delete
+        model="ir.asset"
+        search="[('path', 'ilike', 'permission_manager_basic/static/%.xml'), ('path', 'not ilike', 'export_data_dialog.xml')]"
+    />
+</odoo>

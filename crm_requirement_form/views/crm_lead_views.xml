@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="crm_lead_view_form_requirement_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.form.requirement.inherit</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_requirement_forms"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o"
+                        invisible="requirement_form_count == 0">
+                    <field name="requirement_form_count" widget="statinfo" string="Req. Form"/>
+                </button>
+                <button name="action_open_customer_rating"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-star">
+                    <field name="customer_rating_count" widget="statinfo" string="Customer Ranking"/>
+                </button>
+            </xpath>
+
+            <xpath expr="(//field[@name='partner_id'])[1]" position="after">
+                <field name="industry_category_locked" invisible="1"/>
+                <field name="industry_category_id" readonly="industry_category_locked"/>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_open_requirement_form"
+                        type="object"
+                        string="Fill Requirement Form"
+                        class="btn-secondary"
+                        invisible="requirement_form_count &gt; 0"/>
+                <button name="action_view_requirement_forms"
+                        type="object"
+                        string="Open Requirement Form"
+                        class="btn-secondary"
+                        invisible="requirement_form_count == 0"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Requirements">
+                    <group>
+                        <group string="Generated Data">
+                            <field name="generated_customer_id" string="Customer Code" readonly="1"/>
+                            <field name="customer_short_name" placeholder="Example: TLS"/>
+                            <field name="vat_no"/>
+                            <field name="business_licence"/>
+                            <field name="customer_rating_rank" string="Customer AVG Rank" readonly="1"/>
+                        </group>
+                        <group string="Source Fields">
+                            <field name="user_id" string="Sales Person Responsible" readonly="1"/>
+                            <field name="country_id"/>
+                            <field name="contact_name"/>
+                            <field name="phone"/>
+                            <field name="whatsapp_number" widget="phone"/>
+                            <field name="email_from"/>
+                        </group>
+                    </group>
+                </page>
+                <page string="Requirement Summary">
+                    <field name="requirement_summary_html"
+                           nolabel="1"
+                           readonly="1"
+                           widget="html" class="o_crm_req_summary_field"/>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

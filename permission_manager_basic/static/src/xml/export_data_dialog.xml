@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="web.ExportDataDialog" t-inherit-mode="extension">
+        <!--
+            Hide only the left-side export field browser when the current
+            user's active Permission Manager policy enables the control.
+        -->
+        <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' o_left_panel ')]"
+               position="attributes">
+            <attribute name="t-if">!pmHideExportAvailableFields</attribute>
+        </xpath>
+
+        <!-- Expand the remaining export panel only when the left panel is hidden. -->
+        <xpath expr="//div[contains(@t-attf-class, 'o_right_panel')]" position="attributes">
+            <attribute name="t-attf-class">o_right_panel col-12 {{ pmHideExportAvailableFields ? 'h-100' : 'col-md-6 ' + (state.isSmall ? 'h-50' : 'h-100') + ' mt-3 mt-md-0' }} d-flex flex-column flex-nowrap</attribute>
+        </xpath>
+    </t>
+</templates>

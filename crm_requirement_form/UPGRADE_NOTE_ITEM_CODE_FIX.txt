@@ -1,0 +1,6 @@
+Item Code fix (19.0.0.34)
+
+Supplier Initial is a fixed business prefix: 02.
+The temporary res.partner.supplier_initial stored field was removed so a code deployment cannot break res.partner reads before the module upgrade creates new database columns.
+
+Item Code format remains: 02-<RM Type Initial>-<2-digit sequence>, e.g. 02-04-01.

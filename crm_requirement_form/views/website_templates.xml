@@ -1,0 +1,1867 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="requirement_form_page" name="Product Requirement Form">
+        <t t-call="website.layout">
+            <t t-if="internal_embed">
+                <style>
+                    #wrapwrap > header,
+                    #wrapwrap > footer,
+                    header#top,
+                    footer#bottom,
+                    .o_footer {
+                        display: none !important;
+                    }
+                    #wrapwrap, #wrap {
+                        min-height: 100% !important;
+                    }
+                    .form-page-wrapper {
+                        padding-top: 12px !important;
+                        padding-bottom: 20px !important;
+                    }
+                </style>
+            </t>
+            <div class="form-page-wrapper" style="background: linear-gradient(135deg, #d8f0e8, #c0e8d8); min-height:100vh; padding: 30px 0;">
+                <div class="container-fluid px-3 px-lg-5">
+                    <div class="row justify-content-center">
+                        <div class="col-xxl-8 col-xl-9 col-lg-10">
+
+                            <div class="mb-5 text-center" t-if="not internal_embed">
+                                <div class="py-4 px-5 text-white rounded-3 shadow-sm"
+                                     style="background: linear-gradient(135deg, #1e6b4b, #2a9d6f);">
+                                    <h2 class="fw-bold mb-1">Product Requirement Form</h2>
+                                    <p class="mb-0">REQ ID: <t t-esc="form.name"/></p>
+                                </div>
+                            </div>
+
+                            <form method="post" enctype="multipart/form-data" t-attf-action="/requirement/form/submit/#{form.token}">
+                                <input t-if="internal_embed" type="hidden" name="internal_embed" value="1"/>
+
+                                <div t-if="internal_embed and internal_saved" class="alert alert-success py-2 px-3 mb-3" role="alert">
+                                    Product Specification saved. You can now use <strong>Submit Requirement</strong> from the Odoo form.
+                                </div>
+
+                                <div class="card mb-5 shadow-sm border-0" t-if="not internal_embed">
+                                    <div class="card-header py-3" style="background:#d4e8df;">
+                                        <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">1. Customer Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Customer Name</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_name or ''"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold">Customer Short Name</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_short_name or ''"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold">Customer ID</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_id or ''"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Customer Email</label>
+                                                <input type="email" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_email or ''"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold">Contact Person</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.contact_person or ''"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold">Contact Number</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.contact_number or ''"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold">WhatsApp Number</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.whatsapp_number or ''"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Title <small class="text-muted">(not mandatory)</small></label>
+                                                <input type="text" name="title" class="form-control" t-att-value="form.title or ''"/>
+                                            </div>
+                                            <div class="col-md-6" t-if="form.is_saudi_customer">
+                                                <label class="form-label fw-semibold">VAT No. <span class="text-danger">*</span></label>
+                                                <input type="text" name="vat_no" class="form-control" required="required" t-att-value="form.vat_no or ''"/>
+                                                <small class="text-muted">Required only for Saudi Arabia customers.</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Business Licence</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.business_licence or ''"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Payment Terms <span class="text-danger">*</span></label>
+                                                <select name="payment_term_id" class="form-select" required="required">
+                                                    <option value="">-- Select Payment Term --</option>
+                                                    <t t-foreach="payment_terms" t-as="payment_term">
+                                                        <option t-att-value="payment_term.id" t-att-selected="form.payment_term_id and form.payment_term_id.id == payment_term.id">
+                                                            <t t-esc="payment_term.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Local / Export Customer <span class="text-danger">*</span></label>
+                                                <select name="local_export" class="form-select" required="required">
+                                                    <option value="">-- Select --</option>
+                                                    <option value="local" t-att-selected="form.local_export == 'local'">Local</option>
+                                                    <option value="export" t-att-selected="form.local_export == 'export'">Export</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Contract Type <span class="text-danger">*</span></label>
+                                                <select name="contract_type" id="contractType" class="form-select" required="required">
+                                                    <option value="">-- Select --</option>
+                                                    <option value="simple_sale" t-att-selected="form.contract_type == 'simple_sale'">Simple Sale</option>
+                                                    <option value="long_term_supply" t-att-selected="form.contract_type == 'long_term_supply'">Long Term Supply</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 contract-duration-wrap" style="display:none;">
+                                                <label class="form-label fw-semibold">Contract Duration (Months) <span class="text-danger">*</span></label>
+                                                <input type="number" min="1" step="1" inputmode="numeric" name="contract_duration" class="form-control contract-duration-input" t-att-value="form.contract_duration or ''"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Delivery Terms <span class="text-danger">*</span></label>
+                                                <select name="delivery_terms" class="form-select" required="required">
+                                                    <option value="">-- Select --</option>
+                                                    <option value="exw" t-att-selected="form.delivery_terms == 'exw'">EXW - Ex Works</option>
+                                                    <option value="fca" t-att-selected="form.delivery_terms == 'fca'">FCA - Free Carrier</option>
+                                                    <option value="fas" t-att-selected="form.delivery_terms == 'fas'">FAS - Free Alongside Ship</option>
+                                                    <option value="fob" t-att-selected="form.delivery_terms == 'fob'">FOB - Free On Board</option>
+                                                    <option value="cfr" t-att-selected="form.delivery_terms == 'cfr'">CFR - Cost and Freight</option>
+                                                    <option value="cif" t-att-selected="form.delivery_terms == 'cif'">CIF - Cost, Insurance and Freight</option>
+                                                    <option value="cpt" t-att-selected="form.delivery_terms == 'cpt'">CPT - Carriage Paid To</option>
+                                                    <option value="cip" t-att-selected="form.delivery_terms == 'cip'">CIP - Carriage and Insurance Paid To</option>
+                                                    <option value="dap" t-att-selected="form.delivery_terms == 'dap'">DAP - Delivered At Place</option>
+                                                    <option value="dpu" t-att-selected="form.delivery_terms == 'dpu'">DPU - Delivered at Place Unloaded</option>
+                                                    <option value="ddp" t-att-selected="form.delivery_terms == 'ddp'">DDP - Delivered Duty Paid</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold">Port (if applicable)</label>
+                                                <input type="text" name="port" class="form-control" t-att-value="form.port or ''"/>
+                                            </div>
+                                        </div>
+
+                                        <h6 class="mt-4 mb-3 fw-bold">Billing Address (from CRM)</h6>
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label">Customer Billing Address</label>
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.address_street or ''"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.address_city or ''" placeholder="City"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.postal_code or ''" placeholder="Postal Code"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.address_country.name if form.address_country else ''" placeholder="Country"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mb-5 shadow-sm border-0">
+                                    <div class="card-header py-3" style="background:#d4e8df;">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                            <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">2. Product Specifications</h5>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <button t-if="internal_embed" type="submit" name="internal_save" value="1"
+                                                        class="btn btn-primary btn-sm px-3" formnovalidate="formnovalidate">
+                                                    Save
+                                                </button>
+                                                <label class="form-check mb-0 fw-semibold">
+                                                    <input type="checkbox" id="newJobCheckbox" name="new_job" class="form-check-input me-1" value="1" t-att-checked="'checked' if form.new_job else None"/>
+                                                    New Job
+                                                </label>
+                                                <label class="form-check mb-0 fw-semibold">
+                                                    <input type="checkbox" id="repeatJobCheckbox" name="repeat_job" class="form-check-input me-1" value="1" t-att-checked="'checked' if form.repeat_job else None"/>
+                                                    Repeat Job
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" id="specsContainer"
+                                         t-att-data-form-token="form.token or ''"></div>
+                                </div>
+
+                                <select id="previousReqFormOptions" class="d-none" aria-hidden="true">
+                                    <t t-foreach="previous_requirement_forms" t-as="previous_form">
+                                        <option t-att-value="previous_form.name"><t t-esc="previous_form.name"/></option>
+                                    </t>
+                                </select>
+
+                                <div class="d-none" id="layerSelectSources">
+                                    <select id="layerProductTemplateOptionsSource">
+                                        <option value="">-- Select Product --</option>
+                                        <t t-foreach="product_templates" t-as="product_tmpl">
+                                            <option t-att-value="product_tmpl.id"
+                                                    t-attf-data-thickness="#{product_tmpl.thickness_microns or 0.0}">
+                                                <t t-esc="product_tmpl.display_name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                    <select id="layerVariantOptionsSource">
+                                        <option value="" data-template-id="" data-thickness="">-- Select Thickness --</option>
+                                        <t t-foreach="product_variants" t-as="variant">
+                                            <option t-att-value="variant.id"
+                                                    t-attf-data-template-id="#{variant.product_tmpl_id.id}"
+                                                    t-attf-data-thickness="#{variant._get_requirement_layer_thickness()}">
+                                                <t t-esc="variant.display_name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="d-none" id="fgProductSelectSourceWrap">
+                                    <select id="fgProductOptionsSource">
+                                        <option value="">-- Select --</option>
+                                        <t t-foreach="fg_products" t-as="product_tmpl">
+                                            <option t-att-value="product_tmpl.id"
+                                                    t-att-data-bag-code="(product_tmpl.requirement_bag_type_code or '').strip().upper()"
+                                                    t-att-data-bag-name="(product_tmpl.name or '').strip().upper()"
+                                                    t-att-data-fg-type="product_tmpl.requirement_fg_type or ''">
+                                                <t t-esc="product_tmpl.display_name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="d-none" id="quantityUomSelectSourceWrap">
+                                    <select id="quantityUomOptionsSource">
+                                        <option value="">-- Select --</option>
+                                        <t t-foreach="quantity_uoms" t-as="uom">
+                                            <option t-att-value="uom.id">
+                                                <t t-esc="uom.display_name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="d-none" id="multiSelectSources">
+                                    <select id="printFinishOptionsSource">
+                                        <option value="">-- Select Print and Finish --</option>
+                                        <t t-foreach="print_finish_options" t-as="option">
+                                            <option t-att-value="option.id">
+                                                <t t-esc="option.name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                    <div id="featureOptionsSource">
+                                        <t t-foreach="feature_options" t-as="option">
+                                            <label class="dropdown-item d-flex align-items-center gap-2 py-2">
+                                                <input type="checkbox" class="form-check-input mt-0 crm-multi-option"
+                                                       t-att-value="option.id"
+                                                       t-att-data-code="option.code"
+                                                       t-att-data-label="option.name"/>
+                                                <span><t t-esc="option.name"/></span>
+                                            </label>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <div class="card mb-5 shadow-sm border-0" t-if="not internal_embed">
+                                    <div class="card-header py-3" style="background:#d4e8df;">
+                                        <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">3. Documents</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <t t-if="form.is_saudi_customer">
+                                            <p class="fw-semibold mb-3">For Saudi customers, attach these documents:</p>
+                                        </t>
+                                        <t t-else="">
+                                            <p class="fw-semibold mb-3">Attach supporting documents if applicable.</p>
+                                        </t>
+                                        <div class="row g-3">
+                                            <t t-if="form.is_saudi_customer">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">CR</label>
+                                                    <input type="file" name="saudi_document_cr" class="form-control" multiple="multiple"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">VAT</label>
+                                                    <input type="file" name="saudi_document_vat" class="form-control" multiple="multiple"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">Proof of Address</label>
+                                                    <input type="file" name="saudi_document_address" class="form-control" multiple="multiple"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">Certified bank certificate</label>
+                                                    <input type="file" name="saudi_document_bank" class="form-control" multiple="multiple"/>
+                                                </div>
+                                            </t>
+                                            <div class="col-12">
+                                                <label class="form-label fw-semibold">Additional Documents</label>
+                                                <input type="file" name="document_files[]" class="form-control" multiple="multiple"/>
+                                                <small class="text-muted">You can select multiple files in each document field.</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mb-5 shadow-sm border-0" t-if="not internal_embed">
+                                    <div class="card-header py-3" style="background:#d4e8df;">
+                                        <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">4. Additional Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label fw-semibold">Requirement Details</label>
+                                        <textarea name="requirement_details" class="form-control" rows="4" placeholder="Any other general requirement or note..." t-esc="form.requirement_details or ''"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-4 mb-5" t-if="not internal_embed">
+                                    <button type="submit" class="btn btn-success btn-lg px-5 py-3">Submit Requirement Form</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .form-page-wrapper { position: relative; }
+                .form-page-wrapper::before {
+                    content: '';
+                    position: fixed;
+                    top: 50%; left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 520px; height: 520px;
+                    background-image: url('/crm_requirement_form/static/src/sahlpack_logo.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    opacity: 0.07;
+                    pointer-events: none;
+                    z-index: -1;
+                }
+                .multi-select-help { font-size: 12px; color: #6c757d; }
+                .crm-multi { position: relative; }
+                .crm-multi .crm-multi-menu {
+                    position: fixed;
+                    top: auto;
+                    left: auto;
+                    right: auto;
+                    width: auto;
+                    max-height: min(320px, calc(100vh - 24px));
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    overscroll-behavior: contain;
+                    padding: 8px !important;
+                    margin: 0;
+                    z-index: 1055;
+                    background: #ffffff;
+                    scrollbar-gutter: stable;
+                }
+                .crm-multi .crm-multi-menu:not(.d-none) {
+                    display: block !important;
+                }
+                .crm-multi .dropdown-item {
+                    cursor: pointer;
+                    white-space: normal;
+                    min-height: 40px;
+                }
+                .crm-multi .dropdown-item:last-child { margin-bottom: 0; }
+                .crm-multi .crm-multi-menu::after {
+                    content: '';
+                    display: block;
+                    height: 2px;
+                }
+                .crm-multi .selected-tags .badge { margin: 2px 4px 2px 0; }
+                .crm-multi .multi-toggle.is-invalid { border-color: #dc3545; }
+
+                .req-action-btn {
+                    border: 1px solid #28a745 !important;
+                    background: #28a745 !important;
+                    color: #ffffff !important;
+                    border-radius: 6px !important;
+                    box-shadow: none !important;
+                    font-weight: 600;
+                }
+                .req-action-btn:hover, .req-action-btn:focus {
+                    border-color: #218838 !important;
+                    background: #218838 !important;
+                    color: #ffffff !important;
+                }
+                .spec-block .section-label {
+                    color: #1a3c5e;
+                    font-size: 13px;
+                    font-weight: 700;
+                    margin-bottom: 4px;
+                    text-transform: uppercase;
+                }
+                .previous-req-input-wrap {
+                    position: relative;
+                }
+                .previous-req-dropdown {
+                    position: absolute;
+                    top: calc(100% + 3px);
+                    left: 0;
+                    right: 0;
+                    z-index: 1080;
+                    background: #ffffff;
+                    border: 1px solid #ced4da;
+                    border-radius: 6px;
+                    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+                    max-height: 360px;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                }
+                .previous-req-option {
+                    min-height: 36px;
+                    padding: 8px 12px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    background: #ffffff;
+                    color: #212529;
+                    border-bottom: 1px solid #f0f0f0;
+                }
+                .previous-req-option:last-child {
+                    border-bottom: 0;
+                }
+                .previous-req-option:hover,
+                .previous-req-option:focus {
+                    background: #f3f6f9;
+                }
+                .previous-req-empty {
+                    padding: 10px 12px;
+                    color: #6c757d;
+                }
+            </style>
+
+            <script>
+            <![CDATA[
+            (function(){
+                var container = document.getElementById('specsContainer');
+                if(!container) return;
+
+                var productSource = document.getElementById('layerProductTemplateOptionsSource');
+                var variantSource = document.getElementById('layerVariantOptionsSource');
+                var printFinishSource = document.getElementById('printFinishOptionsSource');
+                var featureSource = document.getElementById('featureOptionsSource');
+                var bagTypeSource = document.getElementById('fgProductOptionsSource');
+                var quantityUomSource = document.getElementById('quantityUomOptionsSource');
+                var previousReqOptions = document.getElementById('previousReqFormOptions');
+                var formToken = container.dataset.formToken || '';
+                var repeatImportCounter = 0;
+
+                var newJobCheckbox = document.getElementById('newJobCheckbox');
+                var repeatJobCheckbox = document.getElementById('repeatJobCheckbox');
+
+                function normalizePreviousReqId(value){
+                    return String(value || '').trim().toUpperCase();
+                }
+
+                function findPreviousReqOption(value){
+                    if(!previousReqOptions) return false;
+                    var normalized = normalizePreviousReqId(value);
+                    if(!normalized) return false;
+                    return Array.prototype.slice.call(previousReqOptions.options).find(
+                        function(option){
+                            return normalizePreviousReqId(option.value) === normalized;
+                        }
+                    ) || false;
+                }
+
+                function setPreviousReqStatus(block, message, isError){
+                    if(!block) return;
+                    var status = block.querySelector('.previous-req-status');
+                    if(!status) return;
+                    status.textContent = message || '';
+                    status.classList.toggle('text-danger', !!isError);
+                    status.classList.toggle('text-success', !!message && !isError);
+                    status.classList.toggle('text-muted', !message);
+                }
+
+                function removeRepeatImportSiblings(sourceBlock){
+                    if(!sourceBlock) return;
+                    var group = sourceBlock.dataset.repeatImportGroup || '';
+                    if(!group) return;
+                    container.querySelectorAll('.spec-block').forEach(function(block){
+                        if(block !== sourceBlock && block.dataset.repeatImportGroup === group){
+                            block.remove();
+                        }
+                    });
+                }
+
+                function importPreviousRequirement(sourceBlock, payload){
+                    var specifications = payload && payload.specifications
+                        ? payload.specifications
+                        : [];
+                    if(!sourceBlock || !specifications.length){
+                        setPreviousReqStatus(
+                            sourceBlock,
+                            'No product specification data was found for this REQ ID.',
+                            true
+                        );
+                        return;
+                    }
+
+                    removeRepeatImportSiblings(sourceBlock);
+
+                    repeatImportCounter += 1;
+                    var group = 'repeat-' + repeatImportCounter;
+                    var reqId = String(payload.req_id || '').trim();
+                    var normalizedReqId = normalizePreviousReqId(reqId);
+                    var targetBlock = false;
+                    var previousTarget = false;
+
+                    specifications.forEach(function(specData, specIndex){
+                        if(specIndex === 0){
+                            targetBlock = newSpecBlock(0);
+                            sourceBlock.replaceWith(targetBlock);
+                        } else {
+                            targetBlock = newSpecBlock(0);
+                            previousTarget.insertAdjacentElement('afterend', targetBlock);
+                        }
+
+                        targetBlock.dataset.repeatImportGroup = group;
+                        setupComputedFields(targetBlock);
+
+                        var values = Object.assign({}, specData || {});
+                        values.previous_req_form = reqId;
+                        applySpecData(targetBlock, values);
+
+                        var previousInput = targetBlock.querySelector(
+                            '.previous-req-form-input'
+                        );
+                        if(previousInput){
+                            previousInput.value = reqId;
+                            previousInput.dataset.loadedReqId = normalizedReqId;
+                        }
+                        previousTarget = targetBlock;
+                    });
+
+                    updatePreviousReqFormVisibility();
+                    updateLabels();
+                    updateAddButtons();
+                    setPreviousReqStatus(
+                        container.querySelector(
+                            '.spec-block[data-repeat-import-group="' + group + '"]'
+                        ),
+                        specifications.length > 1
+                            ? 'Loaded ' + specifications.length + ' designs from ' + reqId + '.'
+                            : 'Loaded data from ' + reqId + '.',
+                        false
+                    );
+                }
+
+                function loadPreviousRequirement(block, input){
+                    if(
+                        !block
+                        || !input
+                        || !formToken
+                        || !repeatJobCheckbox
+                        || !repeatJobCheckbox.checked
+                    ){
+                        return;
+                    }
+
+                    var typedReqId = String(input.value || '').trim();
+                    if(!typedReqId){
+                        input.dataset.loadedReqId = '';
+                        setPreviousReqStatus(block, '', false);
+                        return;
+                    }
+
+                    // Prefer the canonical value from the datalist when it is
+                    // available, but also allow an exact REQ ID to be pasted
+                    // manually even when the browser has not opened the list.
+                    var option = findPreviousReqOption(typedReqId);
+                    var reqId = option
+                        ? String(option.value || '').trim()
+                        : typedReqId;
+                    var normalizedReqId = normalizePreviousReqId(reqId);
+                    if(input.dataset.loadedReqId === normalizedReqId){
+                        return;
+                    }
+
+                    input.value = reqId;
+                    input.dataset.loadingReqId = normalizedReqId;
+                    setPreviousReqStatus(block, 'Loading ' + reqId + '...', false);
+
+                    var url = '/requirement/form/previous-data/'
+                        + encodeURIComponent(formToken)
+                        + '?req_id=' + encodeURIComponent(reqId);
+
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {'Accept': 'application/json'},
+                        credentials: 'same-origin'
+                    }).then(function(response){
+                        return response.json().then(function(payload){
+                            if(!response.ok || !payload || !payload.ok){
+                                throw new Error(
+                                    payload && payload.message
+                                        ? payload.message
+                                        : 'Unable to load the previous requirement.'
+                                );
+                            }
+                            return payload;
+                        });
+                    }).then(function(payload){
+                        if(
+                            !block.isConnected
+                            || input.dataset.loadingReqId !== normalizedReqId
+                            || normalizePreviousReqId(input.value) !== normalizedReqId
+                        ){
+                            return;
+                        }
+                        input.dataset.loadedReqId = normalizedReqId;
+                        importPreviousRequirement(block, payload);
+                    }).catch(function(error){
+                        if(!block.isConnected) return;
+                        input.dataset.loadedReqId = '';
+                        setPreviousReqStatus(
+                            block,
+                            error && error.message
+                                ? error.message
+                                : 'Unable to load the previous requirement.',
+                            true
+                        );
+                    });
+                }
+
+                function closePreviousReqDropdown(block){
+                    if(!block) return;
+                    var menu = block.querySelector('.previous-req-dropdown');
+                    if(menu){ menu.classList.add('d-none'); }
+                }
+
+                function renderPreviousReqDropdown(block, filterValue){
+                    if(!block || !previousReqOptions) return;
+                    var menu = block.querySelector('.previous-req-dropdown');
+                    if(!menu) return;
+
+                    var normalizedFilter = normalizePreviousReqId(filterValue);
+                    var options = Array.prototype.slice.call(previousReqOptions.options);
+                    var matches = options.filter(function(option){
+                        var value = String(option.value || '').trim();
+                        if(!value) return false;
+                        return !normalizedFilter
+                            || normalizePreviousReqId(value).indexOf(normalizedFilter) !== -1;
+                    });
+
+                    menu.innerHTML = '';
+                    if(!matches.length){
+                        var empty = document.createElement('div');
+                        empty.className = 'previous-req-empty';
+                        empty.textContent = 'No matching REQ ID found';
+                        menu.appendChild(empty);
+                        menu.classList.remove('d-none');
+                        return;
+                    }
+
+                    matches.forEach(function(option){
+                        var item = document.createElement('div');
+                        item.className = 'previous-req-option';
+                        item.setAttribute('role', 'option');
+                        item.dataset.value = String(option.value || '').trim();
+                        item.textContent = item.dataset.value;
+                        menu.appendChild(item);
+                    });
+                    menu.classList.remove('d-none');
+                    menu.scrollTop = 0;
+                }
+
+                function setupPreviousRequirementLookup(block){
+                    var input = block.querySelector('.previous-req-form-input');
+                    var menu = block.querySelector('.previous-req-dropdown');
+                    if(!input || !menu || input.dataset.lookupBound === '1') return;
+                    input.dataset.lookupBound = '1';
+
+                    var timer = false;
+                    function scheduleLookup(){
+                        if(timer){ window.clearTimeout(timer); }
+                        input.dataset.loadedReqId = (
+                            input.dataset.loadedReqId
+                            && input.dataset.loadedReqId === normalizePreviousReqId(input.value)
+                        ) ? input.dataset.loadedReqId : '';
+
+                        renderPreviousReqDropdown(block, input.value);
+
+                        if(!String(input.value || '').trim()){
+                            setPreviousReqStatus(block, '', false);
+                            return;
+                        }
+
+                        if(findPreviousReqOption(input.value)){
+                            setPreviousReqStatus(block, 'REQ ID matched. Loading...', false);
+                            timer = window.setTimeout(function(){
+                                closePreviousReqDropdown(block);
+                                loadPreviousRequirement(block, input);
+                            }, 250);
+                        } else {
+                            setPreviousReqStatus(
+                                block,
+                                'Paste the complete REQ ID or select one from the list.',
+                                false
+                            );
+                        }
+                    }
+
+                    input.addEventListener('focus', function(){
+                        renderPreviousReqDropdown(block, input.value);
+                    });
+                    input.addEventListener('click', function(){
+                        renderPreviousReqDropdown(block, input.value);
+                    });
+                    input.addEventListener('input', scheduleLookup);
+                    input.addEventListener('paste', function(){
+                        if(timer){ window.clearTimeout(timer); }
+                        window.setTimeout(function(){
+                            renderPreviousReqDropdown(block, input.value);
+                            loadPreviousRequirement(block, input);
+                        }, 50);
+                    });
+                    input.addEventListener('change', function(){
+                        if(timer){ window.clearTimeout(timer); }
+                        loadPreviousRequirement(block, input);
+                    });
+                    input.addEventListener('blur', function(){
+                        if(timer){ window.clearTimeout(timer); }
+                        window.setTimeout(function(){
+                            closePreviousReqDropdown(block);
+                            loadPreviousRequirement(block, input);
+                        }, 120);
+                    });
+                    input.addEventListener('keydown', function(event){
+                        if(event.key === 'Escape'){
+                            closePreviousReqDropdown(block);
+                            input.blur();
+                        }
+                    });
+
+                    menu.addEventListener('mousedown', function(event){
+                        var item = event.target.closest('.previous-req-option');
+                        if(!item) return;
+                        event.preventDefault();
+                        if(timer){ window.clearTimeout(timer); }
+                        input.value = item.dataset.value || '';
+                        input.dataset.loadedReqId = '';
+                        closePreviousReqDropdown(block);
+                        loadPreviousRequirement(block, input);
+                    });
+                }
+
+                function updatePreviousReqFormVisibility(){
+                    var showPreviousReq = !!(repeatJobCheckbox && repeatJobCheckbox.checked);
+                    container.querySelectorAll('.previous-req-form-wrap').forEach(function(wrap){
+                        wrap.classList.toggle('d-none', !showPreviousReq);
+                        var input = wrap.querySelector('.previous-req-form-input');
+                        if(input){ input.disabled = !showPreviousReq; }
+                        if(!showPreviousReq){
+                            closePreviousReqDropdown(wrap.closest('.spec-block'));
+                        }
+                    });
+                }
+
+                if(newJobCheckbox && repeatJobCheckbox){
+                    newJobCheckbox.addEventListener('change', function(){
+                        if(newJobCheckbox.checked){ repeatJobCheckbox.checked = false; }
+                        updatePreviousReqFormVisibility();
+                    });
+                    repeatJobCheckbox.addEventListener('change', function(){
+                        if(repeatJobCheckbox.checked){ newJobCheckbox.checked = false; }
+                        updatePreviousReqFormVisibility();
+                    });
+                }
+
+                var contractType = document.getElementById('contractType');
+                var durationWrap = document.querySelector('.contract-duration-wrap');
+                var durationInput = document.querySelector('.contract-duration-input');
+                function toggleContractDuration(){
+                    if(!contractType || !durationWrap || !durationInput) return;
+                    var isLong = contractType.value === 'long_term_supply';
+                    durationWrap.style.display = isLong ? 'block' : 'none';
+                    durationInput.required = isLong;
+                    if(!isLong){ durationInput.value = ''; }
+                }
+                if(contractType){
+                    toggleContractDuration();
+                    contractType.addEventListener('change', toggleContractDuration);
+                }
+
+                function specIndex(){ return container.querySelectorAll('.spec-block').length; }
+
+                function updateLabels(){
+                    container.querySelectorAll('.spec-block').forEach(function(block, i){
+                        var lbl = block.querySelector('.spec-label');
+                        if(lbl) lbl.textContent = 'Design ' + (i + 1);
+                        var removeButton = block.querySelector('.remove-spec');
+                        if(removeButton){
+                            removeButton.classList.toggle('d-none', i === 0);
+                        }
+                        block.querySelectorAll('[name]').forEach(function(el){
+                            el.name = el.name.replace(/spec\[\d+\]/, 'spec[' + i + ']');
+                        });
+                    });
+                }
+
+                function updateAddButtons(){
+                    document.querySelectorAll('.design-actions').forEach(function(div){ div.remove(); });
+                    var blocks = container.querySelectorAll('.spec-block');
+                    if(blocks.length > 0){
+                        var last = blocks[blocks.length - 1];
+                        var div = document.createElement('div');
+                        div.className = 'col-12 text-end mt-3 d-flex gap-2 justify-content-end design-actions';
+                        div.innerHTML = `
+                            <button type="button" class="btn req-action-btn btn-sm duplicate-design-btn">Duplicate</button>
+                            <button type="button" class="btn req-action-btn btn-sm add-another-btn">+ Add Another Design</button>`;
+                        last.querySelector('.card-body .row').appendChild(div);
+                    }
+                }
+
+                function selectedValues(select){
+                    return Array.prototype.slice.call(select.selectedOptions).map(function(option){ return option.value; });
+                }
+
+                function setOptions(select, html){
+                    select.innerHTML = html || '<option value="">-- Select --</option>';
+                }
+
+                function populateBagTypeOptions(select, fgType, preferredValue){
+                    if(!select || !bagTypeSource) return;
+                    var options = Array.prototype.slice.call(bagTypeSource.options);
+                    select.innerHTML = '';
+                    options.forEach(function(option){
+                        var optionFgType = String(option.dataset.fgType || '').trim();
+                        if(!option.value || optionFgType === fgType){
+                            select.appendChild(option.cloneNode(true));
+                        }
+                    });
+                    if(preferredValue){
+                        select.value = String(preferredValue);
+                    }
+                }
+
+                function setupCrmMultiSelect(block, selector, source, inputName, placeholder){
+                    var wrapper = block.querySelector(selector);
+                    if(!wrapper || !source) return;
+                    var toggle = wrapper.querySelector('.multi-toggle');
+                    var menu = wrapper.querySelector('.crm-multi-menu');
+                    var tags = wrapper.querySelector('.selected-tags');
+                    menu.innerHTML = source.innerHTML;
+                    menu.querySelectorAll('input[type="checkbox"]').forEach(function(input){
+                        input.name = inputName;
+                    });
+
+                    function checkedInputs(){
+                        return Array.prototype.slice.call(menu.querySelectorAll('input[type="checkbox"]:checked'));
+                    }
+
+                    function refreshLabel(){
+                        var checked = checkedInputs();
+                        if(toggle){
+                            var labels = checked.map(function(input){
+                                return input.dataset.label || input.parentElement.textContent.trim();
+                            });
+                            toggle.textContent = labels.length ? labels.join(', ') : placeholder;
+                            toggle.title = labels.join(', ');
+                            toggle.classList.toggle('text-muted', !labels.length);
+                        }
+                        if(tags){
+                            tags.innerHTML = '';
+                        }
+                    }
+
+                    function positionMenu(){
+                        if(!toggle || menu.classList.contains('d-none')) return;
+                        var rect = toggle.getBoundingClientRect();
+                        var gap = 4;
+                        var viewportPadding = 12;
+                        var availableBelow = window.innerHeight - rect.bottom - gap - viewportPadding;
+                        var availableAbove = rect.top - gap - viewportPadding;
+                        var openAbove = availableBelow < 180 && availableAbove > availableBelow;
+                        var maxHeight = Math.max(140, Math.min(320, openAbove ? availableAbove : availableBelow));
+
+                        menu.style.left = Math.max(viewportPadding, rect.left) + 'px';
+                        menu.style.width = Math.max(220, rect.width) + 'px';
+                        menu.style.maxHeight = maxHeight + 'px';
+                        menu.style.top = openAbove
+                            ? Math.max(viewportPadding, rect.top - maxHeight - gap) + 'px'
+                            : Math.min(window.innerHeight - viewportPadding, rect.bottom + gap) + 'px';
+                    }
+
+                    function closeMenu(){
+                        menu.classList.add('d-none');
+                    }
+
+                    if(toggle){
+                        toggle.addEventListener('click', function(ev){
+                            ev.preventDefault();
+                            var willOpen = menu.classList.contains('d-none');
+                            document.querySelectorAll('.crm-multi-menu:not(.d-none)').forEach(function(other){
+                                if(other !== menu){ other.classList.add('d-none'); }
+                            });
+                            menu.classList.toggle('d-none', !willOpen);
+                            if(willOpen){
+                                positionMenu();
+                                menu.focus({preventScroll: true});
+                            }
+                        });
+                    }
+                    menu.setAttribute('tabindex', '-1');
+                    menu.addEventListener('wheel', function(ev){
+                        var atTop = menu.scrollTop <= 0;
+                        var atBottom = Math.ceil(menu.scrollTop + menu.clientHeight) >= menu.scrollHeight;
+                        if((ev.deltaY < 0 && !atTop) || (ev.deltaY > 0 && !atBottom)){
+                            ev.stopPropagation();
+                        }
+                    }, {passive: true});
+                    window.addEventListener('resize', positionMenu);
+                    window.addEventListener('scroll', positionMenu, true);
+                    menu.addEventListener('change', function(){
+                        refreshLabel();
+                        if(wrapper.classList.contains('feature-multi')){
+                            updateFeatureRules(block);
+                        }
+                    });
+                    document.addEventListener('click', function(ev){
+                        if(!wrapper.contains(ev.target)){
+                            closeMenu();
+                        }
+                    });
+                    refreshLabel();
+                }
+
+                function updateFeatureRules(block){
+                    var wrapper = block.querySelector('.feature-multi');
+                    if(!wrapper) return;
+                    var inputs = Array.prototype.slice.call(wrapper.querySelectorAll('input[type="checkbox"]'));
+                    var values = inputs.filter(function(input){ return input.checked; }).map(function(input){ return input.dataset.code; });
+                    var hasNormalZipper = values.indexOf('normal_zipper') >= 0;
+                    var hasTearZipper = values.indexOf('tear_zipper') >= 0;
+
+                    if(hasNormalZipper && hasTearZipper){
+                        inputs.forEach(function(input){
+                            if(input.dataset.code === 'tear_zipper'){
+                                input.checked = false;
+                            }
+                        });
+                        hasTearZipper = false;
+                    }
+
+                    inputs.forEach(function(input){
+                        if(input.dataset.code === 'tear_zipper'){
+                            input.disabled = hasNormalZipper;
+                        }
+                        if(input.dataset.code === 'normal_zipper'){
+                            input.disabled = hasTearZipper;
+                        }
+                        if(input.dataset.code === 'tear_notch' || input.dataset.code === 'easy_tear_laser'){
+                            input.disabled = hasTearZipper;
+                            if(hasTearZipper){ input.checked = false; }
+                        }
+                        input.closest('label').classList.toggle('text-muted', input.disabled);
+                    });
+
+                    var toggle = wrapper.querySelector('.multi-toggle');
+                    var tags = wrapper.querySelector('.selected-tags');
+                    var checked = inputs.filter(function(input){ return input.checked; });
+                    if(toggle){
+                        var labels = checked.map(function(input){
+                            return input.dataset.label || input.parentElement.textContent.trim();
+                        });
+                        toggle.textContent = labels.length ? labels.join(', ') : 'Select Features';
+                        toggle.title = labels.join(', ');
+                        toggle.classList.toggle('text-muted', !labels.length);
+                    }
+                    if(tags){
+                        tags.innerHTML = '';
+                    }
+                }
+
+                function validateMultiSelects(){
+                    var isValid = true;
+                    container.querySelectorAll('.crm-multi[data-required="1"]').forEach(function(wrapper){
+                        var checked = wrapper.querySelectorAll('input[type="checkbox"]:checked').length;
+                        var toggle = wrapper.querySelector('.multi-toggle');
+                        if(toggle){ toggle.classList.toggle('is-invalid', !checked); }
+                        if(!checked && isValid){
+                            wrapper.scrollIntoView({behavior: 'smooth', block: 'center'});
+                        }
+                        isValid = isValid && !!checked;
+                    });
+                    if(!isValid){
+                        alert('Please select the required Features options.');
+                    }
+                    return isValid;
+                }
+
+                var mainForm = container.closest('form');
+                if(mainForm){
+                    mainForm.addEventListener('submit', function(ev){
+                        var submitter = ev.submitter;
+                        if(submitter && submitter.name === 'internal_save'){
+                            return;
+                        }
+                        if(!validateMultiSelects()){
+                            ev.preventDefault();
+                        }
+                    });
+                }
+
+                function getSpecFieldKey(name){
+                    var match = (name || '').match(/^spec\[\d+\]\[(.+)\]$/);
+                    return match ? match[1] : false;
+                }
+
+                function collectSpecData(block){
+                    var data = {};
+                    block.querySelectorAll('input[name], select[name], textarea[name]').forEach(function(el){
+                        var key = getSpecFieldKey(el.name);
+                        if(!key) return;
+                        if(el.type === 'checkbox'){
+                            data[key] = data[key] || [];
+                            if(el.checked){ data[key].push(el.value); }
+                        } else if(el.type === 'radio'){
+                            if(el.checked){ data[key] = el.value; }
+                        } else {
+                            data[key] = el.value;
+                        }
+                    });
+                    return data;
+                }
+
+                function setFieldValue(block, key, value){
+                    var selector = '[name$="[' + key + ']"]';
+                    var fields = Array.prototype.slice.call(block.querySelectorAll(selector));
+                    fields.forEach(function(el){
+                        if(el.type === 'checkbox'){
+                            el.checked = Array.isArray(value) && value.indexOf(el.value) >= 0;
+                        } else if(el.type === 'radio'){
+                            el.checked = value === el.value;
+                        } else {
+                            el.value = value || '';
+                        }
+                    });
+                }
+
+                function applySpecData(block, data){
+                    for(var layerNo = 2; layerNo <= 10; layerNo++){
+                        if(
+                            data['layer_' + layerNo + '_product_tmpl_id'] ||
+                            data['layer_' + layerNo + '_variant_id'] ||
+                            data['layer_' + layerNo + '_thickness']
+                        ){
+                            showExtraLayer(block, String(layerNo));
+                        }
+                    }
+                    var productKeys = [];
+                    for(var productLayer = 1; productLayer <= 10; productLayer++){
+                        productKeys.push('layer_' + productLayer + '_product_tmpl_id');
+                    }
+                    productKeys.forEach(function(key){
+                        setFieldValue(block, key, data[key]);
+                        var productSelect = block.querySelector('[name$="[' + key + ']"]');
+                        if(productSelect){ productSelect.dispatchEvent(new Event('change', {bubbles: true})); }
+                    });
+                    Object.keys(data).forEach(function(key){
+                        if(key.indexOf('layer_') === 0 && key.indexOf('_product_tmpl_id') > 0){ return; }
+                        setFieldValue(block, key, data[key]);
+                    });
+                    block.querySelectorAll('.layer-variant-select').forEach(function(select){
+                        select.dispatchEvent(new Event('change', {bubbles: true}));
+                    });
+                    block.querySelectorAll('.crm-multi-menu').forEach(function(menu){
+                        menu.dispatchEvent(new Event('change', {bubbles: true}));
+                    });
+                    var colorSelect = block.querySelector('.color-reference-select');
+                    if(colorSelect){ colorSelect.dispatchEvent(new Event('change', {bubbles: true})); }
+                    var fgTypeSelect = block.querySelector('.fg-type-select');
+                    if(fgTypeSelect){
+                        fgTypeSelect.dispatchEvent(new Event('change', {bubbles: true}));
+                    }
+                    var bagSelect = block.querySelector('.fg-product-select');
+                    if(bagSelect){
+                        setFieldValue(block, 'bag_type_product_tmpl_id', data.bag_type_product_tmpl_id);
+                        bagSelect.dispatchEvent(new Event('change', {bubbles: true}));
+                    }
+                    updateFeatureRules(block);
+                    updateTotalThickness(block);
+                }
+
+                function duplicateDesign(sourceBlock){
+                    var source = sourceBlock || container.querySelector('.spec-block:last-child');
+                    if(!source) return;
+                    var data = collectSpecData(source);
+                    var idx = specIndex();
+                    var block = newSpecBlock(idx);
+                    container.appendChild(block);
+                    setupComputedFields(block);
+                    applySpecData(block, data);
+                    updatePreviousReqFormVisibility();
+                    updateLabels();
+                    updateAddButtons();
+                }
+
+                function setupLayerProductFields(block){
+                    block.querySelectorAll('.layer-product-select').forEach(function(productSelect){
+                        var layerNo = productSelect.dataset.layer;
+                        var thicknessInput = block.querySelector('.layer-thickness[data-layer="' + layerNo + '"]');
+                        var thicknessDisplay = block.querySelector('.layer-thickness-display[data-layer="' + layerNo + '"]');
+                        if(productSource){ setOptions(productSelect, productSource.innerHTML); }
+
+                        function updateThicknessFromProduct(){
+                            var selected = productSelect.options[productSelect.selectedIndex];
+                            var thickness = selected ? (selected.dataset.thickness || '') : '';
+                            var value = thickness && parseFloat(thickness) > 0
+                                ? parseFloat(thickness).toString()
+                                : '';
+                            if(thicknessInput){ thicknessInput.value = value; }
+                            if(thicknessDisplay){ thicknessDisplay.value = value; }
+                            updateTotalThickness(block);
+                        }
+
+                        productSelect.addEventListener('change', updateThicknessFromProduct);
+                        updateThicknessFromProduct();
+                    });
+                }
+
+                function updateTotalThickness(block){
+                    var totalInput = block.querySelector('.total-thickness');
+                    if(!totalInput) return;
+                    var total = 0;
+                    block.querySelectorAll('.layer-thickness').forEach(function(input){
+                        total += parseFloat(input.value || 0);
+                    });
+                    totalInput.value = total ? total.toFixed(2).replace(/\.00$/, '') : '';
+                }
+
+                function setupColorReference(block){
+                    var colorSelect = block.querySelector('.color-reference-select');
+                    var wrap = block.querySelector('.color-reference-type-wrap');
+                    if(!colorSelect || !wrap) return;
+                    var radios = Array.prototype.slice.call(wrap.querySelectorAll('input[type="radio"]'));
+                    function toggleColorReferenceType(){
+                        var show = colorSelect.value === 'yes';
+                        wrap.classList.toggle('d-none', !show);
+                        radios.forEach(function(radio){
+                            radio.required = show;
+                            if(!show){ radio.checked = false; }
+                        });
+                    }
+                    colorSelect.addEventListener('change', toggleColorReferenceType);
+                    toggleColorReferenceType();
+                }
+
+                function setLayerVisibility(block, layerNo, show){
+                    block.querySelectorAll('.layer-extra[data-layer="' + layerNo + '"]').forEach(function(wrap){
+                        wrap.classList.toggle('d-none', !show);
+                        wrap.querySelectorAll('input, select, textarea').forEach(function(field){
+                            field.disabled = !show;
+                            if(field.classList.contains('layer-product-select')){
+                                field.required = show;
+                            }
+                            if(!show){
+                                field.value = '';
+                            }
+                        });
+                    });
+                    updateTotalThickness(block);
+                    refreshAddLayerButton(block);
+                }
+
+                function refreshAddLayerButton(block){
+                    var button = block.querySelector('.add-layer-btn');
+                    if(!button) return;
+                    var nextLayer = false;
+                    for(var layerNo = 2; layerNo <= 10; layerNo++){
+                        if(block.querySelector('.layer-extra[data-layer="' + layerNo + '"].d-none')){
+                            nextLayer = layerNo;
+                            break;
+                        }
+                    }
+                    button.classList.toggle('d-none', !nextLayer);
+                    if(nextLayer){
+                        button.dataset.layer = String(nextLayer);
+                    }
+                }
+
+                function showExtraLayer(block, layerNo){
+                    setLayerVisibility(block, layerNo, true);
+                    var productSelect = block.querySelector('.layer-product-select[data-layer="' + layerNo + '"]');
+                    if(productSelect){
+                        productSelect.dispatchEvent(new Event('change', {bubbles: true}));
+                    }
+                }
+
+                function showNextLayer(block){
+                    if(!block) return;
+                    var button = block.querySelector('.add-layer-btn');
+                    var nextLayer = button ? button.dataset.layer : false;
+                    if(nextLayer){
+                        showExtraLayer(block, nextLayer);
+                    }
+                }
+
+                function removeExtraLayer(block, layerNo){
+                    if(!block || !layerNo) return;
+                    var startLayer = parseInt(layerNo, 10);
+                    if(isNaN(startLayer) || startLayer < 2) return;
+                    for(var currentLayer = startLayer; currentLayer <= 10; currentLayer++){
+                        setLayerVisibility(block, String(currentLayer), false);
+                    }
+                    refreshAddLayerButton(block);
+                }
+
+                function setupLayerToggle(block){
+                    for(var layerNo = 2; layerNo <= 10; layerNo++){
+                        setLayerVisibility(block, String(layerNo), false);
+                    }
+                    refreshAddLayerButton(block);
+                }
+
+                function setupComputedFields(block){
+                    block.querySelectorAll('.layer-thickness').forEach(function(input){
+                        input.addEventListener('input', function(){ updateTotalThickness(block); });
+                    });
+                    updateTotalThickness(block);
+
+                    var fgTypeSelect = block.querySelector('.fg-type-select');
+                    var bagSelect = block.querySelector('.fg-product-select');
+                    var productWrap = block.querySelector('.fg-product-wrap');
+                    var bagDimensionsWrap = block.querySelector('.bag-dimensions-wrap');
+                    var rollFieldsWrap = block.querySelector('.roll-fields-wrap');
+                    var gussetWrap = block.querySelector('.gusset-wrap');
+                    var gussetInput = block.querySelector('.gusset-input');
+
+                    function toggleGusset(){
+                        if(!bagSelect || !gussetWrap || !gussetInput) return;
+                        var selected = bagSelect.options[bagSelect.selectedIndex];
+                        var code = selected
+                            ? String(selected.dataset.bagCode || '').trim().toUpperCase()
+                            : '';
+                        var hide = (
+                            code.indexOf('SS') !== -1
+                            || code.startsWith('L')
+                            || code === 'RS'
+                        );
+                        gussetWrap.classList.toggle('d-none', hide);
+                        gussetInput.required = !hide && (!fgTypeSelect || fgTypeSelect.value === 'bag');
+                        gussetInput.disabled = hide || (fgTypeSelect && fgTypeSelect.value !== 'bag');
+                        if(hide){ gussetInput.value = ''; }
+                    }
+
+                    function toggleFgType(){
+                        if(!fgTypeSelect) return;
+                        var fgType = fgTypeSelect.value || '';
+                        var previousProduct = bagSelect ? bagSelect.value : '';
+                        var hasType = fgType === 'bag' || fgType === 'roll';
+                        var isBag = fgType === 'bag';
+                        var isRoll = fgType === 'roll';
+
+                        if(productWrap){
+                            productWrap.classList.toggle('d-none', !hasType);
+                        }
+                        if(bagDimensionsWrap){
+                            bagDimensionsWrap.classList.toggle('d-none', !isBag);
+                        }
+                        if(rollFieldsWrap){
+                            rollFieldsWrap.classList.toggle('d-none', !isRoll);
+                        }
+
+                        if(bagSelect){
+                            populateBagTypeOptions(bagSelect, fgType, previousProduct);
+                            if(
+                                bagSelect.value
+                                && bagSelect.options[bagSelect.selectedIndex]
+                                && String(bagSelect.options[bagSelect.selectedIndex].dataset.fgType || '') !== fgType
+                            ){
+                                bagSelect.value = '';
+                            }
+                            bagSelect.required = hasType;
+                            bagSelect.disabled = !hasType;
+                        }
+
+                        if(bagDimensionsWrap){
+                            bagDimensionsWrap.querySelectorAll('input, select, textarea').forEach(function(field){
+                                field.disabled = !isBag;
+                                if(field.classList.contains('bag-length-input')){
+                                    field.required = isBag;
+                                }
+                            });
+                        }
+                        if(rollFieldsWrap){
+                            rollFieldsWrap.querySelectorAll('input, select, textarea').forEach(function(field){
+                                field.disabled = !isRoll;
+                            });
+                        }
+                        toggleGusset();
+                    }
+
+                    if(bagSelect){
+                        bagSelect.addEventListener('change', toggleGusset);
+                    }
+                    if(fgTypeSelect){
+                        fgTypeSelect.addEventListener('change', toggleFgType);
+                        toggleFgType();
+                    } else if(bagSelect && bagTypeSource){
+                        populateBagTypeOptions(bagSelect, fgTypeSelect ? fgTypeSelect.value : '', bagSelect.value);
+                        toggleGusset();
+                    }
+
+                    setupPreviousRequirementLookup(block);
+                    setupColorReference(block);
+                    setupLayerToggle(block);
+
+                    var quantityUomSelect = block.querySelector('.quantity-uom-select');
+                    if(quantityUomSelect && quantityUomSource){
+                        setOptions(quantityUomSelect, quantityUomSource.innerHTML);
+                    }
+
+                    var printFinishSelect = block.querySelector('.print-finish-select');
+                    if(printFinishSelect && printFinishSource){
+                        setOptions(printFinishSelect, printFinishSource.innerHTML);
+                    }
+                    setupCrmMultiSelect(
+                        block,
+                        '.feature-multi',
+                        featureSource,
+                        block.dataset.featureName,
+                        'Select Features'
+                    );
+                    updateFeatureRules(block);
+                    setupLayerProductFields(block);
+                }
+
+                function newSpecBlock(idx){
+                    var block = document.createElement('div');
+                    block.className = 'spec-block card mb-4 border-0 shadow-sm';
+                    block.dataset.featureName = `spec[${idx}][standard_feature_ids]`;
+                    block.innerHTML = `
+                        <div class="card-header d-flex justify-content-between align-items-center py-2" style="background:#d4e8df;">
+                            <span class="fw-bold spec-label" style="color:#1a3c5e;">Design ${idx + 1}</span>
+                            <button type="button" class="btn-close remove-spec d-none" aria-label="Remove"></button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12 previous-req-form-wrap d-none">
+                                    <label class="form-label fw-semibold">Previous Req Form</label>
+                                    <div class="previous-req-input-wrap">
+                                        <input type="text" name="spec[${idx}][previous_req_form]"
+                                               class="form-control previous-req-form-input"
+                                               autocomplete="off"
+                                               placeholder="Select or paste previous REQ ID" disabled>
+                                        <div class="previous-req-dropdown d-none" role="listbox"></div>
+                                    </div>
+                                    <small class="previous-req-status text-muted d-block mt-1"></small>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-semibold">Design Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="spec[${idx}][design_name]" class="form-control" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Design Dimension UOM <span class="text-danger">*</span></label>
+                                    <select name="spec[${idx}][design_dimension_uom]" class="form-select" required>
+                                        <option value="">-- Select --</option>
+                                        <option value="mm">MM</option>
+                                        <option value="cm">CM</option>
+                                        <option value="inch">Inch</option>
+                                        <option value="meters">Meters</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Color Reference <span class="text-danger">*</span></label>
+                                    <select name="spec[${idx}][color_reference]" class="form-select color-reference-select" required>
+                                        <option value="">-- Select --</option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                    <div class="color-reference-type-wrap mt-2 d-none">
+                                        <label class="form-label fw-semibold small mb-1">If Yes</label>
+                                        <div class="d-flex gap-3 flex-wrap">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input me-1" name="spec[${idx}][color_reference_type]" value="physical"> Physical
+                                            </label>
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input me-1" name="spec[${idx}][color_reference_type]" value="pantone"> Pantone
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" min="0" name="spec[${idx}][quantity]" class="form-control" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">UOM <span class="text-danger">*</span></label>
+                                    <select name="spec[${idx}][quantity_uom_id]" class="form-select quantity-uom-select" required></select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">FG Type <span class="text-danger">*</span></label>
+                                    <select name="spec[${idx}][fg_type]" class="form-select fg-type-select" required>
+                                        <option value="" selected>-- Select FG Type --</option>
+                                        <option value="bag">Bag</option>
+                                        <option value="roll">Roll</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 fg-product-wrap d-none">
+                                    <label class="form-label fw-semibold">Product <span class="text-danger">*</span></label>
+                                    <select name="spec[${idx}][bag_type_product_tmpl_id]" class="form-select fg-product-select" disabled></select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Print and Finish <span class="text-danger">*</span></label>
+                                    <select name="spec[${idx}][print_finish_id]"
+                                            class="form-select print-finish-select" required></select>
+                                </div>
+                                <div class="col-12 bag-dimensions-wrap">
+                                    <div class="section-label">Bag Dimensions</div>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label>Bag Length (mm) <span class="text-danger">*</span></label>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][length]" class="form-control bag-length-input" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Bag Width (mm)</label>
+                                            <input type="number" step="1" min="0" name="spec[${idx}][width]" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 gusset-wrap">
+                                            <label>Gusset (mm) <span class="text-danger">*</span></label>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][gusset]" class="form-control gusset-input" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 roll-fields-wrap d-none">
+                                    <div class="section-label">Roll Details</div>
+                                    <div class="row g-3">
+                                        <div class="col-md-4"><label>Coil Width (mm)</label><input type="number" step="0.01" min="0" name="spec[${idx}][coil_width_mm]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Cutoff Length (mm)</label><input type="number" step="0.01" min="0" name="spec[${idx}][cutoff_length_mm]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Final Roll Direction</label><input type="text" name="spec[${idx}][final_roll_direction]" class="form-control" placeholder="Alphanumeric" disabled></div>
+                                        <div class="col-md-4"><label>Final Roll Weight (kg)</label><input type="number" step="0.01" min="0" name="spec[${idx}][final_roll_weight_kg]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Final Roll OD (mm)</label><input type="number" step="0.01" min="0" name="spec[${idx}][final_roll_od_mm]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Final Roll Meters</label><input type="number" step="0.01" min="0" name="spec[${idx}][final_roll_meters]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Core ID (mm)</label><input type="number" step="0.01" min="0" name="spec[${idx}][core_id_mm]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Core Thickness (mm)</label><input type="number" step="0.01" min="0" name="spec[${idx}][core_thickness_mm]" class="form-control" disabled></div>
+                                        <div class="col-md-4"><label>Core Type</label><input type="text" name="spec[${idx}][core_type]" class="form-control" placeholder="Letters only" disabled></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="section-label">Layers / Inventory Material</div>
+                                    <div class="row g-3 layer-row">
+                                        <div class="col-md-6">
+                                            <label>Layer 1 <span class="text-danger">*</span></label>
+                                            <select name="spec[${idx}][layer_1_product_tmpl_id]" data-layer="1" class="form-select layer-product-select" required></select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Thickness (Microns)</label>
+                                            <input type="text" data-layer="1" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_1_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_1_thickness]" data-layer="1" class="layer-thickness">
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="2">
+                                            <label>Layer 2 <span class="text-danger">*</span></label>
+                                            <select name="spec[${idx}][layer_2_product_tmpl_id]" data-layer="2" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="2">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="2" title="Remove Layer 2" aria-label="Remove Layer 2"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="2" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product" disabled/><input type="hidden" name="spec[${idx}][layer_2_variant_id]" value="" disabled/>
+                                            <input type="hidden" name="spec[${idx}][layer_2_thickness]" data-layer="2" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="3">
+                                            <label>Layer 3</label>
+                                            <select name="spec[${idx}][layer_3_product_tmpl_id]" data-layer="3" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="3">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="3" title="Remove Layer 3" aria-label="Remove Layer 3"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="3" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_3_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_3_thickness]" data-layer="3" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="4">
+                                            <label>Layer 4</label>
+                                            <select name="spec[${idx}][layer_4_product_tmpl_id]" data-layer="4" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="4">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="4" title="Remove Layer 4" aria-label="Remove Layer 4"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="4" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_4_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_4_thickness]" data-layer="4" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="5">
+                                            <label>Layer 5</label>
+                                            <select name="spec[${idx}][layer_5_product_tmpl_id]" data-layer="5" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="5">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="5" title="Remove Layer 5" aria-label="Remove Layer 5"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="5" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_5_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_5_thickness]" data-layer="5" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="6">
+                                            <label>Layer 6</label>
+                                            <select name="spec[${idx}][layer_6_product_tmpl_id]" data-layer="6" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="6">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="6" title="Remove Layer 6" aria-label="Remove Layer 6"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="6" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_6_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_6_thickness]" data-layer="6" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="7">
+                                            <label>Layer 7</label>
+                                            <select name="spec[${idx}][layer_7_product_tmpl_id]" data-layer="7" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="7">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="7" title="Remove Layer 7" aria-label="Remove Layer 7"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="7" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_7_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_7_thickness]" data-layer="7" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="8">
+                                            <label>Layer 8</label>
+                                            <select name="spec[${idx}][layer_8_product_tmpl_id]" data-layer="8" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="8">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="8" title="Remove Layer 8" aria-label="Remove Layer 8"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="8" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_8_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_8_thickness]" data-layer="8" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="9">
+                                            <label>Layer 9</label>
+                                            <select name="spec[${idx}][layer_9_product_tmpl_id]" data-layer="9" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="9">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="9" title="Remove Layer 9" aria-label="Remove Layer 9"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="9" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_9_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_9_thickness]" data-layer="9" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="10">
+                                            <label>Layer 10</label>
+                                            <select name="spec[${idx}][layer_10_product_tmpl_id]" data-layer="10" class="form-select layer-product-select" disabled></select>
+                                        </div>
+                                        <div class="col-md-6 layer-extra d-none" data-layer="10">
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="10" title="Remove Layer 10" aria-label="Remove Layer 10"><i class="fa fa-times"/></button>
+                                            </div>
+                                            <input type="text" data-layer="10" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_10_variant_id]" value=""/>
+                                            <input type="hidden" name="spec[${idx}][layer_10_thickness]" data-layer="10" class="layer-thickness" disabled>
+                                        </div>
+                                        <div class="col-12 extra-layer-control">
+                                            <button type="button" class="btn req-action-btn btn-sm add-layer-btn">+ Add Layer</button>
+                                            
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Total Thickness (Microns)</label>
+                                            <input type="text" class="form-control bg-white total-thickness" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold">Features <span class="text-danger">*</span></label>
+                                    <div class="crm-multi feature-multi" data-required="1">
+                                        <button type="button" class="form-select text-start multi-toggle text-muted">Select Features</button>
+                                        <div class="crm-multi-menu border rounded p-2 bg-white shadow-sm d-none"></div>
+                                        <div class="selected-tags small mt-1"></div>
+                                    </div>
+                                    <div class="multi-select-help">
+                                        Tear Notch and Easy Tear Laser are available with No Zipper or Normal Zipper only.
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <label class="form-label fw-semibold">Additional Requirements</label>
+                                    <textarea name="spec[${idx}][additional_requirements]" class="form-control" rows="3" placeholder="Any special instructions, artwork notes, etc. for this design"></textarea>
+                                </div>
+                            </div>
+                        </div>`;
+                    return block;
+                }
+
+                function addNewDesign(){
+                    var idx = specIndex();
+                    var block = newSpecBlock(idx);
+                    container.appendChild(block);
+                    setupComputedFields(block);
+                    updatePreviousReqFormVisibility();
+                    updateLabels();
+                    updateAddButtons();
+                }
+
+                document.addEventListener('click', function(e){
+                    var addLayerButton = e.target.closest('.add-layer-btn');
+                    if(addLayerButton){
+                        showNextLayer(addLayerButton.closest('.spec-block'));
+                    }
+                    var removeLayerButton = e.target.closest('.remove-layer-btn');
+                    if(removeLayerButton){
+                        removeExtraLayer(removeLayerButton.closest('.spec-block'), removeLayerButton.dataset.layer);
+                    }
+                    if(e.target.classList.contains('add-another-btn')){
+                        addNewDesign();
+                    }
+                    if(e.target.classList.contains('duplicate-design-btn')){
+                        duplicateDesign(e.target.closest('.spec-block'));
+                    }
+                    if(e.target.classList.contains('remove-spec')){
+                        var blockToRemove = e.target.closest('.spec-block');
+                        var allBlocks = Array.prototype.slice.call(
+                            container.querySelectorAll('.spec-block')
+                        );
+                        if(blockToRemove && allBlocks.indexOf(blockToRemove) > 0){
+                            blockToRemove.remove();
+                            updateLabels();
+                            updateAddButtons();
+                        }
+                    }
+                });
+
+                if(specIndex() === 0){ addNewDesign(); }
+            })();
+            ]]>
+            </script>
+
+        </t>
+    </template>
+
+
+    <template id="requirement_form_readonly_page" name="Requirement Form Readonly Submitted">
+        <t t-call="website.layout">
+            <t t-if="internal_embed">
+                <style>
+                    #wrapwrap > header,
+                    #wrapwrap > footer,
+                    header#top,
+                    footer#bottom,
+                    .o_footer {
+                        display: none !important;
+                    }
+                    #wrapwrap, #wrap {
+                        min-height: 100% !important;
+                    }
+                    .form-page-wrapper {
+                        padding-top: 12px !important;
+                        padding-bottom: 20px !important;
+                    }
+                </style>
+            </t>
+            <div class="form-page-wrapper" style="background: linear-gradient(135deg, #d8f0e8, #c0e8d8); min-height:100vh; padding: 30px 0;">
+                <div class="container-fluid px-3 px-lg-5">
+                    <div class="row justify-content-center">
+                        <div class="col-xxl-8 col-xl-9 col-lg-10">
+                            <div class="mb-4 text-center" t-if="not internal_embed">
+                                <div class="py-4 px-5 text-white rounded-3 shadow-sm" style="background: linear-gradient(135deg, #1e6b4b, #2a9d6f);">
+                                    <h2 class="fw-bold mb-1">Product Requirement Form</h2>
+                                    <p class="mb-0">REQ ID: <t t-esc="form.name"/> | Submitted details are read-only.</p>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-success text-center shadow-sm mb-4" role="alert" t-if="not internal_embed">
+                                <h4 class="alert-heading mb-2">Form Already Submitted</h4>
+                                <p class="mb-0">This requirement form has already been submitted. For any changes or further assistance, please contact the administrator.</p>
+                            </div>
+
+                            <div class="card mb-5 shadow-sm border-0" t-if="not internal_embed">
+                                <div class="card-header py-3" style="background:#d4e8df;">
+                                    <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">1. Customer Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-4">
+                                        <div class="col-md-6"><label class="form-label fw-semibold">Customer Name</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_name or ''"/></div>
+                                        <div class="col-md-3"><label class="form-label fw-semibold">Short Name</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_short_name or ''"/></div>
+                                        <div class="col-md-3"><label class="form-label fw-semibold">Customer ID</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_id or ''"/></div>
+                                        <div class="col-md-6"><label class="form-label fw-semibold">Customer Email</label><input type="email" class="form-control bg-white" readonly="readonly" t-att-value="form.customer_email or ''"/></div>
+                                        <div class="col-md-3"><label class="form-label fw-semibold">Contact Person</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.contact_person or ''"/></div>
+                                        <div class="col-md-3"><label class="form-label fw-semibold">Contact Number</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.contact_number or ''"/></div>
+                                        <div class="col-md-3"><label class="form-label fw-semibold">WhatsApp Number</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.whatsapp_number or ''"/></div>
+                                        <div class="col-md-4"><label class="form-label fw-semibold">Title</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.title or ''"/></div>
+                                        <div class="col-md-4" t-if="form.is_saudi_customer"><label class="form-label fw-semibold">VAT No.</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.vat_no or ''"/></div>
+                                        <div class="col-md-4"><label class="form-label fw-semibold">Business Licence</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.business_licence or ''"/></div>
+                                        <div class="col-md-6"><label class="form-label fw-semibold">Payment Terms</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form._get_payment_terms_display()"/></div>
+                                        <div class="col-md-6"><label class="form-label fw-semibold">Local / Export Customer</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'Local' if form.local_export == 'local' else 'Export'"/></div>
+                                        <div class="col-md-4"><label class="form-label fw-semibold">Contract Type</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'Simple Sale' if form.contract_type == 'simple_sale' else ('Long Term Supply' if form.contract_type == 'long_term_supply' else '')"/></div>
+                                        <div class="col-md-4"><label class="form-label fw-semibold">Contract Duration</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.contract_duration or ''"/></div>
+                                        <div class="col-md-4"><label class="form-label fw-semibold">Delivery Terms</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="(form.delivery_terms or '').upper()"/></div>
+                                        <div class="col-md-12"><label class="form-label fw-semibold">Port</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.port or ''"/></div>
+                                    </div>
+
+                                    <h6 class="mt-4 mb-3 fw-bold">Billing Address (from CRM)</h6>
+                                    <div class="row g-3">
+                                        <div class="col-12"><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.address_street or ''" placeholder="Customer Billing Address"/></div>
+                                        <div class="col-md-4"><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.address_city or ''" placeholder="City"/></div>
+                                        <div class="col-md-4"><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.postal_code or ''" placeholder="Postal Code"/></div>
+                                        <div class="col-md-4"><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="form.address_country.name if form.address_country else ''" placeholder="Country"/></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-5 shadow-sm border-0">
+                                <div class="card-header py-3" style="background:#d4e8df;">
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                        <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">2. Product Specifications</h5>
+                                        <div class="d-flex gap-4 fw-semibold">
+                                            <span>☐ New Job<t t-if="form.new_job"> ✓</t></span>
+                                            <span>☐ Repeat Job<t t-if="form.repeat_job"> ✓</t></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="not form.specification_ids">
+                                        <p class="text-muted mb-0">No product specification was submitted.</p>
+                                    </t>
+                                    <t t-foreach="form.specification_ids" t-as="spec">
+                                        <div class="spec-block card mb-4 border-0 shadow-sm">
+                                            <div class="card-header py-2" style="background:#d4e8df;">
+                                                <span class="fw-bold" style="color:#1a3c5e;">Design <t t-esc="spec.sequence or spec_index + 1"/> - <t t-esc="spec.design_name or ''"/></span>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-12" t-if="form.repeat_job and spec.previous_req_form"><label class="form-label fw-semibold">Previous Req Form</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.previous_req_form or ''"/></div>
+                                                    <div class="col-md-3"><label class="form-label fw-semibold">Design Dimension UOM</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="dict(mm='MM', cm='CM', inch='Inch', meters='Meters').get(spec.design_dimension_uom or 'mm', 'MM')"/></div>
+                                                    <div class="col-md-3"><label class="form-label fw-semibold">FG Type</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'Roll' if spec.fg_type == 'roll' else 'Bag'"/></div>
+                                                    <div class="col-md-3"><label class="form-label fw-semibold">Product</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec._get_bag_type_display()"/></div>
+                                                    <div class="col-md-3"><label class="form-label fw-semibold">Color Reference</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="dict(yes='Yes', no='No').get(spec.color_reference or '', '') + ((' - ' + dict(physical='Physical', pantone='Pantone').get(spec.color_reference_type or '', '')) if spec.color_reference_type else '')"/></div>
+                                                    <div class="col-md-3"><label class="form-label fw-semibold">Quantity</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.quantity or 0"/></div>
+                                                    <div class="col-md-3"><label class="form-label fw-semibold">Quantity UOM</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.quantity_uom_id.display_name if spec.quantity_uom_id else dict(pcs='PCS', kg='KG', lm='LM').get(spec.quantity_uom or '', '')"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type != 'roll'"><label>Bag Length (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.length or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type != 'roll'"><label>Bag Width (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.width or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type != 'roll' and not spec.bag_type_hide_gusset"><label>Gusset (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.gusset or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Coil Width (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.coil_width_mm or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Cutoff Length (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.cutoff_length_mm or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Final Roll Direction</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.final_roll_direction or ''"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Final Roll Weight (kg)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.final_roll_weight_kg or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Final Roll OD (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.final_roll_od_mm or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Final Roll Meters</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.final_roll_meters or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Core ID (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.core_id_mm or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Core Thickness (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.core_thickness_mm or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Core Type</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.core_type or ''"/></div>
+                                                    <div class="col-md-4"><label>Layer 1</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_1_material or '', spec.layer_1_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4"><label>Layer 2</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_2_material or '', spec.layer_2_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_3_product_tmpl_id or spec.layer_3_material or spec.layer_3_thickness"><label>Layer 3</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_3_material or '', spec.layer_3_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_4_product_tmpl_id or spec.layer_4_material or spec.layer_4_thickness"><label>Layer 4</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_4_material or '', spec.layer_4_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_5_product_tmpl_id or spec.layer_5_material or spec.layer_5_thickness"><label>Layer 5</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_5_material or '', spec.layer_5_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_6_product_tmpl_id or spec.layer_6_material or spec.layer_6_thickness"><label>Layer 6</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_6_material or '', spec.layer_6_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_7_product_tmpl_id or spec.layer_7_material or spec.layer_7_thickness"><label>Layer 7</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_7_material or '', spec.layer_7_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_8_product_tmpl_id or spec.layer_8_material or spec.layer_8_thickness"><label>Layer 8</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_8_material or '', spec.layer_8_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_9_product_tmpl_id or spec.layer_9_material or spec.layer_9_thickness"><label>Layer 9</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_9_material or '', spec.layer_9_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4" t-if="spec.layer_10_product_tmpl_id or spec.layer_10_material or spec.layer_10_thickness"><label>Layer 10</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s - %s microns' % (spec.layer_10_material or '', spec.layer_10_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4"><label>Total Thickness</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="'%s Microns' % (spec.total_thickness or 0.0)"/></div>
+                                                    <div class="col-md-4"><label>Print and Finish</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.print_finish_id.name or spec.print_finish or ''"/></div>
+                                                    <div class="col-md-4"><label>Features</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.features or ''"/></div>
+                                                    <div class="col-12"><label>Additional Requirements</label><textarea class="form-control bg-white" rows="3" readonly="readonly" t-esc="spec.additional_requirements or ''"></textarea></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <div class="card mb-5 shadow-sm border-0" t-if="not internal_embed">
+                                <div class="card-header py-3" style="background:#d4e8df;">
+                                    <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">3. Documents</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="form.is_saudi_customer">
+                                        <p class="fw-semibold mb-2">For Saudi customers:</p>
+                                        <ol class="mb-3">
+                                            <li>CR</li>
+                                            <li>VAT</li>
+                                            <li>Proof of Address</li>
+                                            <li>Certified bank certificate</li>
+                                        </ol>
+                                    </t>
+                                    <t t-if="form.partner_id.requirement_document_attachment_ids or form.document_attachment_ids">
+                                        <ul class="list-group">
+                                            <t t-foreach="form.partner_id.requirement_document_attachment_ids or form.document_attachment_ids" t-as="attachment">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span><t t-esc="attachment.name or ''"/></span>
+                                                    <a class="btn btn-sm btn-outline-success" t-attf-href="/web/content/#{attachment.id}?download=true">Download</a>
+                                                </li>
+                                            </t>
+                                        </ul>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted mb-0">No documents were submitted.</p>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <div class="card mb-5 shadow-sm border-0" t-if="not internal_embed">
+                                <div class="card-header py-3" style="background:#d4e8df;">
+                                    <h5 class="mb-0 fw-bold" style="color:#1a3c5e;">4. Additional Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label class="form-label fw-semibold">Requirement Details</label>
+                                    <textarea class="form-control bg-white" rows="4" readonly="readonly" t-esc="form.requirement_details or ''"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="requirement_form_not_found_page" name="Requirement Form Not Found">
+        <t t-call="website.layout">
+            <div style="background: linear-gradient(135deg, #d8f0e8, #c0e8d8); min-height:100vh; padding:60px 15px;">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-7">
+                            <div class="card border-0 shadow-sm text-center p-5">
+                                <h2 class="fw-bold text-danger mb-3">Form Not Found</h2>
+                                <p class="lead mb-0">The requirement form link is invalid or expired.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="requirement_form_thanks" name="Requirement Form Thanks">
+        <t t-call="website.layout">
+            <div style="background: linear-gradient(135deg, #d8f0e8, #c0e8d8); min-height:100vh; padding:60px 15px;">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-7">
+                            <div class="card border-0 shadow-sm text-center p-5">
+                                <h2 class="fw-bold text-success mb-3">Thank you!</h2>
+                                <p class="lead mb-2">Your requirement form has been submitted successfully.</p>
+                                <p class="text-muted mb-0">Our team will review your submitted information and contact you soon.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="requirement_form_already_submitted" name="Requirement Form Already Submitted">
+        <t t-call="website.layout">
+            <div style="background: linear-gradient(135deg, #d8f0e8, #c0e8d8); min-height:100vh; padding:60px 15px;">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-7">
+                            <div class="card border-0 shadow-sm text-center p-5">
+                                <h2 class="fw-bold text-success mb-3">Form Already Submitted</h2>
+                                <p class="lead mb-2">This requirement form has already been submitted.</p>
+                                <p class="text-muted mb-0">For any changes or further assistance, please contact the administrator.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

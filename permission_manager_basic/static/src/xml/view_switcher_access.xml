@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="permission_manager_basic.ControlPanelViewSwitcherAccess"
+       t-inherit="web.ControlPanel"
+       t-inherit-mode="extension">
+        <xpath expr="//t[@t-if='env.config.viewSwitcherEntries?.length &gt; 1']" position="attributes">
+            <attribute name="t-if">pmViewSwitcherEntries.length &gt; 1</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set='activeView']" position="attributes">
+            <attribute name="t-value">pmViewSwitcherEntries.find((view) =&gt; view.active) || pmViewSwitcherEntries[0]</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='env.config.viewSwitcherEntries']" position="attributes">
+            <attribute name="t-foreach">pmViewSwitcherEntries</attribute>
+        </xpath>
+    </t>
+</templates>

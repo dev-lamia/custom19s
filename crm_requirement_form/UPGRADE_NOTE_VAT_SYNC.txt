@@ -1,0 +1,7 @@
+VAT No. sync (res.partner.vat <-> crm.lead.vat_no <-> crm.requirement.form.vat_no)
+Upgrade the module (-u crm_requirement_form). Blank CRM VAT No. is back-filled from the linked customer on update.
+Customer Short Name sync (res.partner.ref <-> crm.lead.customer_short_name <-> crm.requirement.form.customer_short_name)
+Blank CRM / Requirement Form short names are back-filled from the linked customer on update.
+Campaign / Medium / Source: Sale Order fetches them from its Opportunity (create, opportunity change, later CRM edits while quotation is draft/sent). Existing open quotations are back-filled on update.
+Requirement Form Duplicate: New Job copy = fully editable; Repeat Job copy = only QTY/UOM editable. Old duplicates on New Job forms are unlocked on update.
+Incoterm: Sale Order Incoterm is fetched from the Requirement Form Delivery Terms (create, link, later edits while draft/sent). Open quotations are back-filled on update.

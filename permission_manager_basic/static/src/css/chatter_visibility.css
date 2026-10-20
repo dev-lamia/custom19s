@@ -1,0 +1,48 @@
+/* Permission Manager chatter visibility helpers.
+   These selectors are intentionally defensive because Odoo chatter markup can
+   change slightly between enterprise/community builds. */
+.pm_hide_chatter_composer .o-mail-Chatter-sendMessage,
+.pm_hide_chatter_composer button[aria-label='Send message'],
+.pm_hide_chatter_composer button[title='Send message'] {
+    display: none !important;
+}
+
+.pm_hide_chatter_log_note .o-mail-Chatter-logNote,
+.pm_hide_chatter_log_note button[aria-label='Log note'],
+.pm_hide_chatter_log_note button[title='Log note'] {
+    display: none !important;
+}
+
+.pm_hide_chatter_activity .o-mail-Chatter-activity,
+.pm_hide_chatter_activity button[aria-label='Schedule activity'],
+.pm_hide_chatter_activity button[title='Schedule activity'] {
+    display: none !important;
+}
+
+.pm_hide_chatter_search .o-mail-Chatter-search,
+.pm_hide_chatter_search .o-mail-Chatter-searchInput,
+.pm_hide_chatter_search button[aria-label='Search Messages'],
+.pm_hide_chatter_search button[title='Search Messages'] {
+    display: none !important;
+}
+
+.pm_hide_chatter_attachments .o-mail-Chatter-attachments,
+.pm_hide_chatter_attachments .o-mail-AttachmentBox,
+.pm_hide_chatter_attachments button[aria-label='Attach files'],
+.pm_hide_chatter_attachments button[title='Attach files'] {
+    display: none !important;
+}
+
+.pm_hide_chatter_followers .o-mail-FollowerListMenu,
+.pm_hide_chatter_followers button[aria-label='Show Followers'],
+.pm_hide_chatter_followers button[title='Show Followers'] {
+    display: none !important;
+}
+
+.pm_hide_chatter_follow_button .o-mail-Chatter-follow,
+.pm_hide_chatter_follow_button button[aria-label='Follow'],
+.pm_hide_chatter_follow_button button[title='Follow'],
+.pm_hide_chatter_follow_button button[aria-label='Unfollow'],
+.pm_hide_chatter_follow_button button[title='Unfollow'] {
+    display: none !important;
+}

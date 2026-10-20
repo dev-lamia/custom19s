@@ -1,0 +1,20 @@
+.o_field_x2many .o_ps_duplicate_line {
+    border: 0;
+    background: transparent;
+    padding: 0 0.35rem;
+    opacity: 0.75;
+    line-height: 1;
+}
+
+.o_field_x2many .o_ps_duplicate_line:hover,
+.o_field_x2many .o_ps_duplicate_line:focus {
+    opacity: 1;
+}
+
+.o_field_x2many .o_ps_duplicate_line:disabled {
+    opacity: 0.35;
+}
+
+.o_field_x2many .o_ps_action_cell {
+    white-space: nowrap;
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Purchase Order form to add Supplier Documents page -->
+    <record id="purchase_order_form_inherit_supplier_documents" model="ir.ui.view">
+        <field name="name">purchase.order.form.supplier.documents</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Hide ALL header buttons that call button_confirm -->
+            <xpath expr="//button[@id='bid_confirm']" position="attributes">
+                <attribute name="invisible">vendor_expired_document_type_ids or state != 'sent'</attribute>
+            </xpath>
+
+            <!-- Hide Confirm Order (state = draft button) -->
+            <xpath expr="//button[@id='draft_confirm']" position="attributes">
+                <attribute name="invisible">vendor_expired_document_type_ids or state != 'draft'</attribute>
+            </xpath>
+
+            <!-- Vendor document type expired warning -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="alert alert-danger"
+                    invisible="not vendor_expired_document_type_ids">
+                    <strong>The following vendor document(s) are expired or expiring within 30 days:</strong>
+                    <br/><br/>
+
+                    <field name="vendor_expired_document_type_names"
+                        readonly="1"
+                        nolabel="1"/>
+
+                    <br/><br/>
+
+                    <span>Please update the vendor documents before proceeding.</span>
+                </div>
+            </xpath>
+
+
+            <xpath expr="/form//page[@name='purchase_delivery_invoice']" position="after">
+                <page string="Supplier Documents" name="supplier_documents_page">
+                    <group>
+                        <field name="supplier_document_ids" nolabel="1">
+                            <list default_order="sequence asc,id desc" editable="bottom">
+                                <!-- optional: keep sequence handle -->
+                                <field name="sequence" widget="handle"/>
+                                <field name="type_id"
+                                       options="{'create_name_field': 'name'}"/>
+                                <field name="file"
+                                       filename="file_filename"
+                                       widget="download"
+                                       string="File"/>
+                            </list>
+
+                            <form string="Supplier Documents">
+                                <sheet>
+                                    <group>
+                                        <field name="sequence"/>
+                                        <field name="type_id"/>
+                                        <field name="name"/>
+                                        <field name="file"
+                                               filename="file_filename"
+                                               widget="download"
+                                               string="File"/>
+                                        <field name="file_filename" invisible="1"/>
+                                    </group>
+                                </sheet>
+                            </form>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

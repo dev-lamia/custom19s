@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dynamic_report_config_form" model="ir.ui.view">
+        <field name="name">dynamic.report.config.form</field>
+        <field name="model">dynamic.report.config</field>
+        <field name="arch" type="xml">
+            <form string="Dynamic Report Builder">
+                <header>
+                    <button name="action_generate_report" type="object"
+                            string="Preview" class="btn-primary"
+                            invisible="not field_line_ids"/>
+                    <button name="action_duplicate_report" type="object"
+                            string="Duplicate" class="btn-secondary"
+                            invisible="not id"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+
+                <sheet>
+                    <field name="field_ids" invisible="1"/>
+                    <field name="print_action_id" invisible="1"/>
+                    <field name="has_user_fields" invisible="1"/>
+
+                    <div class="oe_title mb-2">
+                        <label for="name" string="Report Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Purchase Summary"/>
+                        </h1>
+                        <field name="subtitle"
+                               placeholder="Optional subtitle shown below the report name"/>
+                    </div>
+
+                    <div class="alert alert-info py-2 mb-3" role="alert">
+                        <b>Easy Report Builder:</b> choose a model, add columns, arrange them by drag-and-drop, then preview the PDF.
+                    </div>
+
+                    <group string="1. Data Source" col="4">
+                        <field name="model_id"
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <field name="model_name" readonly="1"
+                               invisible="not model_id"/>
+                        <field name="parent_menu_id"
+                               placeholder="Optional menu location"
+                               options="{'no_create': True}"/>
+                        <field name="menu_id" readonly="1"
+                               invisible="not menu_id"/>
+                    </group>
+
+                    <div class="alert alert-success py-2 mt-2 mb-3"
+                         role="alert" invisible="not print_action_id">
+                        Ready: this report is available from the selected model's <b>Print</b> menu.
+                    </div>
+
+                    <notebook>
+                        <page string="2. Columns" name="columns">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h4 class="mb-1">Report Columns</h4>
+                                    <span class="text-muted">
+                                        Main fields use an empty Line Source. Use Line Source only for rows such as Order Lines.
+                                    </span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button name="action_add_common_fields" type="object"
+                                            string="Add Common Fields" class="btn-primary"
+                                            invisible="not model_id"/>
+                                    <button name="action_select_all_fields" type="object"
+                                            string="Add All Main Fields" class="btn-secondary"
+                                            invisible="not model_id"/>
+                                    <button name="action_clear_columns" type="object"
+                                            string="Clear Columns" class="btn-secondary"
+                                            confirm="Remove all report columns?"
+                                            invisible="not field_line_ids"/>
+                                </div>
+                            </div>
+
+                            <field name="field_line_ids" nolabel="1"
+                                   invisible="not model_id">
+                                <list editable="bottom" string="Report Columns">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="main_model_name" column_invisible="1"/>
+                                    <field name="target_model_name" column_invisible="1"/>
+                                    <field name="relation_field_id"
+                                           string="Line Source"
+                                           domain="[('model', '=', main_model_name), ('relation', '!=', False), ('ttype', 'in', ['one2many', 'many2many'])]"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           optional="show"/>
+                                    <field name="field_id" string="Field"
+                                           domain="[('model', '=', target_model_name)]"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="custom_label" string="Column Label"
+                                           placeholder="Auto" optional="show"/>
+                                    <field name="width" string="Width %" optional="show"/>
+                                    <field name="alignment" string="Align" optional="show"/>
+                                </list>
+                            </field>
+
+                            <div class="alert alert-light border mt-3" role="alert"
+                                 invisible="not model_id">
+                                <b>Main field example:</b> Reference, Vendor, Buyer, Total or Status → leave Line Source empty.<br/>
+                                <b>Line field example:</b> Order Lines → Product, Quantity, Unit Price.
+                            </div>
+                        </page>
+
+                        <page string="3. Filters &amp; Sorting" name="filters">
+                            <group>
+                                <group string="Filter">
+                                    <field name="domain_filter"
+                                           widget="domain"
+                                           options="{'model': 'model_name', 'foldable': true}"
+                                           invisible="not model_id"/>
+                                    <field name="limit"/>
+                                </group>
+                                <group string="Sorting">
+                                    <field name="sort_field_id"
+                                           domain="[('model', '=', model_name), ('store', '=', True), ('ttype', 'not in', ['one2many', 'many2many', 'binary'])]"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           invisible="not model_id"/>
+                                    <field name="sort_direction"
+                                           invisible="not sort_field_id"/>
+                                </group>
+                            </group>
+                            <separator string="User Selection Filter"/>
+                            <group invisible="not model_id">
+                                <group invisible="not has_user_fields">
+                                    <field name="enable_user_filter"/>
+                                    <field name="user_field_id"
+                                           domain="[('model', '=', model_name), ('store', '=', True), ('ttype', '=', 'many2one'), ('relation', '=', 'res.users'), ('name', 'not in', ['create_uid', 'write_uid'])]"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           invisible="not enable_user_filter"
+                                           required="enable_user_filter"/>
+                                    <field name="group_by_user"
+                                           invisible="not enable_user_filter"/>
+                                </group>
+                                <group invisible="not has_user_fields">
+                                    <div class="alert alert-info py-2 mb-0" role="alert"
+                                         invisible="not enable_user_filter">
+                                        At print time, the user can leave User blank for all accessible records or choose a specific user. The logged-in user is never forced automatically.
+                                    </div>
+                                </group>
+                            </group>
+                            <div class="alert alert-light border mt-2" role="alert"
+                                 invisible="not model_id or has_user_fields">
+                                This model has no stored Many2one field related to Users (res.users), so the optional User Filter is not applicable.
+                            </div>
+
+                            <div class="alert alert-light border mt-3" role="alert">
+                                Build filters with Odoo's standard domain editor. Leave it empty to include all available records.
+                            </div>
+                        </page>
+
+                        <page string="4. Layout" name="layout">
+                            <group>
+                                <group string="Report Header">
+                                    <field name="show_title"/>
+                                    <field name="report_title_font_size"
+                                           invisible="not show_title"/>
+                                    <field name="show_total_records"/>
+                                </group>
+                                <group string="Table">
+                                    <field name="show_row_number"/>
+                                    <field name="table_font_size"/>
+                                </group>
+                            </group>
+
+                            <separator string="Date Range Filter"/>
+                            <group>
+                                <group>
+                                    <field name="enable_date_filter"/>
+                                    <field name="date_field_id"
+                                           domain="[('model', '=', model_name), ('store', '=', True), ('ttype', 'in', ['date', 'datetime'])]"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           invisible="not enable_date_filter"
+                                           required="enable_date_filter"/>
+                                </group>
+                                <group invisible="not enable_date_filter">
+                                    <div class="alert alert-info py-2 mb-0" role="alert">
+                                        Users can choose Yearly, Quarterly, Monthly, Weekly or a Custom Date range when they run this report.
+                                    </div>
+                                </group>
+                            </group>
+                            <div class="alert alert-info py-2 mt-2" role="alert"
+                                 invisible="not enable_date_filter">
+                                Choose the Date/Datetime field here. The print-time wizard will offer professional period presets plus manual From/To dates.
+                            </div>
+
+                            <div class="alert alert-light border mt-3" role="alert">
+                                Use the font-size controls above for a consistent PDF. Column headings stay centered; each column can use Auto, Left, Center or Right data alignment.
+                            </div>
+                        </page>
+
+                        <page string="5. Preview" name="preview">
+                            <div class="text-center py-4">
+                                <h3>Ready to preview?</h3>
+                                <p class="text-muted">
+                                    Open the report in a new browser tab to review the PDF before printing or saving it.
+                                </p>
+                                <button name="action_generate_report" type="object"
+                                        string="Preview" class="btn-primary"
+                                        invisible="not field_line_ids"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dynamic_report_config_list" model="ir.ui.view">
+        <field name="name">dynamic.report.config.list</field>
+        <field name="model">dynamic.report.config</field>
+        <field name="arch" type="xml">
+            <list string="Dynamic Reports">
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="parent_menu_id" string="Menu Location"/>
+                <field name="menu_id" string="Generated Menu" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dynamic_report_create" model="ir.actions.act_window">
+        <field name="name">Create Report</field>
+        <field name="res_model">dynamic.report.config</field>
+        <field name="view_mode">form</field>
+        <field name="views" eval="[(ref('view_dynamic_report_config_form'), 'form')]"/>
+        <field name="target">current</field>
+    </record>
+
+    <record id="action_dynamic_report_manage" model="ir.actions.act_window">
+        <field name="name">Manage Reports</field>
+        <field name="res_model">dynamic.report.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="views" eval="[(ref('view_dynamic_report_config_list'), 'list'), (ref('view_dynamic_report_config_form'), 'form')]"/>
+        <field name="target">current</field>
+    </record>
+
+    <!-- Open the report list as soon as the Dynamic Report application opens. -->
+    <menuitem id="menu_dynamic_report_root" name="Dynamic Report"
+              action="action_dynamic_report_manage" sequence="90"
+              groups="base.group_system"
+              web_icon="dynamic_report_builder,static/description/icon.png"/>
+
+    <!-- Retain existing XML IDs on upgrades, but remove extra navigation. -->
+    <menuitem id="menu_dynamic_report_create" name="Create Report"
+              parent="menu_dynamic_report_root" action="action_dynamic_report_create"
+              groups="base.group_no_one" sequence="10"/>
+    <menuitem id="menu_dynamic_report_manage" name="Manage Reports"
+              parent="menu_dynamic_report_root" action="action_dynamic_report_manage"
+              groups="base.group_no_one" sequence="20"/>
+    <!-- Kept internally because existing generated reports reference this parent. -->
+    <menuitem id="menu_dynamic_report_generated" name="My Reports"
+              parent="menu_dynamic_report_root" groups="base.group_no_one"
+              sequence="30"/>
+</odoo>

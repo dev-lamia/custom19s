@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="crm_requirement_form.RequirementLayerAddButton">
+        <button t-if="(props.record.data[props.name] || 1) &lt; 10"
+                type="button"
+                class="btn btn-secondary btn-sm o_crm_req_add_layer_btn"
+                t-on-click="addLayer">
+            <i class="fa fa-plus me-1"/> Add Layer
+        </button>
+    </t>
+
+    <t t-name="crm_requirement_form.RequirementLayerRemoveButton">
+        <button type="button"
+                class="o_crm_req_layer_cross"
+                t-att-title="'Remove Layer ' + props.layerNo"
+                t-att-aria-label="'Remove Layer ' + props.layerNo"
+                t-on-click="removeLayer">
+            <i class="fa fa-times"/>
+        </button>
+    </t>
+</templates>

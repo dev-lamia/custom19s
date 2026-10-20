@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="job_production_process_1" model="crm.job.production.process">
+        <field name="name">Printing</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="job_production_process_2" model="crm.job.production.process">
+        <field name="name">Lamination-1</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="job_production_process_3" model="crm.job.production.process">
+        <field name="name">Lamination-2</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="job_production_process_4" model="crm.job.production.process">
+        <field name="name">Slitting</field>
+        <field name="sequence">4</field>
+    </record>
+    <record id="job_production_process_5" model="crm.job.production.process">
+        <field name="name">Pouching</field>
+        <field name="sequence">5</field>
+    </record>
+    <record id="job_production_process_6" model="crm.job.production.process">
+        <field name="name">Valving</field>
+        <field name="sequence">6</field>
+    </record>
+</odoo>

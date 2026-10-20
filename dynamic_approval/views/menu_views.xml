@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root menu has an action so it appears as an app in the Odoo app switcher. -->
+    <menuitem id="menu_professional_approval_root"
+              name="Dynamic Approval"
+              sequence="65"
+              action="action_professional_approval_rule"
+              web_icon="dynamic_approval,static/description/icon.png"/>
+
+    <!-- Keep the XML ID for safe upgrades, but hide the Approval Requests menu.
+         Opening the app now goes directly to Approval Rules. -->
+    <record id="menu_professional_approval_requests" model="ir.ui.menu">
+        <field name="name">Approval Requests</field>
+        <field name="parent_id" ref="menu_professional_approval_root"/>
+        <field name="action" ref="action_professional_approval_request"/>
+        <field name="sequence">10</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <menuitem id="menu_professional_approval_config"
+              name="Configuration"
+              parent="menu_professional_approval_root"
+              sequence="90"
+              groups="dynamic_approval.group_professional_approval_manager"/>
+
+    <menuitem id="menu_professional_approval_rules"
+              name="Approval Rules"
+              parent="menu_professional_approval_config"
+              action="action_professional_approval_rule"
+              sequence="10"
+              groups="dynamic_approval.group_professional_approval_manager"/>
+</odoo>

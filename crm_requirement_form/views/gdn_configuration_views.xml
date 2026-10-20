@@ -1,0 +1,388 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <record id="sale_gdn_configuration_list_view" model="ir.ui.view">
+        <field name="name">sale.gdn.configuration.list</field>
+        <field name="model">sale.gdn.configuration</field>
+        <field name="arch" type="xml">
+            <list string="GDN Configurations" create="0" delete="0" default_order="id desc">
+                <field name="gdn_number"/>
+                <field name="partner_id"/>
+                <field name="fg_type" optional="show"/>
+                <field name="bag_type_product_tmpl_id"/>
+                <field name="design_name" optional="show"/>
+                <field name="design_dimension_uom" optional="show"/>
+                <field name="quantity" optional="show"/>
+                <field name="quantity_uom_id" optional="show"/>
+                <field name="width" optional="show"/>
+                <field name="print_finish_id" optional="show"/>
+                <field name="source_order_id"/>
+                <field name="requirement_form_id" string="REQ ID" optional="show"/>
+                <field name="source_line_id" optional="hide"/>
+                <field name="create_date" string="Generated On"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sale_gdn_configuration_form_view" model="ir.ui.view">
+        <field name="name">sale.gdn.configuration.form</field>
+        <field name="model">sale.gdn.configuration</field>
+        <field name="arch" type="xml">
+            <form string="GDN Configuration" create="0" edit="1" delete="0" class="o_crm_req_config_form">
+                <sheet class="o_crm_req_config_sheet">
+                    <div class="o_crm_req_config_hero">
+                        <div>
+                            <div class="o_crm_req_config_kicker">Graphic Design Number</div>
+                            <div class="o_crm_req_config_title"><field name="gdn_number" nolabel="1"/></div>
+                            <div class="o_crm_req_config_subtitle">Stored production specification linked to the Sale Order and Requirement Form.</div>
+                        </div>
+                        <div class="o_crm_req_config_badge">
+                            <span>Generated On</span>
+                            <field name="create_date" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <div class="o_crm_req_config_grid">
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-link"/> Source &amp; Traceability</div>
+                            <group col="2">
+                                <field name="partner_id"/>
+                                <field name="source_order_id"/>
+                                <field name="requirement_form_id" string="REQ ID" options="{'no_create': True, 'no_create_edit': True}"/>
+                            </group>
+                        </div>
+
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-cube"/> Product Summary</div>
+                            <group col="2">
+                                <field name="fg_type"/>
+                                <field name="bag_type_product_tmpl_id" string="Product"/>
+                                <field name="design_name"/>
+                                <field name="design_dimension_uom"/>
+                                <field name="print_finish_id"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    <div class="o_crm_req_config_grid">
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-commenting-o"/> Customer / Sales Design Note</div>
+                            <field name="customer_notes" nolabel="1" placeholder="Customer / sales note for this design..."/>
+                        </div>
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-pencil-square-o"/> Designer Note</div>
+                            <field name="designer_note" nolabel="1" placeholder="Designer suggestion / note for other departments..."/>
+                        </div>
+                    </div>
+                <notebook><page string="Dimensions" name="gdn_quantity_dimensions_tab"><div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-arrows-alt"/> Dimensions</div>
+                        <group col="4" invisible="fg_type != 'bag'">
+                            <field name="length"/>
+                            <field name="width"/>
+                            <field name="gusset"/>
+                        </group>
+                        <group col="4">
+                            <field name="total_thickness"/>
+                        </group>
+                        <group col="4" invisible="fg_type != 'roll'">
+                            <field name="coil_width_mm"/>
+                            <field name="cutoff_length_mm"/>
+                        </group>
+                    </div>
+
+                    </page><page string="Design Information" name="gdn_design_requirement_tab"><div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-paint-brush"/> Design Information</div>
+                        <group col="4">
+                            <field name="color_reference"/>
+                            <field name="color_reference_type" invisible="color_reference != 'yes'"/>
+                            <field name="print_type_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="no_of_colors"/>
+                            <field name="print_direction"/>
+                            <field name="weight"/>
+                            <field name="feature_ids" widget="many2many_tags"/>
+                        </group>
+                    </div>
+
+                    </page><page string="Roll Details" name="gdn_roll_details_tab" invisible="fg_type != 'roll'">
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-circle-o-notch"/> Roll Details</div>
+                            <group col="2">
+                                <group>
+                                    <field name="final_roll_direction"/>
+                                    <field name="final_roll_weight_kg"/>
+                                    <field name="final_roll_od_mm"/>
+                                </group>
+                                <group>
+                                    <field name="final_roll_meters"/>
+                                    <field name="core_id_mm"/>
+                                    <field name="core_thickness_mm"/>
+                                    <field name="core_type"/>
+                                </group>
+                            </group>
+                        </div>
+
+                    </page><page string="GDN Documents" name="gdn_documents_tab"><div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-paperclip"/> GDN Documents</div>
+                        <field name="gdn_document_line_ids" nolabel="1" mode="list">
+                            <list string="GDN Documents" editable="bottom" create="1" edit="1" delete="1" open_form_view="0">
+                                <field name="sequence" widget="handle"/>
+                                <field name="document_type_id" string="Document Type" required="1" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="document_type" column_invisible="1"/>
+                                <field name="attachment_ids" string="Documents" widget="many2many_binary"/>
+                            </list>
+                        </field>
+                    </div>
+
+                    </page><page string="Layers / Material Structure" name="gdn_layers_material_tab"><div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-clone"/> Layers / Material Structure</div>
+                        <div class="o_crm_req_layers_grid">
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_1_product_tmpl_id">
+                                <field name="layer_1_product_tmpl_id"/>
+                                <field name="layer_1_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_2_product_tmpl_id">
+                                <field name="layer_2_product_tmpl_id"/>
+                                <field name="layer_2_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_3_product_tmpl_id">
+                                <field name="layer_3_product_tmpl_id"/>
+                                <field name="layer_3_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_4_product_tmpl_id">
+                                <field name="layer_4_product_tmpl_id"/>
+                                <field name="layer_4_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_5_product_tmpl_id">
+                                <field name="layer_5_product_tmpl_id"/>
+                                <field name="layer_5_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_6_product_tmpl_id">
+                                <field name="layer_6_product_tmpl_id"/>
+                                <field name="layer_6_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_7_product_tmpl_id">
+                                <field name="layer_7_product_tmpl_id"/>
+                                <field name="layer_7_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_8_product_tmpl_id">
+                                <field name="layer_8_product_tmpl_id"/>
+                                <field name="layer_8_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_9_product_tmpl_id">
+                                <field name="layer_9_product_tmpl_id"/>
+                                <field name="layer_9_thickness"/>
+                            </group>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_10_product_tmpl_id">
+                                <field name="layer_10_product_tmpl_id"/>
+                                <field name="layer_10_thickness"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    </page></notebook></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sale_gdn_configuration_search_view" model="ir.ui.view">
+        <field name="name">sale.gdn.configuration.search</field>
+        <field name="model">sale.gdn.configuration</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="gdn_number"/>
+                <field name="partner_id"/>
+                <field name="bag_type_product_tmpl_id"/>
+                <field name="design_name"/>
+                <field name="width"/>
+                <field name="print_finish_id"/>
+                <field name="source_order_id"/>
+                <field name="requirement_form_id" string="REQ ID"/>
+                <group>
+                    <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_bag_type" string="Product" context="{'group_by': 'bag_type_product_tmpl_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sale_gdn_configuration" model="ir.actions.act_window">
+        <field name="name">GDN Configurations</field>
+        <field name="res_model">sale.gdn.configuration</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sale_gdn_configuration_search_view"/>
+        <field name="context">{}</field>
+    </record>
+
+
+    <record id="sale_job_code_configuration_list_view" model="ir.ui.view">
+        <field name="name">sale.job.code.configuration.list</field>
+        <field name="model">sale.job.code.configuration</field>
+        <field name="arch" type="xml">
+            <list string="Job Code Configurations" create="0" edit="0" delete="0" default_order="id desc">
+                <field name="job_code" string="Job Code"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="order_id" string="Sale Order"/>
+                <field name="requirement_form_id" string="REQ ID" optional="show"/>
+                <field name="product_id" string="Product" optional="show"/>
+                <field name="gdn_configuration_id" string="GDN Number" optional="show"/>
+                <field name="quantity" string="QTY" optional="show"/>
+                <field name="fg_type" string="FG Type" optional="show"/>
+                <field name="bag_type_product_tmpl_id" string="Product" optional="show" invisible="fg_type != 'bag'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sale_job_code_configuration_form_view" model="ir.ui.view">
+        <field name="name">sale.job.code.configuration.form</field>
+        <field name="model">sale.job.code.configuration</field>
+        <field name="arch" type="xml">
+            <form string="Job Code Configuration" create="0" edit="1" delete="0" class="o_crm_req_config_form">
+                <sheet class="o_crm_req_config_sheet">
+                    <field name="gdn_number" invisible="1"/>
+                    <field name="roll_type" invisible="1"/>
+                    <field name="requirement_specification_id" invisible="1"/>
+
+                    <div class="o_crm_req_config_hero">
+                        <div>
+                            <div class="o_crm_req_config_kicker">Production Job Code</div>
+                            <div class="o_crm_req_config_title"><field name="job_code" nolabel="1"/></div>
+                            <div class="o_crm_req_config_subtitle">Production reference generated from the confirmed Sale Order line.</div>
+                        </div>
+                        <div class="o_crm_req_config_badge">
+                            <span>FG Type</span>
+                            <field name="fg_type" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <div class="o_crm_req_config_grid">
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-link"/> Source &amp; Traceability</div>
+                            <group col="2">
+                                <field name="partner_id" string="Customer"/>
+                                <field name="order_id" string="Sale Order"/>
+                                <field name="requirement_form_id" string="REQ ID" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="gdn_configuration_id" string="GDN Number"/>
+                                </group>
+                        </div>
+
+                        <div class="o_crm_req_config_card">
+                            <div class="o_crm_req_config_card_title"><i class="fa fa-cube"/> Product Summary</div>
+                            <group col="2">
+                                <field name="bag_type_product_tmpl_id" string="Product"/>
+                                <field name="design_name"/>
+                                <field name="design_dimension_uom"/>
+                                <field name="print_finish_id"/>
+                                <field name="gdn_color_details" readonly="1"/>
+                                <field name="gdn_print_type_id" readonly="1"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Production Process" name="job_production_process_tab">
+                    <div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-cogs"/> Production Process (Manual Entry)</div>
+                        <group col="2">
+                            <field name="job_measuring_unit_id" string="Measuring Unit" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="job_process_sequence" widget="many2many_tags"/>
+                            <field name="job_one_up_size"/>
+                            <field name="job_number_of_ups"/>
+                            <field name="job_one_repeat_size"/>
+                            <field name="job_number_of_repeats"/>
+                            <field name="job_circumference"/>
+                            <field name="job_sleeve_size"/>
+                            <field name="job_print_area"/>
+                            <field name="job_film_size_to_be_used"/>
+                        </group>
+                    </div>
+                        </page>
+                        <page string="Pouch Details" name="job_pouch_details_tab" invisible="fg_type != 'bag'">
+                            <div class="o_crm_req_config_card">
+                                <div class="o_crm_req_config_card_title"><i class="fa fa-shopping-bag"/> Pouch Details</div>
+                                <group col="2">
+                                    <group>
+                                        <field name="length" string="Bag Length (mm)" readonly="1"/>
+                                        <field name="width" string="Bag Width (mm)" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="job_pouch_side_gusset" string="Side Gusset (mm)"/>
+                                        <field name="job_pouch_bottom_gusset" string="Bottom Gusset (mm)"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+                        <page string="Roll Details" name="job_roll_details_tab" invisible="fg_type != 'roll'">
+                            <div class="o_crm_req_config_card">
+                                <div class="o_crm_req_config_card_title"><i class="fa fa-circle-o-notch"/> Roll Details</div>
+                                <group col="2">
+                                    <group>
+                                        <field name="coil_width_mm"/>
+                                        <field name="cutoff_length_mm"/>
+                                        <field name="final_roll_direction"/>
+                                        <field name="final_roll_weight_kg"/>
+                                        <field name="final_roll_od_mm"/>
+                                    </group>
+                                    <group>
+                                        <field name="final_roll_meters"/>
+                                        <field name="core_id_mm"/>
+                                        <field name="core_thickness_mm"/>
+                                        <field name="core_type"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+                        <page string="Quality Department" name="job_quality_department_tab">
+<div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-flask"/> Quality Department (Manual Entry)</div>
+                        <group col="2">
+                            <field name="job_ink_gsm" placeholder="Entered by Quality Dept"/>
+                            <field name="job_adhesive_gsm" placeholder="Entered by Quality Dept"/>
+                            <field name="job_opv_gsm" placeholder="Entered by Quality Dept"/>
+                            <field name="job_total_gsm" placeholder="Entered by Quality Dept"/>
+                        </group>
+                    </div>
+                    <div class="o_crm_req_config_card">
+                        <div class="o_crm_req_config_card_title"><i class="fa fa-paperclip"/> Job Code Documents</div>
+                        <p class="text-muted">Upload files for this Job Code only. Documents from Requirement Forms or GDN are not imported here.</p>
+                        <field name="job_quality_attachment_ids" string="Documents" nolabel="1" widget="many2many_binary"/>
+                    </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sale_job_code_configuration_search_view" model="ir.ui.view">
+        <field name="name">sale.job.code.configuration.search</field>
+        <field name="model">sale.job.code.configuration</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="job_code"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="order_id" string="Sale Order"/>
+                <field name="requirement_form_id" string="REQ ID"/>
+                <field name="product_id"/>
+                <field name="gdn_number"/>
+                <field name="fg_type"/>
+                <group>
+                    <filter name="group_job_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_job_order" string="Sale Order" context="{'group_by': 'order_id'}"/>
+                    <filter name="group_fg_type" string="FG Type" context="{'group_by': 'fg_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sale_job_code_configuration" model="ir.actions.act_window">
+        <field name="name">Job Code Configurations</field>
+        <field name="res_model">sale.job.code.configuration</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sale_job_code_configuration_search_view"/>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_sale_job_code_configuration" name="Job Code Configurations" parent="sale.menu_sale_config" action="action_sale_job_code_configuration" sequence="34" groups="sales_team.group_sale_manager"/>
+
+    <menuitem id="menu_sale_gdn_configuration" name="GDN Configurations" parent="sale.menu_sale_config" action="action_sale_gdn_configuration" sequence="35" groups="sales_team.group_sale_manager"/>
+</odoo>

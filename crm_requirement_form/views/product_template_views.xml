@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_requirement_bag_type" model="ir.ui.view">
+        <field name="name">product.template.form.requirement.fg.type</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_requirement_item_codes"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-barcode"
+                        invisible="requirement_item_code_count == 0">
+                    <field name="requirement_item_code_count"
+                           widget="statinfo"
+                           string="Item Codes"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="show_requirement_category_type" invisible="1"/>
+                <field name="requirement_category_type_id"
+                       string="Type"
+                       invisible="not show_requirement_category_type"
+                       options="{'no_quick_create': True}"
+                       placeholder="Select or create Type"/>
+                <field name="requirement_fg_type" invisible="1"/>
+                <field name="is_requirement_bag_type" invisible="1"/>
+                <field name="is_requirement_roll_type" invisible="1"/>
+                <field name="requirement_fg_type_id"
+                       string="FG Type"
+                       options="{'no_quick_create': True}"
+                       placeholder="Select or create FG Type"/>
+                <field name="is_requirement_layer" string="Layer"/>
+                <field name="requirement_bag_type_code"
+                       string="FG Type Code"
+                       invisible="not requirement_fg_type_id"
+                       required="requirement_fg_type_id"
+                       placeholder="e.g. FB, SUP, QS, RS, LBL"/>
+            </xpath>
+            <xpath expr="//page[@name='inventory']" position="inside">
+                <group string="Requirement Layer">
+                    <field name="thickness_microns"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_category_form_requirement_type" model="ir.ui.view">
+        <field name="name">product.category.form.requirement.type</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="show_category_type" invisible="1"/>
+                <field name="category_type_id"
+                       string="Type"
+                       invisible="not show_category_type"
+                       placeholder="Select or create a category type"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_category_type_list" model="ir.ui.view">
+        <field name="name">product.category.type.list</field>
+        <field name="model">product.category.type</field>
+        <field name="arch" type="xml">
+            <list string="Type of Category" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category_initial"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="product_category_type_form" model="ir.ui.view">
+        <field name="name">product.category.type.form</field>
+        <field name="model">product.category.type</field>
+        <field name="arch" type="xml">
+            <form string="Type of Category">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="category_initial"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_product_category_type" model="ir.actions.act_window">
+        <field name="name">Type of Category</field>
+        <field name="res_model">product.category.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_product_category_type"
+              name="Type of Category"
+              parent="menu_crm_requirement_config_root"
+              action="action_product_category_type"
+              sequence="15"/>
+</odoo>

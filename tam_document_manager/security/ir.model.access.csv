@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tam_doc_type_user,document type user,model_tam_document_type,tam_document_manager.group_document_user,1,0,0,0
+access_tam_doc_type_manager,document type manager,model_tam_document_type,tam_document_manager.group_document_manager,1,1,1,1
+access_tam_doc_folder_user,document folder user,model_tam_document_folder,tam_document_manager.group_document_user,1,1,1,0
+access_tam_doc_folder_manager,document folder manager,model_tam_document_folder,tam_document_manager.group_document_manager,1,1,1,1
+access_tam_doc_file_user,document file user,model_tam_document_file,tam_document_manager.group_document_user,1,1,1,0
+access_tam_doc_file_manager,document file manager,model_tam_document_file,tam_document_manager.group_document_manager,1,1,1,1

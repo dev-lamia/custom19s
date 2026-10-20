@@ -1,0 +1,12 @@
+WhatsApp schema bootstrap fix (19.0.0.2)
+
+Reason:
+Odoo.sh may restart with the new Python field definitions before the module is
+manually upgraded. In that state res.partner reads fail because PostgreSQL does
+not yet contain whatsapp_number.
+
+Fix:
+- Idempotent registry-start bootstrap creates the three WhatsApp columns before
+  normal HTTP requests are served.
+- Upgrade migration is retained as the canonical schema update path.
+- Existing CRM/Contact/Requirement Form synchronization logic is unchanged.

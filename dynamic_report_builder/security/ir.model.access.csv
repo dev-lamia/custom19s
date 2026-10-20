@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dynamic_report_config_manager,dynamic.report.config.manager,model_dynamic_report_config,base.group_system,1,1,1,1
+access_dynamic_report_config_user,dynamic.report.config.user,model_dynamic_report_config,base.group_user,1,0,0,0
+access_dynamic_report_config_field_manager,dynamic.report.config.field.manager,model_dynamic_report_config_field,base.group_system,1,1,1,1
+access_dynamic_report_config_field_user,dynamic.report.config.field.user,model_dynamic_report_config_field,base.group_user,1,0,0,0
+access_dynamic_report_date_filter_wizard_user,dynamic.report.date.filter.wizard.user,model_dynamic_report_date_filter_wizard,base.group_user,1,1,1,1

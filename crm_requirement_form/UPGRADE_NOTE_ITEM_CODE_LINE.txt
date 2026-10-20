@@ -1,0 +1,7 @@
+Item Code update (19.0.0.35)
+
+- Item Code is now stored on purchase.order.line only.
+- It is no longer shown or maintained on product.template.
+- Every Purchase Order confirmation generates a fresh code for each Raw Materials line.
+- Format: 02-[Type Category Initial]-[Incremental Series], e.g. 02-04-01.
+- Reconfirming a Purchase Order generates the next sequence and replaces the line's previous Item Code.

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sequence_view_conditional_model" model="ir.ui.view">
+        <field name="name">ir.sequence.form.conditional.model</field>
+        <field name="model">ir.sequence</field>
+        <field name="inherit_id" ref="base.sequence_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="model_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="model_name" invisible="1"/>
+                <field name="priority" invisible="not model_id"/>
+            </xpath>
+
+            <xpath expr="//page[@name='sequence']" position="inside">
+                <group string="Independent Counter" invisible="not model_id">
+                    <div colspan="4" class="text-muted">
+                        Choose which field value gets its own 1, 2, 3... counter.
+                        For Customer Short Name, choose Customer first and then
+                        choose Short Name as the related field. Leave empty to use
+                        Odoo's normal shared sequence counter.
+                    </div>
+                    <group>
+                        <field name="counter_field_id"
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <field name="counter_relation_model_id" invisible="1"/>
+                        <field name="counter_related_field_id"
+                               options="{'no_create': True, 'no_open': True}"
+                               invisible="not counter_relation_model_id"/>
+                    </group>
+                </group>
+
+                <group string="Dynamic Record Values" invisible="not model_id">
+                    <div colspan="4" class="text-muted">
+                        Use any field from the selected Model in Prefix or Suffix with
+                        <strong>%%(field_name)s</strong>. Related fields can use a dotted path.
+                        Empty field values are inserted as blank text.
+                    </div>
+                    <group>
+                        <span colspan="2">Customer Name: %%(partner_id.name)s</span>
+                        <span colspan="2">Customer Reference/Code: %%(partner_id.ref)s</span>
+                        <span colspan="2">Customer Custom Short Name: %%(partner_id.x_short_name)s</span>
+                    </group>
+                    <group>
+                        <span colspan="2">Company Name: %%(company_id.name)s</span>
+                        <span colspan="2">Company Custom Code: %%(company_id.x_short_name)s</span>
+                        <span colspan="2">Salesperson: %%(user_id.name)s</span>
+                    </group>
+                    <group>
+                        <span colspan="2">Journal Code: %%(journal_id.code)s</span>
+                        <span colspan="2">Warehouse Code: %%(warehouse_id.code)s</span>
+                        <span colspan="2">Any Custom Field: %%(x_studio_your_field)s</span>
+                    </group>
+                    <group>
+                        <span colspan="2">Example: %%(company_id.name)s-%%(partner_id.ref)s-Q</span>
+                        <span colspan="2">With date: %%(partner_id.ref)s/%%(year)s/%%(month)s/Q</span>
+                    </group>
+                </group>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Condition" name="conditional_sequence_domain">
+                    <div class="text-muted mb-3">
+                        Select a model, then build the condition with Odoo's standard
+                        domain editor. An empty domain is the conditional fallback for
+                        the selected model.
+                    </div>
+                    <field name="condition_domain"
+                           widget="domain"
+                           options="{'model': 'model_name', 'foldable': true}"
+                           invisible="not model_id"/>
+                    <div class="text-muted" invisible="model_id">
+                        Select a Model first to configure the condition.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sequence_view_tree_conditional_model" model="ir.ui.view">
+        <field name="name">ir.sequence.list.conditional.model</field>
+        <field name="model">ir.sequence</field>
+        <field name="inherit_id" ref="base.sequence_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="model_id" optional="show"/>
+                <field name="priority" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sequence_search_conditional_model" model="ir.ui.view">
+        <field name="name">ir.sequence.search.conditional.model</field>
+        <field name="model">ir.sequence</field>
+        <field name="inherit_id" ref="base.view_sequence_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="model_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

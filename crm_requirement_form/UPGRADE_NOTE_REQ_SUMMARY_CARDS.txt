@@ -1,0 +1,4 @@
+Requirement Summary card layout update
+- Each Product Specification line is rendered as its own standalone card in CRM Lead > Requirement Summary.
+- Each card shows its source Requirement Form and Design Name.
+- Fields: Type, Dimensions, Weight, Material - Structure, Print and Finish, Features, Valve, Quantity.

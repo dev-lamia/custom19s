@@ -1,0 +1,201 @@
+.o_form_view.fcp-ready.fcp-mode-bottom {
+  width: 100% !important;
+  max-width: none !important;
+
+  .o_form_renderer,
+  .o_form_sheet_bg,
+  .o_form_sheet {
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 1 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .o_form_sheet {
+    box-sizing: border-box;
+  }
+
+  .o_FormRenderer_chatterContainerOuter.fcp-bottom-side-container,
+  .o_FormRenderer_chatterContainer.fcp-bottom-side-container {
+    display: none !important;
+  }
+
+  .fcp-bottom-chatter {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .fcp-toggle-btn,
+  .fcp-resizer {
+    display: none !important;
+  }
+}
+
+.o_form_view.fcp-ready.fcp-mode-responsive {
+  position: relative;
+
+  .o_form_renderer.fcp-responsive-renderer {
+    flex-wrap: nowrap !important;
+    min-width: 0 !important;
+  }
+
+  .o_form_sheet_bg.fcp-responsive-sheet {
+    min-width: 0 !important;
+  }
+
+  // With no PDF preview, hiding chatter must release the whole form width.
+  &.fcp-chatter-hidden:not(.fcp-preview-open) {
+    .o_form_renderer.fcp-responsive-renderer > .o_form_sheet_bg.fcp-responsive-sheet {
+      width: 100% !important;
+      max-width: none !important;
+      flex: 1 1 100% !important;
+    }
+  }
+
+  // When Odoo's attachment/PDF preview is open, keep the preview as the right
+  // pane and stack chatter below the form inside the left pane only.
+  &.fcp-preview-open {
+    .o_form_renderer.fcp-responsive-renderer {
+      align-items: stretch !important;
+    }
+
+    // Keep a stable 3:1 split while the PDF/attachment preview is open.
+    // Form/chatter uses 75% of the renderer; preview uses the remaining 25%.
+    .o_form_sheet_bg.fcp-responsive-sheet.fcp-preview-left-pane {
+      display: flex !important;
+      flex: 3 1 0 !important;
+      flex-direction: column !important;
+      width: 75% !important;
+      min-width: 0 !important;
+      max-width: 75% !important;
+      overflow-x: hidden !important;
+
+      > .o_form_sheet {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+      }
+    }
+
+    .o_attachment_preview.fcp-preview-right-pane {
+      flex: 1 1 0 !important;
+      width: 25% !important;
+      min-width: 0 !important;
+      max-width: 25% !important;
+      box-sizing: border-box !important;
+    }
+
+    .fcp-preview-chatter {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      flex: 0 0 auto !important;
+      align-self: stretch !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      overflow-x: hidden !important;
+    }
+
+    .fcp-preview-chatter > .fcp-resizer {
+      display: none !important;
+    }
+
+    > .fcp-toggle-btn {
+      right: var(--fcp-preview-toggle-right, 8px);
+    }
+  }
+
+  &.fcp-chatter-hidden {
+    .o_FormRenderer_chatterContainer,
+    .o_FormRenderer_chatterContainerOuter,
+    .o-mail-Form-chatter,
+    .o-mail-ChatterContainer,
+    .o_ChatterContainer {
+      display: none !important;
+    }
+  }
+
+  > .fcp-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    z-index: 1050;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--o-brand-primary, #714b67);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 34px;
+    text-align: center;
+    transform: translateY(-50%);
+    opacity: 0.45;
+    cursor: pointer;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  &:hover > .fcp-toggle-btn,
+  > .fcp-toggle-btn:focus,
+  &.fcp-chatter-hidden > .fcp-toggle-btn {
+    opacity: 1;
+  }
+
+  .fcp-responsive-target {
+    position: relative;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    transition: width 0.18s ease, max-width 0.18s ease, flex-basis 0.18s ease;
+
+    .fcp-resizer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -4px;
+      z-index: 25;
+      width: 8px;
+      cursor: col-resize;
+      background: transparent;
+    }
+
+    .fcp-resizer:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+.fcp-resizing,
+.fcp-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+html[dir="rtl"] {
+  .o_form_view.fcp-ready.fcp-mode-responsive {
+    > .fcp-toggle-btn {
+      right: auto;
+      left: 8px;
+    }
+
+    &.fcp-preview-open > .fcp-toggle-btn {
+      right: auto;
+      left: var(--fcp-preview-toggle-left, 8px);
+    }
+
+    .fcp-responsive-target .fcp-resizer {
+      right: -4px;
+      left: auto;
+    }
+  }
+}

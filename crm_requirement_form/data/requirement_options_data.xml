@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="print_finish_matte" model="crm.requirement.print.finish.option">
+        <field name="name">Matte</field>
+        <field name="code">matte</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="print_finish_glossy" model="crm.requirement.print.finish.option">
+        <field name="name">Glossy</field>
+        <field name="code">glossy</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="print_finish_soft_touch" model="crm.requirement.print.finish.option">
+        <field name="name">Soft Touch</field>
+        <field name="code">soft_touch</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="print_finish_rough_matte" model="crm.requirement.print.finish.option">
+        <field name="name">Rough Matte</field>
+        <field name="code">rough_matte</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="print_finish_spot_gloss" model="crm.requirement.print.finish.option">
+        <field name="name">Spot Gloss</field>
+        <field name="code">spot_gloss</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="print_type_surface" model="crm.requirement.print.type.option">
+        <field name="name">Surface</field>
+        <field name="code">surface</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="print_type_reverse" model="crm.requirement.print.type.option">
+        <field name="name">Reverse</field>
+        <field name="code">reverse</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="feature_normal_zipper" model="crm.requirement.feature.option">
+        <field name="name">Normal Zipper</field>
+        <field name="code">normal_zipper</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="feature_tear_zipper" model="crm.requirement.feature.option">
+        <field name="name">Tear Zipper</field>
+        <field name="code">tear_zipper</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="feature_tear_notch" model="crm.requirement.feature.option">
+        <field name="name">Tear Notch</field>
+        <field name="code">tear_notch</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="feature_rounder_corner_punch" model="crm.requirement.feature.option">
+        <field name="name">Rounder Corner Punch</field>
+        <field name="code">rounded_corner_punch</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="feature_rounder_corner_diecut" model="crm.requirement.feature.option">
+        <field name="name">Rounder Corner Diecut</field>
+        <field name="code">rounded_corner_diecut</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="feature_valve_c_type" model="crm.requirement.feature.option">
+        <field name="name">Valve C Type</field>
+        <field name="code">valve_c_type</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="feature_valve_s_type" model="crm.requirement.feature.option">
+        <field name="name">Valve S Type</field>
+        <field name="code">valve_s_type</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="feature_metal_cap_hole" model="crm.requirement.feature.option">
+        <field name="name">Metal Cap Hole</field>
+        <field name="code">metal_cap_hole</field>
+        <field name="sequence">80</field>
+    </record>
+    <record id="feature_tin_tie" model="crm.requirement.feature.option">
+        <field name="name">Tin Tie</field>
+        <field name="code">tin_tie</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="feature_easy_tear_laser" model="crm.requirement.feature.option">
+        <field name="name">Easy Tear Laser</field>
+        <field name="code">easy_tear_laser</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="bag_type_stand_up_pouch" model="crm.requirement.bag.type.option">
+        <field name="name">Stand Up Pouch</field>
+        <field name="code">stand</field>
+        <field name="sequence">10</field>
+        <field name="hide_gusset" eval="False"/>
+    </record>
+    <record id="bag_type_flat_bottom_pouch" model="crm.requirement.bag.type.option">
+        <field name="name">Flat Bottom Pouch</field>
+        <field name="code">flat</field>
+        <field name="sequence">20</field>
+        <field name="hide_gusset" eval="False"/>
+    </record>
+    <record id="bag_type_quad_seal_pouch" model="crm.requirement.bag.type.option">
+        <field name="name">Quad Seal Pouch</field>
+        <field name="code">quad_seal</field>
+        <field name="sequence">30</field>
+        <field name="hide_gusset" eval="False"/>
+    </record>
+    <record id="bag_type_3_side_seal_pouch" model="crm.requirement.bag.type.option">
+        <field name="name">3 Side Seal Pouch</field>
+        <field name="code">three_side</field>
+        <field name="sequence">40</field>
+        <field name="hide_gusset" eval="True"/>
+    </record>
+    <record id="bag_type_2_side_seal_pouch" model="crm.requirement.bag.type.option">
+        <field name="name">2 Side Seal Pouch</field>
+        <field name="code">two_side</field>
+        <field name="sequence">50</field>
+        <field name="hide_gusset" eval="True"/>
+    </record>
+    <record id="bag_type_label" model="crm.requirement.bag.type.option">
+        <field name="name">Label</field>
+        <field name="code">label</field>
+        <field name="sequence">60</field>
+        <field name="hide_gusset" eval="True"/>
+    </record>
+    <record id="bag_type_roll_stock" model="crm.requirement.bag.type.option">
+        <field name="name">Roll Stock</field>
+        <field name="code">roll_stock</field>
+        <field name="sequence">70</field>
+        <field name="hide_gusset" eval="True"/>
+    </record>
+
+</odoo>

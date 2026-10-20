@@ -1,0 +1,17 @@
+WhatsApp schema hotfix
+======================
+
+Module version: 19.0.0.1
+
+Reason:
+The WhatsApp fields were present in Python while an existing database still
+had the previous table schema.  This caused PostgreSQL errors such as:
+    column res_partner.whatsapp_number does not exist
+
+Fix:
+An idempotent pre-migration creates the WhatsApp columns for:
+- res_partner
+- crm_lead
+- crm_requirement_form
+
+After deploying this build, upgrade the crm_requirement_form module.

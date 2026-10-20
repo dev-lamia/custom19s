@@ -1,0 +1,699 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+
+    <record id="crm_requirement_form_list" model="ir.ui.view">
+        <field name="name">crm.requirement.form.list</field>
+        <field name="model">crm.requirement.form</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="Requirement Forms" default_order="create_date desc">
+                <field name="name" string="REQ ID"/>
+                <field name="lead_id"/>
+                <field name="customer_name"/>
+                <field name="customer_short_name"/>
+                <field name="customer_id"/>
+                <field name="customer_email"/>
+                <field name="whatsapp_number"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'sent'" decoration-success="state == 'submitted'"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_form_form" model="ir.ui.view">
+        <field name="name">crm.requirement.form.form</field>
+        <field name="model">crm.requirement.form</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Requirement Form" class="o_crm_req_form_backend">
+                <header>
+                    <button name="action_submit_internal" string="Submit Requirement" type="object" class="btn-primary" invisible="state == 'submitted'"/>
+                    <button name="action_reset_internal_to_draft" string="Edit Requirement" type="object" class="btn-secondary" invisible="state != 'submitted'"/>
+                    <button name="action_send_requirement_form" string="Send to Customer" type="object" class="btn-secondary" invisible="state != 'draft'"/>
+                    <button name="action_print_requirement_form" string="Print" type="object" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,submitted"/>
+                </header>
+                <sheet class="o_crm_req_sheet">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_customer_rating" type="object" class="oe_stat_button" icon="fa-star" invisible="not lead_id and not partner_id">
+                            <field name="customer_rating_count" widget="statinfo" string="Customer Ranking"/>
+                        </button>
+                        <button name="action_open_quotations" type="object" class="oe_stat_button" icon="fa-file-text-o" invisible="not feasibility_yes or (not lead_id and not partner_id)">
+                            <field name="quotation_count" widget="statinfo" string="Quotation"/>
+                        </button>
+                    </div>
+                    <field name="from_crm" invisible="1"/>
+                    <field name="is_saudi_customer" invisible="1"/>
+
+                    <div class="o_crm_req_hero">
+                        <div class="o_crm_req_hero_left">
+                            <div class="o_crm_req_kicker">CRM Requirement Form</div>
+                            <div class="oe_title o_crm_req_title">
+                                <label for="name" class="o_crm_req_label"/>
+                                <h1><field name="name" readonly="1"/></h1>
+                            </div>
+                            <div class="o_crm_req_subtitle">
+                                Fill and submit the complete Requirement Form directly inside Odoo. Customer link is optional.
+                            </div>
+                        </div>
+                        <div class="o_crm_req_hero_card">
+                            <div class="o_crm_req_card_label">Current Status</div>
+                            <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'sent'" decoration-success="state == 'submitted'"/>
+                            <div class="o_crm_req_card_link" invisible="1">
+                                <field name="public_url" string="Customer Link" widget="url"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="o_crm_req_feasibility_wrap">
+                        <div class="o_crm_req_feasibility_header">
+                            <div>
+                                <div class="o_crm_req_section_title o_crm_req_section_title_no_margin">Feasibility Check</div>
+                                <div class="o_crm_req_feasibility_hint">
+                                    Select the feasibility result. When YES is selected, the Quotation smart button becomes available.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="o_crm_req_feasibility_grid">
+                            <div class="o_crm_req_feasibility_option o_crm_req_feasibility_yes">
+                                <div class="o_crm_req_feasibility_option_head">
+                                    <span class="o_crm_req_feasibility_title">YES</span>
+                                    <field name="feasibility_yes" nolabel="1"/>
+                                </div>
+                                <div class="o_crm_req_feasibility_text">
+                                    Approve the requirement for commercial follow-up and quotation creation.
+                                </div>
+                            </div>
+                            <div class="o_crm_req_feasibility_option o_crm_req_feasibility_cancel">
+                                <div class="o_crm_req_feasibility_option_head">
+                                    <span class="o_crm_req_feasibility_title">CANCEL</span>
+                                    <field name="feasibility_cancel" nolabel="1"/>
+                                </div>
+                                <div class="o_crm_req_feasibility_text">
+                                    Mark the requirement as not feasible or discontinued for the current stage.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <notebook class="o_crm_req_notebook">
+                        <page string="Customer Information">
+                            <div class="o_crm_req_panel">
+                                <div class="o_crm_req_section_title">Customer Information</div>
+                                <group>
+                                    <group string="CRM / System Generated">
+                                        <field name="lead_id" readonly="from_crm"/>
+                                        <field name="user_id" string="Salesperson" readonly="from_crm"/>
+                                        <field name="partner_id" readonly="from_crm" placeholder="Select a customer to auto-fill details..."/>
+                                        <field name="customer_name" readonly="from_crm"/>
+                                        <field name="customer_short_name"/>
+                                        <field name="customer_id" readonly="1"/>
+                                    </group>
+                                    <group string="Contact">
+                                        <field name="customer_email" readonly="from_crm"/>
+                                        <field name="contact_person" readonly="from_crm"/>
+                                        <field name="contact_number" readonly="from_crm"/>
+                                        <field name="title"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Billing Address">
+                                        <field name="address_street" readonly="from_crm"/>
+                                        <field name="address_city" readonly="from_crm"/>
+                                        <field name="address_state" readonly="from_crm"/>
+                                        <field name="address_country" readonly="from_crm"/>
+                                        <field name="postal_code" readonly="from_crm"/>
+                                    </group>
+                                    <group string="Commercial Details">
+                                        <field name="business_licence" readonly="from_crm"/>
+                                        <field name="vat_no" required="is_saudi_customer" invisible="not is_saudi_customer"/>
+                                        <field name="payment_term_id" options="{'no_open': True}"/>
+                                        <field name="local_export"/>
+                                        <field name="contract_type"/>
+                                        <field name="contract_duration" invisible="contract_type != 'long_term_supply'" required="contract_type == 'long_term_supply'"/>
+                                        <field name="delivery_terms"/>
+                                        <field name="port"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+
+                        <page string="Product Specifications">
+                            <div class="o_crm_req_panel">
+                                <div class="o_crm_req_section_title">Product Specifications</div>
+                                <div class="text-muted mb-3">
+                                    Enter the specification using normal Odoo fields. Use the standard Odoo Save action to persist changes.
+                                </div>
+
+                                <group col="4" class="mb-3">
+                                    <field name="new_job" readonly="state == 'submitted'"/>
+                                    <field name="repeat_job" readonly="state == 'submitted'"/>
+                                    <field name="previous_requirement_id" string="Previous Req Form" invisible="not repeat_job" required="repeat_job" readonly="state == 'submitted'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                </group>
+
+                                <field name="next_design_number" invisible="1"/>
+                                <field name="specification_ids" class="o_crm_req_specs_list" nolabel="1" readonly="state == 'submitted'" context="{'default_form_id': id, 'default_no_designs': next_design_number, 'default_sequence': next_design_number}">
+                                    <list string="Product Specifications" open_form_view="1" create="1">
+                                        <control>
+                                            <create string="Add a line"/>
+                                        </control>
+                                        <field name="is_duplicate_copy" column_invisible="1"/><field name="sequence" widget="handle" readonly="is_duplicate_copy"/>
+                                        <field name="no_designs" string="Design" readonly="1"/>
+                                        <field name="design_name" string="Design Name" readonly="is_duplicate_copy"/>
+                                        <field name="job_code_link" string="Job Code" widget="html" readonly="1" optional="show"/>
+                                        <field name="gdn_number_link" string="GDN Number" widget="html" readonly="1" optional="show"/>
+                                        <field name="fg_type" string="FG Type" readonly="is_duplicate_copy"/>
+                                        <field name="bag_type_product_tmpl_id" string="Product" domain="[('active', '=', True), ('sale_ok', '=', True), ('requirement_fg_type', '=', fg_type)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                        <field name="quantity" string="QTY"/>
+                                        <field name="quantity_uom_id" string="UOM" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="print_finish_id" string="Print and Finish" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                    </list>
+                                    <form string="Product Specification" class="o_crm_req_spec_editor">
+                                        <field name="is_repeat_job" invisible="1"/>
+                                        <sheet class="o_crm_req_spec_editor_sheet">
+                                            <field name="is_duplicate_copy" invisible="1"/><field name="source_specification_id" invisible="1" force_save="1" readonly="is_duplicate_copy"/><field name="sequence" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="previous_req_form" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="bag_type_hide_gusset" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="roll_type" invisible="1" readonly="is_duplicate_copy"/>
+
+                                            <div class="o_crm_req_spec_editor_header">
+                                                <div>
+                                                    <div class="o_crm_req_spec_editor_kicker">Product Specification</div>
+                                                    <div class="o_crm_req_spec_editor_title">
+                                                        <span>Design </span>
+                                                        <field name="no_designs" readonly="1" class="oe_inline"/>
+                                                    </div>
+                                                    <div class="o_crm_req_spec_editor_subtitle">
+                                                        Enter the finished-good, dimensional and material details for this design.
+                                                    </div>
+                                                </div>
+                                                <div class="o_crm_req_spec_editor_badge">
+                                                    <span>FG Type</span>
+                                                    <field name="fg_type" nolabel="1" required="1" class="oe_inline" readonly="is_duplicate_copy"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="o_crm_req_spec_card">
+                                                <div class="o_crm_req_spec_card_title">
+                                                    <i class="fa fa-cube"/> Product Details
+                                                </div>
+                                                <group col="2" class="o_crm_req_spec_two_col">
+                                                    <group>
+                                                        <field name="design_name" required="1" readonly="is_duplicate_copy"/>
+                                                        <field name="design_dimension_uom" required="1" readonly="is_duplicate_copy"/>
+                                                        <field name="color_reference" required="1" readonly="is_duplicate_copy"/>
+                                                        <field name="color_reference_type" invisible="color_reference != 'yes'" required="color_reference == 'yes'" readonly="is_duplicate_copy"/>
+                                                    </group>
+                                                    <group>
+                                                        <field name="quantity" string="QTY" required="1"/>
+                                                        <field name="quantity_uom_id" string="UOM" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                                        <field name="bag_type_product_tmpl_id" string="Product" required="1" domain="[('active', '=', True), ('sale_ok', '=', True), ('requirement_fg_type', '=', fg_type)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                        <field name="print_finish_id" string="Print and Finish" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    </group>
+                                                </group>
+                                            </div>
+
+                                            <div class="o_crm_req_spec_card" invisible="fg_type != 'bag'">
+                                                <div class="o_crm_req_spec_card_title">
+                                                    <i class="fa fa-arrows-alt"/> Bag Dimensions
+                                                </div>
+                                                <group col="3" class="o_crm_req_spec_three_col">
+                                                    <field name="length" string="Bag Length (mm)" readonly="is_duplicate_copy"/>
+                                                    <field name="width" string="Bag Width (mm)" readonly="is_duplicate_copy"/>
+                                                    <field name="gusset" string="Gusset (mm)" invisible="bag_type_hide_gusset" readonly="is_duplicate_copy"/>
+                                                </group>
+                                            </div>
+
+                                            <div class="o_crm_req_spec_card" invisible="fg_type != 'roll'">
+                                                <div class="o_crm_req_spec_card_title">
+                                                    <i class="fa fa-circle-o-notch"/> Roll Details
+                                                </div>
+                                                <group col="2" class="o_crm_req_spec_two_col">
+                                                    <group>
+                                                        <field name="coil_width_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="cutoff_length_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="final_roll_direction" readonly="is_duplicate_copy"/>
+                                                        <field name="final_roll_weight_kg" readonly="is_duplicate_copy"/>
+                                                        <field name="final_roll_od_mm" readonly="is_duplicate_copy"/>
+                                                    </group>
+                                                    <group>
+                                                        <field name="final_roll_meters" readonly="is_duplicate_copy"/>
+                                                        <field name="core_id_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="core_thickness_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="core_type" readonly="is_duplicate_copy"/>
+                                                    </group>
+                                                </group>
+                                            </div>
+
+                                            <div class="o_crm_req_spec_card">
+                                                <div class="o_crm_req_spec_card_title">
+                                                    <i class="fa fa-clone"/> Layers / Inventory Material
+                                                </div>
+                                                <div class="o_crm_req_spec_card_hint">
+                                                    Select the material for Layer 1. Use Add Layer when another layer is required.
+                                                </div>
+
+                                                <div class="o_crm_req_layer_card"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_1_product_tmpl_id" string="Layer 1" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_1_material" string="Layer 1" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_1_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_1_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_1_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 1}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 2 and not layer_2_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_2_product_tmpl_id" string="Layer 2" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_2_material" string="Layer 2" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_2_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_2_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_2_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 2}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 3 and not layer_3_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_3_product_tmpl_id" string="Layer 3" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_3_material" string="Layer 3" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_3_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_3_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_3_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 3}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 4 and not layer_4_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_4_product_tmpl_id" string="Layer 4" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_4_material" string="Layer 4" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_4_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_4_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_4_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 4}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 5 and not layer_5_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_5_product_tmpl_id" string="Layer 5" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_5_material" string="Layer 5" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_5_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_5_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_5_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 5}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 6 and not layer_6_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_6_product_tmpl_id" string="Layer 6" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_6_material" string="Layer 6" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_6_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_6_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_6_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 6}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 7 and not layer_7_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_7_product_tmpl_id" string="Layer 7" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_7_material" string="Layer 7" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_7_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_7_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_7_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 7}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 8 and not layer_8_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_8_product_tmpl_id" string="Layer 8" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_8_material" string="Layer 8" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_8_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_8_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_8_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 8}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 9 and not layer_9_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_9_product_tmpl_id" string="Layer 9" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_9_material" string="Layer 9" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_9_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_9_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_9_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 9}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 10 and not layer_10_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_10_product_tmpl_id" string="Layer 10" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
+                                                    <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
+                                                    <field name="layer_10_material" string="Layer 10" readonly="1" invisible="not is_duplicate_copy"/>
+                                                    <field name="layer_10_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_10_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                    <field name="layer_10_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
+                                                </group>
+
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 10}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_actions">
+                                                    <field name="layer_visible_count" widget="crm_req_layer_add_button" nolabel="1" readonly="is_duplicate_copy"/>
+                                                </div>
+
+                                                <div class="o_crm_req_total_thickness">
+                                                    <span>Total Thickness</span>
+                                                    <field name="total_thickness" readonly="1" nolabel="1" class="oe_inline"/>
+                                                    <span>Microns</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="o_crm_req_spec_card">
+                                                <div class="o_crm_req_spec_card_title">
+                                                    <i class="fa fa-list-alt"/> Features &amp; Additional Requirement
+                                                </div>
+                                                <group col="2" class="o_crm_req_spec_two_col">
+                                                    <group>
+                                                        <field name="standard_feature_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                        <field name="feature_other_note" string="Other Feature / Technical Note" readonly="is_duplicate_copy"/>
+                                                        <field name="weight" string="Weight (g)" readonly="is_duplicate_copy"/>
+                                                    </group>
+                                                    <group>
+                                                        <field name="customer_notes" string="Customer / Sales Design Note" placeholder="Sales note for designer regarding this design..." readonly="is_duplicate_copy"/>
+                                                        <field name="additional_requirements" readonly="is_duplicate_copy"/>
+                                                    </group>
+                                                </group>
+                                            </div>
+                                            <div class="o_crm_req_spec_card">
+                                                <div class="o_crm_req_spec_card_title">
+                                                    <i class="fa fa-paperclip"/> Design Documents
+                                                </div>
+                                                <p class="text-muted">Add a document line, enter its type, and upload multiple files. The same lines are shown on the linked GDN.</p>
+                                                <field name="design_document_line_ids" nolabel="1" mode="list" readonly="is_duplicate_copy">
+                                                    <list string="Design Documents" create="1" delete="1" editable="bottom" open_form_view="0">
+                                                        <field name="sequence" widget="handle"/>
+                                                        <field name="document_type_id" string="Document Type" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" required="1"/>
+                                                        <field name="document_type" column_invisible="1"/>
+                                                        <field name="attachment_ids" string="Documents" widget="many2many_binary"/>
+                                                    </list>
+                                                </field>
+                                                <!-- Keep existing categorized attachments accessible on historical designs. -->
+                                                <group string="Previously Uploaded Documents" col="2" invisible="not (doc_raw_file_ids or doc_customer_approved_file_ids or doc_digital_print_file_ids or doc_production_layout_ids or doc_plate_layout_ids or doc_color_separation_ids)">
+                                                    <group>
+                                                        <field name="doc_raw_file_ids" widget="many2many_binary"/>
+                                                        <field name="doc_customer_approved_file_ids" widget="many2many_binary"/>
+                                                        <field name="doc_digital_print_file_ids" widget="many2many_binary"/>
+                                                    </group>
+                                                    <group>
+                                                        <field name="doc_production_layout_ids" widget="many2many_binary"/>
+                                                        <field name="doc_plate_layout_ids" widget="many2many_binary"/>
+                                                        <field name="doc_color_separation_ids" widget="many2many_binary"/>
+                                                    </group>
+                                                </group>
+                                            </div>
+                                        </sheet>
+                                        <footer replace="0">
+                                            <button name="action_duplicate_specification" type="object" string="Duplicate" icon="fa-copy" class="btn btn-secondary o_crm_req_duplicate_spec_btn" invisible="is_repeat_job"/>
+                                        </footer>
+                                    </form>
+                                </field>
+                            </div>
+                        </page>
+
+
+
+                        <page string="Additional Details">
+                            <div class="o_crm_req_panel">
+                                <div class="o_crm_req_section_title">Additional Details</div>
+                                <group>
+                                    <field name="document_attachment_ids" widget="many2many_binary" string="Documents"/>
+                                </group>
+                                <field name="requirement_details" placeholder="Any other requirements..." nolabel="1"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_post="True" reload_on_attachment="True" reload_on_follower="True"/>
+            </form>
+        </field>
+    </record>
+
+    <template id="report_requirement_form_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="text-align:center;margin-bottom:4px;">Product Requirement Form</h2>
+                        <p style="text-align:center;color:#888;font-size:11px;margin-bottom:14px;">
+                            REQ ID: <t t-esc="doc.name"/> | Status: <t t-esc="dict(draft='Draft', sent='Sent', submitted='Submitted').get(doc.state, doc.state)"/>
+                        </p>
+
+                        <div style="background:#f0f4f8;padding:4px 10px;margin-bottom:4px;font-weight:bold;font-size:11px;border-left:4px solid #2d7dd2;">CUSTOMER INFORMATION</div>
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;">
+                            <tr>
+                                <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Customer Name</td>
+                                <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.customer_name or ''"/></td>
+                                <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Customer Short Name</td>
+                                <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.customer_short_name or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Customer ID</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.customer_id or ''"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Title</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.title or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Email</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.customer_email or ''"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Contact Number</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.contact_number or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">WhatsApp Number</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.whatsapp_number or ''"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;"/>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"/>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Contact Person</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.contact_person or ''"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">VAT No.</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.vat_no or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Business Licence</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.business_licence or ''"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Local / Export</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="dict(local='Local', export='Export').get(doc.local_export or '', '')"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Payment Terms</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc._get_payment_terms_display()"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Contract Type</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;">
+                                    <t t-esc="dict(simple_sale='Simple Sale', long_term_supply='Long Term Supply').get(doc.contract_type or '', '')"/>
+                                    <t t-if="doc.contract_type == 'long_term_supply'"> (<t t-esc="doc.contract_duration or 0"/> months)</t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Delivery Terms</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="(doc.delivery_terms or '').upper()"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Port</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.port or ''"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="background:#f0f4f8;padding:4px 10px;margin-bottom:4px;font-weight:bold;font-size:11px;border-left:4px solid #2d7dd2;">BILLING ADDRESS</div>
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;">
+                            <tr>
+                                <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Address</td>
+                                <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.address_street or ''"/></td>
+                                <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">City</td>
+                                <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.address_city or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Country</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.address_country.name or ''"/></td>
+                                <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Postal Code</td>
+                                <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="doc.postal_code or ''"/></td>
+                            </tr>
+                        </table>
+
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;margin:8px 0;">
+                            <tr>
+                                <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">New Job</td>
+                                <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="'Yes' if doc.new_job else 'No'"/></td>
+                                <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Repeat Job</td>
+                                <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="'Yes' if doc.repeat_job else 'No'"/></td>
+                            </tr>
+                        </table>
+
+                        <t t-foreach="doc.specification_ids" t-as="spec">
+                            <div style="background:#f0f4f8;padding:4px 10px;margin-bottom:4px;font-weight:bold;font-size:11px;border-left:4px solid #2d7dd2;">
+                                DESIGN <t t-esc="spec_index + 1"/>: <t t-esc="spec.design_name or ''"/>
+                            </div>
+                            <div t-if="doc.repeat_job and spec.previous_req_form" style="font-size:11px;margin:0 0 5px 4px;">
+                                <strong>Previous Req Form:</strong> <t t-esc="spec.previous_req_form"/>
+                            </div>
+                            <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;">
+                                <tr>
+                                    <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">FG Type</td>
+                                    <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="'Roll' if spec.fg_type == 'roll' else 'Bag'"/></td>
+                                    <td style="width:16%;padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Quantity</td>
+                                    <td style="width:34%;padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.quantity"/> <t t-esc="spec.quantity_uom_id.display_name if spec.quantity_uom_id else dict(pcs='PCS', kg='KG', lm='LM').get(spec.quantity_uom or '', '')"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Product</td>
+                                    <td colspan="3" style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec._get_bag_type_display()"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Design Dimension UOM</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="dict(mm='MM', cm='CM', inch='Inch', meters='Meters').get(spec.design_dimension_uom or 'mm', 'MM')"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Color Reference</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="dict(yes='Yes', no='No').get(spec.color_reference or '', '') + ((' - ' + dict(physical='Physical', pantone='Pantone').get(spec.color_reference_type or '', '')) if spec.color_reference_type else '')"/></td>
+                                </tr>
+                                <tr t-if="spec.fg_type != 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Bag Length (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.length"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Bag Width (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.width"/></td>
+                                </tr>
+                                <tr t-if="spec.fg_type != 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Gusset (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.gusset if not spec.bag_type_hide_gusset else ''"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Total Thickness</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.total_thickness"/> Microns</td>
+                                </tr>
+                                <tr t-if="spec.fg_type == 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Coil Width (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.coil_width_mm"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Cutoff Length (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.cutoff_length_mm"/></td>
+                                </tr>
+                                <tr t-if="spec.fg_type == 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Final Roll Direction</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.final_roll_direction or ''"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Final Roll Weight (kg)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.final_roll_weight_kg"/></td>
+                                </tr>
+                                <tr t-if="spec.fg_type == 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Final Roll OD (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.final_roll_od_mm"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Final Roll Meters</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.final_roll_meters"/></td>
+                                </tr>
+                                <tr t-if="spec.fg_type == 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Core ID (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.core_id_mm"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Core Thickness (mm)</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.core_thickness_mm"/></td>
+                                </tr>
+                                <tr t-if="spec.fg_type == 'roll'">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Core Type</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.core_type or ''"/></td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Total Thickness</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.total_thickness"/> Microns</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 1</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_1_material or ''"/> - <t t-esc="spec.layer_1_thickness"/> microns</td>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 2</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_2_material or ''"/> - <t t-esc="spec.layer_2_thickness"/> microns</td>
+                                </tr>
+                                <tr>
+                                    <t t-if="spec.layer_3_product_tmpl_id or spec.layer_3_material or spec.layer_3_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 3</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_3_material or ''"/> - <t t-esc="spec.layer_3_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Print and Finish</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.print_finish_id.name or spec.print_finish_id.name or spec.print_finish or ''"/></td>
+                                </tr>
+                                <tr t-if="spec.layer_4_product_tmpl_id or spec.layer_4_material or spec.layer_4_thickness or spec.layer_5_product_tmpl_id or spec.layer_5_material or spec.layer_5_thickness">
+                                    <t t-if="spec.layer_4_product_tmpl_id or spec.layer_4_material or spec.layer_4_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 4</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_4_material or ''"/> - <t t-esc="spec.layer_4_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                    <t t-if="spec.layer_5_product_tmpl_id or spec.layer_5_material or spec.layer_5_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 5</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_5_material or ''"/> - <t t-esc="spec.layer_5_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                </tr>
+                                <tr t-if="spec.layer_6_product_tmpl_id or spec.layer_6_material or spec.layer_6_thickness or spec.layer_7_product_tmpl_id or spec.layer_7_material or spec.layer_7_thickness">
+                                    <t t-if="spec.layer_6_product_tmpl_id or spec.layer_6_material or spec.layer_6_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 6</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_6_material or ''"/> - <t t-esc="spec.layer_6_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                    <t t-if="spec.layer_7_product_tmpl_id or spec.layer_7_material or spec.layer_7_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 7</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_7_material or ''"/> - <t t-esc="spec.layer_7_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                </tr>
+                                <tr t-if="spec.layer_8_product_tmpl_id or spec.layer_8_material or spec.layer_8_thickness or spec.layer_9_product_tmpl_id or spec.layer_9_material or spec.layer_9_thickness">
+                                    <t t-if="spec.layer_8_product_tmpl_id or spec.layer_8_material or spec.layer_8_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 8</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_8_material or ''"/> - <t t-esc="spec.layer_8_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                    <t t-if="spec.layer_9_product_tmpl_id or spec.layer_9_material or spec.layer_9_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 9</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_9_material or ''"/> - <t t-esc="spec.layer_9_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                </tr>
+                                <tr t-if="spec.layer_10_product_tmpl_id or spec.layer_10_material or spec.layer_10_thickness">
+                                    <t t-if="spec.layer_10_product_tmpl_id or spec.layer_10_material or spec.layer_10_thickness">
+                                        <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Layer 10</td>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="spec.layer_10_material or ''"/> - <t t-esc="spec.layer_10_thickness"/> microns</td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                    </t>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;" colspan="2"/>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Features</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;" colspan="3"><t t-esc="spec.features or ', '.join(spec.standard_feature_ids.mapped('name')) or ''"/></td>
+                                </tr>
+                                <tr t-if="spec.additional_requirements">
+                                    <td style="padding:3px 6px;background:#fafafa;font-weight:600;border:1px solid #ddd;">Additional Requirements</td>
+                                    <td style="padding:3px 6px;border:1px solid #ddd;" colspan="3"><t t-esc="spec.additional_requirements or ''"/></td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <t t-if="doc.partner_id.requirement_document_attachment_ids or doc.document_attachment_ids">
+                            <div style="background:#f0f4f8;padding:4px 10px;margin-bottom:4px;font-weight:bold;font-size:11px;border-left:4px solid #2d7dd2;">DOCUMENTS</div>
+                            <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;">
+                                <t t-foreach="doc.partner_id.requirement_document_attachment_ids or doc.document_attachment_ids" t-as="attachment">
+                                    <tr>
+                                        <td style="padding:3px 6px;border:1px solid #ddd;"><t t-esc="attachment.name or ''"/></td>
+                                    </tr>
+                                </t>
+                            </table>
+                        </t>
+
+                        <t t-if="doc.requirement_details">
+                            <div style="background:#f0f4f8;padding:4px 10px;margin-bottom:4px;font-weight:bold;font-size:11px;border-left:4px solid #2d7dd2;">ADDITIONAL REQUIREMENTS</div>
+                            <div style="border:1px solid #ddd;padding:6px 10px;font-size:11px;min-height:28px;"><t t-esc="doc.requirement_details"/></div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_requirement_form" model="ir.actions.report">
+        <field name="name">Requirement Form</field>
+        <field name="model">crm.requirement.form</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">crm_requirement_form.report_requirement_form_document</field>
+        <field name="report_file">requirement_form</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <record id="action_crm_requirement_form" model="ir.actions.act_window">
+        <field name="name">Requirement Forms</field>
+        <field name="res_model">crm.requirement.form</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_crm_requirement_root" name="Requirement Forms" sequence="10" web_icon="crm_requirement_form,static/description/icon.png"/>
+    <menuitem id="menu_crm_requirement_form" name="Requirement Forms" parent="menu_crm_requirement_root" action="action_crm_requirement_form" sequence="10"/>
+
+</odoo>

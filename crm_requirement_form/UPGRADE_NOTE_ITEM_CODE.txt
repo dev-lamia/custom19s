@@ -1,0 +1,10 @@
+Version 19.0.0.33
+
+Raw Material Item Code flow:
+- Supplier Initial defaults to 02 on Contacts/Vendors.
+- Type of Category keeps the numeric Category Initial (for example 4).
+- On Purchase Order confirmation, uncoded Raw Material products receive:
+  Supplier Initial - Type Initial - Incremental Series
+  Example: 02-04-01, 02-04-02, 02-04-03.
+- Item Code is stored on the product template and shown on Purchase Order lines.
+- Existing Item Codes are preserved on later purchases.

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Idempotent GDN-owned document rows/backfill for existing GDN records. -->
+    <function model="sale.gdn.configuration" name="_bootstrap_existing_gdn_document_lines"/>
+</odoo>

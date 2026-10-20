@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_task_form_artwork_sales_inherit" model="ir.ui.view">
+        <field name="name">project.task.form.artwork.sales.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_open_artwork_sale_order"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart"
+                        invisible="not artwork_sale_order_id">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Sales Order</span>
+                        <span class="o_stat_value">
+                            <field name="artwork_sale_order_id" readonly="1"/>
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//sheet//notebook" position="inside">
+                <page string="Artwork" name="artwork_sales_information"
+                      invisible="not artwork_sale_order_id">
+                    <group>
+                        <group>
+                            <field name="artwork_sale_order_id"
+                                   readonly="1"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group>
+                            <field name="artwork_gdn_number_link" widget="html" readonly="1"/>
+                            <field name="artwork_job_code_link" widget="html" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

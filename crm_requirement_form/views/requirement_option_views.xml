@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="crm_requirement_fg_type_list" model="ir.ui.view">
+        <field name="name">crm.requirement.fg.type.list</field>
+        <field name="model">crm.requirement.fg.type</field>
+        <field name="arch" type="xml">
+            <list string="FG Types" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="behavior"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_fg_type_form" model="ir.ui.view">
+        <field name="name">crm.requirement.fg.type.form</field>
+        <field name="model">crm.requirement.fg.type</field>
+        <field name="arch" type="xml">
+            <form string="FG Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="behavior"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crm_requirement_fg_type" model="ir.actions.act_window">
+        <field name="name">FG Types</field>
+        <field name="res_model">crm.requirement.fg.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="crm_requirement_bag_type_option_list" model="ir.ui.view">
+        <field name="name">crm.requirement.bag.type.option.list</field>
+        <field name="model">crm.requirement.bag.type.option</field>
+        <field name="arch" type="xml">
+            <list string="Bag Types" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="hide_gusset"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_bag_type_option_form" model="ir.ui.view">
+        <field name="name">crm.requirement.bag.type.option.form</field>
+        <field name="model">crm.requirement.bag.type.option</field>
+        <field name="arch" type="xml">
+            <form string="Bag Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="hide_gusset"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="crm_requirement_print_finish_option_list" model="ir.ui.view">
+        <field name="name">crm.requirement.print.finish.option.list</field>
+        <field name="model">crm.requirement.print.finish.option</field>
+        <field name="arch" type="xml">
+            <list string="Print and Finish Options" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_print_finish_option_form" model="ir.ui.view">
+        <field name="name">crm.requirement.print.finish.option.form</field>
+        <field name="model">crm.requirement.print.finish.option</field>
+        <field name="arch" type="xml">
+            <form string="Print and Finish Option">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="crm_requirement_print_type_option_list" model="ir.ui.view">
+        <field name="name">crm.requirement.print.type.option.list</field>
+        <field name="model">crm.requirement.print.type.option</field>
+        <field name="arch" type="xml">
+            <list string="Print Types" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_print_type_option_form" model="ir.ui.view">
+        <field name="name">crm.requirement.print.type.option.form</field>
+        <field name="model">crm.requirement.print.type.option</field>
+        <field name="arch" type="xml">
+            <form string="Print Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="crm_requirement_feature_option_list" model="ir.ui.view">
+        <field name="name">crm.requirement.feature.option.list</field>
+        <field name="model">crm.requirement.feature.option</field>
+        <field name="arch" type="xml">
+            <list string="Feature Options" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_feature_option_form" model="ir.ui.view">
+        <field name="name">crm.requirement.feature.option.form</field>
+        <field name="model">crm.requirement.feature.option</field>
+        <field name="arch" type="xml">
+            <form string="Feature Option">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crm_requirement_bag_type_option" model="ir.actions.act_window">
+        <field name="name">Bag Types</field>
+        <field name="res_model">crm.requirement.bag.type.option</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_crm_requirement_print_finish_option" model="ir.actions.act_window">
+        <field name="name">Print and Finish</field>
+        <field name="res_model">crm.requirement.print.finish.option</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_crm_requirement_print_type_option" model="ir.actions.act_window">
+        <field name="name">Print Types</field>
+        <field name="res_model">crm.requirement.print.type.option</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_crm_requirement_feature_option" model="ir.actions.act_window">
+        <field name="name">Features</field>
+        <field name="res_model">crm.requirement.feature.option</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_crm_job_production_process_list" model="ir.ui.view">
+        <field name="name">crm.job.production.process.list</field>
+        <field name="model">crm.job.production.process</field>
+        <field name="arch" type="xml">
+            <list string="Process Sequence" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_crm_job_production_process_form" model="ir.ui.view">
+        <field name="name">crm.job.production.process.form</field>
+        <field name="model">crm.job.production.process</field>
+        <field name="arch" type="xml">
+            <form string="Process Sequence"><sheet><group>
+                <field name="name"/>
+                <field name="sequence"/>
+            </group></sheet></form>
+        </field>
+    </record>
+    <record id="action_crm_job_production_process" model="ir.actions.act_window">
+        <field name="name">Process Sequence</field>
+        <field name="res_model">crm.job.production.process</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_crm_requirement_config_root" name="Requirement Configuration" parent="menu_crm_requirement_root" sequence="20"/>
+    <menuitem id="menu_crm_requirement_fg_type" name="FG Types" parent="menu_crm_requirement_config_root" action="action_crm_requirement_fg_type" sequence="10"/>
+    <menuitem id="menu_crm_requirement_print_finish_option" name="Print and Finish" parent="menu_crm_requirement_config_root" action="action_crm_requirement_print_finish_option" sequence="20"/>
+    <menuitem id="menu_crm_requirement_print_type_option" name="Print Types" parent="menu_crm_requirement_config_root" action="action_crm_requirement_print_type_option" sequence="25"/>
+    <menuitem id="menu_crm_requirement_process_sequence" name="Process Sequence" parent="menu_crm_requirement_config_root" action="action_crm_job_production_process" sequence="40"/>
+    <menuitem id="menu_crm_requirement_feature_option" name="Features" parent="menu_crm_requirement_config_root" action="action_crm_requirement_feature_option" sequence="30"/>
+
+
+    <record id="crm_requirement_document_type_list" model="ir.ui.view">
+        <field name="name">crm.requirement.document.type.list</field>
+        <field name="model">crm.requirement.document.type</field>
+        <field name="arch" type="xml">
+            <list string="Document Types" editable="bottom" default_order="sequence asc, name asc">
+                <field name="sequence" widget="handle"/>
+                <field name="name" required="1"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_requirement_document_type_form" model="ir.ui.view">
+        <field name="name">crm.requirement.document.type.form</field>
+        <field name="model">crm.requirement.document.type</field>
+        <field name="arch" type="xml">
+            <form string="Document Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crm_requirement_document_type" model="ir.actions.act_window">
+        <field name="name">Document Types</field>
+        <field name="res_model">crm.requirement.document.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_crm_requirement_document_types"
+              name="Document Types" parent="menu_crm_requirement_config_root"
+              action="action_crm_requirement_document_type" sequence="35"
+              groups="sales_team.group_sale_manager"/>
+
+</odoo>

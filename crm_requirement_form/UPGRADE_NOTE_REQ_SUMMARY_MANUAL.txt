@@ -1,0 +1,6 @@
+[Update]: Convert CRM Req Summary to editable manual fields
+
+- Replaced the read-only requirement summary list in CRM opportunity with a form-style summary.
+- Sales can manually enter Type/Bag Type, Dimensions, Weight, Material/Structure, Print and Finish, Features, Valve, Quantity and Color Reference.
+- Added editable Customer / Sales Design Note and Designer Note on the same tab.
+- Existing requirement specification summary relation is kept internally for backward compatibility, but it is no longer shown in the CRM Req Summary tab.

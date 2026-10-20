@@ -1,0 +1,5 @@
+REQ Summary / Designer fields update
+
+IMPORTANT: This update adds new Python model fields (customer_notes, designer_note, summary_* and related fields).
+After replacing the module folder, restart the Odoo server/service BEFORE clicking Upgrade Apps.
+Otherwise the running registry still uses the old Python model definition and Odoo view validation will report that the new fields do not exist.

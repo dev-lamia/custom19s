@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_supplier_document_type_list" model="ir.ui.view">
+        <field name="name">supplier.document.type.list</field>
+        <field name="model">supplier.document.type</field>
+        <field name="arch" type="xml">
+            <list string="Supplier Document Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Document Type"/>
+                <field name="sale_ok" string="Sales"/>
+                <field name="purchase_ok" string="Purchase"/>
+                <field name="vendor_ok" string="Vendor"/>
+                <field name="customer_ok" string="Customer"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_supplier_document_type_form" model="ir.ui.view">
+        <field name="name">supplier.document.type.form</field>
+        <field name="model">supplier.document.type</field>
+        <field name="arch" type="xml">
+            <form string="Supplier Document Type">
+                <sheet>
+                    <group>
+                        <field name="name" string="Document Type"/>
+                        <field name="active"/>
+                    </group>
+                    <group string="Usage">
+                    <field name="sale_ok" string="Usable in Sales"/>
+                    <field name="purchase_ok" string="Usable in Purchase"/>
+                    <field name="vendor_ok" string="Usable in Vendor"/>
+                    <field name="customer_ok" string="Usable in Customer"/>
+                </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_supplier_document_type" model="ir.actions.act_window">
+        <field name="name">Document Types</field>
+        <field name="res_model">supplier.document.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <!-- Single-level menu under Purchase -->
+    <menuitem id="menu_supplier_document_type"
+          name="Document Types"
+          parent="base.menu_custom"
+          action="action_supplier_document_type"
+          sequence="90"/>
+</odoo>

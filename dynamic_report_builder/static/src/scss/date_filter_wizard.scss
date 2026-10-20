@@ -1,0 +1,223 @@
+/* Accounting-report inspired period picker for the runtime report wizard. */
+.modal-dialog:has(.drb_accounting_period_form) {
+    width: 450px;
+    max-width: calc(100vw - 32px);
+}
+
+.drb_accounting_period_form {
+    background: var(--o-view-background-color, #fff);
+
+    .o_form_sheet_bg,
+    .o_form_sheet {
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .drb_accounting_period_menu {
+        width: 100%;
+        padding: 4px 0 0;
+        background: var(--o-view-background-color, #fff);
+    }
+
+    .drb_accounting_period_row {
+        min-height: 42px;
+        display: grid;
+        grid-template-columns: 132px minmax(0, 1fr);
+        align-items: center;
+        padding: 0 12px 0 16px;
+        font-size: 14px;
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.035);
+        }
+    }
+
+    .drb_accounting_period_kind {
+        position: relative;
+        min-width: 0;
+    }
+
+    .drb_accounting_check {
+        position: absolute;
+        left: -9px;
+        top: 50%;
+        z-index: 2;
+        transform: translateY(-50%);
+        color: #008784;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .drb_accounting_period_select {
+        width: 100%;
+        min-height: 34px;
+        padding: 0 0 0 8px !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        text-align: left;
+        text-decoration: none !important;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--o-main-text-color, #212529) !important;
+        background: transparent !important;
+        box-shadow: none !important;
+
+        &:hover,
+        &:focus {
+            color: var(--o-main-text-color, #212529) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .drb_accounting_period_nav {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 30px minmax(120px, 1fr) 30px;
+        align-items: center;
+        column-gap: 6px;
+    }
+
+    .drb_accounting_arrow {
+        width: 30px;
+        min-width: 30px !important;
+        height: 30px;
+        min-height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 4px !important;
+        color: #c5c8cc !important;
+        background: transparent !important;
+        box-shadow: none !important;
+
+        &:hover,
+        &:focus {
+            color: #6c757d !important;
+            background: rgba(0, 0, 0, 0.04) !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .drb_accounting_period_value {
+        min-width: 0;
+        text-align: center;
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--o-main-text-color, #212529);
+
+        .o_input,
+        input {
+            padding: 0 !important;
+            border: 0 !important;
+            text-align: center !important;
+            color: inherit !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .drb_accounting_period_separator {
+        height: 1px;
+        margin: 2px 0;
+        background: #dee2e6;
+    }
+
+    .drb_accounting_custom_row {
+        grid-template-columns: 1fr;
+        min-height: 43px;
+    }
+
+    .drb_accounting_custom_dates {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 10px 16px 14px 24px;
+        border-top: 1px solid #eef0f2;
+        background: rgba(0, 0, 0, 0.015);
+    }
+
+    .drb_accounting_custom_field {
+        min-width: 0;
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .o_field_widget,
+        .o_input {
+            width: 100%;
+        }
+    }
+
+    .drb_accounting_period_footer {
+        padding-top: 10px;
+        border-top: 1px solid #dee2e6;
+    }
+}
+
+.drb_user_filter_section {
+    padding: 8px 16px 12px;
+
+    .drb_user_filter_row {
+        display: grid;
+        grid-template-columns: 132px minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+        min-height: 46px;
+    }
+
+    .drb_user_filter_label {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        padding-left: 8px;
+        font-size: 14px;
+
+        small {
+            color: #6c757d;
+            font-size: 11px;
+            line-height: 1.2;
+
+            .o_input,
+            input {
+                padding: 0 !important;
+                border: 0 !important;
+                color: inherit !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+        }
+    }
+
+    .drb_user_filter_value {
+        min-width: 0;
+
+        .o_field_widget,
+        .o_input {
+            width: 100%;
+        }
+    }
+
+    .drb_user_filter_hint {
+        margin: 4px 0 0 140px;
+        color: #6c757d;
+        font-size: 11.5px;
+        line-height: 1.35;
+    }
+
+    .drb_user_group_hint {
+        margin-top: 3px;
+    }
+}

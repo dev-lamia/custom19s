@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="permission_manager_basic.SearchBarMenuAccess"
+       t-inherit="web.SearchBarMenu"
+       t-inherit-mode="extension">
+        <xpath expr="//Dropdown" position="attributes">
+            <attribute name="t-if">this.env.searchModel.searchMenuTypes.size and !this.pmSearchAccess.hideSearchMenu</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-if=&quot;this.env.searchModel.searchMenuTypes.has('filter')&quot;]"
+               position="attributes">
+            <attribute name="t-if">this.env.searchModel.searchMenuTypes.has('filter') and !this.pmSearchAccess.hideFilters</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-if=&quot;this.env.searchModel.searchMenuTypes.has('groupBy')&quot;]"
+               position="attributes">
+            <attribute name="t-if">this.env.searchModel.searchMenuTypes.has('groupBy') and !this.pmSearchAccess.hideGroupBy</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-if=&quot;this.env.searchModel.searchMenuTypes.has('favorite')&quot;]"
+               position="attributes">
+            <attribute name="t-if">this.env.searchModel.searchMenuTypes.has('favorite') and !this.pmSearchAccess.hideFavorites</attribute>
+        </xpath>
+
+        <xpath expr="//DropdownItem[@onSelected.bind='onAddCustomFilterClick']"
+               position="attributes">
+            <attribute name="t-if">!this.pmSearchAccess.hideCustomFilter</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-if='!hideCustomGroupBy and fields.length']"
+               position="attributes">
+            <attribute name="t-if">!hideCustomGroupBy and fields.length and !this.pmSearchAccess.hideCustomGroupBy</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="permission_manager_basic.SearchBarFacetCustomFilterAccess"
+       t-inherit="web.SearchBar.Facets"
+       t-inherit-mode="extension">
+        <xpath expr="//span[@t-if='facet.domain']" position="attributes">
+            <attribute name="t-if">facet.domain and !this.pmSearchAccess.hideCustomFilter</attribute>
+        </xpath>
+    </t>
+</templates>

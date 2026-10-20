@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="task_form_workflow" model="ir.ui.view">
+        <field name="name">project.task.form.workflow</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+        <field name="arch" type="xml">
+
+            <xpath expr="//header/field[@name='stage_id']" position="before">
+                <button
+                    name="action_next_stage"
+                    string="Next"
+                    type="object"
+                    class="btn-primary"
+                    invisible="not has_next_stage or is_closed or is_template"
+                />
+
+                <button
+                    name="action_approve_stage"
+                    string="Approve"
+                    type="object"
+                    class="btn-primary"
+                    invisible="not can_approve or is_closed or is_template"
+                />
+
+                <button
+                    name="action_review_stage"
+                    string="Review"
+                    type="object"
+                    class="btn-secondary"
+                    invisible="not can_review or is_closed or is_template"
+                />
+
+            </xpath>
+
+            <xpath expr="//header/field[@name='stage_id']" position="attributes">
+                <attribute name="options">
+                    {'clickable': '0', 'fold_field': 'fold'}
+                </attribute>
+            </xpath>
+
+            <xpath expr="//form/sheet/notebook/page[@name='extra_info']/group" position="inside">
+                <group string="Workflow">
+                    <field name="workflow_initiator_id" readonly="1" />
+                </group>
+            </xpath>
+
+            <xpath expr="//form" position="inside">
+                <!-- <field name="can_next" invisible="1" /> -->
+                <field name="has_next_stage" invisible="1" />
+                <field name="can_approve" invisible="1" />
+                <field name="can_review" invisible="1" />
+                <field name="approval_required" invisible="1" />
+                <field name="approval_complete" invisible="1" />
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

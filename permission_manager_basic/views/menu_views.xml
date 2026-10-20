@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_permission_manager_root"
+              name="Access Management"
+              action="action_permission_manager_policy"
+              sequence="45"
+              web_icon="permission_manager_basic,static/description/icon.png"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_permission_manager_policy"
+              name="Policies"
+              parent="menu_permission_manager_root"
+              action="action_permission_manager_policy"
+              sequence="10"
+              groups="base.group_system"/>
+</odoo>

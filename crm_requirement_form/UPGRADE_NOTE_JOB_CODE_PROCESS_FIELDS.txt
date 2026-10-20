@@ -1,0 +1,1 @@
+Upgrade crm_requirement_form from Apps to add editable production fields in Job Code Configuration. Values are stored per Sale Order Line. Process Sequence is a selection (Printing, Lamination, Slitting, Pouching, Valving). All other newly added fields accept manual inputs.

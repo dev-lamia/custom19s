@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_task_kanban_artwork_sales_inherit" model="ir.ui.view">
+        <field name="name">project.task.kanban.artwork.sales.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban/templates" position="before">
+                <field name="artwork_sale_order_id"/>
+                <field name="artwork_sale_order_ref"/>
+            </xpath>
+            <xpath expr="//t[@t-name='card']" position="inside">
+                <div t-if="record.artwork_sale_order_id.raw_value" class="text-muted mt-1">
+                    <span class="fw-semibold">Sales Order: </span>
+                    <field name="artwork_sale_order_ref"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

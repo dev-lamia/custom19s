@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_supplier_document_type_user,supplier_document_type_user,model_supplier_document_type,base.group_user,1,1,1,1
+access_sale_supplier_document_user,sale_supplier_document_user,model_sale_supplier_document,base.group_user,1,1,1,1
+access_purchase_supplier_document_user,purchase_supplier_document_user,model_purchase_supplier_document,base.group_user,1,1,1,1
+access_vendor_document_user,vendor_document_user,model_vendor_document,base.group_user,1,1,1,1

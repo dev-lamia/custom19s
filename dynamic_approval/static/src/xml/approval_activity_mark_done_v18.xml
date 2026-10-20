@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="dynamic_approval.ActivityMarkDoneRestrictionV18"
+       t-inherit="mail.Activity"
+       t-inherit-mode="extension">
+        <xpath expr="//button[contains(@class, 'o-mail-Activity-markDone')]" position="attributes">
+            <attribute name="t-if">professionalCanMarkDone</attribute>
+        </xpath>
+        <xpath expr="//button[contains(@class, 'o-mail-Activity-edit')]" position="attributes">
+            <attribute name="t-if">professionalCanEditOrCancel</attribute>
+        </xpath>
+        <xpath expr="//button[@t-on-click='unlink']" position="attributes">
+            <attribute name="t-if">professionalCanEditOrCancel</attribute>
+        </xpath>
+    </t>
+</templates>

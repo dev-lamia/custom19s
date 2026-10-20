@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approval_notice_form" model="ir.ui.view">
+        <field name="name">project.approval.notice.form</field>
+        <field name="model">project.approval.notice</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="message" readonly="1" nolabel="1" />
+                </sheet>
+
+                <footer>
+                    <button
+                        name="action_close"
+                        string="OK"
+                        type="object"
+                        class="btn-primary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

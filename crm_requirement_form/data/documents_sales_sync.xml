@@ -1,0 +1,11 @@
+<odoo>
+    <record id="ir_cron_requirement_sales_documents_sync" model="ir.cron">
+        <field name="name">Requirement Forms: Sync Documents to Sales</field>
+        <field name="model_id" ref="model_crm_requirement_form"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_sync_existing_sales_documents()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

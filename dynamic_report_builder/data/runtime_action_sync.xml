@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <function model="dynamic.report.config" name="_upgrade_sync_runtime_actions"/>
+</odoo>

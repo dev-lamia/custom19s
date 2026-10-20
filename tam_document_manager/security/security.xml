@@ -1,0 +1,1 @@
+<odoo><record id="group_document_user" model="res.groups"><field name="name">Document User</field></record><record id="group_document_manager" model="res.groups"><field name="name">Document Manager</field><field name="implied_ids" eval="[(4, ref('group_document_user'))]"/></record></odoo>

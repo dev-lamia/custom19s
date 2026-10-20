@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Sale Order form to add Supplier Doc page like Studio -->
+    <record id="view_order_form_inherit_supplier_documents" model="ir.ui.view">
+        <field name="name">sale.order.form.supplier.documents</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="/form//page[@name='customer_signature']" position="after">
+                <page string="Customer Documents" name="supplier_doc_page">
+                    <group>
+                        <!-- use the Many2many field -->
+                        <field name="supplier_po_ids"
+                               widget="many2many_tags"
+                               string="Related Purchase Orders"/>
+                    </group>
+                    <!-- Sale order view: views/sale_order_views.xml -->
+                    <field name="supplier_document_ids">
+                        <list default_order="sequence asc,id desc" editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="type_id"/>
+                            <!-- change widget from download -> binary -->
+                            <field name="file"
+                                filename="file_filename"
+                                widget="binary"
+                                string="File"/>
+                            <field name="source_po_id" string="PO"/>
+                        </list>
+                        <form string="Customer Documents">
+                            <sheet>
+                                <group>
+                                    <field name="sequence"/>
+                                    <field name="source_po_id" string="Source PO" readonly="1"/>
+                                    <field name="type_id"/>
+                                    <field name="name"/>
+                                    <field name="file"
+                                        filename="file_filename"
+                                        widget="binary"
+                                        string="File"/>
+                                    <field name="file_filename" invisible="1"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

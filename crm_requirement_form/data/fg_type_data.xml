@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="requirement_fg_type_bag" model="crm.requirement.fg.type">
+        <field name="name">Bag</field>
+        <field name="code">BAG</field>
+        <field name="behavior">bag</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="requirement_fg_type_roll" model="crm.requirement.fg.type">
+        <field name="name">Roll</field>
+        <field name="code">ROLL</field>
+        <field name="behavior">roll</field>
+        <field name="sequence">20</field>
+    </record>
+</odoo>

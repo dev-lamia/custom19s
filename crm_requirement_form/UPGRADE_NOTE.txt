@@ -1,0 +1,3 @@
+FG Type configuration is now defined inside models/product_specification.py, an existing model file, so the model registration is less dependent on a newly added Python import.
+
+IMPORTANT: Python model changes still require a full Odoo process restart before upgrading the module. Replace the module folder, stop Odoo, start Odoo again, then upgrade crm_requirement_form.

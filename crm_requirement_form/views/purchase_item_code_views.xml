@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_item_code_list" model="ir.ui.view">
+        <field name="name">purchase.item.code.list</field>
+        <field name="model">purchase.item.code</field>
+        <field name="arch" type="xml">
+            <list string="Item Codes" create="0" edit="0" delete="0" default_order="generated_on desc, id desc">
+                <field name="name" string="Item Code"/>
+                <field name="product_id"/>
+                <field name="category_type_id" string="RM Type"/>
+                <field name="purchase_order_id"/>
+                <field name="partner_id"/>
+                <field name="generated_on"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="purchase_item_code_form" model="ir.ui.view">
+        <field name="name">purchase.item.code.form</field>
+        <field name="model">purchase.item.code</field>
+        <field name="arch" type="xml">
+            <form string="Item Code" create="0" edit="0" delete="0">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Item Code"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Source">
+                            <field name="purchase_order_id" readonly="1"/>
+                            <field name="purchase_order_line_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="product_id" readonly="1"/>
+                        </group>
+                        <group string="Code Details">
+                            <field name="category_type_id" readonly="1"/>
+                            <field name="supplier_initial" readonly="1"/>
+                            <field name="category_initial" readonly="1"/>
+                            <field name="generated_on" readonly="1"/>
+                            <field name="company_id" readonly="1" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="purchase_item_code_search" model="ir.ui.view">
+        <field name="name">purchase.item.code.search</field>
+        <field name="model">purchase.item.code</field>
+        <field name="arch" type="xml">
+            <search string="Item Codes">
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="purchase_order_id"/>
+                <field name="partner_id"/>
+                <field name="category_type_id"/>
+                <filter string="Group by RM Type" name="group_category_type" context="{'group_by': 'category_type_id'}"/>
+                <filter string="Group by Product" name="group_product" context="{'group_by': 'product_id'}"/>
+                <filter string="Group by Vendor" name="group_vendor" context="{'group_by': 'partner_id'}"/>
+                <filter string="Group by Purchase Order" name="group_purchase_order" context="{'group_by': 'purchase_order_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_purchase_item_code" model="ir.actions.act_window">
+        <field name="name">Item Codes</field>
+        <field name="res_model">purchase.item.code</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="purchase_item_code_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Item Codes generated yet.</p>
+            <p>Item Codes are created automatically when Purchase Orders are confirmed.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_purchase_item_code"
+              name="Item Codes"
+              parent="stock.menu_stock_config_settings"
+              action="action_purchase_item_code"
+              sequence="85"
+              groups="stock.group_stock_manager"/>
+</odoo>

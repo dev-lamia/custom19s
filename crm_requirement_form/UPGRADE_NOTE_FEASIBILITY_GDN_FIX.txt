@@ -1,0 +1,5 @@
+[Fix]: Keep fetched repeat-job GDN after Requirement Form save
+
+- Preserve source_specification_id on onchange-created repeat-job lines with force_save.
+- CRM Lead Requirement Summary now includes only Requirement Forms with Feasibility YES.
+- Existing card-wise summary layout and other flows are unchanged.

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_view_form_customer_code_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.customer.code.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_requirement_forms"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o">
+                    <field name="requirement_form_count" widget="statinfo" string="Requirement Form"/>
+                </button>
+                <button name="action_view_customer_rankings"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-star">
+                    <field name="customer_rating_count" widget="statinfo" string="Customer Ranking"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="attributes">
+                <attribute name="string">VAT No.</attribute>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="ref" string="Customer Short Name"/>
+                <field name="customer_code" readonly="1"/>
+            </xpath>
+            <xpath expr="(//field[@name='phone'])[1]" position="after">
+                <field name="whatsapp_number" widget="phone"/>
+            </xpath>
+            <xpath expr="(//field[@name='category_id'])[1]" position="after">
+                <field name="industry_id" string="Industry Category"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Documents">
+                    <group>
+                        <div class="alert alert-info" role="alert">
+                            Customer documents collected from Requirement Forms are stored here.
+                        </div>
+                        <field name="requirement_document_attachment_ids"
+                               widget="many2many_binary"
+                               string="Documents"
+                               nolabel="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

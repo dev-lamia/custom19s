@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Preserve legacy text document types, and offer them in the new menu. -->
+    <function model="crm.requirement.document.type" name="_backfill_document_type_ids"/>
+</odoo>

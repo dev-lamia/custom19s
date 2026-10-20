@@ -1,0 +1,1032 @@
+/* Access Management — polished policy form UI. Presentation only; no behavior changes. */
+
+/* -------------------------------------------------------------------------- */
+/* Form shell                                                                  */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_policy_sheet {
+    max-width: 1280px;
+    padding-top: 22px;
+    padding-bottom: 34px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_sheet > * {
+    box-sizing: border-box;
+}
+
+.o_form_view.pm_policy_form .o_form_statusbar {
+    border-bottom: 1px solid #e7edf4;
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(20, 31, 53, 0.04);
+}
+
+.o_form_view.pm_policy_form .o_statusbar_buttons .btn {
+    min-height: 34px;
+    padding: 6px 14px;
+    border-radius: 9px;
+    font-weight: 650;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Hero                                                                        */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_policy_hero {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 18px;
+    padding: 24px 28px 25px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 88% 18%, rgba(75, 219, 201, 0.24), transparent 28%),
+        linear-gradient(125deg, #17324d 0%, #1f6f8b 58%, #2d9c8f 100%);
+    color: #ffffff;
+    box-shadow: 0 16px 34px rgba(18, 38, 63, 0.15);
+}
+
+.o_form_view.pm_policy_form .pm_policy_hero::after {
+    content: "";
+    position: absolute;
+    right: -68px;
+    bottom: -95px;
+    width: 260px;
+    height: 260px;
+    border: 38px solid rgba(255, 255, 255, 0.055);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.o_form_view.pm_policy_form .pm_policy_hero_content {
+    position: relative;
+    z-index: 1;
+}
+
+.o_form_view.pm_policy_form .pm_policy_eyebrow {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    margin-bottom: 8px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 0.085em;
+    font-size: 11px;
+    font-weight: 750;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.o_form_view.pm_policy_form .pm_policy_title {
+    max-width: 820px;
+    margin-bottom: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_title label,
+.o_form_view.pm_policy_form .pm_policy_title .o_form_label {
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.o_form_view.pm_policy_form .pm_policy_title h1 {
+    margin: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_title h1,
+.o_form_view.pm_policy_form .pm_policy_title h1 input,
+.o_form_view.pm_policy_form .pm_policy_title h1 span {
+    color: #ffffff;
+    font-weight: 750;
+}
+
+.o_form_view.pm_policy_form .pm_policy_title .o_field_widget {
+    width: 100%;
+}
+
+.o_form_view.pm_policy_form .pm_policy_title .o_field_widget input {
+    min-height: 48px;
+    width: 100%;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    font-size: 26px;
+    transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.o_form_view.pm_policy_form .pm_policy_title .o_field_widget input:focus {
+    border-color: rgba(255, 255, 255, 0.62);
+    background: rgba(255, 255, 255, 0.17);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+.o_form_view.pm_policy_form .pm_policy_title .o_field_widget input::placeholder {
+    color: rgba(255, 255, 255, 0.52);
+}
+
+.o_form_view.pm_policy_form .pm_policy_subtitle {
+    max-width: 850px;
+    margin-top: 9px;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Smart stat buttons                                                          */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+    float: none;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin: 0 0 18px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button {
+    float: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+    width: 100%;
+    min-height: 66px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #e3eaf2;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: 0 7px 18px rgba(20, 31, 53, 0.055);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button:hover {
+    transform: translateY(-2px);
+    border-color: #bcd8e4;
+    box-shadow: 0 12px 24px rgba(20, 31, 53, 0.10);
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button .fa {
+    color: #1f6f8b;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_info,
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_text,
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_value {
+    min-width: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #405169;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_value {
+    color: #172b43;
+    font-weight: 750;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Configuration cards                                                         */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_policy_grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel {
+    position: relative;
+    overflow: hidden;
+    padding: 18px 20px 14px;
+    border: 1px solid #e3eaf2;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(20, 31, 53, 0.05);
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #1f6f8b, #2d9c8f);
+    opacity: 0.82;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel_warning {
+    background: linear-gradient(180deg, #ffffff 0%, #fffbf6 100%);
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel_warning::before {
+    background: linear-gradient(90deg, #e3a047, #d77d50);
+}
+
+.o_form_view.pm_policy_form .pm_policy_users {
+    margin-bottom: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.o_form_view.pm_policy_form .pm_policy_users::before {
+    background: linear-gradient(90deg, #1f6f8b, #4a8fd8);
+}
+
+.o_form_view.pm_policy_form .pm_panel_title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 14px;
+    color: #20304a;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.o_form_view.pm_policy_form .pm_panel_title .fa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 9px;
+    background: #eaf6f8;
+    color: #1f6f8b;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel_warning .pm_panel_title .fa {
+    background: #fff3e5;
+    color: #c77835;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel .o_group,
+.o_form_view.pm_policy_form .pm_policy_users .o_group {
+    margin-bottom: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel .o_inner_group,
+.o_form_view.pm_policy_form .pm_policy_users .o_inner_group {
+    row-gap: 5px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel .o_form_label,
+.o_form_view.pm_policy_form .pm_policy_users .o_form_label {
+    color: #293a52;
+    font-weight: 600;
+}
+
+.o_form_view.pm_policy_form .pm_policy_panel .o_field_many2many_tags,
+.o_form_view.pm_policy_form .pm_policy_users .o_field_many2many_tags {
+    min-height: 36px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_users .o_field_widget[name="user_ids"] {
+    width: 100%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Notebook                                                                    */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_policy_notebook {
+    margin-top: 4px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 10px;
+    padding: 6px;
+    border: 1px solid #e4eaf1;
+    border-radius: 14px;
+    background: #f6f9fc;
+    scrollbar-width: thin;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-item {
+    flex: 0 0 auto;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-link {
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #405169;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-link:hover {
+    background: #ffffff;
+    color: #1f6f8b;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-link.active {
+    background: #ffffff;
+    color: #1f6f8b;
+    box-shadow: 0 3px 10px rgba(20, 31, 53, 0.08);
+}
+
+.o_form_view.pm_policy_form .o_notebook .tab-content {
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid #e3eaf2;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(20, 31, 53, 0.045);
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_view {
+    border: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table {
+    margin-bottom: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th {
+    height: 42px;
+    border-bottom: 1px solid #e4eaf1;
+    background: #f8fafc;
+    color: #2d3f58;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody tr {
+    transition: background 0.12s ease;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody tr:hover {
+    background: #f8fcfd;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_field_x2many_list_row_add a {
+    font-weight: 650;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Existing list-view polish — intentionally unchanged in behavior.            */
+/* -------------------------------------------------------------------------- */
+.o_list_view.pm_policy_list thead th {
+    background: #f6fafc;
+    color: #20304a;
+    font-weight: 700;
+}
+
+.o_list_view.pm_policy_list tbody tr:hover {
+    background: #f8fcff;
+}
+
+/* Keep the Record Domain rule editor readable in x2many modal dialogs. */
+.o_form_view.pm_record_domain_rule_form .o_group {
+    width: 100%;
+}
+
+.o_form_view.pm_record_domain_rule_form .o_field_domain,
+.o_form_view.pm_record_domain_rule_form .o_field_widget[name="filter_expression"] {
+    min-width: 320px;
+    width: 100%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                  */
+/* -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    .o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .o_form_view.pm_policy_form .pm_policy_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .o_form_view.pm_policy_form .pm_policy_hero {
+        padding: 21px 22px 22px;
+    }
+
+    .o_form_view.pm_policy_form .pm_policy_title .o_field_widget input {
+        font-size: 23px;
+    }
+}
+
+@media (max-width: 768px) {
+    .o_form_view.pm_policy_form .pm_policy_sheet {
+        padding-top: 14px;
+    }
+
+    .o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .o_form_view.pm_policy_form .pm_policy_hero {
+        border-radius: 16px;
+    }
+
+    .o_form_view.pm_policy_form .pm_policy_panel {
+        padding: 16px 15px 12px;
+        border-radius: 14px;
+    }
+
+    .o_form_view.pm_record_domain_rule_form .o_field_domain,
+    .o_form_view.pm_record_domain_rule_form .o_field_widget[name="filter_expression"] {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    .o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+        grid-template-columns: 1fr;
+    }
+
+    .o_form_view.pm_policy_form .pm_policy_title .o_field_widget input {
+        font-size: 20px;
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* v18: keep this policy form full-width and stack chatter below the sheet.    */
+/* Presentation only. No permission or business logic is changed.             */
+/* -------------------------------------------------------------------------- */
+
+/* Odoo switches wide forms to a side-by-side renderer at XXL widths.
+   For Access Management only, stack renderer children vertically instead. */
+.o_form_view.pm_policy_form.o_xxl_form_view .o_form_renderer {
+    display: block !important;
+    overflow: auto !important;
+}
+
+.o_form_view.pm_policy_form .o_form_sheet_bg,
+.o_form_view.pm_policy_form .pm_policy_sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Chatter stays after the form content and spans the available width. */
+.o_form_view.pm_policy_form .o_FormRenderer_chatterContainer,
+.o_form_view.pm_policy_form .o-mail-Form-chatter,
+.o_form_view.pm_policy_form .oe_chatter {
+    position: static !important;
+    float: none !important;
+    clear: both !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin: 18px 0 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid #e3eaf2;
+    background: #ffffff;
+}
+
+/* Clear, readable x2many columns without squeezing headings together. */
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_renderer {
+    overflow-x: auto !important;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th,
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody td {
+    min-width: 110px;
+    padding: 10px 12px;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-right: 1px solid #eef2f6;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th:last-child,
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody td:last-child {
+    border-right: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th {
+    color: #263a54;
+    font-weight: 750;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table th[data-name="menu_id"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table th[data-name="model_id"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table th[data-name="field_id"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table th[data-name="complete_name"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table td[name="menu_id"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table td[name="model_id"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table td[name="field_id"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table td[name="complete_name"] {
+    min-width: 180px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table th[data-name="condition_expression"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table th[data-name="filter_expression"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table td[name="condition_expression"],
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table td[name="filter_expression"] {
+    min-width: 260px;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* v19: premium notebook/table styling for the lower section only.            */
+/* UI-only changes for Access Management form.                                */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_policy_notebook {
+    margin-top: 14px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs {
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid #dbe7ef;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(135deg, #f8fbfe 0%, #eef8f8 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-link {
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    color: #35506b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-link:hover {
+    background: linear-gradient(180deg, #ffffff 0%, #f6fcff 100%);
+    color: #176d87;
+    box-shadow: 0 4px 12px rgba(24, 68, 96, 0.08);
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook > .nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, #1e5f8a 0%, #27a39b 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 20px rgba(31, 111, 139, 0.20);
+}
+
+.o_form_view.pm_policy_form .o_notebook .tab-content {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dce7ef;
+    border-top: 0;
+    border-radius: 0 0 18px 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfeff 100%);
+    box-shadow: 0 12px 28px rgba(20, 31, 53, 0.07);
+}
+
+.o_form_view.pm_policy_form .o_notebook .tab-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1f6f8b, #36b8a3);
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_field_x2many {
+    padding-top: 2px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_x2m_control_panel,
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_renderer {
+    background: transparent;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_renderer {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th {
+    position: relative;
+    height: 46px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #dbe6ee;
+    border-right: 1px solid #eaf0f4;
+    background: linear-gradient(180deg, #f4f9fc 0%, #edf6fb 100%);
+    color: #28415b;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: none;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th:last-child {
+    border-right: 0;
+    border-top-right-radius: 12px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #edf2f7;
+    border-right: 1px solid #eef3f6;
+    color: #253a52;
+    font-size: 13px;
+    background: #ffffff;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody td:last-child {
+    border-right: 0;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody tr:nth-child(even) td {
+    background: #fbfdff;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody tr:hover td {
+    background: #f2fbfc;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_field_x2many_list_row_add {
+    background: linear-gradient(90deg, rgba(31, 111, 139, 0.06), rgba(54, 184, 163, 0.06));
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_field_x2many_list_row_add a {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 14px;
+    color: #0f7d8d;
+    font-weight: 750;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_field_x2many_list_row_add a:hover {
+    color: #0b6175;
+    text-decoration: none;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* v20: keep the first x2many column fully visible inside rounded notebook.   */
+/* UI-only adjustment.                                                        */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_renderer {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th:first-child,
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table tbody td:first-child {
+    padding-left: 16px !important;
+}
+
+.o_form_view.pm_policy_form .pm_policy_notebook .o_list_table thead th:first-child {
+    min-width: 150px;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* v21: standard Odoo-like top area + compact smart buttons.                  */
+/* Search remains the standard Odoo search bar on the Policies list view.     */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+    position: static !important;
+    inset: auto !important;
+    float: none !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: stretch;
+    gap: 6px;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: -2px 0 14px !important;
+    padding: 0 !important;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button {
+    position: static !important;
+    float: none !important;
+    flex: 0 0 124px;
+    width: 124px !important;
+    min-width: 124px !important;
+    max-width: 124px !important;
+    min-height: 50px !important;
+    height: 50px;
+    margin: 0 !important;
+    padding: 7px 9px !important;
+    border-radius: 9px;
+    box-shadow: none;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(20, 31, 53, 0.08);
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_text {
+    font-size: 10.5px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_stats .o_stat_value {
+    font-size: 12px;
+}
+
+@media (max-width: 1200px) {
+    .o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+        display: flex !important;
+        grid-template-columns: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .o_form_view.pm_policy_form .oe_button_box.pm_policy_stats {
+        justify-content: flex-start;
+        display: flex !important;
+        grid-template-columns: none !important;
+    }
+
+    .o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button {
+        flex: 1 1 118px;
+        width: auto !important;
+        min-width: 118px !important;
+        max-width: none !important;
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* v25: consolidated policy-wide settings inside the Global Controls tab.      */
+/* Presentation only: existing fields and permission logic are unchanged.      */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_policy_form .pm_global_controls_intro {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 16px 16px 14px;
+    padding: 16px 18px;
+    border: 1px solid #dce8ef;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f5fbff 0%, #eefbf8 100%);
+}
+
+.o_form_view.pm_policy_form .pm_global_controls_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1f6f8b 0%, #2fa797 100%);
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(31, 111, 139, 0.18);
+}
+
+.o_form_view.pm_policy_form .pm_global_controls_title {
+    color: #20344d;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.o_form_view.pm_policy_form .pm_global_controls_subtitle {
+    margin-top: 2px;
+    color: #68788b;
+    font-size: 12.5px;
+}
+
+.o_form_view.pm_policy_form .pm_global_controls_grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 0 16px 18px;
+}
+
+.o_form_view.pm_policy_form .pm_global_card {
+    position: relative;
+    overflow: hidden;
+    min-height: 190px;
+    padding: 18px 20px 16px;
+    border: 1px solid #e0e8ef;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(20, 31, 53, 0.045);
+}
+
+.o_form_view.pm_policy_form .pm_global_card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #1f6f8b, #35b2a1);
+}
+
+.o_form_view.pm_policy_form .pm_global_card_members::before {
+    background: linear-gradient(90deg, #2588aa, #50a6e6);
+}
+
+.o_form_view.pm_policy_form .pm_global_card_company::before {
+    background: linear-gradient(90deg, #258b84, #49bba7);
+}
+
+.o_form_view.pm_policy_form .pm_global_card_security::before {
+    background: linear-gradient(90deg, #e49a42, #dd7256);
+}
+
+.o_form_view.pm_policy_form .pm_global_card_export::before {
+    background: linear-gradient(90deg, #7657b8, #b06fc3);
+}
+
+.o_form_view.pm_policy_form .pm_global_card_title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 4px;
+    color: #20344d;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.o_form_view.pm_policy_form .pm_global_card_title .fa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: #edf7fa;
+    color: #1f6f8b;
+}
+
+.o_form_view.pm_policy_form .pm_global_card_security .pm_global_card_title .fa {
+    background: #fff3e8;
+    color: #c97837;
+}
+
+.o_form_view.pm_policy_form .pm_global_card_export .pm_global_card_title .fa {
+    background: #f3eefb;
+    color: #7657b8;
+}
+
+.o_form_view.pm_policy_form .pm_global_card_hint {
+    min-height: 34px;
+    margin: 0 0 10px 37px;
+    color: #7a8796;
+    font-size: 11.5px;
+    line-height: 1.45;
+}
+
+.o_form_view.pm_policy_form .pm_global_card .o_group {
+    margin-bottom: 0;
+}
+
+.o_form_view.pm_policy_form .pm_global_card .o_form_label {
+    color: #2b4058;
+    font-weight: 650;
+}
+
+.o_form_view.pm_policy_form .pm_global_card .o_field_many2many_tags {
+    min-height: 36px;
+}
+
+@media (max-width: 900px) {
+    .o_form_view.pm_policy_form .pm_global_controls_grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* v29: Member Assignment is intentionally kept outside the notebook. */
+.o_form_view.pm_policy_form .pm_policy_assignment_card {
+    margin: 0 0 18px;
+}
+
+.o_form_view.pm_policy_form .pm_policy_assignment_card .o_group {
+    margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Unified Field Control modal                                                 */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_field_control_form .o_form_sheet {
+    max-width: 1120px;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_intro {
+    margin: 0 0 18px;
+    padding: 16px 18px;
+    border: 1px solid #dce7ef;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f7fbff 0%, #f7fcfb 100%);
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_intro_title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    color: #20304a;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_intro_title .fa {
+    color: #1f6f8b;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_intro_hint {
+    color: #66758a;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_header,
+.o_form_view.pm_field_control_form .pm_field_control_modes {
+    margin-bottom: 14px;
+    padding: 14px 16px 8px;
+    border: 1px solid #e5ebf1;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_notebook {
+    margin-top: 4px;
+    border: 1px solid #e2e8ef;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_notebook .nav-tabs {
+    padding: 0 10px;
+    border-bottom: 1px solid #dfe7ee;
+    background: #f8fafc;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_notebook .nav-link {
+    min-height: 44px;
+    padding: 12px 16px 10px;
+    font-weight: 650;
+}
+
+.o_form_view.pm_field_control_form .pm_field_control_notebook .tab-content {
+    padding: 18px 18px 10px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* v16: complete policy smart buttons + spacious Record Domain editor.        */
+/* -------------------------------------------------------------------------- */
+.o_form_view.pm_record_domain_rule_form .pm_record_domain_expression {
+    display: block;
+    width: 100%;
+    max-width: none;
+    margin: 8px 0 22px;
+}
+
+.o_form_view.pm_record_domain_rule_form .pm_record_domain_expression .o_field_widget,
+.o_form_view.pm_record_domain_rule_form .pm_record_domain_expression .o_field_domain,
+.o_form_view.pm_record_domain_rule_form .pm_record_domain_expression .o_domain_selector,
+.o_form_view.pm_record_domain_rule_form .pm_record_domain_expression .o_domain_selector_rows {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+}
+
+.o_form_view.pm_record_domain_rule_form .pm_record_domain_expression .o_domain_selector {
+    min-height: 96px;
+}
+
+@media (min-width: 1100px) {
+    .o_form_view.pm_policy_form .pm_policy_stats .oe_stat_button {
+        flex-basis: 118px;
+        width: 118px !important;
+        min-width: 118px !important;
+        max-width: 118px !important;
+    }
+}

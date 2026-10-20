@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Creates only missing links; never copies or deletes source uploads. -->
+    <function model="sale.order.line" name="_bootstrap_existing_job_code_documents"/>
+</odoo>

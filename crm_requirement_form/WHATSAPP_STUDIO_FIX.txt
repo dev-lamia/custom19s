@@ -1,0 +1,7 @@
+WhatsApp Studio compatibility fix (19.0.0.3)
+
+- Keeps the whatsapp_number model field and all CRM/Contact/Requirement sync logic.
+- Removes only the hardcoded whatsapp_number occurrence from the Requirement Form main form XML.
+- Existing Odoo Studio placement of whatsapp_number remains in control of the form layout, avoiding duplicate rendering.
+- On databases without an existing Studio placement, add WhatsApp Number from Studio > Add > Existing Fields.
+- List view, print report and website display remain unchanged.

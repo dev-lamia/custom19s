@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dynamic_report_date_filter_wizard_form" model="ir.ui.view">
+        <field name="name">dynamic.report.date.filter.wizard.form</field>
+        <field name="model">dynamic.report.date.filter.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Date" class="drb_accounting_period_form">
+                <field name="range_type" invisible="1"/>
+                <field name="period_year" invisible="1"/>
+                <field name="period_quarter" invisible="1"/>
+                <field name="period_month" invisible="1"/>
+                <field name="period_week" invisible="1"/>
+                <field name="source" invisible="1"/>
+                <field name="selected_ids" invisible="1"/>
+                <field name="selected_count" invisible="1"/>
+                <field name="date_field_label" invisible="1"/>
+                <field name="date_filter_enabled" invisible="1"/>
+                <field name="user_filter_enabled" invisible="1"/>
+                <field name="user_grouping_enabled" invisible="1"/>
+                <field name="user_field_label" invisible="1"/>
+                <field name="selected_period_label" invisible="1"/>
+                <field name="effective_range_label" invisible="1"/>
+
+                <div class="drb_accounting_period_menu">
+                    <div invisible="not date_filter_enabled">
+                    <div class="drb_accounting_period_row">
+                        <div class="drb_accounting_period_kind">
+                            <span class="drb_accounting_check"
+                                  invisible="range_type != 'monthly'">✓</span>
+                            <button name="action_select_period"
+                                    type="object"
+                                    string="Month"
+                                    class="btn btn-link drb_accounting_period_select"
+                                    context="{'period_key': 'monthly'}"/>
+                        </div>
+                        <div class="drb_accounting_period_nav">
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-left"
+                                    title="Previous Month"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'monthly', 'direction': -1}"/>
+                            <field name="month_label"
+                                   nolabel="1"
+                                   readonly="1"
+                                   class="drb_accounting_period_value"/>
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-right"
+                                    title="Next Month"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'monthly', 'direction': 1}"/>
+                        </div>
+                    </div>
+
+                    <div class="drb_accounting_period_row">
+                        <div class="drb_accounting_period_kind">
+                            <span class="drb_accounting_check"
+                                  invisible="range_type != 'quarterly'">✓</span>
+                            <button name="action_select_period"
+                                    type="object"
+                                    string="Quarter"
+                                    class="btn btn-link drb_accounting_period_select"
+                                    context="{'period_key': 'quarterly'}"/>
+                        </div>
+                        <div class="drb_accounting_period_nav">
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-left"
+                                    title="Previous Quarter"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'quarterly', 'direction': -1}"/>
+                            <field name="quarter_label"
+                                   nolabel="1"
+                                   readonly="1"
+                                   class="drb_accounting_period_value"/>
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-right"
+                                    title="Next Quarter"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'quarterly', 'direction': 1}"/>
+                        </div>
+                    </div>
+
+                    <div class="drb_accounting_period_row">
+                        <div class="drb_accounting_period_kind">
+                            <span class="drb_accounting_check"
+                                  invisible="range_type != 'weekly'">✓</span>
+                            <button name="action_select_period"
+                                    type="object"
+                                    string="Week"
+                                    class="btn btn-link drb_accounting_period_select"
+                                    context="{'period_key': 'weekly'}"/>
+                        </div>
+                        <div class="drb_accounting_period_nav">
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-left"
+                                    title="Previous Week"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'weekly', 'direction': -1}"/>
+                            <field name="week_label"
+                                   nolabel="1"
+                                   readonly="1"
+                                   class="drb_accounting_period_value"/>
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-right"
+                                    title="Next Week"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'weekly', 'direction': 1}"/>
+                        </div>
+                    </div>
+
+                    <div class="drb_accounting_period_row">
+                        <div class="drb_accounting_period_kind">
+                            <span class="drb_accounting_check"
+                                  invisible="range_type != 'yearly'">✓</span>
+                            <button name="action_select_period"
+                                    type="object"
+                                    string="Year"
+                                    class="btn btn-link drb_accounting_period_select"
+                                    context="{'period_key': 'yearly'}"/>
+                        </div>
+                        <div class="drb_accounting_period_nav">
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-left"
+                                    title="Previous Year"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'yearly', 'direction': -1}"/>
+                            <field name="year_label"
+                                   nolabel="1"
+                                   readonly="1"
+                                   class="drb_accounting_period_value"/>
+                            <button name="action_navigate_period"
+                                    type="object"
+                                    icon="fa-caret-right"
+                                    title="Next Year"
+                                    class="btn btn-link drb_accounting_arrow"
+                                    context="{'period_key': 'yearly', 'direction': 1}"/>
+                        </div>
+                    </div>
+
+                    <div class="drb_accounting_period_separator"/>
+
+                    <div class="drb_accounting_period_row drb_accounting_custom_row">
+                        <div class="drb_accounting_period_kind">
+                            <span class="drb_accounting_check"
+                                  invisible="range_type != 'custom'">✓</span>
+                            <button name="action_select_period"
+                                    type="object"
+                                    string="Custom Dates"
+                                    class="btn btn-link drb_accounting_period_select"
+                                    context="{'period_key': 'custom'}"/>
+                        </div>
+                    </div>
+
+                    <div class="drb_accounting_custom_dates"
+                         invisible="range_type != 'custom'">
+                        <div class="drb_accounting_custom_field">
+                            <label for="date_from" string="From"/>
+                            <field name="date_from" nolabel="1"/>
+                        </div>
+                        <div class="drb_accounting_custom_field">
+                            <label for="date_to" string="To"/>
+                            <field name="date_to" nolabel="1"/>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="drb_accounting_period_separator"
+                         invisible="not user_filter_enabled or not date_filter_enabled"/>
+
+                    <div class="drb_user_filter_section"
+                         invisible="not user_filter_enabled">
+                        <div class="drb_user_filter_row">
+                            <div class="drb_user_filter_label">
+                                <span>User</span>
+                                <small>
+                                    <field name="user_field_label"
+                                           nolabel="1" readonly="1"/>
+                                </small>
+                            </div>
+                            <div class="drb_user_filter_value">
+                                <field name="user_id"
+                                       nolabel="1"
+                                       placeholder="All Users"
+                                       options="{'no_create': True, 'no_open': True}"/>
+                            </div>
+                        </div>
+                        <div class="drb_user_filter_hint">
+                            Leave User blank for all accessible records, or select the user whose records you want to report.
+                        </div>
+                        <div class="drb_user_filter_hint drb_user_group_hint"
+                             invisible="not user_grouping_enabled">
+                            Group By User is enabled: the PDF will create a separate table section for each user.
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="drb_accounting_period_footer">
+                    <button name="action_print_report"
+                            type="object"
+                            string="Generate PDF"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
