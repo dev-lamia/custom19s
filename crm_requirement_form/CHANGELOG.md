@@ -4,6 +4,12 @@
 
 ## [Unreleased] — Documentation Updated: 2026-10-26
 
+### [Added] — Job Code Disable with mandatory reason (2026-10-26)
+- [2026-10-26] Added Job Code Configurations list **Actions → Disable** wizard for single or multiple selected records; the reason is mandatory and is posted to each Job Code Chatter.
+- [2026-10-26] Added dedicated `sale.order.line.job_code_disabled` storage and SQL-view read-only `active` projection, ensuring disabled Job Codes are hidden without disabling underlying Sale Orders, lines, GDNs or documents. Added a **Disabled** search filter.
+- [2026-10-26] Added Job Code wizard/model import, ACL and list-bound server action. Existing GDN Disable, manual Job Code field save, tracking and document workflows are not modified. Static checks only; live Odoo validation is pending.
+
+
 ### [Fixed] — GDN Disable reason popup (2026-10-26)
 - [2026-10-26] Fixed `sale.gdn.configuration.action_open_disable_wizard()` (`models/sale_order.py`) so Actions → Disable opens an unsaved `sale.gdn.disable.wizard` popup rather than creating it without the required `reason` field.
 - [2026-10-26] Selected GDNs are supplied via the wizard action's `default_gdn_ids` context; confirming with a reason uses the existing archive and Chatter audit workflow. GDN documents and other business functionality remain unchanged.

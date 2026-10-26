@@ -1009,6 +1009,12 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    # Only controls visibility of this line's Job Code configuration.
+    # Do not archive the Sale Order Line, Sale Order or related GDN.
+    job_code_disabled = fields.Boolean(
+        string='Job Code Disabled', default=False, copy=False,
+    )
+
     # Manually entered production configuration, stored per Sale Order line.
     job_process_sequence = fields.Many2many(
         'crm.job.production.process',

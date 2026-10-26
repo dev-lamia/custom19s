@@ -610,3 +610,16 @@ The corrected Save flow updates the underlying records, bypasses irrelevant Requ
 **Corrected flow:** `action_open_disable_wizard()` now returns a new, unsaved wizard form action with `default_gdn_ids` in the action context. The user can enter **Reason for Disabling**; only then does the existing `action_confirm_disable()` in `models/gdn_disable_wizard.py` save the wizard, require a non-empty reason, archive the selected `sale.gdn.configuration` records (`active=False`), and post a note containing the reason in each GDN Chatter. Cancel leaves the records unchanged. This change does not delete documents or alter Job Code logic.
 
 **Proposed verification (not run on a live Odoo instance):** select a single GDN and check that the popup opens without a database validation error; confirm a non-empty reason and check that the record is archived and audited; cancel and check no change; try blank reason and check no archive; repeat with multiple GDNs.
+
+
+## Job Code Disable With Reason — 2026-10-26
+
+**Where:** Sales → Configuration → Job Code Configurations → select one or more records → **Actions → Disable**. Enter a required reason in the popup, then confirm. Cancel leaves them unchanged.
+
+**Implementation:** `sale.job.code.configuration` is a SQL-view model, so disable status is stored only on the corresponding `sale.order.line.job_code_disabled` Boolean (default `False`, copy `False`). The Job Code SQL view exposes `NOT COALESCE(sol.job_code_disabled, FALSE)` as the read-only `active` flag. This makes disabled Job Codes disappear from the default list without deleting or archiving the Sale Order Line, Sale Order, GDN or Quality Documents. Older records with null status remain visible.
+
+The **Disable** list action opens an *unsaved* `sale.job.code.disable.wizard` with selected source lines. The required `reason` is checked again on confirmation. After setting the Job Code-only flag, the wizard posts the supplied reason to each Job Code's Chatter (`mail.mt_note`); the **Disabled** search filter uses `active_test=False` to reveal these records. Original GDN Disable workflow is unchanged.
+
+**Files:** `models/sale_order.py`, `models/job_code_configuration.py`, `models/job_code_disable_wizard.py`, `models/__init__.py`, `views/gdn_configuration_views.xml`, and `security/ir.model.access.csv`. No change to manual field edit/save, tracking, document upload or GDN behavior.
+
+**Proposed staging QA (not executed):** open Job Code list, select one and multiple rows, Actions → Disable, cancel, retry with whitespace-only reason, then provide a valid reason; verify disabled entries disappear. Apply **Disabled** filter and verify their records and Chatter notes. Confirm Sale Order Line, GDN and Quality Documents still exist. Upgrade on a test database before production.
