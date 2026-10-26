@@ -998,16 +998,18 @@ class DynamicReportConfig(models.Model):
             return _('Up to %s') % end_label
         return False
 
-    def _require_runtime_date_range(self, date_from=False, date_to=False):
-        """Never silently print all dates for a date-filtered report."""
+    def _has_runtime_date_range(self, date_from=False, date_to=False):
+        """A filtered PDF must have dates; never render unfiltered records.
+
+        Date selection is validated in the wizard.  An old/direct PDF link
+        may not have any filter payload and must render an empty report
+        instead of raising an HTTP 422 during QWeb rendering.
+        """
         self.ensure_one()
-        if self.enable_date_filter and self.date_field_id and not (
-            date_from or date_to
-        ):
-            raise UserError(_(
-                'Please choose a Date Range using the report filter wizard '
-                'before generating this PDF.'
-            ))
+        return bool(
+            not (self.enable_date_filter and self.date_field_id)
+            or date_from or date_to
+        )
 
     def _get_user_filter_domain(self, user_id=False):
         """Build a safe runtime user domain without bypassing record rules."""
@@ -1087,8 +1089,9 @@ class DynamicReportConfig(models.Model):
         The ORM search preserves main-model ACLs and record rules.
         """
         self.ensure_one()
-        self._require_runtime_date_range(date_from, date_to)
         Model = self.env[self.model_id.sudo().model]
+        if not self._has_runtime_date_range(date_from, date_to):
+            return Model.browse()
         ids = []
         source_ids = record_ids or (fallback.ids if fallback else [])
         for record_id in source_ids:
@@ -1122,7 +1125,8 @@ class DynamicReportConfig(models.Model):
         empty body even though the report title/layout is rendered.
         """
         self.ensure_one()
-        self._require_runtime_date_range(date_from, date_to)
+        if not self._has_runtime_date_range(date_from, date_to):
+            records = records.browse()
         if (
             self.enable_user_filter
             and self.group_by_user
@@ -1267,7 +1271,6 @@ class DynamicReportConfig(models.Model):
         self.ensure_one()
         date_from = date_from or self.env.context.get('dynamic_report_date_from')
         date_to = date_to or self.env.context.get('dynamic_report_date_to')
-        self._require_runtime_date_range(date_from, date_to)
         model_name = self.model_id.sudo().model
         if model_name not in self.env:
             raise UserError(_('Model %s not found.') % model_name)
@@ -1293,11 +1296,15 @@ class DynamicReportConfig(models.Model):
                 self.sort_direction or 'asc',
             )
 
-        records = self.env[model_name].search(
-            domain,
-            limit=self.limit or 1000,
-            order=order,
-        )
+        if self._has_runtime_date_range(date_from, date_to):
+            records = self.env[model_name].search(
+                domain,
+                limit=self.limit or 1000,
+                order=order,
+            )
+        else:
+            # Never expose an unfiltered PDF when the date payload is lost.
+            records = self.env[model_name].browse()
         columns = self._get_ordered_columns()
         rows = self._get_expanded_report_rows(
             records, columns, date_from=date_from, date_to=date_to,
