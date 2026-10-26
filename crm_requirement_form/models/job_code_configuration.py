@@ -27,6 +27,7 @@ class SaleJobCodeRepeatSize(models.Model):
 
 class SaleJobCodeConfiguration(models.Model):
     _name = 'sale.job.code.configuration'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Sale Job Code Configuration'
     _auto = False
     _order = 'id desc'
@@ -243,27 +244,29 @@ class SaleJobCodeConfiguration(models.Model):
     job_measuring_unit_id = fields.Many2one(
         'uom.uom',
         string='Measuring Unit',
+        tracking=True,
     )
     job_process_sequence = fields.Many2many(
         'crm.job.production.process',
         'crm_job_process_sale_line_rel',
         'sale_line_id', 'process_id',
         string='Process Sequence',
+        tracking=True,
     )
-    job_one_up_size = fields.Char(string='One Up Size')
-    job_one_repeat_size = fields.Float(string='One Repeat Size')
-    job_number_of_ups = fields.Integer(string='No of Ups')
-    job_number_of_repeats = fields.Integer(string='No of Repeats')
-    job_circumference = fields.Float(string='Circumference')
-    job_sleeve_size = fields.Char(string='Sleeve Size')
-    job_print_area = fields.Float(string='Print Area')
-    job_film_size_to_be_used = fields.Char(string='Film Size To Be Used')
-    job_ink_gsm = fields.Float(string='Ink GSM', digits=(12, 3))
-    job_adhesive_gsm = fields.Float(string='Adhesive GSM', digits=(12, 3))
-    job_opv_gsm = fields.Float(string='OPV GSM', digits=(12, 3))
-    job_total_gsm = fields.Float(string='Total GSM', digits=(12, 3))
-    job_pouch_side_gusset = fields.Float(string='Side Gusset (mm)')
-    job_pouch_bottom_gusset = fields.Float(string='Bottom Gusset (mm)')
+    job_one_up_size = fields.Char(string='One Up Size', tracking=True)
+    job_one_repeat_size = fields.Float(string='One Repeat Size', tracking=True)
+    job_number_of_ups = fields.Integer(string='No of Ups', tracking=True)
+    job_number_of_repeats = fields.Integer(string='No of Repeats', tracking=True)
+    job_circumference = fields.Float(string='Circumference', tracking=True)
+    job_sleeve_size = fields.Char(string='Sleeve Size', tracking=True)
+    job_print_area = fields.Float(string='Print Area', tracking=True)
+    job_film_size_to_be_used = fields.Char(string='Film Size To Be Used', tracking=True)
+    job_ink_gsm = fields.Float(string='Ink GSM', digits=(12, 3), tracking=True)
+    job_adhesive_gsm = fields.Float(string='Adhesive GSM', digits=(12, 3), tracking=True)
+    job_opv_gsm = fields.Float(string='OPV GSM', digits=(12, 3), tracking=True)
+    job_total_gsm = fields.Float(string='Total GSM', digits=(12, 3), tracking=True)
+    job_pouch_side_gusset = fields.Float(string='Side Gusset (mm)', tracking=True)
+    job_pouch_bottom_gusset = fields.Float(string='Bottom Gusset (mm)', tracking=True)
 
     def write(self, vals):
         editable = {
@@ -277,6 +280,11 @@ class SaleJobCodeConfiguration(models.Model):
         }
         if set(vals) - editable:
             raise ValueError('Only manual production fields can be edited here.')
+
+        # Track changes on the SQL view without writing to it.  The actual
+        # values are saved in the linked source models below.
+        if not self.env.context.get('tracking_disable') and not self.env.context.get('mail_notrack'):
+            self._track_prepare(vals)
 
         # Job-specific measuring unit and repeat size persist in their
         # existing dedicated table; no new sale.order.line column is needed.
@@ -325,6 +333,10 @@ class SaleJobCodeConfiguration(models.Model):
                 ).write({
                     'job_quality_attachment_ids': vals['job_quality_attachment_ids'],
                 })
+        # Reload tracked SQL-view columns from the updated source records.
+        tracked_fields = list(set(vals) & self._track_get_fields())
+        if tracked_fields:
+            self.invalidate_recordset(tracked_fields)
         return True
 
     @api.model

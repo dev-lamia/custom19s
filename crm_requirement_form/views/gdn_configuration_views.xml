@@ -179,6 +179,7 @@
                     </div>
 
                     </page></notebook></sheet>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -348,6 +349,7 @@
                         </page>
                     </notebook>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>

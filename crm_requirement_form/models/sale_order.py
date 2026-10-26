@@ -4,6 +4,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class SaleGdnConfiguration(models.Model):
     _name = 'sale.gdn.configuration'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Sale GDN Configuration'
     _order = 'id desc'
     _rec_name = 'gdn_number'
@@ -15,6 +16,7 @@ class SaleGdnConfiguration(models.Model):
         copy=False,
         readonly=True,
         index=True,
+        tracking=True,
     )
     partner_id = fields.Many2one(
         'res.partner',
@@ -23,28 +25,33 @@ class SaleGdnConfiguration(models.Model):
         readonly=True,
         index=True,
         ondelete='restrict',
+        tracking=True,
     )
     fg_type = fields.Selection(
         [('bag', 'Bag'), ('roll', 'Roll')],
         string='FG Type',
         readonly=True,
+        tracking=True,
     )
     roll_type = fields.Selection(
         [('roll', 'Roll Stock'), ('label', 'Label')],
         string='Roll Type',
         readonly=True,
+        tracking=True,
     )
     bag_type_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Product',
         readonly=True,
         index=True,
+        tracking=True,
     )
     source_order_id = fields.Many2one(
         'sale.order',
         string='Source Sale Order',
         readonly=True,
         ondelete='set null',
+        tracking=True,
     )
     source_line_id = fields.Many2one(
         'sale.order.line',
@@ -58,7 +65,7 @@ class SaleGdnConfiguration(models.Model):
         related='source_order_id.requirement_form_id',
         readonly=True,
     )
-    design_name = fields.Char(string='Design Name', readonly=True)
+    design_name = fields.Char(string='Design Name', readonly=True, tracking=True)
     design_dimension_uom = fields.Selection(
         [
             ('mm', 'MM'),
@@ -68,6 +75,7 @@ class SaleGdnConfiguration(models.Model):
         ],
         string='Design Dimension UOM',
         readonly=True,
+        tracking=True,
     )
     quantity = fields.Integer(string='Quantity', readonly=True)
     quantity_uom = fields.Selection(
@@ -92,6 +100,7 @@ class SaleGdnConfiguration(models.Model):
         'crm.requirement.print.finish.option',
         string='Print and Finish',
         readonly=True,
+        tracking=True,
     )
     color_reference = fields.Selection(
         related='source_line_id.req_color_reference',
@@ -108,9 +117,10 @@ class SaleGdnConfiguration(models.Model):
         'crm.requirement.print.type.option',
         string='Print Type',
         ondelete='restrict',
+        tracking=True,
     )
-    no_of_colors = fields.Integer(string='No of Colors', default=0)
-    print_direction = fields.Char(string='Print Direction')
+    no_of_colors = fields.Integer(string='No of Colors', default=0, tracking=True)
+    print_direction = fields.Char(string='Print Direction', tracking=True)
     # Roll dimensions are read directly from the originating Sale Order line,
     # preserving the Requirement Form -> Sale Order -> GDN value mapping.
     coil_width_mm = fields.Float(
@@ -167,11 +177,13 @@ class SaleGdnConfiguration(models.Model):
         related='source_line_id.requirement_specification_id.customer_notes',
         string='Customer / Sales Design Note',
         readonly=False,
+        tracking=True,
     )
     designer_note = fields.Text(
         related='source_line_id.requirement_specification_id.designer_note',
         string='Designer Note',
         readonly=False,
+        tracking=True,
     )
     weight = fields.Float(
         related='source_line_id.requirement_specification_id.weight',
