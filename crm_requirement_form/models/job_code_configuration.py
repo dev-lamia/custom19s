@@ -34,33 +34,6 @@ class SaleJobCodeConfiguration(models.Model):
     _rec_name = 'job_code'
     _rec_names_search = ['job_code', 'gdn_number']
 
-    # Projected from the originating Sale Order Line. Read-only in the UI
-    # so Odoo does not offer native Archive/Unarchive; Disable requires
-    # the mandatory-reason wizard instead.
-    active = fields.Boolean(string='Active', readonly=True)
-
-    def action_open_disable_wizard(self):
-        """Open an unsaved reason wizard for selected active Job Codes."""
-        from odoo.exceptions import UserError
-
-        jobs = self.filtered('active')
-        if not jobs:
-            raise UserError(_('Please select at least one active Job Code to disable.'))
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Disable Job Code'),
-            'res_model': 'sale.job.code.disable.wizard',
-            'view_mode': 'form',
-            'view_id': self.env.ref(
-                'crm_requirement_form.sale_job_code_disable_wizard_form_view'
-            ).id,
-            'target': 'new',
-            'context': dict(
-                self.env.context,
-                default_job_line_ids=[(6, 0, jobs.mapped('source_line_id').ids)],
-            ),
-        }
-
     job_code = fields.Char(string='Job Code', readonly=True, index=True)
     partner_id = fields.Many2one(
         'res.partner',
@@ -398,7 +371,6 @@ class SaleJobCodeConfiguration(models.Model):
             CREATE VIEW sale_job_code_configuration AS (
                 SELECT
                     sol.id AS id,
-                    NOT COALESCE(sol.job_code_disabled, FALSE) AS active,
                     sol.job_code AS job_code,
                     so.partner_id AS partner_id,
                     sol.order_id AS order_id,
