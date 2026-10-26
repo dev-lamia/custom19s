@@ -8,7 +8,8 @@
                 <t t-set="layout_document_title" t-value="False"/>
                 <t t-set="layout_key" t-value="company.external_report_layout_id.sudo().key if company.external_report_layout_id else 'web.external_layout_standard'"/>
                 <t t-call="{{layout_key}}">
-                    <t t-set="report_data" t-value="doc.get_report_data()"/>
+                    <t t-set="report_data"
+                       t-value="doc.get_report_data(date_from=env.context.get('dynamic_report_date_from'), date_to=env.context.get('dynamic_report_date_to'))"/>
                     <div class="page">
                         <div class="text-center mb-3" t-if="doc.show_title">
                             <h2 class="mb-1"
@@ -25,6 +26,14 @@
                             </p>
                         </div>
 
+                        <!-- The selected Date Range is report metadata, not a
+                             data column.  Keep it above and outside the table. -->
+                        <div t-if="report_data['date_range_label']"
+                             class="mb-2"
+                             t-att-style="'font-size:%spx; text-align:right; line-height:1.5;' % doc.table_font_size">
+                            <strong>Date Range:</strong>
+                            <span t-esc="report_data['date_range_label']"/>
+                        </div>
                         <table class="table table-sm table-bordered o_main_table"
                                t-att-style="'font-size:%spx;' % doc.table_font_size">
                             <thead>
@@ -79,10 +88,6 @@
                 <t t-set="layout_key" t-value="company.external_report_layout_id.sudo().key if company.external_report_layout_id else 'web.external_layout_standard'"/>
                 <t t-call="{{layout_key}}">
                     <div class="page">
-                        <t t-set="runtime_period_label"
-                           t-value="env.context.get('dynamic_report_period_label') or report_period_label"/>
-                        <t t-set="runtime_period_value"
-                           t-value="env.context.get('dynamic_report_period_value') or report_period_value"/>
                         <t t-set="runtime_filter_label"
                            t-value="env.context.get('dynamic_report_filter_label') or (config.user_field_id.sudo().field_description if config.user_field_id else False)"/>
                         <t t-set="runtime_filter_value"
@@ -93,17 +98,6 @@
                                 t-att-style="'font-size:%spx; font-weight:600; line-height:1.25;' % config.report_title_font_size">
                                 <t t-esc="config.name"/>
                             </h2>
-                            <div t-if="runtime_period_value or runtime_filter_value"
-                                 t-att-style="'font-size:%spx; line-height:1.55; text-align:right;' % config.table_font_size">
-                                <div t-if="runtime_period_value">
-                                    <strong><t t-esc="runtime_period_label or 'Date'"/>:</strong>
-                                    <span t-esc="runtime_period_value"/>
-                                </div>
-                                <div t-if="runtime_filter_value and not config.group_by_user">
-                                    <strong><t t-esc="runtime_filter_label or 'User'"/>:</strong>
-                                    <span t-esc="runtime_filter_value"/>
-                                </div>
-                            </div>
                         </div>
                         <div class="text-center mb-3" t-if="config.show_total_records or config.subtitle">
                             <p t-if="config.subtitle" class="mb-1">
@@ -112,6 +106,21 @@
                             <p t-if="config.show_total_records" class="mb-2">
                                 Total Records: <t t-esc="sum(len(section['rows']) for section in sections)"/>
                             </p>
+                        </div>
+
+                        <!-- Date Range is shown once above all table sections,
+                             separately from the record columns and title. -->
+                        <div t-if="runtime_date_from or runtime_date_to or (runtime_filter_value and not config.group_by_user)"
+                             class="mb-2"
+                             t-att-style="'font-size:%spx; line-height:1.5; text-align:right;' % config.table_font_size">
+                            <div t-if="runtime_date_from or runtime_date_to">
+                                <strong>Date Range:</strong>
+                                <span t-esc="config._get_date_range_label(runtime_date_from, runtime_date_to)"/>
+                            </div>
+                            <div t-if="runtime_filter_value and not config.group_by_user">
+                                <strong><t t-esc="runtime_filter_label or 'User'"/>:</strong>
+                                <span t-esc="runtime_filter_value"/>
+                            </div>
                         </div>
 
                         <!-- Render the information table directly.  Avoid a

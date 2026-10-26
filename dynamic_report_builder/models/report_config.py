@@ -981,6 +981,34 @@ class DynamicReportConfig(models.Model):
             return [(source.name, 'any', leaf_domain)]
         return leaf_domain
 
+    @staticmethod
+    def _get_date_range_label(date_from=False, date_to=False):
+        """Human-friendly inclusive filter boundaries, for the PDF header."""
+        start = fields.Date.to_date(date_from) if date_from else False
+        end = fields.Date.to_date(date_to) if date_to else False
+        if start and end and start > end:
+            raise ValidationError(_('From Date cannot be later than To Date.'))
+        start_label = start.strftime('%d %b %Y') if start else False
+        end_label = end.strftime('%d %b %Y') if end else False
+        if start_label and end_label:
+            return '%s to %s' % (start_label, end_label)
+        if start_label:
+            return _('From %s') % start_label
+        if end_label:
+            return _('Up to %s') % end_label
+        return False
+
+    def _require_runtime_date_range(self, date_from=False, date_to=False):
+        """Never silently print all dates for a date-filtered report."""
+        self.ensure_one()
+        if self.enable_date_filter and self.date_field_id and not (
+            date_from or date_to
+        ):
+            raise UserError(_(
+                'Please choose a Date Range using the report filter wizard '
+                'before generating this PDF.'
+            ))
+
     def _get_user_filter_domain(self, user_id=False):
         """Build a safe runtime user domain without bypassing record rules."""
         self.ensure_one()
@@ -1059,6 +1087,7 @@ class DynamicReportConfig(models.Model):
         The ORM search preserves main-model ACLs and record rules.
         """
         self.ensure_one()
+        self._require_runtime_date_range(date_from, date_to)
         Model = self.env[self.model_id.sudo().model]
         ids = []
         source_ids = record_ids or (fallback.ids if fallback else [])
@@ -1093,6 +1122,7 @@ class DynamicReportConfig(models.Model):
         empty body even though the report title/layout is rendered.
         """
         self.ensure_one()
+        self._require_runtime_date_range(date_from, date_to)
         if (
             self.enable_user_filter
             and self.group_by_user
@@ -1227,8 +1257,17 @@ class DynamicReportConfig(models.Model):
                 rows.append(base_row)
         return rows
 
-    def get_report_data(self):
+    def get_report_data(self, date_from=False, date_to=False):
+        """Prepare the legacy/direct preview with the SAME runtime filters.
+
+        The other QWeb report path already applies both the project domain
+        and child-line domain. Previously this path ignored the chosen dates,
+        causing out-of-range entries (e.g. Oct 26) to show in a PDF.
+        """
         self.ensure_one()
+        date_from = date_from or self.env.context.get('dynamic_report_date_from')
+        date_to = date_to or self.env.context.get('dynamic_report_date_to')
+        self._require_runtime_date_range(date_from, date_to)
         model_name = self.model_id.sudo().model
         if model_name not in self.env:
             raise UserError(_('Model %s not found.') % model_name)
@@ -1240,6 +1279,8 @@ class DynamicReportConfig(models.Model):
         except Exception:
             domain = []
 
+        if self.enable_date_filter and self.date_field_id:
+            domain += self._get_date_filter_domain(date_from, date_to)
 
         order = False
         if (
@@ -1258,9 +1299,15 @@ class DynamicReportConfig(models.Model):
             order=order,
         )
         columns = self._get_ordered_columns()
-        rows = self._get_expanded_report_rows(records, columns)
+        rows = self._get_expanded_report_rows(
+            records, columns, date_from=date_from, date_to=date_to,
+        )
 
         return {
+            'date_range_label': (
+                self._get_date_range_label(date_from, date_to)
+                if self.enable_date_filter and self.date_field_id else False
+            ),
             'headers': [column.get_display_label() for column in columns],
             'rows': rows,
             'model_description': self.model_id.sudo().name,
