@@ -11,7 +11,9 @@ class SaleGdnConfiguration(models.Model):
     _rec_names_search = ['gdn_number', 'design_name']
 
     # Odoo's standard active flag archives the record without deleting it.
-    active = fields.Boolean(string='Active', default=True, tracking=True)
+    active = fields.Boolean(
+        string='Active', default=True, readonly=True, tracking=True,
+    )
 
     def action_open_disable_wizard(self):
         """Ask for an audit reason before archiving selected GDN records."""
@@ -1008,6 +1010,12 @@ class SaleOrder(models.Model):
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
+
+    # Independent visibility flag for the read-only Job Code SQL-view row.
+    # Existing Sale Order Lines and business processes remain active.
+    job_code_disabled = fields.Boolean(
+        string='Job Code Disabled', default=False, copy=False,
+    )
 
     # Manually entered production configuration, stored per Sale Order line.
     job_process_sequence = fields.Many2many(

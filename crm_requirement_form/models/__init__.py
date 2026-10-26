@@ -9,6 +9,7 @@ from . import res_partner
 from . import sale_order
 from . import gdn_document_line
 from . import gdn_disable_wizard
+from . import job_code_disable_wizard
 from . import job_code_document_line
 from . import job_code_configuration
 from . import stock_lot

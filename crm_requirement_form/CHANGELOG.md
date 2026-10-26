@@ -4,6 +4,13 @@
 
 ## [Unreleased] — Documentation Updated: 2026-10-26
 
+### [Changed] — GDN and Job Code Disable without native Archive menu (2026-10-26)
+- [2026-10-26] Set `sale.gdn.configuration.active` as read-only for Odoo 19 Actions menu capabilities, hiding the redundant native **Archive** and **Unarchive** entries in GDN list/form while preserving the existing **Disable → Reason** wizard and GDN Chatter audit. Normal GDN database archiving (`active=False`) and the Disabled search filter are unchanged.
+- [2026-10-26] Added **Actions → Disable** to the Job Code list. The new `sale.job.code.disable.wizard` requires a non-empty reason; it sets only `sale.order.line.job_code_disabled=True` on the selected Job Code source lines, without archiving Sale Orders, deleting Job Code records/files, or resynchronizing REQ/GDN data. The reason is posted to each Job Code Chatter.
+- [2026-10-26] Exposed SQL-view-based `sale.job.code.configuration.active` as a read-only Boolean (`NOT COALESCE(sol.job_code_disabled, FALSE)`) so disabled Job Codes disappear from the normal list automatically without standard Archive/Unarchive menu actions. Added a **Disabled** Job Code search filter, wizard view, ACL, and import. Existing Job Code manual save/tracking logic is unchanged.
+- [2026-10-26] Static Python/XML checks and ZIP integrity checks performed; live Odoo upgrade, popup action and Chatter runtime behavior **not tested**.
+
+
 ### [Fixed] — GDN Disable reason popup (2026-10-26)
 - [2026-10-26] Fixed `sale.gdn.configuration.action_open_disable_wizard()` (`models/sale_order.py`) so Actions → Disable opens an unsaved `sale.gdn.disable.wizard` popup rather than creating it without the required `reason` field.
 - [2026-10-26] Selected GDNs are supplied via the wizard action's `default_gdn_ids` context; confirming with a reason uses the existing archive and Chatter audit workflow. GDN documents and other business functionality remain unchanged.
