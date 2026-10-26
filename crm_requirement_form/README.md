@@ -9,7 +9,7 @@
 | Author | `Softeko_Lamia` |
 | Category | CRM |
 | License | LGPL-3 |
-| Documentation Updated | 2026-10-20 |
+| Documentation Updated | 2026-10-26 |
 | Latest Verified Release | Not verified — the ZIP contains historical upgrade notes, but no verified release date |
 | Documentation Status | Source-code reviewed; **not** runtime-tested on an Odoo instance |
 
@@ -568,3 +568,16 @@ Removed the instructional help line above the **GDN Documents** rows in `views/g
 - **Sales → GDN Configurations:** the existing `sale.gdn.configuration` model inherits `mail.thread` and `mail.activity.mixin`. The form has native Odoo Chatter beneath the sheet. Manually editable GDN fields (`print_type_id`, `no_of_colors`, `print_direction`, `customer_notes` and `designer_note`) use `tracking=True`; other previously tracked GDN reference fields retain their flags. Changes to document rows made through the GDN form additionally log the document type and old/new uploaded file names in the GDN Chatter (attachment contents are not copied). No historical log is backfilled.
 - **Sales → Job Code Configurations:** the SQL-view model `sale.job.code.configuration` has native Odoo Chatter. Manually edited Production Process, Pouch Details and Quality Department fields have `tracking=True`, including `job_quality_attachment_ids`. The model does not write into the SQL view; it saves via its existing Sale Order Line / repeat-size storage. `write()` prepares old values, updates the source, invalidates changed view fields, and finalizes native Odoo `mail.tracking.value` messages so users can see old/new values in the Job Code Chatter. Quality Documents remain exclusive to the Job Code and do not fetch Requirement/GDN files.
 - Both existing configuration form views use `<chatter .../>` with reload support; the styling in `static/src/scss/requirement_form_backend.scss` keeps Chatter visible *below* each wide custom form. **Deployment:** Upgrade the `crm_requirement_form` module (updating files alone is insufficient), refresh backend assets, then edit and Save a manual field and scroll under the form to see Chatter. Historical edits before this upgrade cannot be reconstructed. **Validation:** Python/XML checks only; live Odoo UI test pending.
+
+
+## GDN Disable / Archive With Reason — 2026-10-26
+
+**Location:** Sales → Configuration → GDN Configurations. In the list, select one or more GDNs, then choose **Actions → Disable**. A modal opens with the selected GDNs and a required **Reason for Disabling**. Click **Disable** to confirm, or **Cancel** to leave the records unchanged.
+
+- **Model:** `sale.gdn.configuration.active` (`fields.Boolean`, default `True`, tracked by `mail.thread`). Confirming sets `active=False`, using Odoo's standard soft archive behavior; GDN rows are not deleted and existing Sale Order Line / Job Code links, documents, and historical records remain stored. The normal GDN list searches active records only.
+- **Wizard:** `sale.gdn.disable.wizard` in `models/gdn_disable_wizard.py`, with `gdn_ids` (Many2many of selected GDNs) and required `reason` (Text). Whitespace-only reasons are rejected server-side. The wizard calls `write({'active': False})` and posts the user-provided reason to each GDN Chatter as a note. A single reason can be applied to a multi-record list selection.
+- **UI:** `views/gdn_configuration_views.xml` contains the list-bound `ir.actions.server` **Disable** action, wizard modal, and **Disabled** search filter (`active_test=False`, domain `active=False`). Choose the **Disabled** filter to locate archived records; they remain in the database. Native reactivation can set the record to active again where allowed.
+- **Security:** `security/ir.model.access.csv` grants the same Sales User group access to the transient wizard as to GDN Configuration. Users need GDN write permission to confirm. No change is made to GDN numbering, Sales Order generation, Job Code data, GDN Documents, or any non-GDN model logic.
+- **Upgrade:** Update Apps List, upgrade `crm_requirement_form`, and hard-refresh the browser. New `active` field defaults to True, preserving existing active GDNs. No prior records are disabled by the upgrade.
+
+**Proposed QA (not executed):** (1) Select one GDN → Actions → Disable → enter reason → confirm; verify it disappears from the default list. (2) Use **Disabled** filter → find record → check Chatter reason and old relations. (3) Try blank or whitespace reason; verify no archive occurs. (4) Select two GDNs; verify both archive with the same reason. (5) Cancel popup; verify no change. (6) Verify other Job Code and Requirement Form workflows are unchanged.

@@ -10,6 +10,29 @@ class SaleGdnConfiguration(models.Model):
     _rec_name = 'gdn_number'
     _rec_names_search = ['gdn_number', 'design_name']
 
+    # Odoo's standard active flag archives the record without deleting it.
+    active = fields.Boolean(string='Active', default=True, tracking=True)
+
+    def action_open_disable_wizard(self):
+        """Ask for an audit reason before archiving selected GDN records."""
+        gdns = self.filtered('active')
+        if not gdns:
+            raise UserError(_('Please select at least one active GDN to disable.'))
+        wizard = self.env['sale.gdn.disable.wizard'].create({
+            'gdn_ids': [(6, 0, gdns.ids)],
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Disable GDN'),
+            'res_model': 'sale.gdn.disable.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref(
+                'crm_requirement_form.sale_gdn_disable_wizard_form_view'
+            ).id,
+            'res_id': wizard.id,
+            'target': 'new',
+        }
+
     def _gdn_document_audit_snapshot(self):
         """Read GDN document labels and filenames for manual change logging."""
         return {

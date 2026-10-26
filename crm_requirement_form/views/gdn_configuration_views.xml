@@ -189,6 +189,7 @@
         <field name="model">sale.gdn.configuration</field>
         <field name="arch" type="xml">
             <search>
+                    <filter name="gdn_disabled" string="Disabled" domain="[('active', '=', False)]" context="{'active_test': False}"/>
                 <field name="gdn_number"/>
                 <field name="partner_id"/>
                 <field name="bag_type_product_tmpl_id"/>
@@ -213,6 +214,34 @@
         <field name="context">{}</field>
     </record>
 
+
+    <!-- Mass action from GDN list > Actions > Disable.  Required-reason
+         wizard archives the selected record(s) and writes an audit note. -->
+    <record id="sale_gdn_disable_wizard_form_view" model="ir.ui.view">
+        <field name="name">sale.gdn.disable.wizard.form</field>
+        <field name="model">sale.gdn.disable.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Disable GDN">
+                <group>
+                    <field name="gdn_ids" widget="many2many_tags" readonly="1" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="reason" placeholder="Enter the reason for disabling this GDN..." required="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_disable" string="Disable" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="sale_gdn_disable_server_action" model="ir.actions.server">
+        <field name="name">Disable</field>
+        <field name="model_id" ref="model_sale_gdn_configuration"/>
+        <field name="binding_model_id" ref="model_sale_gdn_configuration"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_open_disable_wizard()</field>
+    </record>
 
     <record id="sale_job_code_configuration_list_view" model="ir.ui.view">
         <field name="name">sale.job.code.configuration.list</field>

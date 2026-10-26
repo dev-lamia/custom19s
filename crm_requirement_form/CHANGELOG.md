@@ -4,6 +4,12 @@
 
 ## [Unreleased] — Documentation Updated: 2026-10-26
 
+### [Added] — GDN Disable action with mandatory archive reason (2026-10-26)
+- [2026-10-26] Added **Actions → Disable** for selected GDN Configuration list records. A modal requires a reason before archiving the selected GDNs (`views/gdn_configuration_views.xml`, new `sale.gdn.disable.wizard`). Cancel leaves the records unchanged; multiple selected records receive the same supplied reason.
+- [2026-10-26] Added tracked `sale.gdn.configuration.active` (`default=True`), so Disable uses standard Odoo archive behavior (`active=False`) without deleting GDNs, documents or existing relational links. Posted the user-entered reason to each record's Chatter using `mail.mt_note` (`models/sale_order.py`, `models/gdn_disable_wizard.py`).
+- [2026-10-26] Added a **Disabled** GDN search filter to retrieve archived records, imported the wizard model and granted Sales Users wizard access. No existing Job Code, Sale Order, document, or GDN business logic changed. Updated README with workflow, implementation and proposed QA. Static checks only; Odoo runtime not tested.
+
+
 ### [Fixed] — GDN and Job Code Chatter / manual-field tracking (2026-10-26)
 - [2026-10-26] Made native Odoo Chatter visible below the wide GDN and Job Code form sheets and enabled reload flags in both forms. The previous `<chatter/>` declarations and GDN stored-field `tracking=True` flags remain.
 - [2026-10-26] Updated SQL-view-backed Job Code tracking to finalize field-change messages after its existing source-line/repeat-size writes, including tracking for Job Code-only Quality Documents uploads. Native tracking retains previous/new values for modified Production Process, Pouch Details and Quality Department inputs.
