@@ -68,7 +68,7 @@
                 <t t-set="report_records"
                    t-value="config._get_runtime_report_records(report_record_ids, docs)"/>
                 <t t-set="sections"
-                   t-value="config._get_runtime_report_sections(report_records, columns, report_date_from, report_date_to)"/>
+                   t-value="config._get_runtime_report_sections(report_records, columns, report_date_from or env.context.get('dynamic_report_date_from'), report_date_to or env.context.get('dynamic_report_date_to'))"/>
                 <t t-set="company" t-value="env.company.sudo()"/>
                 <t t-set="o" t-value="company"/>
                 <t t-set="layout_document_title" t-value="False"/>

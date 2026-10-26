@@ -260,6 +260,12 @@ class DynamicReportDateFilterWizard(models.TransientModel):
     def _get_period_dates(self, strict=True):
         self.ensure_one()
         if self.range_type == 'custom':
+            # Selecting Custom Dates without either boundary previously
+            # generated an unfiltered PDF without telling the user.
+            if strict and not (self.date_from or self.date_to):
+                raise ValidationError(
+                    _('Please select at least one Custom Date boundary.')
+                )
             return self.date_from, self.date_to
 
         year = self.period_year
@@ -527,6 +533,11 @@ class DynamicReportDateFilterWizard(models.TransientModel):
             ),
         }
         report_context = {
+            # Keep explicit boundaries in context as well as report data.
+            # The PDF-side row expansion must use the same date range as the
+            # wizard search, including when the report client re-renders it.
+            'dynamic_report_date_from': report_data['report_date_from'],
+            'dynamic_report_date_to': report_data['report_date_to'],
             'dynamic_report_period_label': period_label,
             'dynamic_report_period_value': period_value,
             'dynamic_report_filter_label': (

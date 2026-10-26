@@ -1103,6 +1103,20 @@ class DynamicReportConfig(models.Model):
                 'records': records,
             }]
 
+        # Defensive PDF-side filtering: the wizard restricts the main records
+        # before calling the report action, and the PDF must enforce the same
+        # date domain if it receives a broader recordset (for example through
+        # a different rendering context or an already-created print action).
+        # Keep the selected record ordering and normal read access rules.
+        if (self.enable_date_filter and self.date_field_id
+                and (date_from or date_to)):
+            date_domain = self._get_date_filter_domain(date_from, date_to)
+            if date_domain:
+                for section in sections:
+                    section['records'] = section['records'].filtered_domain(
+                        date_domain
+                    )
+
         for section in sections:
             section['rows'] = self._get_expanded_report_rows(
                 section['records'], columns, date_from=date_from,
@@ -1191,6 +1205,14 @@ class DynamicReportConfig(models.Model):
                     rows.append(row)
 
             if not expanded:
+                # A related-date filter may leave a project/order with zero
+                # *matching* child lines.  Never output a blank placeholder
+                # row for that parent: it would appear as an extra record in
+                # the PDF even though it lies outside the requested period.
+                # Preserve the old blank-parent behavior for unfiltered
+                # reports and unrelated line sources.
+                if date_line_source and date_line_source in source_names:
+                    continue
                 rows.append(base_row)
         return rows
 

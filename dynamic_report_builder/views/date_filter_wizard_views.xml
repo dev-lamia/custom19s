@@ -13,7 +13,6 @@
                 <field name="source" invisible="1"/>
                 <field name="selected_ids" invisible="1"/>
                 <field name="selected_count" invisible="1"/>
-                <field name="date_field_label" invisible="1"/>
                 <field name="date_filter_enabled" invisible="1"/>
                 <field name="user_filter_enabled" invisible="1"/>
                 <field name="user_grouping_enabled" invisible="1"/>
@@ -22,6 +21,11 @@
                 <field name="effective_range_label" invisible="1"/>
 
                 <div class="drb_accounting_period_menu">
+                    <div class="alert alert-info py-2 mb-3"
+                         invisible="not date_filter_enabled">
+                        <strong>Filtering by: </strong>
+                        <field name="date_field_label" nolabel="1" readonly="1"/>
+                    </div>
                     <div invisible="not date_filter_enabled">
                     <div class="drb_accounting_period_row">
                         <div class="drb_accounting_period_kind">
