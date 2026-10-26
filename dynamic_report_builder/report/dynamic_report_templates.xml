@@ -6,8 +6,9 @@
                 <t t-set="company" t-value="env.company.sudo()"/>
                 <t t-set="o" t-value="company"/>
                 <t t-set="layout_document_title" t-value="False"/>
-                <t t-set="layout_key" t-value="company.external_report_layout_id.sudo().key if company.external_report_layout_id else 'web.external_layout_standard'"/>
-                <t t-call="{{layout_key}}">
+                <!-- Use Odoo's public report layout entry point so the company
+                     document layout manages the PDF header and footer. -->
+                <t t-call="web.external_layout">
                     <t t-set="report_data"
                        t-value="doc.get_report_data(date_from=env.context.get('dynamic_report_date_from'), date_to=env.context.get('dynamic_report_date_to'))"/>
                     <div class="page">
@@ -91,8 +92,9 @@
                 <t t-set="company" t-value="env.company.sudo()"/>
                 <t t-set="o" t-value="company"/>
                 <t t-set="layout_document_title" t-value="False"/>
-                <t t-set="layout_key" t-value="company.external_report_layout_id.sudo().key if company.external_report_layout_id else 'web.external_layout_standard'"/>
-                <t t-call="{{layout_key}}">
+                <!-- Use Odoo's public report layout entry point so the company
+                     document layout manages the PDF header and footer. -->
+                <t t-call="web.external_layout">
                     <div class="page">
                         <t t-set="runtime_filter_label"
                            t-value="env.context.get('dynamic_report_filter_label') or (config.user_field_id.sudo().field_description if config.user_field_id else False)"/>
