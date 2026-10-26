@@ -68,7 +68,7 @@
                 <t t-set="report_records"
                    t-value="config._get_runtime_report_records(report_record_ids, docs)"/>
                 <t t-set="sections"
-                   t-value="config._get_runtime_report_sections(report_records)"/>
+                   t-value="config._get_runtime_report_sections(report_records, columns)"/>
                 <t t-set="company" t-value="env.company.sudo()"/>
                 <t t-set="o" t-value="company"/>
                 <t t-set="layout_document_title" t-value="False"/>
@@ -106,7 +106,7 @@
                                 <t t-esc="config.subtitle"/>
                             </p>
                             <p t-if="config.show_total_records" class="mb-2">
-                                Total Records: <t t-esc="len(report_records)"/>
+                                Total Records: <t t-esc="sum(len(section['rows']) for section in sections)"/>
                             </p>
                         </div>
 
@@ -132,15 +132,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-foreach="section['records']" t-as="record">
+                                    <t t-foreach="section['rows']" t-as="row">
                                         <tr>
                                             <td t-if="config.show_row_number"
                                                 style="text-align:center; vertical-align:middle;">
-                                                <t t-esc="record_index + 1"/>
+                                                <t t-esc="row_index + 1"/>
                                             </td>
                                             <t t-foreach="columns" t-as="column">
                                                 <td t-att-style="column.get_cell_style()">
-                                                    <t t-esc="config._format_column(record, column)"/>
+                                                    <t t-esc="row[column_index]"/>
                                                 </td>
                                             </t>
                                         </tr>

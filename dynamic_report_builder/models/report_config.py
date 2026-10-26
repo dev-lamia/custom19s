@@ -910,7 +910,7 @@ class DynamicReportConfig(models.Model):
         ordered_ids = [record_id for record_id in ids if record_id in accessible_ids]
         return Model.browse(ordered_ids)
 
-    def _get_runtime_report_sections(self, records):
+    def _get_runtime_report_sections(self, records, columns=None):
         """Return safe report sections for normal and user-grouped output.
 
         Keeping section preparation in Python lets the QWeb template render the
@@ -926,12 +926,90 @@ class DynamicReportConfig(models.Model):
         ):
             groups = self._get_user_grouped_records(records)
             if groups:
-                return groups
-        return [{
-            'key': False,
-            'label': False,
-            'records': records,
-        }]
+                sections = groups
+            else:
+                sections = [{
+                    'key': False,
+                    'label': False,
+                    'records': records,
+                }]
+        else:
+            sections = [{
+                'key': False,
+                'label': False,
+                'records': records,
+            }]
+
+        for section in sections:
+            section['rows'] = self._get_expanded_report_rows(
+                section['records'], columns
+            )
+        return sections
+
+    def _get_expanded_report_rows(self, records, columns=None):
+        """Render x2many fields as individual rows rather than comma lists.
+
+        Columns belonging to one line source stay together on each child row.
+        Different line sources are printed in separate rows, never paired
+        arbitrarily or combined into a Cartesian product. Main-model fields
+        repeat on each row; parents without child lines retain one blank row.
+        """
+        self.ensure_one()
+        if columns is None:
+            columns = self._get_ordered_columns()
+
+        column_specs = []
+        source_names = []
+        for column in columns:
+            source_field = (
+                column.relation_field_id.sudo()
+                if column.relation_field_id else False
+            )
+            source_name = (
+                source_field.name
+                if source_field and source_field.ttype in ('one2many', 'many2many')
+                else None
+            )
+            column_specs.append((column, source_name))
+            if source_name and source_name not in source_names:
+                source_names.append(source_name)
+
+        rows = []
+        for record in records:
+            # Resolve main-model columns only once per parent, even when
+            # multiple related records result in multiple printed rows.
+            base_row = [
+                self._format_column(record, column) if not source_name else ''
+                for column, source_name in column_specs
+            ]
+            expanded = False
+            for source_name in source_names:
+                relation_field = record._fields.get(source_name)
+                if not relation_field or relation_field.type not in (
+                    'one2many', 'many2many',
+                ):
+                    continue
+                try:
+                    line_records = record[source_name]
+                except Exception:
+                    # Follow _format_column's existing behavior for fields
+                    # the current user cannot read.
+                    continue
+
+                for line_record in line_records:
+                    expanded = True
+                    row = list(base_row)
+                    for index, (column, column_source) in enumerate(column_specs):
+                        if column_source == source_name and column.field_id:
+                            row[index] = self._format_value(
+                                line_record, column.field_id.sudo().name,
+                                column=column,
+                            )
+                    rows.append(row)
+
+            if not expanded:
+                rows.append(base_row)
+        return rows
 
     def get_report_data(self):
         self.ensure_one()
@@ -964,12 +1042,7 @@ class DynamicReportConfig(models.Model):
             order=order,
         )
         columns = self._get_ordered_columns()
-        rows = []
-        for record in records:
-            rows.append([
-                self._format_column(record, column)
-                for column in columns
-            ])
+        rows = self._get_expanded_report_rows(records, columns)
 
         return {
             'headers': [column.get_display_label() for column in columns],
