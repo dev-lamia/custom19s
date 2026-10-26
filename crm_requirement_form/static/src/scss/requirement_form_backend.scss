@@ -690,6 +690,32 @@
         margin: 0 auto !important;
     }
 
+    /* Keep native Odoo chatter in view below the configuration sheet,
+       not in an off-screen side column beside the wide custom sheet. */
+    .o_form_renderer {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .o_form_sheet_bg {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .o-mail-Form-chatter,
+    .o-mail-ChatterContainer,
+    .oe_chatter {
+        flex: 0 0 auto !important;
+        position: static !important;
+        width: auto !important;
+        max-width: 1280px !important;
+        min-width: 0 !important;
+        margin: 16px auto 32px !important;
+        align-self: stretch !important;
+    }
+
     .o_crm_req_config_hero {
         display: flex;
         align-items: center;

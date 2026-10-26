@@ -237,6 +237,7 @@ class SaleJobCodeConfiguration(models.Model):
         string='Quality Documents',
         readonly=False,
         store=False,
+        tracking=True,
     )
 
     # Production parameters are linked to the originating Sale Order Line,
@@ -281,9 +282,14 @@ class SaleJobCodeConfiguration(models.Model):
         if set(vals) - editable:
             raise ValueError('Only manual production fields can be edited here.')
 
-        # Track changes on the SQL view without writing to it.  The actual
-        # values are saved in the linked source models below.
-        if not self.env.context.get('tracking_disable') and not self.env.context.get('mail_notrack'):
+        # Capture old Job Code values for Odoo mail.thread before writing to
+        # the linked Sale Order Line and repeat-size storage. A SQL view must
+        # not be written via super(), but it can have its own chatter thread.
+        should_track = (
+            not self.env.context.get('tracking_disable')
+            and not self.env.context.get('mail_notrack')
+        )
+        if should_track:
             self._track_prepare(vals)
 
         # Job-specific measuring unit and repeat size persist in their
@@ -337,6 +343,11 @@ class SaleJobCodeConfiguration(models.Model):
         tracked_fields = list(set(vals) & self._track_get_fields())
         if tracked_fields:
             self.invalidate_recordset(tracked_fields)
+            if should_track:
+                # Finalize against freshly stored source values before the
+                # SQL-view form reloads. Odoo's precommit callback (registered
+                # by _track_prepare) subsequently finds no pending values.
+                self._track_finalize()
         return True
 
     @api.model

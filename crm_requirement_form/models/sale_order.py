@@ -10,6 +10,63 @@ class SaleGdnConfiguration(models.Model):
     _rec_name = 'gdn_number'
     _rec_names_search = ['gdn_number', 'design_name']
 
+    def _gdn_document_audit_snapshot(self):
+        """Read GDN document labels and filenames for manual change logging."""
+        return {
+            record.id: {
+                line.id: (
+                    line.document_type_id.display_name or line.document_type,
+                    tuple(sorted(line.attachment_ids.mapped('name'))),
+                )
+                for line in record.gdn_document_line_ids
+            }
+            for record in self
+        }
+
+    def write(self, vals):
+        # Stored GDN manual fields use native mail.thread tracking=True.
+        # Inline document file changes happen in the child records, so log
+        # them only when the user saves document rows through this GDN form.
+        log_documents = (
+            'gdn_document_line_ids' in vals
+            and not self.env.context.get('tracking_disable')
+            and not self.env.context.get('mail_notrack')
+        )
+        old_documents = self._gdn_document_audit_snapshot() if log_documents else {}
+        result = super().write(vals)
+        if log_documents:
+            from markupsafe import Markup, escape
+
+            new_documents = self._gdn_document_audit_snapshot()
+            for record in self:
+                before = old_documents.get(record.id, {})
+                after = new_documents.get(record.id, {})
+                if before == after:
+                    continue
+                descriptions = []
+                for line_id in sorted(set(before) | set(after)):
+                    old = before.get(line_id)
+                    new = after.get(line_id)
+                    if old == new:
+                        continue
+                    label = (new or old)[0]
+                    old_files = ', '.join(old[1]) if old else ''
+                    new_files = ', '.join(new[1]) if new else ''
+                    descriptions.append(
+                        Markup('<li>%s: %s → %s</li>') % (
+                            escape(label or 'Document'),
+                            escape(old_files or '—'),
+                            escape(new_files or '—'),
+                        )
+                    )
+                if descriptions:
+                    record.message_post(
+                        body=Markup('<p>GDN Documents updated</p><ul>%s</ul>')
+                        % Markup('').join(descriptions),
+                        subtype_xmlid='mail.mt_note',
+                    )
+        return result
+
     gdn_number = fields.Char(
         string='GDN Number',
         required=True,

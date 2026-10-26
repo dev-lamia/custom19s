@@ -2,7 +2,15 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-10-20
+## [Unreleased] — Documentation Updated: 2026-10-26
+
+### [Fixed] — GDN and Job Code Chatter / manual-field tracking (2026-10-26)
+- [2026-10-26] Made native Odoo Chatter visible below the wide GDN and Job Code form sheets and enabled reload flags in both forms. The previous `<chatter/>` declarations and GDN stored-field `tracking=True` flags remain.
+- [2026-10-26] Updated SQL-view-backed Job Code tracking to finalize field-change messages after its existing source-line/repeat-size writes, including tracking for Job Code-only Quality Documents uploads. Native tracking retains previous/new values for modified Production Process, Pouch Details and Quality Department inputs.
+- [2026-10-26] Added GDN form document-row change history showing Document Type and old/new uploaded file names. GDN's standard editable Print Type, No of Colors, Print Direction and design notes retain native field tracking. No document sync or business logic was changed.
+- [2026-10-26] Updated README developer notes and deployment test guidance. Static syntax / archive checks performed; no live Odoo runtime testing and no historical edits retroactively logged.
+
+
 
 ### [Changed] — Rename Job Code document label (2026-10-20)
 - [2026-10-20] In Job Code → Quality Department, renamed the visible **Job Code Documents** section heading and upload field/button label to **Quality Documents**. The technical field `job_quality_attachment_ids`, stored files, permissions, upload behavior, and Requirement Form/GDN isolation are unchanged; updated README to match.
