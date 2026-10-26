@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import calendar
-import json
 from datetime import date, timedelta
-from urllib.parse import urlencode
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
@@ -551,19 +549,10 @@ class DynamicReportDateFilterWizard(models.TransientModel):
                 selected_user.display_name if selected_user else False
             ),
         }
-        # The browser's generic report action can drop the wizard context
-        # when serializing the report request.  Build the supported Odoo 19
-        # /report/pdf route with both the data (`options`) and the context
-        # supplied explicitly.  The route parses both JSON values before
-        # QWeb renders, so parent filtering and Timesheet line filtering use
-        # exactly the same boundaries as the wizard search above.
-        report_name = config.print_action_id.report_name
-        query = urlencode({
-            'options': json.dumps(report_data),
-            'context': json.dumps(report_context),
-        })
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/report/pdf/%s?%s' % (report_name, query),
-            'target': 'new',
-        }
+        # Dispatch through the native Odoo report service, just like other
+        # QWeb Print actions.  Pass selected IDs AND date boundaries as report
+        # data (read directly by the selected report template); the context
+        # carries the same dates for consistency with PDF row expansion.
+        return config.print_action_id.with_context(
+            **report_context
+        ).report_action(records, data=report_data)

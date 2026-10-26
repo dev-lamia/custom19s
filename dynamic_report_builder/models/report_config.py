@@ -864,16 +864,12 @@ class DynamicReportConfig(models.Model):
             self._sync_menu_and_action()
             self._sync_print_action()
 
-        # Open the PDF route directly in a new browser tab. Using an
-        # ``ir.actions.act_url`` here avoids Odoo's ``report_download``
-        # client flow, which forces a file download. The browser can render
-        # the PDF inline so the user can review it before printing/saving.
-        report_name = 'dynamic_report_builder.report_dynamic_document'
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/report/pdf/%s/%s' % (report_name, self.id),
-            'target': 'new',
-        }
+        # Use the normal Odoo QWeb report action instead of navigating to a
+        # /report/pdf URL in a separate browser tab.  Date/user-filtered
+        # reports continue through the wizard and its own report action.
+        return self.env.ref(
+            'dynamic_report_builder.action_report_dynamic'
+        ).report_action(self)
 
     def _normalize_main_field_columns(self):
         """Normalize old UI selections that used a Many2one as a source.
