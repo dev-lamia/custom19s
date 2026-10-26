@@ -1042,20 +1042,27 @@ class DynamicReportConfig(models.Model):
         return result
 
 
-    def _get_runtime_report_records(self, record_ids=None, fallback=None):
-        """Resolve runtime report rows while preserving access rules/order.
+    def _get_runtime_report_records(
+        self, record_ids=None, fallback=None, date_from=False, date_to=False,
+    ):
+        """Load ONLY matching parent records for the PDF, retaining order.
 
-        Dynamic report actions pass filter metadata through ``data``.  In that
-        path Odoo can render the template without populating ``docs`` even
-        though ``report_action`` received a recordset.  The wizard therefore
-        passes the filtered IDs explicitly.  Resolve them again with ``search``
-        so normal ACLs and record rules are still enforced, then restore the
-        original report ordering.
+        The wizard already searches the parent model with the chosen date
+        domain.  Enforce that exact domain again when resolving the report
+        record IDs: for a Project / Associated Timesheets / Date selection,
+        only projects having at least one timesheet inside the chosen period
+        may be printed.  This also protects the QWeb fallback ``docs`` path,
+        in which an unfiltered parent recordset could otherwise be rendered.
+
+        ``any`` searches the configured relation itself, not the parent's
+        create_date, and applies both date boundaries to the SAME child row.
+        The ORM search preserves main-model ACLs and record rules.
         """
         self.ensure_one()
         Model = self.env[self.model_id.sudo().model]
         ids = []
-        for record_id in record_ids or []:
+        source_ids = record_ids or (fallback.ids if fallback else [])
+        for record_id in source_ids:
             try:
                 record_id = int(record_id)
             except (TypeError, ValueError):
@@ -1064,11 +1071,15 @@ class DynamicReportConfig(models.Model):
                 ids.append(record_id)
 
         if not ids:
-            return fallback or Model.browse()
+            return Model.browse()
 
-        accessible = Model.search([('id', 'in', ids)])
-        accessible_ids = set(accessible.ids)
-        ordered_ids = [record_id for record_id in ids if record_id in accessible_ids]
+        domain = [('id', 'in', ids)]
+        if self.enable_date_filter and self.date_field_id and (date_from or date_to):
+            domain += self._get_date_filter_domain(date_from, date_to)
+
+        matching = Model.search(domain)
+        matching_ids = set(matching.ids)
+        ordered_ids = [record_id for record_id in ids if record_id in matching_ids]
         return Model.browse(ordered_ids)
 
     def _get_runtime_report_sections(
