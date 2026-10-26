@@ -77,6 +77,21 @@
         </t>
     </template>
 
+    <!-- Native QWeb report on the transient filter wizard.  We deliberately
+         use docids instead of custom report data.  The wizard preserves both
+         the validated project IDs and its date range across report routing. -->
+    <template id="report_dynamic_filtered_document">
+        <t t-foreach="docs" t-as="filter_wizard">
+            <t t-set="config" t-value="filter_wizard.config_id.exists()"/>
+            <t t-set="print_values" t-value="filter_wizard._get_pdf_runtime_values()"/>
+            <t t-set="report_record_ids" t-value="print_values['report_record_ids']"/>
+            <t t-set="report_date_from" t-value="print_values['report_date_from']"/>
+            <t t-set="report_date_to" t-value="print_values['report_date_to']"/>
+            <t t-set="report_user_name" t-value="print_values['report_user_name']"/>
+            <t t-call="dynamic_report_builder.report_dynamic_selected_base"/>
+        </t>
+    </template>
+
     <template id="report_dynamic_selected_base">
         <t t-call="web.html_container">
             <t t-if="config">

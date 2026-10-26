@@ -28,6 +28,11 @@ class DynamicReportDateFilterWizard(models.TransientModel):
     )
     selected_ids = fields.Text(string='Selected Record IDs', readonly=True)
     selected_count = fields.Integer(string='Selected Records', readonly=True)
+    pdf_record_ids = fields.Text(
+        string='Filtered PDF Record IDs',
+        readonly=True,
+        help='Snapshot of the records validated by the report wizard.',
+    )
     # Keep runtime filter metadata as normal transient fields instead of
     # related fields.  A wizard opened with default_config_id is initially an
     # unsaved virtual record in the web client; related fields may therefore
@@ -418,6 +423,54 @@ class DynamicReportDateFilterWizard(models.TransientModel):
             return []
         return [record_id for record_id in ids if isinstance(record_id, int)]
 
+    def _get_pdf_runtime_values(self):
+        """Read the validated report selection from this transient wizard.
+
+        Native Odoo report_action(self) sends the wizard ID as the report
+        docid. Date boundaries can therefore be read from this wizard even
+        when the report action's additional data/context is not forwarded.
+        Never silently switch to unfiltered records if that data is missing.
+        """
+        self.ensure_one()
+        config = self.config_id.exists()
+        if not config:
+            raise UserError(_('The report configuration no longer exists.'))
+        if not self.pdf_record_ids:
+            raise UserError(
+                _('Generate the PDF from the report filter wizard first.')
+            )
+        try:
+            record_ids = safe_eval(self.pdf_record_ids)
+        except (ValueError, SyntaxError, TypeError):
+            record_ids = []
+        if not isinstance(record_ids, list):
+            record_ids = []
+        record_ids = [
+            record_id for record_id in record_ids
+            if type(record_id) is int and record_id > 0
+        ]
+
+        date_from = date_to = False
+        if config.enable_date_filter and config.date_field_id:
+            date_from, date_to = self._get_period_dates(strict=True)
+        selected_user = self.user_id.exists()
+        return {
+            'report_record_ids': record_ids,
+            'report_date_from': (
+                fields.Date.to_string(date_from) if date_from else False
+            ),
+            'report_date_to': (
+                fields.Date.to_string(date_to) if date_to else False
+            ),
+            'report_user_name': (
+                selected_user.display_name if selected_user else False
+            ),
+            'report_filter_label': (
+                config.user_field_id.sudo().field_description
+                if selected_user and config.user_field_id else False
+            ),
+        }
+
     def action_print_report(self):
         self.ensure_one()
         config = self.config_id.exists()
@@ -498,61 +551,11 @@ class DynamicReportDateFilterWizard(models.TransientModel):
         # Printing must not write actions or require configuration privileges.
         if self.env.user.has_group('base.group_system'):
             config._sync_print_action()
-        period_label_map = {
-            'monthly': _('Month'),
-            'quarterly': _('Quarter'),
-            'weekly': _('Week'),
-            'yearly': _('Year'),
-            'custom': _('Custom Dates'),
-        }
-        period_label = period_label_map.get(self.range_type)
-        period_value = False
-        if config.enable_date_filter and config.date_field_id:
-            if self.range_type == 'custom':
-                period_value = self.effective_range_label or False
-            else:
-                period_value = self.selected_period_label or False
-
-        report_data = {
-            # When a report action carries custom ``data``, the standard QWeb
-            # rendering path may not reliably expose ``docs`` for dynamically
-            # generated report actions.  Carry the already-filtered record IDs
-            # explicitly so the template can resolve the exact report rows.
-            'report_record_ids': records.ids,
-            'report_date_from': (
-                fields.Date.to_string(date_from) if date_from else False
-            ),
-            'report_date_to': (
-                fields.Date.to_string(date_to) if date_to else False
-            ),
-            'report_period_label': period_label,
-            'report_period_value': period_value,
-            'report_user_id': selected_user.id if selected_user else False,
-            'report_user_name': (
-                selected_user.display_name if selected_user else False
-            ),
-        }
-        report_context = {
-            # Keep explicit boundaries in context as well as report data.
-            # The PDF-side row expansion must use the same date range as the
-            # wizard search, including when the report client re-renders it.
-            'dynamic_report_date_from': report_data['report_date_from'],
-            'dynamic_report_date_to': report_data['report_date_to'],
-            'dynamic_report_period_label': period_label,
-            'dynamic_report_period_value': period_value,
-            'dynamic_report_filter_label': (
-                config.user_field_id.sudo().field_description
-                if selected_user and config.user_field_id
-                else False
-            ),
-            'dynamic_report_filter_value': (
-                selected_user.display_name if selected_user else False
-            ),
-        }
-        # Dispatch through the native Odoo report service, just like other
-        # QWeb Print actions.  Pass selected IDs AND date boundaries as report
-        # data (read directly by the selected report template); the context
-        # carries the same dates for consistency with PDF row expansion.
-        return config.print_action_id.with_context(
-            **report_context
-        ).report_action(records, data=report_data)
+        # Keep the exact record selection alongside the chosen period in the
+        # transient wizard.  The normal Odoo PDF action now prints this wizard
+        # record (no custom action.data), so QWeb receives its ID in ``docs``
+        # and can resolve dates even if the browser strips runtime context.
+        self.write({'pdf_record_ids': repr(records.ids)})
+        return self.env.ref(
+            'dynamic_report_builder.action_report_dynamic_filtered'
+        ).report_action(self)
