@@ -18,9 +18,9 @@ class SaleGdnConfiguration(models.Model):
         gdns = self.filtered('active')
         if not gdns:
             raise UserError(_('Please select at least one active GDN to disable.'))
-        wizard = self.env['sale.gdn.disable.wizard'].create({
-            'gdn_ids': [(6, 0, gdns.ids)],
-        })
+        # Do not create the transient record before prompting for a reason:
+        # its required `reason` field must be provided when the user confirms.
+        # The selected GDNs are defaulted into the unsaved popup instead.
         return {
             'type': 'ir.actions.act_window',
             'name': _('Disable GDN'),
@@ -29,8 +29,11 @@ class SaleGdnConfiguration(models.Model):
             'view_id': self.env.ref(
                 'crm_requirement_form.sale_gdn_disable_wizard_form_view'
             ).id,
-            'res_id': wizard.id,
             'target': 'new',
+            'context': dict(
+                self.env.context,
+                default_gdn_ids=[(6, 0, gdns.ids)],
+            ),
         }
 
     def _gdn_document_audit_snapshot(self):

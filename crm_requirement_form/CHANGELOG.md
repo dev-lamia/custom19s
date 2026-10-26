@@ -4,6 +4,12 @@
 
 ## [Unreleased] — Documentation Updated: 2026-10-26
 
+### [Fixed] — GDN Disable reason popup (2026-10-26)
+- [2026-10-26] Fixed `sale.gdn.configuration.action_open_disable_wizard()` (`models/sale_order.py`) so Actions → Disable opens an unsaved `sale.gdn.disable.wizard` popup rather than creating it without the required `reason` field.
+- [2026-10-26] Selected GDNs are supplied via the wizard action's `default_gdn_ids` context; confirming with a reason uses the existing archive and Chatter audit workflow. GDN documents and other business functionality remain unchanged.
+- [2026-10-26] Source syntax and ZIP checks passed; live Odoo popup/archive behavior remains to be tested after upgrade.
+
+
 
 ### [Fixed] — Job Code manual Save and native Chatter tracking (2026-10-26)
 - [2026-10-26] Fixed the SQL-view-backed Job Code `write()` flow for manual **Production Process**, **Pouch Details** (Side/Bottom Gusset), and **Quality Department** (GSM and Quality Documents) inputs (`models/job_code_configuration.py`). Input fields still persist in their existing Sale Order Line or Job Code repeat-size records; no new columns or changed SQL view definition.

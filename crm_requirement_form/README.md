@@ -600,3 +600,13 @@ The corrected Save flow updates the underlying records, bypasses irrelevant Requ
 5. Regression-check GDN Disable, GDN/Requirement Documents, normal Sale Order operations, and SQL-view refresh after upgrading the module. No historical change logs are reconstructed by the upgrade.
 
 **Deployment:** restart Odoo with the updated module directory, **Upgrade** `crm_requirement_form` under Apps, hard-refresh browser assets, then execute the proposed staging checks. Source syntax/archive checks are not a substitute for real Odoo runtime/UI validation.
+
+## GDN Disable popup: required reason validation fix — 2026-10-26
+
+**Where:** Sales → Configuration → GDN Configurations → select one or more GDNs → Actions → Disable.
+
+**Cause:** The action in `models/sale_order.py` tried to create a `sale.gdn.disable.wizard` record immediately, supplying only `gdn_ids`; because the wizard's `reason` field is required, Odoo rejected creation before the reason popup could open.
+
+**Corrected flow:** `action_open_disable_wizard()` now returns a new, unsaved wizard form action with `default_gdn_ids` in the action context. The user can enter **Reason for Disabling**; only then does the existing `action_confirm_disable()` in `models/gdn_disable_wizard.py` save the wizard, require a non-empty reason, archive the selected `sale.gdn.configuration` records (`active=False`), and post a note containing the reason in each GDN Chatter. Cancel leaves the records unchanged. This change does not delete documents or alter Job Code logic.
+
+**Proposed verification (not run on a live Odoo instance):** select a single GDN and check that the popup opens without a database validation error; confirm a non-empty reason and check that the record is archived and audited; cancel and check no change; try blank reason and check no archive; repeat with multiple GDNs.
