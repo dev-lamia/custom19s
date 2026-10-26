@@ -4,6 +4,14 @@
 
 ## [Unreleased] — Documentation Updated: 2026-10-26
 
+
+### [Fixed] — Job Code manual Save and native Chatter tracking (2026-10-26)
+- [2026-10-26] Fixed the SQL-view-backed Job Code `write()` flow for manual **Production Process**, **Pouch Details** (Side/Bottom Gusset), and **Quality Department** (GSM and Quality Documents) inputs (`models/job_code_configuration.py`). Input fields still persist in their existing Sale Order Line or Job Code repeat-size records; no new columns or changed SQL view definition.
+- [2026-10-26] Forward Job Code-only Sale Order Line fields with the existing `skip_sale_line_linked_sync` context to prevent unrelated Requirement/GDN resynchronization when editing manual Job Code parameters. Update Job Code-specific repeat-size/measuring-unit values in their existing dedicated table, flush the actual storage models, and invalidate SQL-view caches before reading saved values.
+- [2026-10-26] Replace early/precommit `mail.thread` tracking finalization with direct native Odoo `_message_track()` after source values are saved and refreshed. This generates structured `mail.message`/`mail.tracking.value` old/new entries, including process tags and Quality Documents, only for fields whose saved values actually changed; obeys `tracking_disable` and `mail_notrack` contexts. No historical edits are backfilled.
+- [2026-10-26] Updated README verification steps. Python syntax, source-level checks and ZIP integrity validated; actual Odoo server/UI behavior must be checked after module Upgrade.
+
+
 ### [Added] — GDN Disable action with mandatory archive reason (2026-10-26)
 - [2026-10-26] Added **Actions → Disable** for selected GDN Configuration list records. A modal requires a reason before archiving the selected GDNs (`views/gdn_configuration_views.xml`, new `sale.gdn.disable.wizard`). Cancel leaves the records unchanged; multiple selected records receive the same supplied reason.
 - [2026-10-26] Added tracked `sale.gdn.configuration.active` (`default=True`), so Disable uses standard Odoo archive behavior (`active=False`) without deleting GDNs, documents or existing relational links. Posted the user-entered reason to each record's Chatter using `mail.mt_note` (`models/sale_order.py`, `models/gdn_disable_wizard.py`).

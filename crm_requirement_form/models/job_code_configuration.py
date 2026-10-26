@@ -270,6 +270,14 @@ class SaleJobCodeConfiguration(models.Model):
     job_pouch_bottom_gusset = fields.Float(string='Bottom Gusset (mm)', tracking=True)
 
     def write(self, vals):
+        """Persist Job Code edits on their real tables and track saved values.
+
+        This model is a SQL view, so calling ORM ``super().write()`` would
+        attempt an UPDATE on a read-only view. Production/pouch/quality values
+        belong to ``sale.order.line``; measuring unit and one-repeat size
+        belong to ``sale.job.code.repeat.size``. Track only after those values
+        have been flushed and read back from the SQL view.
+        """
         editable = {
             'job_process_sequence', 'job_one_up_size', 'job_one_repeat_size',
             'job_measuring_unit_id',
@@ -281,26 +289,42 @@ class SaleJobCodeConfiguration(models.Model):
         }
         if set(vals) - editable:
             raise ValueError('Only manual production fields can be edited here.')
+        if not vals or not self:
+            return True
 
-        # Capture old Job Code values for Odoo mail.thread before writing to
-        # the linked Sale Order Line and repeat-size storage. A SQL view must
-        # not be written via super(), but it can have its own chatter thread.
-        should_track = (
-            not self.env.context.get('tracking_disable')
-            and not self.env.context.get('mail_notrack')
+        # mail.thread normally performs this inside super().write(). Since
+        # the underlying SQL view cannot be written, use its native tracking
+        # engine explicitly, with snapshots taken BEFORE any source writes.
+        should_track = not (
+            self.env.context.get('tracking_disable')
+            or self.env.context.get('mail_notrack')
         )
-        if should_track:
-            self._track_prepare(vals)
+        tracked_names = set(vals) & self._track_get_fields() if should_track else set()
+        old_values = {
+            record.id: {name: record[name] for name in tracked_names}
+            for record in self
+        } if tracked_names else {}
 
-        # Job-specific measuring unit and repeat size persist in their
-        # existing dedicated table; no new sale.order.line column is needed.
         storage_vals = {}
         if 'job_one_repeat_size' in vals:
             storage_vals['one_repeat_size'] = vals['job_one_repeat_size']
         if 'job_measuring_unit_id' in vals:
-            storage_vals['measuring_unit_id'] = (
-                vals['job_measuring_unit_id'] or False
-            )
+            storage_vals['measuring_unit_id'] = vals['job_measuring_unit_id'] or False
+
+        line_vals = {
+            name: value for name, value in vals.items()
+            if name not in {'job_one_repeat_size', 'job_measuring_unit_id'}
+        }
+
+        # All the edited line fields are Job Code-only attributes: syncing
+        # the entire REQ/GDN snapshot again is unnecessary and could trigger
+        # unrelated writes while saving manual production values.
+        if line_vals:
+            for record in self:
+                record.source_line_id.with_context(
+                    skip_sale_line_linked_sync=True,
+                ).write(line_vals)
+
         if storage_vals:
             repeat_model = self.env['sale.job.code.repeat.size']
             existing = repeat_model.search([
@@ -310,44 +334,33 @@ class SaleJobCodeConfiguration(models.Model):
                 item.source_line_id.id: item for item in existing
             }
             for record in self:
-                line_id = record.source_line_id.id
-                entry = existing_by_line.get(line_id)
+                source_line = record.source_line_id
+                entry = existing_by_line.get(source_line.id)
                 if entry:
                     entry.write(storage_vals)
                 else:
-                    existing_by_line[line_id] = repeat_model.create({
-                        'source_line_id': line_id,
+                    existing_by_line[source_line.id] = repeat_model.create({
+                        'source_line_id': source_line.id,
                         **storage_vals,
                     })
 
-        line_vals = {
-            name: value for name, value in vals.items()
-            if name not in {
-                'job_one_repeat_size', 'job_measuring_unit_id',
-                'job_quality_attachment_ids',
-            }
-        }
+        # Odoo may defer SQL writes until flush. Reading the view before
+        # flushing can return stale field values, making the form look unsaved
+        # and its old/new-value tracking incorrectly report no changes.
         if line_vals:
-            for record in self:
-                record.source_line_id.write(line_vals)
-        if 'job_quality_attachment_ids' in vals:
-            # This folder belongs solely to the Job Code's source line.
-            # Skip unrelated REQ/GDN field synchronization for file uploads.
-            for record in self:
-                record.source_line_id.with_context(
-                    skip_sale_line_linked_sync=True,
-                ).write({
-                    'job_quality_attachment_ids': vals['job_quality_attachment_ids'],
-                })
-        # Reload tracked SQL-view columns from the updated source records.
-        tracked_fields = list(set(vals) & self._track_get_fields())
-        if tracked_fields:
-            self.invalidate_recordset(tracked_fields)
-            if should_track:
-                # Finalize against freshly stored source values before the
-                # SQL-view form reloads. Odoo's precommit callback (registered
-                # by _track_prepare) subsequently finds no pending values.
-                self._track_finalize()
+            self.env['sale.order.line'].flush_model(list(line_vals))
+        if storage_vals:
+            self.env['sale.job.code.repeat.size'].flush_model(
+                list(storage_vals)
+            )
+        self.invalidate_recordset(list(vals))
+
+        if tracked_names:
+            # Produces real mail.message + mail.tracking.value records on the
+            # Job Code thread, with the native Odoo old → new field display.
+            # Unlike precommit-based tracking on this SQL view, it runs only
+            # after the source data has actually been stored and refreshed.
+            self._message_track(tracked_names, old_values)
         return True
 
     @api.model

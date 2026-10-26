@@ -581,3 +581,22 @@ Removed the instructional help line above the **GDN Documents** rows in `views/g
 - **Upgrade:** Update Apps List, upgrade `crm_requirement_form`, and hard-refresh the browser. New `active` field defaults to True, preserving existing active GDNs. No prior records are disabled by the upgrade.
 
 **Proposed QA (not executed):** (1) Select one GDN → Actions → Disable → enter reason → confirm; verify it disappears from the default list. (2) Use **Disabled** filter → find record → check Chatter reason and old relations. (3) Try blank or whitespace reason; verify no archive occurs. (4) Select two GDNs; verify both archive with the same reason. (5) Cancel popup; verify no change. (6) Verify other Job Code and Requirement Form workflows are unchanged.
+
+
+## Job Code manual field Save and Chatter audit correction — 2026-10-26
+
+**Scope:** Sales → Configuration → Job Code Configurations → **Production Process**, **Pouch Details**, and **Quality Department**. The form, fields, document folder and existing GDN Disable feature remain unchanged.
+
+`models/job_code_configuration.py` implements `sale.job.code.configuration.write()` for a **SQL-view model** (`_auto=False`), not an ordinary writable table. Manually editable fields in the three tabs are stored in the underlying `sale.order.line` fields; **One Repeat Size** and **Measuring Unit** instead use the already-existing `sale.job.code.repeat.size` record. **Quality Documents** remain a Job Code-only attachment relation on Sale Order Line; no Requirement Form/GDN files are imported or synchronized.
+
+The corrected Save flow updates the underlying records, bypasses irrelevant Requirement/GDN re-synchronization for Job Code-only fields, flushes the actual storage models, then invalidates the Job Code SQL-view fields before re-reading their saved values. The tracking implementation captures previous values before the write and calls Odoo's native `mail.thread._message_track()` **after** the flush/refresh so changed fields create normal `mail.message` and `mail.tracking.value` history (previous → new value) in the Job Code Chatter. Re-saving an unchanged value does not create a false change message. Context flags `tracking_disable` and `mail_notrack` continue to suppress automatic tracking when requested.
+
+**Proposed staging checks (not executed on a live Odoo server):**
+
+1. Edit and Save **Process Sequence**, **One Up Size**, **No of Ups**, **One Repeat Size**, **No of Repeats**, **Circumference**, **Sleeve Size**, **Print Area**, **Film Size To Be Used**, and **Measuring Unit**. Reopen each Job Code, confirm saved values, then check its Chatter for accurate old/new values.
+2. For a Bag Job Code, change **Side Gusset** and **Bottom Gusset**, Save, reload, and verify both values and tracking. **Bag Length** and **Bag Width** remain read-only source values.
+3. Edit **Ink GSM**, **Adhesive GSM**, **OPV GSM**, and **Total GSM**, Save/reopen, and check Chatter tracking. Upload/remove a **Quality Documents** file and verify that it remains only on the Job Code and is tracked.
+4. Save without changing fields: no fabricated change entries. Edit multiple Job Codes and verify each Chatter records only its own changes. With tracking disabled in context, verify that the underlying values save without new tracking messages.
+5. Regression-check GDN Disable, GDN/Requirement Documents, normal Sale Order operations, and SQL-view refresh after upgrading the module. No historical change logs are reconstructed by the upgrade.
+
+**Deployment:** restart Odoo with the updated module directory, **Upgrade** `crm_requirement_form` under Apps, hard-refresh browser assets, then execute the proposed staging checks. Source syntax/archive checks are not a substitute for real Odoo runtime/UI validation.
