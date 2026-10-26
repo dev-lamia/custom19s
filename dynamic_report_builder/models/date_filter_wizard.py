@@ -136,7 +136,7 @@ class DynamicReportDateFilterWizard(models.TransientModel):
             )
             values.setdefault(
                 'date_field_label',
-                config.date_field_id.sudo().field_description or False,
+                config._get_date_field_display_label(),
             )
             values.setdefault(
                 'user_filter_enabled',

@@ -19,6 +19,10 @@
                     <field name="field_ids" invisible="1"/>
                     <field name="print_action_id" invisible="1"/>
                     <field name="has_user_fields" invisible="1"/>
+                    <field name="available_date_field_ids" invisible="1"/>
+                    <field name="date_source_field_ids" invisible="1"/>
+                    <field name="date_field_is_related" invisible="1"/>
+                    <field name="date_source_required" invisible="1"/>
 
                     <div class="oe_title mb-2">
                         <label for="name" string="Report Name"/>
@@ -167,10 +171,15 @@
                                 <group>
                                     <field name="enable_date_filter"/>
                                     <field name="date_field_id"
-                                           domain="[('model', '=', model_name), ('store', '=', True), ('ttype', 'in', ['date', 'datetime'])]"
+                                           domain="[('id', 'in', available_date_field_ids)]"
                                            options="{'no_create': True, 'no_open': True}"
                                            invisible="not enable_date_filter"
                                            required="enable_date_filter"/>
+                                    <field name="date_relation_field_id"
+                                           domain="[('id', 'in', date_source_field_ids)]"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           invisible="not enable_date_filter or not date_field_is_related"
+                                           required="enable_date_filter and date_source_required"/>
                                 </group>
                                 <group invisible="not enable_date_filter">
                                     <div class="alert alert-info py-2 mb-0" role="alert">
@@ -180,7 +189,7 @@
                             </group>
                             <div class="alert alert-info py-2 mt-2" role="alert"
                                  invisible="not enable_date_filter">
-                                Choose the Date/Datetime field here. The print-time wizard will offer professional period presets plus manual From/To dates.
+                                Choose a main-model or related-model Date/Datetime field. For related dates, Date Source identifies the relation (for example Associated Timesheets). The print-time wizard offers period presets and manual From/To dates.
                             </div>
 
                             <div class="alert alert-light border mt-3" role="alert">

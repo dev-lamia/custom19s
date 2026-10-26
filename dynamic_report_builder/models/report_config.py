@@ -65,6 +65,38 @@ class DynamicReportConfig(models.Model):
         ondelete='set null',
         help='Choose the date or datetime field used for the report range.',
     )
+    # Runtime choices are limited to date fields on the main model and its
+    # directly related models.  They are not persisted on the configuration.
+    available_date_field_ids = fields.Many2many(
+        'ir.model.fields',
+        'dynamic_report_available_date_field_rel',
+        'report_id', 'field_id',
+        compute='_compute_available_date_fields',
+        string='Available Date Fields',
+    )
+    date_source_field_ids = fields.Many2many(
+        'ir.model.fields',
+        'dynamic_report_date_source_field_rel',
+        'report_id', 'field_id',
+        compute='_compute_date_source_fields',
+        string='Available Date Sources',
+    )
+    date_field_is_related = fields.Boolean(
+        compute='_compute_date_source_fields',
+    )
+    date_source_required = fields.Boolean(
+        compute='_compute_date_source_fields',
+    )
+    date_relation_field_id = fields.Many2one(
+        'ir.model.fields',
+        string='Date Source',
+        ondelete='set null',
+        help=(
+            'For a date on a related model, identifies the relation on the '
+            'main model (for example Associated Timesheets).  When only one '
+            'relation leads to that model, it is selected automatically.'
+        ),
+    )
     date_from = fields.Date(
         string='From Date',
         help='Include records from this date.',
@@ -188,6 +220,124 @@ class DynamicReportConfig(models.Model):
                 rec.model_id and rec.model_id.id in models_with_user_field
             )
 
+    @api.depends('model_id')
+    def _compute_available_date_fields(self):
+        Field = self.env['ir.model.fields'].sudo()
+        for rec in self:
+            date_fields = Field.browse()
+            if rec.model_id:
+                main_model = rec.model_id.sudo().model
+                relation_fields = Field.search([
+                    ('model', '=', main_model),
+                    ('ttype', 'in', ['many2one', 'one2many', 'many2many']),
+                    ('relation', '!=', False),
+                ])
+                model_names = {main_model}
+                model_names.update(
+                    field.relation for field in relation_fields
+                    if field.relation in self.env
+                )
+                date_fields = Field.search([
+                    ('model', 'in', list(model_names)),
+                    ('ttype', 'in', ['date', 'datetime']),
+                    ('store', '=', True),
+                ])
+            rec.available_date_field_ids = date_fields
+
+    def _date_relation_sources(self, target_model):
+        self.ensure_one()
+        Field = self.env['ir.model.fields'].sudo()
+        if not self.model_id or not target_model:
+            return Field.browse()
+        return Field.search([
+            ('model', '=', self.model_id.sudo().model),
+            ('relation', '=', target_model),
+            ('ttype', 'in', ['many2one', 'one2many', 'many2many']),
+        ], order='field_description, id')
+
+    @api.depends('model_id', 'date_field_id')
+    def _compute_date_source_fields(self):
+        Field = self.env['ir.model.fields'].sudo()
+        for rec in self:
+            target_model = rec.date_field_id.sudo().model
+            main_model = rec.model_id.sudo().model
+            is_related = bool(target_model and main_model and
+                              target_model != main_model)
+            sources = (
+                rec._date_relation_sources(target_model)
+                if is_related else Field.browse()
+            )
+            rec.date_source_field_ids = sources
+            rec.date_field_is_related = is_related
+            rec.date_source_required = is_related and len(sources) > 1
+
+    @api.onchange('date_field_id')
+    def _onchange_date_field_id(self):
+        for rec in self:
+            sources = rec.date_source_field_ids
+            if not rec.date_field_is_related:
+                rec.date_relation_field_id = False
+            elif rec.date_relation_field_id not in sources:
+                # Ambiguous paths must be chosen explicitly; never silently
+                # filter on the first of several related fields.
+                rec.date_relation_field_id = (
+                    sources[:1] if len(sources) == 1 else False
+                )
+
+    def _get_date_filter_source(self):
+        """Resolve a validated one-hop path to the chosen date model."""
+        self.ensure_one()
+        field_rec = self.date_field_id.sudo()
+        if not self.model_id or not field_rec:
+            raise ValidationError(_('Please select a Date Field.'))
+        if field_rec.ttype not in ('date', 'datetime') or not field_rec.store:
+            raise ValidationError(_('Date Field must be a stored Date/Datetime field.'))
+        main_model = self.model_id.sudo().model
+        if field_rec.model == main_model:
+            if self.date_relation_field_id:
+                raise ValidationError(_('Clear Date Source for a main-model date field.'))
+            return False
+
+        sources = self._date_relation_sources(field_rec.model)
+        if not sources:
+            raise ValidationError(
+                _('The Date Field must belong to the selected model or a '
+                  'directly related model.')
+            )
+        chosen_source = self.date_relation_field_id.sudo()
+        if chosen_source:
+            if chosen_source not in sources:
+                raise ValidationError(
+                    _('The selected Date Source does not lead to the Date Field model.')
+                )
+            return chosen_source
+        if len(sources) == 1:
+            # Also handles existing configurations without an explicit source.
+            return sources[0]
+        raise ValidationError(
+            _('Several relations lead to this Date Field model. '
+              'Please select the appropriate Date Source.')
+        )
+
+    @api.constrains(
+        'enable_date_filter', 'model_id', 'date_field_id',
+        'date_relation_field_id',
+    )
+    def _check_date_filter_fields(self):
+        for rec in self:
+            if rec.enable_date_filter:
+                rec._get_date_filter_source()
+
+    def _get_date_field_display_label(self):
+        self.ensure_one()
+        if not self.date_field_id:
+            return False
+        label = self.date_field_id.sudo().field_description or ''
+        source = self._get_date_filter_source() if self.enable_date_filter else False
+        if source:
+            return '%s / %s' % (source.field_description, label)
+        return label
+
     @api.constrains('enable_user_filter', 'user_field_id', 'model_id')
     def _check_user_filter_field(self):
         for rec in self:
@@ -230,6 +380,7 @@ class DynamicReportConfig(models.Model):
         self.field_line_ids = [(5, 0, 0)]
         self.sort_field_id = False
         self.date_field_id = False
+        self.date_relation_field_id = False
         self.date_from = False
         self.date_to = False
         self.enable_user_filter = False
@@ -647,7 +798,7 @@ class DynamicReportConfig(models.Model):
                     self.enable_date_filter and self.date_field_id
                 ),
                 'default_date_field_label': (
-                    self.date_field_id.sudo().field_description or False
+                    self._get_date_field_display_label()
                 ),
                 'default_user_filter_enabled': bool(
                     self.enable_user_filter and self.user_field_id
@@ -771,25 +922,18 @@ class DynamicReportConfig(models.Model):
             key=lambda line: (line.sequence, line.id)
         )
 
-    def _get_date_filter_domain(self, date_from=False, date_to=False):
-        """Build a date range domain using the configured date field."""
+    def _get_date_filter_leaf_domain(self, date_from=False, date_to=False):
+        """Date boundaries to apply to the selected model's date field."""
         self.ensure_one()
-        if not self.enable_date_filter or not self.date_field_id:
-            return []
-
-        if self.date_field_id.sudo().model != self.model_id.sudo().model:
-            return []
-        if self.date_field_id.sudo().ttype not in ('date', 'datetime'):
-            return []
-
+        date_from = fields.Date.to_date(date_from) if date_from else False
+        date_to = fields.Date.to_date(date_to) if date_to else False
         if date_from and date_to and date_from > date_to:
-            raise ValidationError(
-                _('From Date cannot be later than To Date.')
-            )
+            raise ValidationError(_('From Date cannot be later than To Date.'))
 
-        field_name = self.date_field_id.sudo().name
+        field_rec = self.date_field_id.sudo()
+        field_name = field_rec.name
         domain = []
-        if self.date_field_id.sudo().ttype == 'date':
+        if field_rec.ttype == 'date':
             if date_from:
                 domain.append((
                     field_name, '>=', fields.Date.to_string(date_from)
@@ -819,6 +963,23 @@ class DynamicReportConfig(models.Model):
                 field_name, '<', fields.Datetime.to_string(utc_end)
             ))
         return domain
+
+    def _get_date_filter_domain(self, date_from=False, date_to=False):
+        """Support main dates and one-hop related dates (including x2many).
+
+        ``any`` ensures From and To match the SAME related record, avoiding
+        false positives where separate timesheets match opposite endpoints.
+        """
+        self.ensure_one()
+        if not self.enable_date_filter or not self.date_field_id:
+            return []
+        source = self._get_date_filter_source()
+        leaf_domain = self._get_date_filter_leaf_domain(date_from, date_to)
+        if not leaf_domain:
+            return []
+        if source:
+            return [(source.name, 'any', leaf_domain)]
+        return leaf_domain
 
     def _get_user_filter_domain(self, user_id=False):
         """Build a safe runtime user domain without bypassing record rules."""
@@ -910,7 +1071,9 @@ class DynamicReportConfig(models.Model):
         ordered_ids = [record_id for record_id in ids if record_id in accessible_ids]
         return Model.browse(ordered_ids)
 
-    def _get_runtime_report_sections(self, records, columns=None):
+    def _get_runtime_report_sections(
+        self, records, columns=None, date_from=False, date_to=False,
+    ):
         """Return safe report sections for normal and user-grouped output.
 
         Keeping section preparation in Python lets the QWeb template render the
@@ -942,11 +1105,14 @@ class DynamicReportConfig(models.Model):
 
         for section in sections:
             section['rows'] = self._get_expanded_report_rows(
-                section['records'], columns
+                section['records'], columns, date_from=date_from,
+                date_to=date_to,
             )
         return sections
 
-    def _get_expanded_report_rows(self, records, columns=None):
+    def _get_expanded_report_rows(
+        self, records, columns=None, date_from=False, date_to=False,
+    ):
         """Render x2many fields as individual rows rather than comma lists.
 
         Columns belonging to one line source stay together on each child row.
@@ -974,6 +1140,19 @@ class DynamicReportConfig(models.Model):
             if source_name and source_name not in source_names:
                 source_names.append(source_name)
 
+        # Only the selected x2many Date Source gets its child rows trimmed.
+        # Parent records were already restricted by the runtime domain.
+        date_line_source = False
+        date_line_domain = []
+        if (self.enable_date_filter and self.date_field_id
+                and (date_from or date_to)):
+            source = self._get_date_filter_source()
+            if source and source.ttype in ('one2many', 'many2many'):
+                date_line_source = source.name
+                date_line_domain = self._get_date_filter_leaf_domain(
+                    date_from, date_to
+                )
+
         rows = []
         for record in records:
             # Resolve main-model columns only once per parent, even when
@@ -996,6 +1175,10 @@ class DynamicReportConfig(models.Model):
                     # the current user cannot read.
                     continue
 
+                if source_name == date_line_source and date_line_domain:
+                    line_records = line_records.filtered_domain(
+                        date_line_domain
+                    )
                 for line_record in line_records:
                     expanded = True
                     row = list(base_row)
