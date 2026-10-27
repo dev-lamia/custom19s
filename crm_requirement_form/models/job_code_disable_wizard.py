@@ -1,6 +1,6 @@
 from markupsafe import Markup, escape
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 
@@ -15,6 +15,21 @@ class SaleJobCodeDisableWizard(models.TransientModel):
         required=True,
         readonly=True,
     )
+    # Display actual Job Code numbers, not sale.order.line display names.
+    # Keep the original job_line_ids relation for the existing disable workflow.
+    job_code_labels = fields.Char(
+        string='Selected Job Codes',
+        compute='_compute_job_code_labels',
+        readonly=True,
+    )
+
+    @api.depends('job_line_ids', 'job_line_ids.job_code')
+    def _compute_job_code_labels(self):
+        for wizard in self:
+            wizard.job_code_labels = ', '.join(
+                code for code in wizard.job_line_ids.mapped('job_code') if code
+            )
+
     reason = fields.Text(string='Reason for Disabling', required=True)
 
     def action_confirm_disable(self):

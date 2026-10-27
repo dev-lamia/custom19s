@@ -250,8 +250,8 @@
         <field name="arch" type="xml">
             <form string="Disable Job Code">
                 <group>
-                    <field name="job_line_ids" widget="many2many_tags" readonly="1"
-                           options="{'no_create': True, 'no_open': True}"/>
+                    <field name="job_line_ids" invisible="1" force_save="1"/>
+                    <field name="job_code_labels" readonly="1"/>
                     <field name="reason" placeholder="Enter the reason for disabling this Job Code..." required="1"/>
                 </group>
                 <footer>
