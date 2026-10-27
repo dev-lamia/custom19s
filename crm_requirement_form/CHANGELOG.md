@@ -2,7 +2,32 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-10-26
+## [Unreleased] — Documentation Updated: 2026-10-27
+
+
+### [Fixed] — CRM Industry Category on Lead → Opportunity conversion (2026-10-27)
+- [2026-10-27] Show the existing `crm.lead.industry_category_id` in the Opportunity-specific partner group (`views/crm_lead_views.xml`); previously it was only in the Lead-specific group and became hidden after conversion.
+- [2026-10-27] Preserve the selected Lead Industry when conversion first links a Customer with no Industry, and pass it through the existing Customer sync; a Customer's already-set Industry still takes precedence (`models/crm_lead.py`). No new field or schema change.
+
+### [Changed] — Job Code incremental segment five-digit padding (2026-10-27)
+- [2026-10-27] Update `sale.order._generate_missing_job_codes()` to generate the fourth Job Code segment with `:05d` instead of `:04d` (`models/sale_order.py`). Example new code `1-01-00019-00003-00`.
+- [2026-10-27] Historical serials remain readable for continuity; existing Job Codes are **not** rewritten. Prefixes, suffixes, generation trigger and all other sequences remain unchanged.
+
+### [Docs] — Industry Category and Job Code serial format (2026-10-27)
+- [2026-10-27] Updated `README.md` with field placement, conversion data handling, serial format examples, compatibility, upgrade guidance, and proposed manual QA; recorded both implementation changes in this `CHANGELOG.md`. Static checks only, no live Odoo runtime testing.
+
+
+### [Fixed] — Job Code Disable popup displays Job Code numbers (2026-10-27)
+- [2026-10-27] Corrected the **Selected Job Codes** display in **Sales → Configuration → Job Code Configurations → Actions → Disable**. The popup previously rendered `sale.order.line` display names; it now displays the selected lines' actual `job_code` references, comma-separated for multiple selections.
+- [2026-10-27] Added computed, read-only `sale.job.code.disable.wizard.job_code_labels` from `job_line_ids.job_code` (`models/job_code_disable_wizard.py`); the wizard form shows that label while retaining hidden `job_line_ids` (`views/gdn_configuration_views.xml`). The existing reason requirement, archive-by-flag behavior and Chatter logging are unchanged. Implementation date is supported by the current project update; live Odoo runtime test pending.
+
+### [Changed] — Job Code and GDN Chatter side-panel layout (2026-10-27)
+- [2026-10-27] Corrected the desktop Chatter layout for both **Job Code Configurations** and **GDN Configurations** in `static/src/scss/requirement_form_backend.scss`. The rule now targets Odoo 19's `.o_form_renderer:has(.o_crm_req_config_hero)` ancestor directly, rather than a nested selector that did not affect the renderer.
+- [2026-10-27] At viewport widths of at least **1100px**, the form sheet stays to the left and the native Chatter container is presented as a **370px right-side panel**. Smaller widths retain the default responsive layout. Native field tracking, messages, audit history, uploads and existing business logic were not changed. Browser/asset regeneration and live layout verification remain necessary.
+
+### [Docs] — Job Code and Chatter documentation-only update (2026-10-27)
+- [2026-10-27] Updated `README.md` with the selected Job Code label mapping, Disable popup workflow, side-panel SCSS selector, responsive behavior, deployment and proposed test cases. Updated this `CHANGELOG.md` with the verified implementation notes and today's documentation date.
+- [2026-10-27] **This ZIP packaging pass modifies only `README.md` and `CHANGELOG.md`.** Python, XML, SCSS, manifest, security files and all other contents remain byte-identical to the supplied side-Chatter-corrected ZIP. No new runtime changes are introduced by this documentation-only edit.
 
 ### [Added] — Job Code Disable with mandatory reason (2026-10-26)
 - [2026-10-26] Added Job Code Configurations list **Actions → Disable** wizard for single or multiple selected records; the reason is mandatory and is posted to each Job Code Chatter.

@@ -443,9 +443,20 @@ class CrmLead(models.Model):
             commercial_partner = partner.commercial_partner_id if partner else False
             if commercial_partner and commercial_partner.industry_id:
                 vals['industry_category_id'] = commercial_partner.industry_id.id
+            elif (
+                'industry_category_id' not in vals
+                and len(self) == 1
+                and self.type == 'lead'
+                and not self.partner_id
+                and self.industry_category_id
+            ):
+                # During Lead -> Opportunity conversion Odoo first assigns a
+                # customer. If the new customer has no Industry, preserve the
+                # selected Lead Industry and sync it to that customer below.
+                vals['industry_category_id'] = self.industry_category_id.id
             elif 'industry_category_id' not in vals:
-                # Switching to a Contact with no Industry must not keep the
-                # previous Contact's Industry on the CRM lead.
+                # A switch from a previously selected Contact with no matching
+                # Industry must not retain that old Contact's Industry.
                 vals['industry_category_id'] = False
 
             # Linking/changing to an existing customer must fetch its Customer

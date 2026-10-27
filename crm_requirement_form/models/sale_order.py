@@ -929,7 +929,7 @@ class SaleOrder(models.Model):
 
             # New format:
             # 1 - customer code first part - customer code last part - serial - 00
-            # Example: customer code 02-00053 -> 1-02-00053-0001-00
+            # Example: customer code 02-00053 -> 1-02-00053-00001-00
             job_prefix = f'1-{customer_first_part}-{customer_last_part}-'
 
             # Keep serial continuity with both previously generated formats:
@@ -975,7 +975,7 @@ class SaleOrder(models.Model):
             sorted_lines = lines.sorted(key=lambda item: (item.sequence, item.id))
             for serial_offset, line in enumerate(sorted_lines, start=1):
                 serial = max_serial + serial_offset
-                line.job_code = f'{job_prefix}{serial:04d}-00'
+                line.job_code = f'{job_prefix}{serial:05d}-00'
 
     def _check_gdn_generated_before_confirm(self):
         """Block confirmation while any product line has no GDN Number."""

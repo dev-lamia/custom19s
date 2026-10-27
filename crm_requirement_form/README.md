@@ -9,7 +9,7 @@
 | Author | `Softeko_Lamia` |
 | Category | CRM |
 | License | LGPL-3 |
-| Documentation Updated | 2026-10-26 |
+| Documentation Updated | 2026-10-27 |
 | Latest Verified Release | Not verified — the ZIP contains historical upgrade notes, but no verified release date |
 | Documentation Status | Source-code reviewed; **not** runtime-tested on an Odoo instance |
 
@@ -34,6 +34,8 @@
 - [Troubleshooting](#troubleshooting)
 - [New developer quick start](#new-developer-quick-start)
 - [Update record](#update-record)
+- [Job Code disable popup and side chatter layout (2026-10-27)](#job-code-disable-popup-and-side-chatter-layout-2026-10-27)
+- [Industry Category conversion and five-digit Job Code serial (2026-10-27)](#industry-category-conversion-and-five-digit-job-code-serial-2026-10-27)
 
 ## Overview
 
@@ -565,9 +567,9 @@ Removed the instructional help line above the **GDN Documents** rows in `views/g
 
 ### GDN and Job Code native Chatter and manual-field audit (2026-10-26)
 
-- **Sales → GDN Configurations:** the existing `sale.gdn.configuration` model inherits `mail.thread` and `mail.activity.mixin`. The form has native Odoo Chatter beneath the sheet. Manually editable GDN fields (`print_type_id`, `no_of_colors`, `print_direction`, `customer_notes` and `designer_note`) use `tracking=True`; other previously tracked GDN reference fields retain their flags. Changes to document rows made through the GDN form additionally log the document type and old/new uploaded file names in the GDN Chatter (attachment contents are not copied). No historical log is backfilled.
+- **Sales → GDN Configurations:** the existing `sale.gdn.configuration` model inherits `mail.thread` and `mail.activity.mixin`. Its native Odoo Chatter is available on the form; the updated desktop position is documented in the 2026-10-27 layout section below. Manually editable GDN fields (`print_type_id`, `no_of_colors`, `print_direction`, `customer_notes` and `designer_note`) use `tracking=True`; other previously tracked GDN reference fields retain their flags. Changes to document rows made through the GDN form additionally log the document type and old/new uploaded file names in the GDN Chatter (attachment contents are not copied). No historical log is backfilled.
 - **Sales → Job Code Configurations:** the SQL-view model `sale.job.code.configuration` has native Odoo Chatter. Manually edited Production Process, Pouch Details and Quality Department fields have `tracking=True`, including `job_quality_attachment_ids`. The model does not write into the SQL view; it saves via its existing Sale Order Line / repeat-size storage. `write()` prepares old values, updates the source, invalidates changed view fields, and finalizes native Odoo `mail.tracking.value` messages so users can see old/new values in the Job Code Chatter. Quality Documents remain exclusive to the Job Code and do not fetch Requirement/GDN files.
-- Both existing configuration form views use `<chatter .../>` with reload support; the styling in `static/src/scss/requirement_form_backend.scss` keeps Chatter visible *below* each wide custom form. **Deployment:** Upgrade the `crm_requirement_form` module (updating files alone is insufficient), refresh backend assets, then edit and Save a manual field and scroll under the form to see Chatter. Historical edits before this upgrade cannot be reconstructed. **Validation:** Python/XML checks only; live Odoo UI test pending.
+- Both configuration form views use `<chatter .../>` with reload support. The 2026-10-26 styling placed Chatter below the wide form; this layout was **superseded on 2026-10-27** by the desktop side-panel rule documented below. **Deployment:** Upgrade `crm_requirement_form`, refresh backend assets, then edit and Save a manual field to inspect its Chatter history. Historical edits before tracking was enabled cannot be reconstructed. **Validation:** Live Odoo UI testing of the latest layout remains pending.
 
 
 ## GDN Disable / Archive With Reason — 2026-10-26
@@ -623,3 +625,55 @@ The **Disable** list action opens an *unsaved* `sale.job.code.disable.wizard` wi
 **Files:** `models/sale_order.py`, `models/job_code_configuration.py`, `models/job_code_disable_wizard.py`, `models/__init__.py`, `views/gdn_configuration_views.xml`, and `security/ir.model.access.csv`. No change to manual field edit/save, tracking, document upload or GDN behavior.
 
 **Proposed staging QA (not executed):** open Job Code list, select one and multiple rows, Actions → Disable, cancel, retry with whitespace-only reason, then provide a valid reason; verify disabled entries disappear. Apply **Disabled** filter and verify their records and Chatter notes. Confirm Sale Order Line, GDN and Quality Documents still exist. Upgrade on a test database before production.
+
+## Job Code disable popup and side chatter layout (2026-10-27)
+
+**Documentation updated:** 2026-10-27. These are implementation details verified by inspecting the **existing source code in this ZIP**. This documentation-only packaging change does not alter models, views, SCSS, security, or runtime behavior.
+
+### Job Code: selected code display in Disable popup
+
+- **Access:** Sales → Configuration → Job Code Configurations → select one or more rows → **Actions → Disable**.
+- **Before this UI correction:** the selected records were shown using `sale.order.line` display names (for example, a Sale Order/product/customer caption), rather than the actual Job Code reference.
+- **Current implementation:** `sale.job.code.disable.wizard` (`models/job_code_disable_wizard.py`) defines a computed read-only `job_code_labels` (`fields.Char`) based on the selected `job_line_ids.mapped('job_code')`, joined as text. The popup (`views/gdn_configuration_views.xml`, XML record `sale_job_code_disable_wizard_form_view`) displays `job_code_labels`; it keeps `job_line_ids` hidden with `force_save="1"` to preserve the existing selection for the Disable action.
+- **Expected display:** selected Job Codes such as `1-01-00019-0003-00`, rather than Sale Order Line captions. Multiple selected codes are shown as comma-separated references.
+- **Unchanged workflow:** the required **Reason for Disabling**, **Disable** and **Cancel** buttons, Job Code-only inactive flag on the source Sale Order Line, **Disabled** filter and Chatter reason note continue to use the existing logic. The change is **display-only**; no Job Code values or source relations are rewritten.
+
+### Job Code and GDN: right-side Chatter on desktop
+
+- **Forms:** Sales → Configuration → **Job Code Configurations** (`sale.job.code.configuration`) and **GDN Configurations** (`sale.gdn.configuration`). Both form views already contain native Odoo Chatter with field-change auditing; this change concerns **position**, not the tracking mechanism or stored messages.
+- **Source:** `static/src/scss/requirement_form_backend.scss` adds a top-level `@media screen and (min-width: 1100px)` rule on the Odoo 19 renderer selector `.o_form_renderer:has(.o_crm_req_config_hero)`. The flex container lays out `.o_form_sheet_bg` on the left and its direct `.o-mail-ChatterContainer.o-mail-Form-chatter` child on the right as a **370px** panel. The nested `.o-mail-Chatter` fills that panel.
+- **Why the correction was needed:** the earlier side-layout CSS was nested inside the custom form's SCSS block and did not reach the actual `.o_form_renderer` ancestor. The corrected selector targets that renderer directly and is restricted to configuration forms containing the shared hero class, rather than changing the Requirement Form screen globally.
+- **Responsive scope:** the new side rule applies from 1100px viewport width; below that breakpoint the rule does not force a right-side column, leaving Odoo's normal responsive layout in place. The existing message/post/note/activity controls, manual Production/Pouch/Quality tracking, GDN tracking, Disable audit notes and document data are not modified.
+- **Deployment:** deploy this already-modified module, **Upgrade** `crm_requirement_form` when required by the environment, rebuild backend assets if they are cached and hard-refresh the browser (`Ctrl + Shift + R`). Updating this documentation ZIP alone does **not** introduce a new UI change: it describes the source code already present.
+
+**Proposed acceptance tests (not executed here):**
+
+1. Select one Job Code and open **Disable**. Confirm the **Selected Job Codes** field shows the actual numeric Job Code, not a Sale Order caption. Repeat with multiple selections; cancel without disabling records.
+2. Enter a reason and disable a test Job Code. Verify that the Job Code disappears from the active list and its note appears in Chatter when accessed via the **Disabled** filter. Confirm unrelated Sale Order/GDN records are still present.
+3. At 1100px or wider, open both GDN and Job Code forms separately. Verify the form remains left and Chatter is shown to the right. Check **Send message**, **Log note**, and existing historical tracking messages.
+4. Narrow the viewport below 1100px. Confirm the form and Chatter remain usable without overlapping. Regression-check Requirement Form screen layout, document uploads and Production/Pouch/Quality Save operations.
+
+**Verification status:** Python/XML/SCSS files are unchanged by this documentation update. The selector and computed-label mapping are code-reviewed; **live Odoo browser behavior has not been independently tested**.
+
+
+## Industry Category conversion and five-digit Job Code serial (2026-10-27)
+
+**Documentation updated:** 2026-10-27. This update has two scoped implementation changes only: CRM Industry Category continuity on conversion and formatting of newly generated Job Code serials. All other module features remain as supplied.
+
+### CRM Lead → Opportunity: Industry Category
+
+- **UI:** `views/crm_lead_views.xml` now displays the existing `crm.lead.industry_category_id` field in both the Lead (`lead_partner`) and Opportunity (`opportunity_partner`) main form groups. Odoo 19 uses a different group for each `type` value, and the original field was inserted only beside the Lead's `partner_id`; hence the field disappeared visually after conversion. The Opportunity field uses the same `industry_category_locked` rule. **No duplicate Industry field or new database column** is introduced.
+- **Value continuity:** Lead-to-Opportunity conversion normally updates the existing `crm.lead` record. In `models/crm_lead.py`, the `write()` logic now preserves the Lead's selected Industry when a **Lead without an existing linked Contact** is assigned a Contact **whose Industry is empty**. This also lets the existing `_sync_industry_category_after_write()` write the value to the newly linked Contact, so it is not lost during the conversion wizard's partner-assignment step.
+- **Existing rules kept:** An already-selected Customer Industry still takes precedence; changing from a previously linked Contact to another Contact with empty Industry still clears the previous Contact's Industry, as before. Industry edit locking and all unrelated Lead/Opportunity/customer fields and conversion logic are unchanged.
+
+**Proposed QA (not executed):** (1) On a Lead without a linked Contact, choose Industry Category = Water Industry, save, then Convert to Opportunity and create a new Customer. Verify Industry Category = Water Industry remains in the Opportunity and is present on the Customer. (2) Convert a Lead linked to a Customer with a nonempty Industry and verify that Customer's Industry remains authoritative. (3) Switch an existing Opportunity between Customers with differing Industry values and check the existing synchronization behavior. (4) Reopen both Lead and Opportunity and ensure the field is displayed once, in the appropriate group.
+
+### Job Code: five-digit incremental serial
+
+- **Source:** `_generate_missing_job_codes()` in `models/sale_order.py`, called on Sale Order confirmation after GDN checks.
+- **Format:** The **fourth segment** (customer-wise incremental Job Code serial) is now formatted with `:05d` instead of `:04d`. Example: `1-01-00019-0003-00` (earlier four-digit format) → `1-01-00019-00003-00` (new five-digit serial format for newly generated codes). Only the serial segment's **minimum width** changes; the prefix, Customer Code segments and `-00` suffix are unchanged.
+- **Continuity:** The existing maximum-serial lookup still parses both historical 4-digit and new 5-digit serials numerically, including previously supported legacy Job Code formats. It continues at the next serial for the same Customer; it does **not** reformat or modify Job Codes already saved on confirmed Sale Order Lines. Records with an existing Job Code are skipped as before.
+
+**Proposed QA (not executed):** Confirm a GDN-ready Sale Order with a fresh Customer and verify a `00001` serial. Create another Sale Order for a Customer with an existing `0003` serial and verify that the next is `00004`. Confirm a multiple-line Sale Order and check that each generated serial increments independently with five-digit padding. Verify old Job Codes, Job Code links, GDN references, Disable wizard, Chatter and historical Sale Orders retain their original identifiers.
+
+**Installation:** Back up the database, deploy the updated module, upgrade `crm_requirement_form`, and refresh the CRM and Sales UI. These are source-level changes; **live Odoo conversion/sequence/runtime tests have not been executed**.

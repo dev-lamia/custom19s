@@ -28,6 +28,13 @@
                 <field name="industry_category_id" readonly="industry_category_locked"/>
             </xpath>
 
+            <!-- Opportunity uses a separate partner group in the standard CRM form.
+                 The same stored Industry Category is shown for both lead types. -->
+            <xpath expr="//group[@name='opportunity_partner']/field[@name='partner_id']"
+                   position="after">
+                <field name="industry_category_id" readonly="industry_category_locked"/>
+            </xpath>
+
             <xpath expr="//header" position="inside">
                 <button name="action_open_requirement_form"
                         type="object"
