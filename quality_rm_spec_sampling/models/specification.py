@@ -59,7 +59,103 @@ class RmQcSpecification(models.Model):
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('rm.qc.specification') or 'New'
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        # Workbook: a product has a predefined test table; the user should not
+        # need an extra Load button. Existing/supplied lines are never replaced.
+        for rec in records:
+            if rec.state == 'draft' and not rec.line_ids:
+                templates = rec._matching_parameter_templates()
+                if templates:
+                    rec.write({'line_ids': rec._parameter_commands(templates)})
+        return records
+
+    def copy(self, default=None):
+        # The workbook requests duplication, not automatic approval/versioning.
+        # An Odoo Action > Duplicate must always result in a DRAFT for review.
+        defaults = dict(default or {})
+        defaults.update({'name': 'New', 'state': 'draft', 'approved_by': False,
+                         'approved_on': False, 'active': True})
+        return super().copy(defaults)
+
+    @api.model
+    def default_get(self, fields_list):
+        values = super().default_get(fields_list)
+        # Show predefined tests immediately when opened from a product.
+        if 'line_ids' in fields_list and not values.get('line_ids'):
+            product_id = (values.get('product_tmpl_id') or
+                          self.env.context.get('default_product_tmpl_id'))
+            if product_id:
+                product = self.env['product.template'].browse(product_id)
+                scope = (values.get('scope') or
+                         self.env.context.get('default_scope') or 'incoming')
+                process = (values.get('process') or
+                           self.env.context.get('default_process') or False)
+                values['line_ids'] = self._parameter_commands(
+                    self._parameter_templates_for(product, scope, process))
+        return values
+
+    @api.onchange('product_tmpl_id', 'scope', 'process')
+    def _onchange_predefined_tests(self):
+        # Pre-fill the test table while creating a standard. Once a saved draft
+        # has hand-edited lines, never silently overwrite those values.
+        for rec in self:
+            if rec.state != 'draft' or (rec._origin.id and rec.line_ids):
+                continue
+            templates = rec._matching_parameter_templates()
+            if rec.product_tmpl_id:
+                rec.line_ids = [fields.Command.clear(),
+                                *rec._parameter_commands(templates)]
+
+    def _matching_parameter_templates(self):
+        self.ensure_one()
+        return self._parameter_templates_for(
+            self.product_tmpl_id, self.scope, self.process)
+
+    @api.model
+    def _parameter_templates_for(self, product, scope, process):
+        if not product:
+            return self.env['rm.qc.parameter.template']
+        material_type = product.rm_qc_material_type
+        if scope == 'incoming' and not material_type:
+            return self.env['rm.qc.parameter.template']
+        if scope == 'production' and not process:
+            return self.env['rm.qc.parameter.template']
+        domain = [('scope', '=', scope), ('active', '=', True)]
+        if scope == 'incoming':
+            domain.append(('material_type', '=', material_type))
+        else:
+            domain.append(('process', '=', process))
+        templates = self.env['rm.qc.parameter.template'].search(domain)
+        if scope == 'incoming' and material_type == 'film':
+            variant = (product.rm_qc_film_type or '').upper()
+            if variant:
+                templates = templates.filtered(
+                    lambda t: bool(re.search(r'\b%s\b' % re.escape(variant),
+                                             (t.item_text or '').upper())))
+        return templates
+
+    def _parameter_commands(self, templates):
+        return [fields.Command.create({
+            'template_id': t.id,
+            'name': t.name,
+            'uom_text': t.uom_text,
+            'lsl_text': t.lsl_text,
+            'target_text': t.target_text,
+            'usl_text': t.usl_text,
+            'inspection_method': t.inspection_method,
+            'lot_size': t.lot_size,
+            'sample_size': t.sample_size,
+            'measurements_per_sample': t.measurements_per_sample,
+            'sample_method': t.sample_method,
+            'inspection_level': t.inspection_level,
+            'inspection_frequency': t.inspection_frequency,
+            'sample_count': _sample_count(t.sample_size),
+            'limit_mode': ('numeric' if _safe_number(t.lsl_text) is not None
+                           and _safe_number(t.target_text) is not None
+                           and _safe_number(t.usl_text) is not None else 'reference'),
+            'lsl_numeric': _safe_number(t.lsl_text) or 0,
+            'usl_numeric': _safe_number(t.usl_text) or 0,
+        }) for t in templates]
 
     def write(self, vals):
         if vals.get('state') == 'approved':
@@ -78,53 +174,15 @@ class RmQcSpecification(models.Model):
         return super().write(vals)
 
     def action_load_parameters(self):
+        """Backwards-compatible server action; no longer shown as a UI step."""
         for rec in self:
             if rec.state != 'draft':
                 raise UserError(_('Only draft specifications can load parameters.'))
-            material_type = rec.product_tmpl_id.rm_qc_material_type
-            if rec.scope == 'incoming' and not material_type:
-                raise UserError(_('Set RM Material Type on the product first.'))
-            domain = [('scope', '=', rec.scope), ('active', '=', True)]
-            if rec.scope == 'incoming':
-                domain.append(('material_type', '=', material_type))
-            if rec.scope == 'production':
-                if not rec.process:
-                    raise UserError(_('Enter a production stage first (e.g. Lamination).'))
-                domain.append(('process', '=', rec.process))
-            templates = self.env['rm.qc.parameter.template'].search(domain)
-            if rec.scope == 'incoming' and material_type == 'film':
-                variant = (rec.product_tmpl_id.rm_qc_film_type or '').upper()
-                if variant:
-                    templates = templates.filtered(
-                        lambda t: bool(re.search(r'\b%s\b' % re.escape(variant),
-                                                 (t.item_text or '').upper())))
-            if not templates:
-                raise UserError(_('No matching master parameters found. Add them manually '
-                                  'or select the correct material type/stage.'))
+            templates = rec._matching_parameter_templates()
             existing = set(rec.line_ids.mapped('template_id').ids)
-            commands = [fields.Command.create({
-                'template_id': t.id,
-                'name': t.name,
-                'uom_text': t.uom_text,
-                'lsl_text': t.lsl_text,
-                'target_text': t.target_text,
-                'usl_text': t.usl_text,
-                'inspection_method': t.inspection_method,
-                'lot_size': t.lot_size,
-                'sample_size': t.sample_size,
-                'measurements_per_sample': t.measurements_per_sample,
-                'sample_method': t.sample_method,
-                'inspection_level': t.inspection_level,
-                'inspection_frequency': t.inspection_frequency,
-                'sample_count': _sample_count(t.sample_size),
-                'limit_mode': ('numeric' if _safe_number(t.lsl_text) is not None
-                               and _safe_number(t.target_text) is not None
-                               and _safe_number(t.usl_text) is not None else 'reference'),
-                'lsl_numeric': _safe_number(t.lsl_text) or 0,
-                'usl_numeric': _safe_number(t.usl_text) or 0,
-            }) for t in templates if t.id not in existing]
-            if commands:
-                rec.write({'line_ids': commands})
+            missing = templates.filtered(lambda t: t.id not in existing)
+            if missing:
+                rec.write({'line_ids': rec._parameter_commands(missing)})
         return True
 
     def action_submit(self):

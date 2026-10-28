@@ -1,3 +1,9 @@
+## [19.0.1.0.5] - 2026-10-28
+### [Update]
+- [2026-10-28] Simplified the QC Specification screen: removed the user-facing Load Tests and Create New Version buttons. Selecting the product pre-fills applicable test parameters automatically for new draft specifications; new empty drafts also auto-fill on save.
+- [2026-10-28] Kept Excel-requested duplication through the standard Odoo Action > Duplicate; copies always start as a new draft and require QC approval. Approval, sampling and inspection logic remain unchanged.
+- [2026-10-28] Existing specification lines are preserved; no auto-population overwrites a populated saved draft.
+
 ## [19.0.1.0.4] - 2026-10-28
 
 ### [Changed]

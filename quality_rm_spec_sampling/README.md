@@ -1,8 +1,15 @@
+### Simplified QC Specification workflow (2026-10-28)
+
+- **Excel basis:** `Main Sheet` requests a predefined per-product TDS table, a duplication option, and auto-fetched TDS values for the inspector. It does **not** require an end-user `Load Tests` button or a `Create New Version` workflow.
+- **User steps:** Product > Create QC Specification > review pre-filled tests and sampling > Send for QC Approval > Confirm. Repeat purchases reuse the approved specification.
+- **Duplication:** Use the standard Action > Duplicate when an alternative draft is needed. A duplicate is never automatically approved.
+- **Safety:** Existing saved specifications and inspection snapshots are unchanged; no automatic TDS approval or stock release has been introduced.
+
 ## Quick Daily Workflow (Simplified UI - 2026-10-28)
 
 The current interface uses a short sequence:
 
-1. **QC Setup (once per product)**: open the product's **QC Setup** tab, set `Incoming QC Required`, and create a **QC Standard / TDS**. Load tests, review limits and sample counts, then **Send for Approval** and **Approve QC Standard**. Reuse the same approved standard for later purchases.
+1. **QC Setup (once per product)**: open the product's **QC Setup** tab, set `Incoming QC Required`, and create a **QC Standard / TDS**. Review automatically populated tests, limits and sample counts, then **Send for QC Approval** and **Approve QC Standard**. Reuse the same approved standard for later purchases.
 2. **Purchase Requests**: add product and quantity, **Submit PR**, **Manager Approve**, then choose a vendor and **Create RFQ**. The optional `Needs QC?` column is read-only and sourced from the product.
 3. **Receive Material**: process the PO in the standard Purchase/Inventory apps. Open/Create RM Inspection on the incoming receipt.
 4. **QC Results**: each test has **Enter Results**. Fill actual measurements, manually judge reference-only tests, and select defect codes only for genuine defects. Pass requires complete, acceptable results; failure and stock disposition remain separate.
@@ -80,9 +87,9 @@ flowchart TD
 2. Set **Incoming QC Required**, **RM Material Type**, intended use/customer (where relevant), and optional Film Material Grade (BOPP/PET/PE/CPP/MPET/AL).
 3. Click **Load Material Identification Fields**, then enter the values. Plate identification fields are available as well.
 4. Click **Create QC Specification / TDS**; optionally enter intended customer and usage.
-5. Click **Load Master QC Parameters** (or manually add lines). For films with selected variant, the loader filters to suitable source items. **AL and MPET do not have a verified incoming sampling master in this workbook**; build and approve a verified specification manually rather than borrowing PET tolerances.
+5. QC parameters auto-populate when selecting a product on a new draft; manually add any additional verified tests as needed. For films with selected variant, the loader filters to suitable source items. **AL and MPET do not have a verified incoming sampling master in this workbook**; build and approve a verified specification manually rather than borrowing PET tolerances.
 6. Enter product-specific nominal numeric values where required; tick *Nominal Value Entered*, save and press **Resolve Nominal +/- Limits** on the relevant parameter row. This supports explicit `Nominal ± amount` or `Nominal ± percentage`. Other expressions must be manually approved as numeric limits or kept as reference/manual tests.
-7. Submit to QC Manager, then have a user in **QC Manager** group confirm. Approved specifications are locked; **Duplicate / Revise** creates a new draft without changing prior inspections.
+7. Submit to QC Manager, then have a user in **QC Manager** group confirm. Approved specifications are locked; **Action > Duplicate** creates a fresh draft for the workbook-requested duplication (not automatic version approval); prior inspections remain unchanged.
 
 ### PR and RFQ
 
