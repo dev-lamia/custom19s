@@ -4,9 +4,16 @@
     <field name="model">product.template</field>
     <field name="inherit_id" ref="product.product_template_only_form_view"/>
     <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_rm_qc_view_specifications" type="object"
+                class="oe_stat_button" icon="fa-flask" groups="base.group_user">
+          <field name="rm_qc_specification_count" widget="statinfo"
+                 string="QC Standards"/>
+        </button>
+      </xpath>
       <xpath expr="//notebook" position="inside">
   <page string="QC Setup" name="rm_qc_product_spec">
-    <div class="alert alert-info" role="alert">Select whether the product needs Incoming QC. Set up and approve a QC Standard once; future purchases will reuse it.</div>
+    <div class="alert alert-info" role="alert">Set incoming QC requirements here. Use the QC Standards smart button above to view its linked tests and approvals.</div>
     <group string="Material" col="2">
       <group>
         <field name="rm_qc_required"/>
@@ -15,24 +22,16 @@
       </group>
       <group><field name="rm_qc_intended_use" placeholder="Customer, product or intended usage"/></group>
     </group>
-    <separator string="Approved QC Standards"/>
-    <button name="action_rm_qc_new_specification" type="object" string="Create QC Standard / TDS" class="btn-primary mb-2" groups="base.group_user"/>
-    <field name="rm_qc_specification_ids" nolabel="1" readonly="1">
-      <list decoration-success="state == 'approved'">
-        <field name="name" string="QCS"/>
-        <field name="scope"/>
-        <field name="state" string="Status"/>
-        <field name="approved_on" string="Approved On" optional="hide"/>
-      </list>
-    </field>
+    <div class="text-muted mt-2">QC Standards are managed from the smart button above. The number shows linked specifications, including drafts and archived records.</div>
   </page>
   <page string="RM Technical Properties" name="rm_qc_technical_properties">
-    <div class="text-muted mb-2">Optional product identification values: thickness, width, core etc. These are references only. Actual QC limits are set in QC Standard / TDS.</div>
-    <button name="action_rm_qc_load_identification" type="object" string="Load Property Templates" class="btn-secondary mb-2" groups="base.group_user"/>
-    <field name="rm_qc_identification_line_ids" nolabel="1">
-      <list editable="bottom">
-        <field name="sequence" widget="handle"/>
-        <field name="name" string="Property"/>
+    <div class="text-muted mb-2">Properties come from RM Quality / More / Master Data / Product Property Configuration automatically for the selected Material Type. Enter only the values and units here. QC tolerance limits remain in the approved QCS / TDS.</div>
+    <group col="2"><field name="rm_qc_material_type" readonly="1"/></group>
+    <field name="rm_qc_identification_line_ids" nolabel="1"
+           domain="[('active', '=', True)]" readonly="not rm_qc_material_type">
+      <list editable="bottom" create="false" delete="false">
+        <field name="sequence" column_invisible="True"/>
+        <field name="name" string="Property" readonly="1"/>
         <field name="value" string="Value"/>
         <field name="uom_text" string="Unit"/>
       </list>
@@ -43,12 +42,16 @@
   <record id="view_rm_qc_identification_template_list" model="ir.ui.view">
     <field name="name">rm.qc.identification.template.list</field>
     <field name="model">rm.qc.identification.template</field>
-    <field name="arch" type="xml"><list string="Product Identification Templates">
-      <field name="material_type"/><field name="name"/><field name="sequence"/>
+    <field name="arch" type="xml"><list string="Product Property Configuration" editable="bottom">
+      <field name="sequence" widget="handle"/>
+      <field name="material_type"/>
+      <field name="name"/>
+      <field name="uom_text"/>
+      <field name="active" optional="show"/>
     </list></field>
   </record>
   <record id="action_rm_qc_identification_template" model="ir.actions.act_window">
-    <field name="name">RM Identification Field Templates</field>
+    <field name="name">Product Property Configuration</field>
     <field name="res_model">rm.qc.identification.template</field>
     <field name="view_mode">list,form</field>
   </record>

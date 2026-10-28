@@ -220,3 +220,20 @@ XML parse, Python compilation, record references and ZIP extraction are statical
 ### Administrator PR approval compatibility (19.0.1.0.3)
 
 Odoo users with Administration / Access Rights or Settings administrator permissions may use **Manager Approve** for submitted requisitions without assignment to **RM QC Extension / PR / GM Approver**. Regular users must have that custom approver group. Submission, approved incoming RM TDS and RFQ creation checks still apply.
+
+
+## Product smart-button navigation (19.0.1.0.6)
+
+The Product form has one **QC Standards** smart button in its upper smart-button row.
+The counter includes all accessible QCS records associated with the Product, including archived records.
+Clicking opens a list filtered to that Product; **New** starts a draft QCS prefilled with the Product (Incoming RM scope).
+The former lower **Create QC Standard / TDS** button and duplicate embedded QCS list are hidden from the Product form.
+Existing QCS data and the underlying creation method remain intact for compatibility.
+This is a UI/navigation update only; business validations and approvals are unchanged.
+
+
+### Product Properties — Automatic Configuration (19.0.1.0.7)
+
+Manage property definitions at **RM Quality → More / Master Data → Product Property Configuration**. Each master field has a Material Type, Property Name, optional Default Unit, Sequence, and Active flag. When a Product is created, or its RM Material Type changes, the corresponding technical property lines are generated/synchronized automatically. Product users fill in Value and Unit, not the property name. No **Load Property Templates** action is required.
+
+Existing product properties are synchronized by the 19.0.1.0.7 post-upgrade script. Unrelated/duplicate property records are disabled rather than deleted so previously entered data remains available for material-type reversal. The QC TDS tolerance and sampling rules remain separate from product identification properties.

@@ -66,12 +66,44 @@ class RmQcDefect(models.Model):
 
 class RmQcIdentificationTemplate(models.Model):
     _name = 'rm.qc.identification.template'
-    _description = 'Product Identification Field Template'
-    _order = 'material_type, sequence'
+    _description = 'Product Property Configuration'
+    _order = 'material_type, sequence, id'
 
-    material_type = fields.Selection(MATERIAL_TYPES, required=True, index=True)
-    name = fields.Char(string='Specification Field', required=True)
-    sequence = fields.Integer(default=10)
+    material_type = fields.Selection(
+        MATERIAL_TYPES, string='RM Material Type', required=True, index=True)
+    name = fields.Char(string='Property', required=True)
+    uom_text = fields.Char(string='Default Unit')
+    sequence = fields.Integer(string='Sequence', default=10)
+    active = fields.Boolean(string='Active', default=True)
+
+    def _sync_products_for_types(self, material_types):
+        if not material_types:
+            return
+        products = self.env['product.template'].search([
+            ('rm_qc_material_type', 'in', list(material_types)),
+        ])
+        products._sync_rm_qc_property_lines()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_products_for_types(set(records.mapped('material_type')))
+        return records
+
+    def write(self, vals):
+        old_types = set(self.mapped('material_type'))
+        result = super().write(vals)
+        if any(key in vals for key in ('name', 'material_type', 'uom_text',
+                                      'sequence', 'active')):
+            self._sync_products_for_types(
+                old_types | set(self.mapped('material_type')))
+        return result
+
+    def unlink(self):
+        old_types = set(self.mapped('material_type'))
+        result = super().unlink()
+        self._sync_products_for_types(old_types)
+        return result
 
 
 class RmQcProductIdentification(models.Model):
@@ -86,3 +118,4 @@ class RmQcProductIdentification(models.Model):
     name = fields.Char(string='Property', required=True)
     value = fields.Char(string='Specification Value')
     uom_text = fields.Char(string='UOM')
+    active = fields.Boolean(string='Active', default=True)

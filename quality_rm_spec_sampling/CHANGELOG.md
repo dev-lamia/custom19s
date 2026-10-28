@@ -1,3 +1,18 @@
+## [19.0.1.0.7] - 2026-10-28
+### [Update]
+- [2026-10-28] Made **More / Master Data → Product Property Configuration** the single source of technical product identification fields, maintained by RM Material Type with optional Default Unit and Active status.
+- [2026-10-28] Removed the Product **Load Property Templates** button. Properties now appear automatically on new products / Material Type changes and are refreshed when master property definitions change.
+- [2026-10-28] Existing products are synchronized on module upgrade. Unrelated or duplicate product property rows are **archived, not deleted**, preserving entered values; changing the material type back restores matching archived rows.
+- [2026-10-28] Product operators enter only Property Value / Unit. Property names and the available fields are controlled in Configuration, not manually added to products. QC Specification / Purchase / Inspection logic unchanged.
+- [2026-10-28] Static XML, Python and ZIP tests performed; live Odoo 19 upgrade execution remains unverified.
+
+## [19.0.1.0.6] - 2026-10-28
+### [Style]
+- [2026-10-28] Replaced the lower Product form **Create QC Standard / TDS** button and embedded specification list with one standard **QC Standards** smart button in the upper Product button box.
+- [2026-10-28] Smart button count reflects the product-linked QCS records (including archived records). Its linked action opens a product-filtered list; **New** creates a draft using the same product by default, with incoming scope.
+- [2026-10-28] Retained existing QCS records, duplication, approvals, PR/PO gates and QC inspection logic unchanged. No automatic QCS creation from opening a product.
+- [2026-10-28] Static syntax/XML/archive checks performed; Odoo 19 runtime view rendering/upgrade not verified.
+
 ## [19.0.1.0.5] - 2026-10-28
 ### [Update]
 - [2026-10-28] Simplified the QC Specification screen: removed the user-facing Load Tests and Create New Version buttons. Selecting the product pre-fills applicable test parameters automatically for new draft specifications; new empty drafts also auto-fill on save.
