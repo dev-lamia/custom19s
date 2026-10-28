@@ -43,7 +43,7 @@
     <field name="name">quality.check.rm.qc.detailed.list</field><field name="model">quality.check</field>
     <field name="arch" type="xml"><list string="Detailed QC Inspections" create="true">
       <field name="name" readonly="1"/><field name="title"/><field name="product_id"/><field name="picking_id"/>
-      <field name="lot_id"/><field name="rm_qc_specification_id"/>
+      <field name="lot_ids" widget="many2many_tags"/><field name="rm_qc_specification_id"/>
       <field name="rm_qc_stage" optional="show"/><field name="quality_state"/>
     </list></field>
   </record>
@@ -61,7 +61,7 @@
       </header>
       <sheet>
         <group><group><field name="name" readonly="1"/><field name="title"/><field name="product_id"/><field name="picking_id"/>
-          <field name="lot_id"/><field name="test_type_id" string="Check Type"/></group>
+          <field name="lot_ids" widget="many2many_tags"/><field name="test_type_id" string="Check Type"/></group>
         <group><field name="rm_qc_scope"/><field name="rm_qc_specification_id"/>
           <field name="rm_qc_date"/><field name="rm_qc_inspector_id"/>
           <field name="rm_qc_po_reference"/><field name="rm_qc_batch_reference"/>

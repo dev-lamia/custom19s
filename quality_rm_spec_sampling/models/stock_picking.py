@@ -39,7 +39,7 @@ class StockPicking(models.Model):
                                     % product.display_name)
                 existing = QualityCheck.search([
                     ('picking_id', '=', picking.id), ('product_id', '=', product.id),
-                    ('lot_id', '=', lot.id if lot else False),
+                    (('lot_ids', 'in', [lot.id]) if lot else ('lot_ids', '=', False)),
                     ('rm_qc_specification_id', '=', spec.id),
                 ], limit=1)
                 if existing:
@@ -47,7 +47,7 @@ class StockPicking(models.Model):
                 vals = {
                     'title': _('RM Incoming QC: %s') % product.display_name,
                     'product_id': product.id, 'picking_id': picking.id,
-                    'lot_id': lot.id if lot else False,
+                    'lot_ids': [fields.Command.set([lot.id])] if lot else [],
                     'test_type_id': test_type.id,
                     'measure_on': 'product',
                     'rm_qc_scope': 'incoming',

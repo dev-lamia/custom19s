@@ -2,6 +2,9 @@
 
 ## [Unreleased] - 2026-10-28
 
+### [Fix] — 2026-10-28
+- Updated Odoo 19 lot handling from `quality.check.lot_id` to `quality.check.lot_ids` for computed batch references, receipt QC check creation, duplicate matching and list/form views; resolves invalid `@api.depends` on installation.
+
 ### [Added] — Source-derived implementation, not a verified production release
 - Workbook-derived QC Parameter Templates: 21 incoming checks and 45 production-stage parameter rules, retaining source textual tolerances and sampling frequency.
 - Twenty RM defect codes RM001–RM020, per-log defect picker.

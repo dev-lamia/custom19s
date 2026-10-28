@@ -28,10 +28,10 @@ class QualityCheck(models.Model):
         for rec in self:
             rec.rm_qc_po_reference = rec.picking_id.origin or ''
 
-    @api.depends('lot_id', 'lot_id.name')
+    @api.depends('lot_ids', 'lot_ids.name')
     def _compute_rm_qc_batch(self):
         for rec in self:
-            rec.rm_qc_batch_reference = rec.lot_id.name or ''
+            rec.rm_qc_batch_reference = ', '.join(rec.lot_ids.mapped('name'))
 
     def action_rm_qc_load_specification(self):
         """Populate snapshots only; never overwrite recorded test results."""
