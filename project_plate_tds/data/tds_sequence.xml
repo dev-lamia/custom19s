@@ -1,0 +1,10 @@
+<odoo noupdate="1">
+    <record id="seq_plate_tds" model="ir.sequence">
+        <field name="name">Plate TDS Number</field>
+        <field name="code">plate.tds</field>
+        <field name="prefix">TDS/</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

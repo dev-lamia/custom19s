@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_plate_tds_internal,plate.tds.internal,model_plate_tds,base.group_user,1,1,1,1
+access_plate_tds_line_internal,plate.tds.line.internal,model_plate_tds_line,base.group_user,1,1,1,1

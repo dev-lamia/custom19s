@@ -1,0 +1,22 @@
+<odoo>
+    <record id="view_job_code_tds_inherit" model="ir.ui.view">
+        <field name="name">sale.job.code.configuration.tds</field>
+        <field name="model">sale.job.code.configuration</field>
+        <field name="inherit_id"
+            ref="crm_requirement_form.sale_job_code_configuration_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/*[1]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_plate_tds"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o">
+                        <field name="plate_tds_count"
+                            widget="statinfo"
+                            string="Plate TDS" />
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

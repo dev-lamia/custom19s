@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_task_plate_tds_inherit" model="ir.ui.view">
+        <field name="name">project.task.form.plate.tds</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_generate_plate_tds" type="object" string="Generate TDS"
+                    class="btn-primary"
+                    invisible="not artwork_sale_order_line_id or plate_tds_count != 0"/>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_open_plate_tds" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                    invisible="not plate_tds_count">
+                    <field name="plate_tds_count" widget="statinfo" string="Plate TDS"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <field name="plate_tds_count" invisible="1"/>
+                <field name="artwork_sale_order_line_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -198,3 +198,7 @@ The spreadsheet does not define a complete AQL batch disposition/stock release p
 ### UI update verification
 
 XML parse, Python compilation, record references and ZIP extraction are statically checked. Live installation and UI clicks in an Odoo 19 database are not verified.
+
+### Administrator PR approval compatibility (19.0.1.0.3)
+
+Odoo users with Administration / Access Rights or Settings administrator permissions may use **Manager Approve** for submitted requisitions without assignment to **RM QC Extension / PR / GM Approver**. Regular users must have that custom approver group. Submission, approved incoming RM TDS and RFQ creation checks still apply.

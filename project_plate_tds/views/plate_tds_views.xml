@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <record id="view_plate_tds_list" model="ir.ui.view">
+        <field name="name">plate.tds.list</field>
+        <field name="model">plate.tds</field>
+        <field name="arch" type="xml">
+            <list string="Plate Technical Data Sheets">
+                <field name="name" />
+                <field name="date" />
+                <field name="task_id" />
+                <field name="gdn_number" />
+                <field name="customer_id" />
+                <field name="design_name" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+    <record id="view_plate_tds_form" model="ir.ui.view">
+        <field name="name">plate.tds.form</field>
+        <field name="model">plate.tds</field>
+        <field name="arch" type="xml">
+            <form string="Plate Technical Data Sheet" class="o_plate_tds_backend">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary"
+                        invisible="state != 'draft'" />
+                    <button name="action_reset_draft" type="object" string="Reset to Draft"
+                        invisible="state != 'confirmed'" />
+                    <button name="action_print_tds" type="object" string="Print TDS"
+                        class="btn-secondary" />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed" />
+                </header>
+                <sheet class="o_plate_tds_sheet">
+                    <div class="o_plate_tds_hero">
+                        <div class="o_plate_tds_hero_left">
+                            <div class="o_plate_tds_kicker">PLATE TECHNICAL DATA SHEET</div>
+                            <div class="oe_title o_plate_tds_title">
+                                <label for="name" />
+                                <h1>
+                                    <field name="name" readonly="1" />
+                                </h1>
+                            </div>
+                            <div class="o_plate_tds_subtitle">Production specifications and plate
+                                details linked to the Artwork Task and GDN.</div>
+                        </div>
+                        <div class="o_plate_tds_hero_card">
+                            <div class="o_plate_tds_card_label">Generated On</div>
+                            <field name="date" readonly="1" nolabel="1" />
+                        </div>
+                    </div>
+                    <div class="o_plate_tds_panel">
+                        <!-- <div class="o_plate_tds_section_title">Document &amp; Parties</div> -->
+                        <group col="2" class="o_plate_tds_two_col">
+                            <group>
+                                <field name="date" />
+                                <field name="pr_rfq" />
+                                <field name="supplier_code" />
+                                <field name="supplier_name" />
+                                <field name="customer_id" readonly="1" />
+                            </group>
+                            <group>
+                                <field name="customer_code" />
+                                <field name="task_id" />
+                                <field name="gdn_id" readonly="1" />
+                            </group>
+                        </group>
+                        <field name="supplier_id" invisible="1" />
+                        <field name="sale_line_id" invisible="1" />
+                        <field name="sale_order_id" invisible="1" />
+                    </div>
+                    <div class="o_plate_tds_panel">
+                        <div class="o_plate_tds_section_title">Product Information</div>
+                        <group col="2" class="o_plate_tds_two_col">
+                            <group>
+                                <field name="job_code_id"
+                                    readonly="1"
+                                    options="{'no_create': True, 'no_open': False}" />
+                                <field name="design_name" />
+                                <field name="structure" />
+                                <field name="fg_type" />
+                                <field name="fg_type_key" invisible="1" />
+                            </group>
+                            <group>
+                                <field name="so_no" />
+                                <field name="gdn_number" />
+                                <field name="design_type" />
+                            </group>
+                        </group>
+                    </div>
+                    <div class="o_plate_tds_panel">
+                        <div class="o_plate_tds_section_title">Technical Data</div>
+                        <group col="2" class="o_plate_tds_two_col">
+                            <group>
+                                <separator string="As per FG Dimensions" />
+                                <field name="fg_width" invisible="fg_type == 'roll'" />
+                                <field name="fg_length" invisible="fg_type == 'roll'" />
+                                <!-- <field name="gdn_gusset" invisible="fg_type == 'roll'" /> -->
+                               <field name="side_gusset" readonly="1"/>
+                                <field name="bottom_gusset" readonly="1"/>
+                            </group>
+                            <group>
+                                <separator string="Printing Details" />
+                                <field name="print_type" />
+                                <field name="pouch_type" />
+                                <field name="plate_thickness" />
+                            </group>
+                        </group>
+                    </div>
+                    <div class="o_plate_tds_panel">
+                        <div class="o_plate_tds_section_title">Width Calculation</div>
+                        <group col="2" class="o_plate_tds_two_col">
+                            <group>
+                                <field name="one_up_width" />
+                                <field name="width_bleed" />
+                                <field name="num_ups" />
+                            </group>
+                            <group>
+                                <field name="print_area_width" />
+                                <field name="film_width" />
+                            </group>
+                        </group>
+                    </div>
+                    <div class="o_plate_tds_panel">
+                        <div class="o_plate_tds_section_title">Circumference Calculation</div>
+                        <group col="2" class="o_plate_tds_two_col">
+                            <group>
+                                <field name="one_repeat_length" />
+                                <field name="repeat_bleed" />
+                                <field name="num_repeats" />
+                            </group>
+                            <group>
+                                <field name="circumference" />
+                                <field name="available_sleeve" />
+                            </group>
+                        </group>
+                    </div>
+                    <div class="o_plate_tds_panel">
+                        <div class="o_plate_tds_section_title">Printing Details</div>
+                        <group col="2" class="o_plate_tds_two_col">
+                            <group>
+                                <field name="num_colors" />
+                                <field name="num_plates" />
+                                <field name="print_direction" readonly="1" />
+                                <field name="final_direction" invisible="fg_type_key != 'roll'" />
+                            </group>
+                            <group>
+                                <field name="shade_reference" />
+                                <field name="staggering" />
+                                <field name="staggering_displacement" />
+                                <field name="ink_grade" />
+                            </group>
+                        </group>
+                    </div>
+                    <notebook class="o_plate_tds_notebook">
+                        <page name="plate_codes" string="Plate Codes">
+                            <div class="o_plate_tds_panel">
+                                <div class="o_plate_tds_section_title">Plate Codes</div>
+                                <field name="plate_line_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle" />
+                                        <field name="plate_product_id"
+                                            domain="[('product_tmpl_id.is_plate', '=', True)]"
+                                            options="{'no_create': True, 'no_create_edit': True}" />
+                                        <field name="description" />
+                                        <field name="plate_sequence" />
+                                        <field name="remarks" />
+                                    </list>
+                                </field>
+                            </div>
+                        </page>
+                        <page name="layout" string="Layouts">
+                            <div class="o_plate_tds_panel">
+                                <div class="o_plate_tds_section_title">Layouts</div>
+                                <group col="2" class="o_plate_tds_two_col">
+                                    <group>
+                                        <field name="production_layout_ids"
+                                            widget="many2many_binary" />
+                                    </group>
+                                    <group>
+                                        <field name="plate_layout_ids" widget="many2many_binary" />
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+                        <page name="remarks" string="Remarks">
+                            <div class="o_plate_tds_panel">
+                                <div class="o_plate_tds_section_title">Remarks</div>
+                                <field name="remarks" nolabel="1" />
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+    <record id="action_plate_tds" model="ir.actions.act_window">
+        <field name="name">Plate Technical Data Sheets</field>
+        <field name="res_model">plate.tds</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_plate_tds_root" name="Plate TDS" parent="project.menu_main_pm"
+        action="action_plate_tds" sequence="90" />
+</odoo>

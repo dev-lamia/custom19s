@@ -1,0 +1,136 @@
+// Scoped to Plate TDS forms; inspired by the GDN backend styling.
+.o_plate_tds_backend {
+    --tds-green-dark: #1e6b4b;
+    --tds-green: #2a9d6f;
+    --tds-blue-dark: #1a3c5e;
+    --tds-border: rgba(30, 107, 75, .16);
+    --tds-shadow: 0 16px 38px rgba(22, 78, 57, .10);
+
+    .o_form_sheet_bg {
+        background: radial-gradient(circle at 8% 10%, rgba(42,157,111,.18), transparent 28%),
+                    linear-gradient(135deg, #d8f0e8 0%, #f6fffb 48%, #cfeadd 100%) !important;
+        padding: 24px 16px 40px;
+    }
+    // Keep the action/status header in the normal flow, never pinned while scrolling.
+    .o_form_statusbar {
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important;
+        border-bottom: 1px solid var(--tds-border);
+        background: linear-gradient(90deg, #fff, #f4fbf8);
+    }
+    .o_form_sheet_bg .o_form_sheet, .o_plate_tds_sheet {
+        max-width: 1640px !important;
+        width: 96% !important;
+        border: 0 !important;
+        border-radius: 22px !important;
+        background: rgba(255,255,255,.96) !important;
+        box-shadow: var(--tds-shadow) !important;
+        overflow: visible;
+    }
+    // Never lock the Odoo form viewport or its scroll container.
+    .o_form_sheet_bg {
+        overflow-y: auto;
+        min-height: 0;
+    }
+    .o_plate_tds_hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 24px;
+        margin: -16px -16px 22px;
+        padding: 28px 30px;
+        border-radius: 0 0 26px 26px;
+        color: #fff;
+        background: linear-gradient(135deg, #1e6b4b, #2a9d6f);
+    }
+    .o_plate_tds_kicker {
+        display: inline-flex;
+        padding: 6px 12px;
+        border: 1px solid rgba(255,255,255,.28);
+        border-radius: 999px;
+        background: rgba(255,255,255,.16);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+    }
+    .o_plate_tds_title { margin-top: 12px; }
+    .o_plate_tds_title h1, .o_plate_tds_title .o_field_widget,
+    .o_plate_tds_title input, .o_plate_tds_title label {
+        color: #fff !important;
+        font-weight: 800 !important;
+    }
+    .o_plate_tds_subtitle { color: rgba(255,255,255,.84); font-size: 14px; margin-top: 6px; }
+    .o_plate_tds_hero_card {
+        min-width: 240px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,.28);
+        border-radius: 18px;
+        background: rgba(255,255,255,.16);
+        box-shadow: 0 10px 26px rgba(0,0,0,.08);
+    }
+    .o_plate_tds_card_label {
+        margin-bottom: 8px;
+        color: rgba(255,255,255,.78);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .o_plate_tds_hero_card .o_field_widget,
+    .o_plate_tds_hero_card .o_field_widget span { color: #fff !important; font-weight: 700; }
+    .o_plate_tds_panel {
+        margin: 0 0 18px;
+        padding: 20px 22px;
+        border: 1px solid var(--tds-border);
+        border-radius: 18px;
+        background: linear-gradient(180deg, #fff 0%, #f7fffb 100%);
+        box-shadow: 0 8px 22px rgba(22,78,57,.055);
+    }
+    .o_plate_tds_section_title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--tds-border);
+        color: var(--tds-blue-dark);
+        font-size: 16px;
+        font-weight: 800;
+    }
+    .o_plate_tds_section_title::before {
+        content: '';
+        width: 7px;
+        height: 24px;
+        flex: 0 0 7px;
+        border-radius: 6px;
+        background: var(--tds-green);
+    }
+    .o_plate_tds_panel .o_group { margin-bottom: 0; }
+    // Two independent form groups: one left column and one right column.
+    .o_plate_tds_two_col { width: 100%; }
+    .o_plate_tds_two_col > .o_group { min-width: 0; }
+    @media (max-width: 767px) {
+        .o_plate_tds_two_col { display: block; }
+    }
+    .o_plate_tds_notebook .nav-tabs { border-bottom-color: var(--tds-border); }
+    .o_plate_tds_notebook .nav-link.active { color: var(--tds-green-dark) !important; font-weight: 700; }
+    .o_plate_tds_panel .o_list_table thead { background: #eefaf5; }
+    .o_plate_tds_panel .o_list_table th { color: var(--tds-blue-dark); }
+    .o-mail-Chatter, .oe_chatter {
+        max-width: none;
+        margin: 24px;
+        padding: 16px 18px;
+        background: #fff;
+        border: 1px solid #d8e7df;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(15,23,42,.06);
+    }
+    @media (max-width: 768px) {
+        .o_form_sheet_bg { padding: 12px 6px 24px; }
+        .o_form_sheet_bg .o_form_sheet { width: 100% !important; }
+        .o_plate_tds_hero { margin: -16px -16px 18px; padding: 20px; }
+        .o_plate_tds_hero_card { width: 100%; min-width: 0; }
+        .o_plate_tds_panel { padding: 14px; }
+    }
+}

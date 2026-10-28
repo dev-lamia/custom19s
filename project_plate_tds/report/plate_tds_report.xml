@@ -1,0 +1,12 @@
+<odoo>
+    <record id="action_report_plate_tds" model="ir.actions.report">
+        <field name="name">Plate Technical Data Sheet</field>
+        <field name="model">plate.tds</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_plate_tds.report_plate_tds_document</field>
+        <field name="report_file">project_plate_tds.report_plate_tds_document</field>
+        <field name="binding_model_id" ref="model_plate_tds"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Plate TDS - %s' % (object.name)</field>
+    </record>
+</odoo>

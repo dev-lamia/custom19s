@@ -1,0 +1,386 @@
+<odoo>
+    <template id="report_plate_tds_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page mb-0">
+                        <style>
+                            h6 {
+                                margin-bottom: 0.2rem;
+                                margin-top: 0.2rem;
+                            }
+                        </style>
+                        <h3 class="text-center">Plate
+                            Technical Data Sheet</h3>
+                        <table class="table table-sm table-bordered px-2"
+                            style="width:100%; font-size:10px;">
+                            <tr>
+                                <td>
+                                    <strong>Supplier Code</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.supplier_code or ''" />
+                                </td>
+                                <td>
+                                    <strong>Doc. No.</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.name" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Supplier Name</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.supplier_name or (o.supplier_id.name or '')" />
+                                </td>
+                                <td>
+                                    <strong>Date</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.date" t-options="{'widget':'datetime'}" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Customer Name</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.customer_id.name or ''" />
+                                </td>
+                                <td>
+                                    <strong>PR No. / RFQ</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.pr_rfq or ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Customer Code</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.customer_code or ''" />
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+
+                        <h6>Product Information</h6>
+                        <table class="table table-sm table-bordered px-2" style="font-size:10px;">
+                            <tr>
+                                <td>
+                                    <strong>Job Code</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.job_code or ''" />
+                                </td>
+                                <td>
+                                    <strong>S.O. No.</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.so_no or ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Job Description / Design Name</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.design_name or ''" />
+                                </td>
+                                <td>
+                                    <strong>GDN</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.gdn_number or ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Structure</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.structure or ''" />
+                                </td>
+                                <td>
+                                    <strong>Type of Design</strong>
+                                </td>
+                                <td>
+                                    <span
+                                        t-esc="'New' if o.design_type == 'new' else 'Repeat' if o.design_type == 'repeat' else ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>FG Type</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.fg_type or ''" />
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <h6>Technical Data</h6>
+                        <table class="table table-sm table-bordered px-2" style="font-size:10px;">
+                            <tr>
+                                <td>
+                                    <strong>Width of FG (mm)</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.fg_width" />
+                                </td>
+                                <td>
+                                    <strong>Print Type</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.print_type or ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Length of FG (mm)</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.fg_length" />
+                                </td>
+                                <td>
+                                    <strong>Product</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.pouch_type or ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Side Gusset (mm)</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.side_gusset" />
+                                </td>
+                                <td>
+                                    <strong>Plate Thickness (mm)</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.plate_thickness" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Bottom Gusset (mm)</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.bottom_gusset" />
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <h6>Width Calculation</h6>
+                        <table class="table table-sm table-bordered text-center px-2"
+                            style="font-size:10px;">
+                            <tr>
+                                <th>
+                                    <strong>One Up Width (mm)</strong>
+                                </th>
+                                <th>
+                                    <strong>Bleed (mm)</strong>
+                                </th>
+                                <th>
+                                    <strong>No. of Ups</strong>
+                                </th>
+                                <th>
+                                    <strong>Print Area Width (mm)</strong>
+                                </th>
+                                <th>
+                                    <strong>Film Width (mm)</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span t-esc="o.one_up_width" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.width_bleed" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.num_ups" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.print_area_width" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.film_width" />
+                                </td>
+                            </tr>
+                        </table>
+                        <h6>Circumference Calculation</h6>
+                        <table class="table table-sm table-bordered text-center px-2"
+                            style="font-size:10px;">
+                            <tr>
+                                <th>
+                                    <strong>One Repeat Length (mm)</strong>
+                                </th>
+                                <th>
+                                    <strong>Bleed (mm)</strong>
+                                </th>
+                                <th>
+                                    <strong>No. of Repeats</strong>
+                                </th>
+                                <th>
+                                    <strong>Circumference (mm)</strong>
+                                </th>
+                                <th>
+                                    <strong>Available Sleeve (mm)</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span t-esc="o.one_repeat_length" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.repeat_bleed" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.num_repeats" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.circumference" />
+                                </td>
+                                <td>
+                                    <span t-esc="o.available_sleeve" />
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table table-sm table-bordered" style="font-size:10px; px-2">
+                            <tr>
+                                <td>
+                                    <strong>No. of Colors</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.num_colors" />
+                                </td>
+                                <td>
+                                    <strong>Color Reference</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.shade_reference or ''" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>No. of Plates</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.num_plates" />
+                                </td>
+                                <td>
+                                    <strong>Staggering</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="'Yes' if o.staggering else 'No'" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Print Direction</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.print_direction or ''" />
+                                </td>
+                                <td>
+                                    <strong>Staggering Displacement (mm)</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.staggering_displacement" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Final Direction</strong>
+                                </td>
+                                <td>
+                                    <span t-if="o.fg_type_key == 'roll'"
+                                        t-esc="o.final_direction or ''" />
+                                </td>
+                                <td>
+                                    <strong>Ink Grade</strong>
+                                </td>
+                                <td>
+                                    <span t-esc="o.ink_grade or ''" />
+                                </td>
+                            </tr>
+                        </table>
+                        <h6>Plate Codes</h6>
+                        <table class="table table-sm table-bordered" style="font-size:10px; px-2">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <strong>Plate Codes</strong>
+                                    </th>
+                                    <th>
+                                        <strong>Plate Description</strong>
+                                    </th>
+                                    <th>
+                                        <strong>Plate Sequence</strong>
+                                    </th>
+                                    <th>
+                                        <strong>Remarks</strong>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.plate_line_ids" t-as="line">
+                                    <td>
+                                        <span
+                                            t-esc="line.plate_product_id.display_name or line.plate_code or ''" />
+                                    </td>
+                                    <td>
+                                        <span t-esc="line.description or ''" />
+                                    </td>
+                                    <td>
+                                        <span t-esc="line.plate_sequence" />
+                                    </td>
+                                    <td>
+                                        <span t-esc="line.remarks or ''" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h6>Plate Layout + Production Layout</h6>
+                        <div
+                            style="min-height:70px;border:1px solid #aaa;padding:6px; font-size:10px;">
+                            <strong>Plate layouts:</strong>
+                            <span
+                                t-esc="', '.join(o.plate_layout_ids.mapped('name')) or 'Not attached'" />
+                            <br />
+                            <strong>Production layouts:</strong>
+                            <span
+                                t-esc="', '.join(o.production_layout_ids.mapped('name')) or 'Not attached'" />
+                            <div t-foreach="o.plate_layout_ids" t-as="attachment">
+                                <img
+                                    t-if="attachment.mimetype and attachment.mimetype.startswith('image/')"
+                                    t-att-src="image_data_uri(attachment.datas)"
+                                    style="max-width:48%;max-height:190px;margin:4px;" />
+                            </div>
+                            <div t-foreach="o.production_layout_ids" t-as="attachment">
+                                <img
+                                    t-if="attachment.mimetype and attachment.mimetype.startswith('image/')"
+                                    t-att-src="image_data_uri(attachment.datas)"
+                                    style="max-width:48%;max-height:190px;margin:4px;" />
+                            </div>
+                        </div>
+                        <h6>Remarks</h6>
+                        <div
+                            style="font-size:10px; min-height:30px;border:1px solid #aaa;padding:6px;white-space:pre-wrap;">
+                            <span t-esc="o.remarks or ''" />
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

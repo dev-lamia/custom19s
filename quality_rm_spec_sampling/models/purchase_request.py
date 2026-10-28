@@ -37,10 +37,21 @@ class RmQcPurchaseRequest(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('rm.qc.purchase.request') or 'New'
         return super().create(vals_list)
 
+    def _can_approve_pr(self):
+        """Allow PR approvers and Odoo administrators to approve requisitions."""
+        return (
+            self.env.is_admin()
+            or self.env.is_system()
+            or self.env.user.has_group(
+                'quality_rm_spec_sampling.group_rm_qc_pr_approver'
+            )
+        )
+
     def write(self, vals):
-        if vals.get('state') == 'approved' and not self.env.user.has_group(
-                'quality_rm_spec_sampling.group_rm_qc_pr_approver'):
-            raise UserError(_('Only a PR Approver may approve a requisition.'))
+        if vals.get('state') == 'approved' and not self._can_approve_pr():
+            raise UserError(_(
+                'Only a PR Approver or an Administrator may approve a requisition.'
+            ))
         if {'line_ids'}.intersection(vals) and any(r.state != 'draft' for r in self):
             raise UserError(_('Requisition lines cannot change after submission.'))
         return super().write(vals)
@@ -62,8 +73,10 @@ class RmQcPurchaseRequest(models.Model):
         return True
 
     def action_approve(self):
-        if not self.env.user.has_group('base.group_user'):
-            raise UserError(_('Only the requisition approver can approve PRs.'))
+        if not self._can_approve_pr():
+            raise UserError(_(
+                'Only a PR Approver or an Administrator may approve a requisition.'
+            ))
         for rec in self:
             if rec.state != 'submitted':
                 raise UserError(_('Submit the PR before approving.'))

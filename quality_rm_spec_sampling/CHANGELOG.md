@@ -1,3 +1,9 @@
+## [19.0.1.0.3] - 2026-10-28
+### [Fix]
+- [2026-10-28] Odoo administrators (Access Rights/Settings) may approve submitted RM/Consumable PRs without membership in the custom PR / GM Approver group. Ordinary users still require that group.
+- [2026-10-28] Applied the same server-side authorization in both `action_approve()` and guarded `write()` on `rm.qc.purchase.request`; existing PR state validation, approved RM specification checks, company rules and RFQ restrictions remain unchanged.
+- [2026-10-28] Python syntax and archive integrity checked; Odoo database upgrade/runtime approval testing not performed.
+
 ## [19.0.1.0.2] - 2026-10-28
 ### [Style]
 - [2026-10-28] Reorganized Product RM QC into classification, technical identification and associated approved TDS sections, matching the source workbook.
