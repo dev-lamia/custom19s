@@ -4,7 +4,7 @@
 |---|---|
 | Technical module | `quality_rm_spec_sampling` |
 | Odoo version | 19.0 |
-| Module version | 19.0.1.0.0 |
+| Module version | 19.0.1.0.1 |
 | Author | Softeko_Lamia |
 | Documentation updated | 2026-10-28 |
 | Source | `RM Master_QC_Specification_With_Sampling.xlsx` (7 sheets) |
@@ -127,9 +127,15 @@ flowchart TD
 7. Master production frequency is descriptive; no background scheduler or MRP operation stop gate was requested explicitly.
 8. Consumable matrix is reference only; ROP/quantity semantics need validation.
 
-## Security
+## Security — temporary open access for internal users (19.0.1.0.1)
 
-Assign required custom groups under User Access Rights: **QC Inspector**, **QC Controller / Planner**, **QC Manager**, **PR / GM Approver**. Additionally grant Odoo **Quality** user rights for QC check processing and **Purchase User** rights for RFQ generation. Multi-company rules restrict specification and PR records to allowed companies. Controller group can edit template master data; inspector can enter log data. Do not give all users unrestricted configuration rights.
+All **logged-in internal users** (`base.group_user`), including Administrator, now have full CRUD rights for the 11 **custom RM QC** models. All custom module menus and workflow buttons are visible to those users regardless of assigned RM QC Extension role. All internal users can confirm/archive TDS and approve PR for evaluation. QC Master Parameters now allow creating new records in the list view.
+
+**Scope:** Does not grant permissions to portal/public users, nor override standard Odoo Product/Purchase/Quality/Inventory/Manufacturing access rights. In particular, **Create RFQ** is visible but still requires Odoo **Purchase User** rights and the normal native `purchase.order` ACL. The extension root is still nested under Quality if the installed Quality menu allows it, so an internal user without standard Quality menu access may need to open the add-on using the Apps/menu system or be granted Quality access.
+
+**Business safety:** QC-required products still need approved specifications for PR/PO; approved TDS is still locked for revision; QC Pass still requires completed valid measurements. Company record rules stay in force.
+
+**Before production:** Restore specific QC Controller/Manager/PR roles and tighter ACLs. Simply hiding a button/menu using Access Management may not prevent backend method calls; reapply security server-side too. This temporary test configuration deliberately grants broad master record deletion rights to internal users—use a staging database and backups.
 
 ## Installation
 

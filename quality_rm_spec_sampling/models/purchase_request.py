@@ -62,7 +62,7 @@ class RmQcPurchaseRequest(models.Model):
         return True
 
     def action_approve(self):
-        if not self.env.user.has_group('quality_rm_spec_sampling.group_rm_qc_pr_approver'):
+        if not self.env.user.has_group('base.group_user'):
             raise UserError(_('Only the requisition approver can approve PRs.'))
         for rec in self:
             if rec.state != 'submitted':

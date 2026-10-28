@@ -2,6 +2,13 @@
 
 ## [Unreleased] - 2026-10-28
 
+### [Update] — 2026-10-28 — Internal-user access temporarily opened
+- All logged-in internal users (`base.group_user`), including Administrator, can read/create/edit/delete records in all 11 custom RM QC models. Public and portal users do not gain access.
+- Exposed custom QC/TDS, approval, PR, identification, receipt/MO buttons and module menus to all internal users; enabled New on QC Master Parameter list.
+- Allowed any internal user to execute the module's QC specification confirmation / archive and PR approval actions, without granting Odoo's native Purchase, Quality or Inventory permissions.
+- Kept TDS state and revision locks, PR state validations, QC measurement checks, multi-company record rules and standard Odoo Purchase User requirement for creating an RFQ unchanged.
+- This broad access is intended for temporary evaluation and should be restricted again before production use. Restricting visibility with a separate access manager does not itself undo these backend ACL changes.
+
 ### [Fix] — 2026-10-28
 - Added **read-only** ACLs for internal users on QC data embedded in standard Product and Quality Check forms (product identification, specification/lines, QC references and inspection logs). Prevents Access Error on `product.template.rm_qc_identification_line_ids` for users without the custom RM QC group. Existing QC Inspector/Controller/Manager edit rights and company rules are unchanged. No public/portal access granted.
 

@@ -1,16 +1,16 @@
 <odoo>
   <!-- Reparented under the installed Quality app in post_init_hook when available. -->
   <menuitem id="menu_rm_qc_root" name="RM QC Specification &amp; Sampling" sequence="70"
-            groups="quality_rm_spec_sampling.group_rm_qc_inspector"/>
+            groups="base.group_user"/>
   <menuitem id="menu_rm_qc_quality_checks" name="QC Checks / Inspection Logs"
             parent="menu_rm_qc_root" sequence="10" action="action_rm_qc_detailed_check"/>
   <menuitem id="menu_rm_qc_spec" name="QC Specifications / TDS" parent="menu_rm_qc_root"
             sequence="20" action="action_rm_qc_spec"/>
   <menuitem id="menu_rm_qc_pr" name="Purchase Requisitions" parent="menu_rm_qc_root"
             sequence="30" action="action_rm_qc_pr"
-            groups="quality_rm_spec_sampling.group_rm_qc_controller,purchase.group_purchase_user"/>
+            groups="base.group_user"/>
   <menuitem id="menu_rm_qc_master" name="Master Configurations" parent="menu_rm_qc_root"
-            sequence="60" groups="quality_rm_spec_sampling.group_rm_qc_controller"/>
+            sequence="60" groups="base.group_user"/>
   <menuitem id="menu_rm_qc_parameters" name="QC Master Parameters (RM / Production)"
             parent="menu_rm_qc_master" action="action_rm_qc_parameter" sequence="5"/>
   <menuitem id="menu_rm_qc_defects" name="RM Defect Catalog" parent="menu_rm_qc_master"

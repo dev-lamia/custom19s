@@ -7,7 +7,7 @@
       <xpath expr="//header" position="inside">
         <button name="action_rm_qc_create_production_checks" type="object"
                 string="Production QC Checks" class="btn-secondary"
-                groups="quality_rm_spec_sampling.group_rm_qc_inspector"/>
+                groups="base.group_user"/>
       </xpath>
     </field>
   </record>

@@ -10,9 +10,9 @@
             <field name="rm_qc_film_type" invisible="rm_qc_material_type != 'film'"/>
             <field name="rm_qc_intended_use"/></group></group>
           <button name="action_rm_qc_load_identification" type="object" string="Load Material Identification Fields"
-                  class="btn-secondary" groups="quality_rm_spec_sampling.group_rm_qc_controller"/>
+                  class="btn-secondary" groups="base.group_user"/>
           <button name="action_rm_qc_new_specification" type="object" string="Create QC Specification / TDS"
-                  class="btn-primary" groups="quality_rm_spec_sampling.group_rm_qc_controller"/>
+                  class="btn-primary" groups="base.group_user"/>
           <field name="rm_qc_identification_line_ids">
             <list editable="bottom"><field name="sequence" widget="handle"/>
               <field name="name"/><field name="value"/><field name="uom_text"/>
@@ -44,7 +44,7 @@
       <xpath expr="//header" position="inside">
         <button name="action_rm_qc_create_checks" type="object" string="RM QC Inspection"
                 class="btn-secondary" invisible="picking_type_code != 'incoming'"
-                groups="quality_rm_spec_sampling.group_rm_qc_inspector"/>
+                groups="base.group_user"/>
       </xpath>
     </field>
   </record>

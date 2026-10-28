@@ -63,10 +63,10 @@ class RmQcSpecification(models.Model):
 
     def write(self, vals):
         if vals.get('state') == 'approved':
-            if not self.env.user.has_group('quality_rm_spec_sampling.group_rm_qc_manager'):
+            if not self.env.user.has_group('base.group_user'):
                 raise UserError(_('Only QC Manager may confirm specifications.'))
         if vals.get('state') == 'archived':
-            if not self.env.user.has_group('quality_rm_spec_sampling.group_rm_qc_manager'):
+            if not self.env.user.has_group('base.group_user'):
                 raise UserError(_('Only QC Manager may archive specifications.'))
         protected = {'product_tmpl_id', 'scope', 'process', 'line_ids', 'notes',
                      'intended_use', 'intended_customer_id'}
@@ -137,7 +137,7 @@ class RmQcSpecification(models.Model):
         return True
 
     def action_approve(self):
-        if not self.env.user.has_group('quality_rm_spec_sampling.group_rm_qc_manager'):
+        if not self.env.user.has_group('base.group_user'):
             raise UserError(_('Only the QC Manager can confirm specifications.'))
         for rec in self:
             if rec.state != 'submitted' or not rec.line_ids:
@@ -150,7 +150,7 @@ class RmQcSpecification(models.Model):
         return True
 
     def action_archive_spec(self):
-        if not self.env.user.has_group('quality_rm_spec_sampling.group_rm_qc_manager'):
+        if not self.env.user.has_group('base.group_user'):
             raise UserError(_('Only the QC Manager can archive specifications.'))
         self.write({'state': 'archived', 'active': False})
         return True
