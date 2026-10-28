@@ -1,3 +1,16 @@
+## [19.0.1.0.8] - 2026-10-28
+
+### [Removed]
+- [2026-10-28] Removed this add-on's Purchase Requisition (PR) forms, models, menus, security rules, approval role, sequence and related RFQ creation action.
+
+### [Changed]
+- [2026-10-28] Preserved direct `purchase.order.button_confirm()` validation of approved incoming QC specification in its own `models/purchase_order.py`; existing QC Setup, receipt sampling, inspection and production QC are unchanged.
+- [2026-10-28] Simplified RM Quality navigation to **1. QC Setup (Once)** and **2. Receipt QC Results** plus Master Data.
+- [2026-10-28] Added upgrade cleanup for obsolete PR user-interface/security records. Back up existing `PRQ` data before upgrading; the removed model's historical records may not survive the upgrade.
+
+### [Docs]
+- [2026-10-28] Updated README to reflect direct Purchase RFQ/PO flow without this add-on's PR.
+
 ## [19.0.1.0.7] - 2026-10-28
 ### [Update]
 - [2026-10-28] Made **More / Master Data → Product Property Configuration** the single source of technical product identification fields, maintained by RM Material Type with optional Default Unit and Active status.
