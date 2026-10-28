@@ -1,3 +1,13 @@
+## [19.0.1.0.2] - 2026-10-28
+### [Style]
+- [2026-10-28] Reorganized Product RM QC into classification, technical identification and associated approved TDS sections, matching the source workbook.
+- [2026-10-28] Replaced the wide specification editor with a concise TDS parameter overview and an expanded property-level editor for specification, numeric limits and sampling procedure.
+- [2026-10-28] Simplified Quality Check / Inspection into receipt and batch information, approved TDS, and sampling measurements.
+- [2026-10-28] Added direct **Enter Results** action from each test parameter to its Measurement Log popup.
+- [2026-10-28] Simplified module menu labels; preserved existing menu/action IDs and existing ACL access.
+### [Compatibility]
+- [2026-10-28] Does not modify purchase approval, QCP, stock release, sample result evaluation or automatic Pass/Fail business logic; Odoo runtime upgrade verification remains pending.
+
 # Changelog
 
 ## [Unreleased] - 2026-10-28

@@ -1,22 +1,20 @@
 <odoo>
-  <!-- Reparented under the installed Quality app in post_init_hook when available. -->
-  <menuitem id="menu_rm_qc_root" name="RM QC Specification &amp; Sampling" sequence="70"
-            groups="base.group_user"/>
-  <menuitem id="menu_rm_qc_quality_checks" name="QC Checks / Inspection Logs"
+  <!-- Existing IDs remain stable so existing actions and data are preserved on upgrade. -->
+  <menuitem id="menu_rm_qc_root" name="RM Quality" sequence="70" groups="base.group_user"/>
+  <menuitem id="menu_rm_qc_quality_checks" name="QC Inspections / Quality Checks"
             parent="menu_rm_qc_root" sequence="10" action="action_rm_qc_detailed_check"/>
-  <menuitem id="menu_rm_qc_spec" name="QC Specifications / TDS" parent="menu_rm_qc_root"
-            sequence="20" action="action_rm_qc_spec"/>
-  <menuitem id="menu_rm_qc_pr" name="Purchase Requisitions" parent="menu_rm_qc_root"
-            sequence="30" action="action_rm_qc_pr"
-            groups="base.group_user"/>
-  <menuitem id="menu_rm_qc_master" name="Master Configurations" parent="menu_rm_qc_root"
-            sequence="60" groups="base.group_user"/>
-  <menuitem id="menu_rm_qc_parameters" name="QC Master Parameters (RM / Production)"
+  <menuitem id="menu_rm_qc_spec" name="QC Specifications / TDS"
+            parent="menu_rm_qc_root" sequence="20" action="action_rm_qc_spec"/>
+  <menuitem id="menu_rm_qc_pr" name="Purchase Requisitions"
+            parent="menu_rm_qc_root" sequence="30" action="action_rm_qc_pr" groups="base.group_user"/>
+  <menuitem id="menu_rm_qc_master" name="Configuration / Masters"
+            parent="menu_rm_qc_root" sequence="60" groups="base.group_user"/>
+  <menuitem id="menu_rm_qc_parameters" name="QC Test &amp; Sampling Master"
             parent="menu_rm_qc_master" action="action_rm_qc_parameter" sequence="5"/>
-  <menuitem id="menu_rm_qc_defects" name="RM Defect Catalog" parent="menu_rm_qc_master"
-            action="action_rm_qc_defects" sequence="10"/>
-  <menuitem id="menu_rm_qc_identification" name="Product Identification Templates"
+  <menuitem id="menu_rm_qc_defects" name="Catalog Error (RM001-RM020)"
+            parent="menu_rm_qc_master" action="action_rm_qc_defects" sequence="10"/>
+  <menuitem id="menu_rm_qc_identification" name="Product Property Templates"
             parent="menu_rm_qc_master" action="action_rm_qc_identification_template" sequence="15"/>
-  <menuitem id="menu_rm_qc_consumables" name="Department Consumable Allocation"
+  <menuitem id="menu_rm_qc_consumables" name="Consumable Department Allocation"
             parent="menu_rm_qc_master" action="action_rm_qc_consumable" sequence="20"/>
 </odoo>

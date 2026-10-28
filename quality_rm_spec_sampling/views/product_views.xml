@@ -5,23 +5,44 @@
     <field name="inherit_id" ref="product.product_template_only_form_view"/>
     <field name="arch" type="xml">
       <xpath expr="//notebook" position="inside">
-        <page string="RM QC &amp; Identification" name="rm_qc_product_spec">
-          <group><group><field name="rm_qc_required"/><field name="rm_qc_material_type"/>
-            <field name="rm_qc_film_type" invisible="rm_qc_material_type != 'film'"/>
-            <field name="rm_qc_intended_use"/></group></group>
-          <button name="action_rm_qc_load_identification" type="object" string="Load Material Identification Fields"
-                  class="btn-secondary" groups="base.group_user"/>
-          <button name="action_rm_qc_new_specification" type="object" string="Create QC Specification / TDS"
-                  class="btn-primary" groups="base.group_user"/>
-          <field name="rm_qc_identification_line_ids">
-            <list editable="bottom"><field name="sequence" widget="handle"/>
-              <field name="name"/><field name="value"/><field name="uom_text"/>
+        <page string="RM QC" name="rm_qc_product_spec">
+          <div class="text-muted mb-3">1. Identify the material  /  2. Keep the product's technical properties  /  3. Set and approve the QC specification once for future receipts.</div>
+          <group string="1. Material Classification" col="2">
+            <group>
+              <field name="rm_qc_required"/>
+              <field name="rm_qc_material_type"/>
+              <field name="rm_qc_film_type" invisible="rm_qc_material_type != 'film'"/>
+            </group>
+            <group>
+              <field name="rm_qc_intended_use" placeholder="Customer, finished product or intended application"/>
+            </group>
+          </group>
+          <separator string="2. Basic Product Identification"/>
+          <div class="text-muted mb-2">These are product master details (for example, thickness, web width and core ID). Enter the specification value and UOM once. Actual QC test results belong to Quality Checks, not here.</div>
+          <button name="action_rm_qc_load_identification" type="object"
+                  string="Load Property Templates" class="btn-secondary mb-2"
+                  groups="base.group_user"/>
+          <field name="rm_qc_identification_line_ids" nolabel="1">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="name" string="Product Property"/>
+              <field name="value" string="Specification Value"/>
+              <field name="uom_text" string="UOM"/>
             </list>
           </field>
-          <separator string="Associated Specifications"/>
-          <field name="rm_qc_specification_ids" readonly="1"><list>
-            <field name="name"/><field name="scope"/><field name="state"/><field name="approved_on"/>
-          </list></field>
+          <separator string="3. QC Specification / TDS &amp; Sampling"/>
+          <div class="text-muted mb-2">The QC Controller defines TDS limits and sampling rules. The QC Manager confirms the specification before PO confirmation. Existing approved versions are listed below.</div>
+          <button name="action_rm_qc_new_specification" type="object"
+                  string="Create QC Specification / TDS" class="btn-primary mb-2"
+                  groups="base.group_user"/>
+          <field name="rm_qc_specification_ids" nolabel="1" readonly="1">
+            <list decoration-success="state == 'approved'">
+              <field name="name" string="TDS Reference"/>
+              <field name="scope"/>
+              <field name="state" string="Approval Status"/>
+              <field name="approved_on" string="Confirmed On"/>
+            </list>
+          </field>
         </page>
       </xpath>
     </field>
@@ -29,12 +50,14 @@
   <record id="view_rm_qc_identification_template_list" model="ir.ui.view">
     <field name="name">rm.qc.identification.template.list</field>
     <field name="model">rm.qc.identification.template</field>
-    <field name="arch" type="xml"><list><field name="material_type"/><field name="name"/>
-      <field name="sequence"/></list></field>
+    <field name="arch" type="xml"><list string="Product Identification Templates">
+      <field name="material_type"/><field name="name"/><field name="sequence"/>
+    </list></field>
   </record>
   <record id="action_rm_qc_identification_template" model="ir.actions.act_window">
     <field name="name">RM Identification Field Templates</field>
-    <field name="res_model">rm.qc.identification.template</field><field name="view_mode">list,form</field>
+    <field name="res_model">rm.qc.identification.template</field>
+    <field name="view_mode">list,form</field>
   </record>
   <record id="view_rm_qc_stock_picking_inherit" model="ir.ui.view">
     <field name="name">stock.picking.form.inherit.rm.qc.checks</field>
@@ -42,9 +65,9 @@
     <field name="inherit_id" ref="stock.view_picking_form"/>
     <field name="arch" type="xml">
       <xpath expr="//header" position="inside">
-        <button name="action_rm_qc_create_checks" type="object" string="RM QC Inspection"
-                class="btn-secondary" invisible="picking_type_code != 'incoming'"
-                groups="base.group_user"/>
+        <button name="action_rm_qc_create_checks" type="object"
+                string="Open / Create RM Inspection" class="btn-secondary"
+                invisible="picking_type_code != 'incoming'" groups="base.group_user"/>
       </xpath>
     </field>
   </record>

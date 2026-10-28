@@ -142,6 +142,23 @@ class RmQcInspectionParameter(models.Model):
             if rec.samples_to_test < 1 or rec.samples_to_test > 1000:
                 raise ValidationError(_('Samples to Test must be 1–1000.'))
 
+    def action_open_measurement_logs(self):
+        """Open the relevant TDS property directly from the QC summary list."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Sample Measurements - %s') % self.name,
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [(
+                self.env.ref(
+                    'quality_rm_spec_sampling.view_rm_qc_inspection_parameter_form'
+                ).id, 'form',
+            )],
+            'target': 'new',
+        }
+
     def action_generate_measurements(self):
         for rec in self:
             if rec.quality_check_id.quality_state in ('pass', 'fail'):

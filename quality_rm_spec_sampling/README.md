@@ -183,3 +183,18 @@ All **logged-in internal users** (`base.group_user`), including Administrator, n
 | `rm.qc.consumable.allocation` | 43 reference rows |
 
 This ZIP does not modify Standard Quality app files. The test results refer to **static source checks only**, not installation or real Odoo transaction tests.
+
+
+## UI layout (2026-10-28)
+
+This UI-focused update follows the source workbook’s separation of **Basic Product Identification**, **TDS / QC Controller setup**, and **Incoming QC Inspector logs**. The underlying records and workflows are unchanged.
+
+1. On the product, use **RM QC** to classify the product, load and fill Product Property Templates, and navigate to a new/approved TDS. The Property table describes the product; it is **not** a measured receipt result.
+2. In **QC Specifications / TDS**, load Excel-based tests; click each MIC to edit TDS LSL/Target/USL, numeric acceptance limits, method, sampling count and frequency. Submit for confirmation. The approved TDS is reusable for future receipts; revised TDS needs a new draft.
+3. For a received batch, open **QC Inspections / Quality Checks**; click **Enter Results** on each MIC, adjust the actual sample count and generate measurement rows. Enter actual test results and errors; run the existing validated Pass action after completion.
+
+The spreadsheet does not define a complete AQL batch disposition/stock release policy. **Automatic whole-check Pass/Fail and stock blocks were not added in this UI update.**
+
+### UI update verification
+
+XML parse, Python compilation, record references and ZIP extraction are statically checked. Live installation and UI clicks in an Odoo 19 database are not verified.
