@@ -1,0 +1,105 @@
+<odoo>
+  <record id="view_rm_qc_log_form" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.log.form</field><field name="model">rm.qc.inspection.log</field>
+    <field name="arch" type="xml"><form string="Measurement Log"><sheet><group>
+      <field name="sample_no"/><field name="measure_no"/><field name="value_text"/>
+      <field name="manual_result"/><field name="result" readonly="1"/>
+      <field name="defect_id"/><field name="observation"/>
+    </group></sheet></form></field>
+  </record>
+  <record id="view_rm_qc_inspection_parameter_form" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.parameter.form</field><field name="model">rm.qc.inspection.parameter</field>
+    <field name="arch" type="xml"><form string="QC Parameter / Sampling Log">
+      <header><button name="action_generate_measurements" type="object" class="btn-primary"
+                      string="Generate Missing Sample Logs"/></header>
+      <sheet><group><group><field name="quality_check_id" readonly="1"/>
+        <field name="name" readonly="1"/><field name="inspection_method"/><field name="sample_method"/>
+        <field name="inspection_level"/><field name="inspection_frequency"/></group>
+        <group><field name="uom_text"/><field name="lsl_text"/><field name="target_text"/>
+          <field name="usl_text"/><field name="limit_mode"/><field name="lot_size"/>
+          <field name="sample_size"/><field name="samples_to_test"/>
+          <field name="measurements_per_sample"/>
+        </group></group>
+        <separator string="Sample / Measurement / Catalog Error (one row per log)"/>
+        <field name="log_ids"><list editable="bottom" decoration-danger="result in ('out_of_spec','fail')"
+           decoration-success="result == 'pass'">
+          <field name="sample_no"/><field name="measure_no"/><field name="value_text"/>
+          <field name="manual_result" optional="show"/><field name="result" readonly="1"/>
+          <field name="defect_id"/><field name="observation" optional="show"/>
+        </list></field>
+      </sheet>
+    </form></field>
+  </record>
+  <record id="view_rm_qc_inspection_parameter_list" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.parameter.list</field><field name="model">rm.qc.inspection.parameter</field>
+    <field name="arch" type="xml"><list string="Parameters">
+      <field name="name"/><field name="lsl_text"/><field name="target_text"/>
+      <field name="usl_text"/><field name="sample_size"/>
+      <field name="samples_to_test"/><field name="measurements_per_sample"/>
+      <field name="inspection_frequency" optional="hide"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_quality_check_list" model="ir.ui.view">
+    <field name="name">quality.check.rm.qc.detailed.list</field><field name="model">quality.check</field>
+    <field name="arch" type="xml"><list string="Detailed QC Inspections" create="true">
+      <field name="name" readonly="1"/><field name="title"/><field name="product_id"/><field name="picking_id"/>
+      <field name="lot_id"/><field name="rm_qc_specification_id"/>
+      <field name="rm_qc_stage" optional="show"/><field name="quality_state"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_quality_check_form" model="ir.ui.view">
+    <field name="name">quality.check.rm.qc.detailed.form</field><field name="model">quality.check</field>
+    <field name="arch" type="xml"><form string="Quality Check — Sampling Inspection">
+      <header>
+        <button name="action_rm_qc_load_specification" type="object" string="Load Approved TDS &amp; Sampling"
+                class="btn-primary" invisible="quality_state in ('pass','fail')"/>
+        <button name="do_pass" type="object" string="Pass (Validated)" class="btn-primary"
+                invisible="quality_state in ('pass','fail')"/>
+        <button name="do_fail" type="object" string="Fail" class="btn-secondary"
+                invisible="quality_state in ('pass','fail')"/>
+        <field name="quality_state" widget="statusbar"/>
+      </header>
+      <sheet>
+        <group><group><field name="name" readonly="1"/><field name="title"/><field name="product_id"/><field name="picking_id"/>
+          <field name="lot_id"/><field name="test_type_id" string="Check Type"/></group>
+        <group><field name="rm_qc_scope"/><field name="rm_qc_specification_id"/>
+          <field name="rm_qc_date"/><field name="rm_qc_inspector_id"/>
+          <field name="rm_qc_po_reference"/><field name="rm_qc_batch_reference"/>
+          <field name="rm_qc_production_id"/><field name="rm_qc_stage"/>
+          <field name="company_id"/></group></group>
+        <notebook>
+          <page string="TDS / QC Sampling &amp; Measurements">
+            <field name="rm_qc_parameter_line_ids" readonly="quality_state in ('pass','fail')">
+              <list><field name="name"/><field name="uom_text"/>
+                <field name="lsl_text"/><field name="target_text"/><field name="usl_text"/>
+                <field name="sample_size"/><field name="samples_to_test"/>
+                <field name="measurements_per_sample"/>
+              </list>
+            </field>
+            <div class="text-muted">Open each parameter row to generate sample logs and enter measurements / Catalog Error.</div>
+          </page>
+          <page string="QC Notes"><field name="rm_qc_review_notes"/></page>
+        </notebook>
+      </sheet>
+    </form></field>
+  </record>
+  <record id="action_rm_qc_detailed_check" model="ir.actions.act_window">
+    <field name="name">Detailed QC Checks / Inspection Logs</field>
+    <field name="res_model">quality.check</field><field name="view_mode">list,form</field>
+    <field name="domain">[('rm_qc_specification_id','!=',False)]</field>
+  </record>
+  <record id="action_rm_qc_detailed_list_view" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_detailed_check"/>
+    <field name="view_mode">list</field><field name="view_id" ref="view_rm_qc_quality_check_list"/>
+    <field name="sequence">1</field>
+  </record>
+  <record id="action_rm_qc_detailed_form_view" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_detailed_check"/>
+    <field name="view_mode">form</field><field name="view_id" ref="view_rm_qc_quality_check_form"/>
+    <field name="sequence">2</field>
+  </record>
+  <record id="action_rm_qc_all_checks" model="ir.actions.act_window">
+    <field name="name">Quality Checks (incl. Manual)</field>
+    <field name="res_model">quality.check</field><field name="view_mode">list,form</field>
+  </record>
+</odoo>

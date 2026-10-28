@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo noupdate="1">
+  <record id="identity_film_01" model="rm.qc.identification.template">
+    <field name="material_type">film</field>
+    <field name="name">Thickness / Gauge</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_film_02" model="rm.qc.identification.template">
+    <field name="material_type">film</field>
+    <field name="name">Web Width</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_film_03" model="rm.qc.identification.template">
+    <field name="material_type">film</field>
+    <field name="name">Roll Outer Dia (OD)</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_film_04" model="rm.qc.identification.template">
+    <field name="material_type">film</field>
+    <field name="name">Core ID</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_film_05" model="rm.qc.identification.template">
+    <field name="material_type">film</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_ink_01" model="rm.qc.identification.template">
+    <field name="material_type">ink</field>
+    <field name="name">Ink Base</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_ink_02" model="rm.qc.identification.template">
+    <field name="material_type">ink</field>
+    <field name="name">Supplier name</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_ink_03" model="rm.qc.identification.template">
+    <field name="material_type">ink</field>
+    <field name="name">Color / Shade Code</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_ink_04" model="rm.qc.identification.template">
+    <field name="material_type">ink</field>
+    <field name="name">Viscosity Range (as delivered)</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_ink_05" model="rm.qc.identification.template">
+    <field name="material_type">ink</field>
+    <field name="name">Pack Size / Type</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_ink_06" model="rm.qc.identification.template">
+    <field name="material_type">ink</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="60"/>
+  </record>
+  <record id="identity_solvent_01" model="rm.qc.identification.template">
+    <field name="material_type">solvent</field>
+    <field name="name">Chemical Name / Grade</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_solvent_02" model="rm.qc.identification.template">
+    <field name="material_type">solvent</field>
+    <field name="name">Purity Percentage</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_solvent_03" model="rm.qc.identification.template">
+    <field name="material_type">solvent</field>
+    <field name="name">Specific Gravity / Density</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_solvent_04" model="rm.qc.identification.template">
+    <field name="material_type">solvent</field>
+    <field name="name">Container Type/ Pack Size / Type</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_solvent_05" model="rm.qc.identification.template">
+    <field name="material_type">solvent</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_adhesive_01" model="rm.qc.identification.template">
+    <field name="material_type">adhesive</field>
+    <field name="name">Adhesive Type</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_adhesive_02" model="rm.qc.identification.template">
+    <field name="material_type">adhesive</field>
+    <field name="name">Solid Content %</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_adhesive_03" model="rm.qc.identification.template">
+    <field name="material_type">adhesive</field>
+    <field name="name">Viscosity / Mixing Ratio</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_adhesive_04" model="rm.qc.identification.template">
+    <field name="material_type">adhesive</field>
+    <field name="name">Pack Size</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_adhesive_05" model="rm.qc.identification.template">
+    <field name="material_type">adhesive</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_valve_01" model="rm.qc.identification.template">
+    <field name="material_type">valve</field>
+    <field name="name">Dimension</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_valve_02" model="rm.qc.identification.template">
+    <field name="material_type">valve</field>
+    <field name="name">Material / Color</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_valve_03" model="rm.qc.identification.template">
+    <field name="material_type">valve</field>
+    <field name="name">Wall Thickness / Height</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_valve_04" model="rm.qc.identification.template">
+    <field name="material_type">valve</field>
+    <field name="name">Pack Quantity</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_valve_05" model="rm.qc.identification.template">
+    <field name="material_type">valve</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_zipper_01" model="rm.qc.identification.template">
+    <field name="material_type">zipper</field>
+    <field name="name">Dimension</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_zipper_02" model="rm.qc.identification.template">
+    <field name="material_type">zipper</field>
+    <field name="name">Material / Color</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_zipper_03" model="rm.qc.identification.template">
+    <field name="material_type">zipper</field>
+    <field name="name">Wall Thickness / Height</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_zipper_04" model="rm.qc.identification.template">
+    <field name="material_type">zipper</field>
+    <field name="name">Spool Length / Pack Qty</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_zipper_05" model="rm.qc.identification.template">
+    <field name="material_type">zipper</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_core_01" model="rm.qc.identification.template">
+    <field name="material_type">core</field>
+    <field name="name">Dimension</field>
+    <field name="sequence" eval="10"/>
+  </record>
+  <record id="identity_core_02" model="rm.qc.identification.template">
+    <field name="material_type">core</field>
+    <field name="name">Material / Color</field>
+    <field name="sequence" eval="20"/>
+  </record>
+  <record id="identity_core_03" model="rm.qc.identification.template">
+    <field name="material_type">core</field>
+    <field name="name">Wall Thickness / Height</field>
+    <field name="sequence" eval="30"/>
+  </record>
+  <record id="identity_core_04" model="rm.qc.identification.template">
+    <field name="material_type">core</field>
+    <field name="name">Spool Length / Pack Qty</field>
+    <field name="sequence" eval="40"/>
+  </record>
+  <record id="identity_core_05" model="rm.qc.identification.template">
+    <field name="material_type">core</field>
+    <field name="name">Procurement UOM</field>
+    <field name="sequence" eval="50"/>
+  </record>
+  <record id="identity_plate_14" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">design name</field>
+    <field name="sequence" eval="140"/>
+  </record>
+  <record id="identity_plate_15" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Job code</field>
+    <field name="sequence" eval="150"/>
+  </record>
+  <record id="identity_plate_16" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Customer name</field>
+    <field name="sequence" eval="160"/>
+  </record>
+  <record id="identity_plate_17" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Customer code</field>
+    <field name="sequence" eval="170"/>
+  </record>
+  <record id="identity_plate_18" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">One up size</field>
+    <field name="sequence" eval="180"/>
+  </record>
+  <record id="identity_plate_19" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">No of ups</field>
+    <field name="sequence" eval="190"/>
+  </record>
+  <record id="identity_plate_20" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">One repeat Size</field>
+    <field name="sequence" eval="200"/>
+  </record>
+  <record id="identity_plate_21" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">No of Repeats</field>
+    <field name="sequence" eval="210"/>
+  </record>
+  <record id="identity_plate_22" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Circumference</field>
+    <field name="sequence" eval="220"/>
+  </record>
+  <record id="identity_plate_23" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Print Width</field>
+    <field name="sequence" eval="230"/>
+  </record>
+  <record id="identity_plate_24" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Film Width</field>
+    <field name="sequence" eval="240"/>
+  </record>
+  <record id="identity_plate_25" model="rm.qc.identification.template">
+    <field name="material_type">plate</field>
+    <field name="name">Sleeve Size</field>
+    <field name="sequence" eval="250"/>
+  </record>
+</odoo>

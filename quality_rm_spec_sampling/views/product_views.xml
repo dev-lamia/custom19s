@@ -1,0 +1,51 @@
+<odoo>
+  <record id="view_rm_qc_product_template_inherit" model="ir.ui.view">
+    <field name="name">product.template.form.inherit.rm.qc.specification</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="RM QC &amp; Identification" name="rm_qc_product_spec">
+          <group><group><field name="rm_qc_required"/><field name="rm_qc_material_type"/>
+            <field name="rm_qc_film_type" invisible="rm_qc_material_type != 'film'"/>
+            <field name="rm_qc_intended_use"/></group></group>
+          <button name="action_rm_qc_load_identification" type="object" string="Load Material Identification Fields"
+                  class="btn-secondary" groups="quality_rm_spec_sampling.group_rm_qc_controller"/>
+          <button name="action_rm_qc_new_specification" type="object" string="Create QC Specification / TDS"
+                  class="btn-primary" groups="quality_rm_spec_sampling.group_rm_qc_controller"/>
+          <field name="rm_qc_identification_line_ids">
+            <list editable="bottom"><field name="sequence" widget="handle"/>
+              <field name="name"/><field name="value"/><field name="uom_text"/>
+            </list>
+          </field>
+          <separator string="Associated Specifications"/>
+          <field name="rm_qc_specification_ids" readonly="1"><list>
+            <field name="name"/><field name="scope"/><field name="state"/><field name="approved_on"/>
+          </list></field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+  <record id="view_rm_qc_identification_template_list" model="ir.ui.view">
+    <field name="name">rm.qc.identification.template.list</field>
+    <field name="model">rm.qc.identification.template</field>
+    <field name="arch" type="xml"><list><field name="material_type"/><field name="name"/>
+      <field name="sequence"/></list></field>
+  </record>
+  <record id="action_rm_qc_identification_template" model="ir.actions.act_window">
+    <field name="name">RM Identification Field Templates</field>
+    <field name="res_model">rm.qc.identification.template</field><field name="view_mode">list,form</field>
+  </record>
+  <record id="view_rm_qc_stock_picking_inherit" model="ir.ui.view">
+    <field name="name">stock.picking.form.inherit.rm.qc.checks</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="action_rm_qc_create_checks" type="object" string="RM QC Inspection"
+                class="btn-secondary" invisible="picking_type_code != 'incoming'"
+                groups="quality_rm_spec_sampling.group_rm_qc_inspector"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

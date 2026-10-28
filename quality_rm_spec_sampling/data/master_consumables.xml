@@ -1,0 +1,691 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo noupdate="1">
+  <record id="alloc_002" model="rm.qc.consumable.allocation">
+    <field name="name">Measuring tapes</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="True"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="True"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_003" model="rm.qc.consumable.allocation">
+    <field name="name">Calculators</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="True"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="True"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_004" model="rm.qc.consumable.allocation">
+    <field name="name">Gloves</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_005" model="rm.qc.consumable.allocation">
+    <field name="name">Tool box for machine ( operator use only)</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_006" model="rm.qc.consumable.allocation">
+    <field name="name">Doctor blades</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_007" model="rm.qc.consumable.allocation">
+    <field name="name">Anilox Rollers</field>
+    <field name="cadence">mixed</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_008" model="rm.qc.consumable.allocation">
+    <field name="name">Printing Sleeves</field>
+    <field name="cadence">mixed</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_009" model="rm.qc.consumable.allocation">
+    <field name="name">End Seals</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_010" model="rm.qc.consumable.allocation">
+    <field name="name">Brush for cleaning anilox and plates</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_011" model="rm.qc.consumable.allocation">
+    <field name="name">Spectrophotometer</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_012" model="rm.qc.consumable.allocation">
+    <field name="name">Transmission Densitometer</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_013" model="rm.qc.consumable.allocation">
+    <field name="name">Din Cup 4</field>
+    <field name="cadence">mixed</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_014" model="rm.qc.consumable.allocation">
+    <field name="name">Stop Watch</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_015" model="rm.qc.consumable.allocation">
+    <field name="name">Knife blades</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_016" model="rm.qc.consumable.allocation">
+    <field name="name">Cello tapes</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_017" model="rm.qc.consumable.allocation">
+    <field name="name">Cotton Waste</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_018" model="rm.qc.consumable.allocation">
+    <field name="name">Teflon Damps</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_019" model="rm.qc.consumable.allocation">
+    <field name="name">Static Mixer</field>
+    <field name="cadence">mixed</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_020" model="rm.qc.consumable.allocation">
+    <field name="name">Glue head</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_021" model="rm.qc.consumable.allocation">
+    <field name="name">Aluminium Nozzle</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_022" model="rm.qc.consumable.allocation">
+    <field name="name">Cores 6"</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_023" model="rm.qc.consumable.allocation">
+    <field name="name">Transfer Sleeves</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_024" model="rm.qc.consumable.allocation">
+    <field name="name">Mounting tapes</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_025" model="rm.qc.consumable.allocation">
+    <field name="name">Pressure Rollers</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_026" model="rm.qc.consumable.allocation">
+    <field name="name">Side tapes for Mounting</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_027" model="rm.qc.consumable.allocation">
+    <field name="name">GSM cutter</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_028" model="rm.qc.consumable.allocation">
+    <field name="name">Sample Bottles</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_029" model="rm.qc.consumable.allocation">
+    <field name="name">Stirrers</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_030" model="rm.qc.consumable.allocation">
+    <field name="name">Digital Micrometers</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_031" model="rm.qc.consumable.allocation">
+    <field name="name">Pantone book - Coated /uncoated</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_032" model="rm.qc.consumable.allocation">
+    <field name="name">30cm Rulers</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="True"/>
+    <field name="pouching" eval="True"/>
+    <field name="valving" eval="True"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="True"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="True"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_033" model="rm.qc.consumable.allocation">
+    <field name="name">Optical Lens</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_034" model="rm.qc.consumable.allocation">
+    <field name="name">Dyne Pen or solutions</field>
+    <field name="cadence">rop</field>
+    <field name="printing" eval="True"/>
+    <field name="lamination" eval="True"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_035" model="rm.qc.consumable.allocation">
+    <field name="name">Barcode Reader</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="True"/>
+  </record>
+  <record id="alloc_036" model="rm.qc.consumable.allocation">
+    <field name="name">Digital Vernier caliper</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_037" model="rm.qc.consumable.allocation">
+    <field name="name">Gas Chromatography</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_038" model="rm.qc.consumable.allocation">
+    <field name="name">Tensile Tester</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_039" model="rm.qc.consumable.allocation">
+    <field name="name">Leak tester</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_040" model="rm.qc.consumable.allocation">
+    <field name="name">Solid content Analyzer</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_041" model="rm.qc.consumable.allocation">
+    <field name="name">Oven</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_042" model="rm.qc.consumable.allocation">
+    <field name="name">Digital Weighing scale - Fixed Big</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="True"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="False"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="True"/>
+    <field name="inks" eval="True"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_043" model="rm.qc.consumable.allocation">
+    <field name="name">Seal Testing</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+  <record id="alloc_044" model="rm.qc.consumable.allocation">
+    <field name="name">Digital Weighing scale - Portable small</field>
+    <field name="cadence">once</field>
+    <field name="printing" eval="False"/>
+    <field name="lamination" eval="False"/>
+    <field name="slitting" eval="False"/>
+    <field name="pouching" eval="False"/>
+    <field name="valving" eval="False"/>
+    <field name="production" eval="False"/>
+    <field name="planning" eval="False"/>
+    <field name="quality" eval="True"/>
+    <field name="sales" eval="False"/>
+    <field name="stores" eval="False"/>
+    <field name="inks" eval="False"/>
+    <field name="prepress" eval="False"/>
+  </record>
+</odoo>

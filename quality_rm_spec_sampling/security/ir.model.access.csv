@@ -1,0 +1,25 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_qc_templ_inspector,QC template read inspector,model_rm_qc_parameter_template,group_rm_qc_inspector,1,0,0,0
+access_qc_templ_controller,QC template manage controller,model_rm_qc_parameter_template,group_rm_qc_controller,1,1,1,0
+access_qc_defect_inspector,QC defect read inspector,model_rm_qc_defect,group_rm_qc_inspector,1,0,0,0
+access_qc_defect_controller,QC defect manage controller,model_rm_qc_defect,group_rm_qc_controller,1,1,1,0
+access_qc_ident_template_inspector,QC identity read inspector,model_rm_qc_identification_template,group_rm_qc_inspector,1,0,0,0
+access_qc_ident_template_controller,QC identity edit controller,model_rm_qc_identification_template,group_rm_qc_controller,1,1,1,0
+access_qc_product_ident_inspector,QC product identity read,model_rm_qc_product_identification,group_rm_qc_inspector,1,0,0,0
+access_qc_product_ident_controller,QC product identity manage,model_rm_qc_product_identification,group_rm_qc_controller,1,1,1,1
+access_qc_spec_inspector,QC spec read,model_rm_qc_specification,group_rm_qc_inspector,1,0,0,0
+access_qc_spec_controller,QC spec controller,model_rm_qc_specification,group_rm_qc_controller,1,1,1,0
+access_qc_spec_manager,QC spec manager,model_rm_qc_specification,group_rm_qc_manager,1,1,1,1
+access_qc_specline_inspector,QC spec line read,model_rm_qc_specification_line,group_rm_qc_inspector,1,0,0,0
+access_qc_specline_controller,QC spec line controller,model_rm_qc_specification_line,group_rm_qc_controller,1,1,1,1
+access_qc_insp_param_inspector,QC inspection params inspector,model_rm_qc_inspection_parameter,group_rm_qc_inspector,1,1,1,1
+access_qc_insp_log_inspector,QC inspection logs inspector,model_rm_qc_inspection_log,group_rm_qc_inspector,1,1,1,1
+access_qc_pr_inspector,QC PR read inspector,model_rm_qc_purchase_request,group_rm_qc_inspector,1,0,0,0
+access_qc_pr_controller,QC PR controller,model_rm_qc_purchase_request,group_rm_qc_controller,1,1,1,0
+access_qc_pr_approver,QC PR approver,model_rm_qc_purchase_request,group_rm_qc_pr_approver,1,1,1,0
+access_qc_prline_inspector,QC PR line read inspector,model_rm_qc_purchase_request_line,group_rm_qc_inspector,1,0,0,0
+access_qc_prline_controller,QC PR line controller,model_rm_qc_purchase_request_line,group_rm_qc_controller,1,1,1,1
+access_qc_alloc_inspector,Consumable reference inspector,model_rm_qc_consumable_allocation,group_rm_qc_inspector,1,0,0,0
+access_qc_alloc_controller,Consumable reference controller,model_rm_qc_consumable_allocation,group_rm_qc_controller,1,1,1,0
+access_qc_pr_purchase,QC PR purchase RFQ,model_rm_qc_purchase_request,purchase.group_purchase_user,1,1,0,0
+access_qc_prline_purchase,QC PR line purchase read,model_rm_qc_purchase_request_line,purchase.group_purchase_user,1,0,0,0

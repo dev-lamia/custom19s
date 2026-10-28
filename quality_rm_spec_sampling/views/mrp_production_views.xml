@@ -1,0 +1,14 @@
+<odoo>
+  <record id="view_rm_qc_mrp_production_inherit" model="ir.ui.view">
+    <field name="name">mrp.production.form.inherit.rm.qc.stages</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="action_rm_qc_create_production_checks" type="object"
+                string="Production QC Checks" class="btn-secondary"
+                groups="quality_rm_spec_sampling.group_rm_qc_inspector"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
