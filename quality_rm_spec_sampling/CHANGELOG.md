@@ -1,3 +1,10 @@
+## [19.0.1.0.4] - 2026-10-28
+
+### [Changed]
+- [2026-10-28] Simplified the existing Odoo Quality extension UI around QC Setup, Purchase Requests, and Receipt QC Results.
+- [2026-10-28] Moved supplementary technical properties, inspection metadata, and approval details to secondary tabs; clarified inline instructions and button labels.
+- [2026-10-28] Kept all model methods, business rules, approval checks, and prior data unchanged.
+
 ## [19.0.1.0.3] - 2026-10-28
 ### [Fix]
 - [2026-10-28] Odoo administrators (Access Rights/Settings) may approve submitted RM/Consumable PRs without membership in the custom PR / GM Approver group. Ordinary users still require that group.

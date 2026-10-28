@@ -12,51 +12,61 @@
   <record id="view_rm_qc_inspection_parameter_form" model="ir.ui.view">
     <field name="name">rm.qc.inspection.parameter.form</field>
     <field name="model">rm.qc.inspection.parameter</field>
-    <field name="arch" type="xml"><form string="Sampling / Inspection Log">
-      <header>
-        <button name="action_generate_measurements" type="object"
-                string="Generate Missing Sample Logs" class="btn-primary"/>
-      </header>
-      <sheet>
-        <div class="oe_title"><label for="name"/><h2><field name="name" readonly="1"/></h2></div>
-        <group string="1. Test / TDS Reference" col="2"><group>
-          <field name="quality_check_id" readonly="1"/>
-          <field name="uom_text"/>
-          <field name="lsl_text"/>
-          <field name="target_text"/>
-          <field name="usl_text"/>
-        </group><group>
-          <field name="limit_mode"/>
-          <field name="lsl_numeric" invisible="limit_mode != 'numeric'"/>
-          <field name="usl_numeric" invisible="limit_mode != 'numeric'"/>
-          <field name="inspection_method"/>
-        </group></group>
-        <group string="2. Sampling Plan" col="2"><group>
-          <field name="lot_size"/>
-          <field name="sample_size"/>
-          <field name="samples_to_test"/>
-          <field name="measurements_per_sample"/>
-        </group><group>
-          <field name="sample_method"/>
-          <field name="inspection_level"/>
-          <field name="inspection_frequency"/>
-        </group></group>
-        <separator string="3. Record Actual Measurements"/>
-        <div class="text-muted mb-2">Set Actual Samples to Test for the received lot and click Generate Missing Sample Logs. Enter each measured value. Reference/manual tests also need a Manual Evaluation. Choose Catalog Error only when a defect is observed.</div>
-        <field name="log_ids" nolabel="1">
-          <list editable="bottom" decoration-danger="result in ('out_of_spec','fail')"
-                decoration-success="result == 'pass'" decoration-muted="result == 'pending'">
-            <field name="sample_no" string="Sample #"/>
-            <field name="measure_no" string="Log #"/>
-            <field name="value_text" string="Measured Value / Result"/>
-            <field name="manual_result" string="Manual Pass / Fail" optional="show"/>
-            <field name="result" readonly="1"/>
-            <field name="defect_id" string="Catalog Error"/>
-            <field name="observation" string="Observation" optional="show"/>
-          </list>
-        </field>
-      </sheet>
-    </form></field>
+    <field name="arch" type="xml"><form string="Enter Sample Measurements">
+  <header>
+    <button name="action_generate_measurements" type="object" string="Add Missing Sample Rows" class="btn-primary"/>
+  </header>
+  <sheet>
+    <div class="oe_title"><h2><field name="name" readonly="1"/></h2></div>
+    <group string="1. Test Standard" col="2">
+      <group>
+        <field name="uom_text"/>
+        <field name="lsl_text" string="Minimum (LSL)"/>
+        <field name="target_text"/>
+        <field name="usl_text" string="Maximum (USL)"/>
+      </group>
+      <group>
+        <field name="limit_mode" string="Result Check"/>
+        <field name="lsl_numeric" invisible="limit_mode != 'numeric'"/>
+        <field name="usl_numeric" invisible="limit_mode != 'numeric'"/>
+        <field name="sample_size" string="Sample Rule from TDS"/>
+      </group>
+    </group>
+    <group string="2. Samples to Check" col="2">
+      <group><field name="samples_to_test" string="How Many Samples?"/></group>
+      <group><field name="measurements_per_sample" string="Measurements Each"/></group>
+    </group>
+    <separator string="3. Enter Real Results"/>
+    <div class="text-muted mb-2">The rows are usually pre-created. If you changed the sample count, click <strong>Add Missing Sample Rows</strong>. Fill a result for every row. For Manual tests, choose Pass or Fail; use Catalog Error only for a real defect.</div>
+    <field name="log_ids" nolabel="1">
+      <list editable="bottom" decoration-danger="result in ('out_of_spec','fail')" decoration-success="result == 'pass'" decoration-muted="result == 'pending'">
+        <field name="sample_no" string="Sample"/>
+        <field name="measure_no" string="Test #"/>
+        <field name="value_text" string="Measured Result"/>
+        <field name="manual_result" string="Manual Pass / Fail" optional="show"/>
+        <field name="result" string="Result" readonly="1"/>
+        <field name="defect_id" string="Defect (if any)"/>
+        <field name="observation" string="Notes" optional="hide"/>
+      </list>
+    </field>
+    <notebook>
+      <page string="More Sampling Details">
+        <group col="2">
+          <group>
+            <field name="quality_check_id" readonly="1"/>
+            <field name="lot_size"/>
+            <field name="inspection_method"/>
+          </group>
+          <group>
+            <field name="sample_method"/>
+            <field name="inspection_level"/>
+            <field name="inspection_frequency"/>
+          </group>
+        </group>
+      </page>
+    </notebook>
+  </sheet>
+</form></field>
   </record>
   <record id="view_rm_qc_inspection_parameter_list" model="ir.ui.view">
     <field name="name">rm.qc.inspection.parameter.list</field>
@@ -80,67 +90,61 @@
   <record id="view_rm_qc_quality_check_form" model="ir.ui.view">
     <field name="name">quality.check.rm.qc.detailed.form</field>
     <field name="model">quality.check</field>
-    <field name="arch" type="xml"><form string="RM QC Inspection / Quality Check">
-      <header>
-        <button name="action_rm_qc_load_specification" type="object"
-                string="Load Approved TDS &amp; Sampling" class="btn-secondary"
-                invisible="quality_state in ('pass','fail')"/>
-        <button name="do_pass" type="object" string="Pass (After Measurement)"
-                class="btn-primary" invisible="quality_state in ('pass','fail')"/>
-        <button name="do_fail" type="object" string="Fail"
-                class="btn-secondary" invisible="quality_state in ('pass','fail')"/>
-        <field name="quality_state" widget="statusbar"/>
-      </header>
-      <sheet>
-        <div class="oe_title"><label for="name"/><h1><field name="name" readonly="1"/></h1></div>
-        <div class="text-muted mb-2">This is the Quality Check / Inspection record. Receipt and batch details come from the stock operation; actual test values must be entered below.</div>
-        <group string="1. Incoming Receipt / Production Reference" col="2"><group>
+    <field name="arch" type="xml"><form string="QC Inspection / Quality Check">
+  <header>
+    <button name="action_rm_qc_load_specification" type="object" string="Load Approved Tests" class="btn-secondary" invisible="quality_state in ('pass','fail')"/>
+    <button name="do_pass" type="object" string="Pass (After Tests)" class="btn-primary" invisible="quality_state in ('pass','fail')"/>
+    <button name="do_fail" type="object" string="Fail" class="btn-secondary" invisible="quality_state in ('pass','fail')"/>
+    <field name="quality_state" widget="statusbar"/>
+  </header>
+  <sheet>
+    <div class="oe_title"><label for="name"/><h1><field name="name" readonly="1"/></h1></div>
+    <div class="alert alert-info" role="alert">Receipt QC: open each test with <strong>Enter Results</strong>, record the actual measurements, then Pass or Fail. Approved tests are already loaded when the inspection is created from a Receipt.</div>
+    <group string="Receipt &amp; Product" col="2">
+      <group>
+        <field name="product_id"/>
+        <field name="picking_id" invisible="rm_qc_scope == 'production'"/>
+        <field name="lot_ids" widget="many2many_tags" invisible="rm_qc_scope == 'production'"/>
+        <field name="rm_qc_production_id" invisible="rm_qc_scope != 'production'"/>
+        <field name="rm_qc_stage" invisible="rm_qc_scope != 'production'"/>
+      </group>
+      <group>
+        <field name="rm_qc_specification_id"/>
+        <field name="rm_qc_inspector_id"/>
+        <field name="rm_qc_po_reference" invisible="rm_qc_scope == 'production'"/>
+      </group>
+    </group>
+    <separator string="Tests - Click Enter Results"/>
+    <field name="rm_qc_parameter_line_ids" nolabel="1" readonly="quality_state in ('pass','fail')">
+      <list decoration-muted="samples_to_test &lt;= 0">
+        <field name="name" string="Test"/>
+        <field name="uom_text" string="Unit"/>
+        <field name="lsl_text" string="Minimum"/>
+        <field name="target_text" string="Target" optional="hide"/>
+        <field name="usl_text" string="Maximum"/>
+        <field name="samples_to_test" string="Samples"/>
+        <field name="measurements_per_sample" string="Tests / Sample" optional="hide"/>
+        <button name="action_open_measurement_logs" type="object" string="Enter Results" icon="fa-pencil-square-o" class="btn-link"/>
+      </list>
+    </field>
+    <notebook>
+      <page string="Extra Details">
+        <group>
           <field name="rm_qc_scope"/>
-          <field name="product_id"/>
-          <field name="picking_id" invisible="rm_qc_scope == 'production'"/>
-          <field name="lot_ids" widget="many2many_tags" invisible="rm_qc_scope == 'production'"/>
-          <field name="rm_qc_production_id" invisible="rm_qc_scope != 'production'"/>
-          <field name="rm_qc_stage" invisible="rm_qc_scope != 'production'"/>
-        </group><group>
-          <field name="rm_qc_po_reference" invisible="rm_qc_scope == 'production'"/>
-          <field name="rm_qc_batch_reference" invisible="rm_qc_scope == 'production'"/>
+          <field name="rm_qc_batch_reference"/>
           <field name="rm_qc_date"/>
-          <field name="rm_qc_inspector_id"/>
           <field name="company_id"/>
-        </group></group>
-        <group string="2. Approved Specification" col="2"><group>
-          <field name="rm_qc_specification_id"/>
-        </group><group>
           <field name="title"/>
           <field name="test_type_id" string="Odoo Check Type"/>
-        </group></group>
-        <notebook>
-          <page string="3. Sample &amp; Measurement Logs" name="qc_measurement_logs">
-            <div class="text-muted mb-2">The list below is fetched from the approved TDS. For each MIC, click Enter Results to generate sample logs, enter measured values, and select a Catalog Error when applicable.</div>
-            <field name="rm_qc_parameter_line_ids" nolabel="1"
-                   readonly="quality_state in ('pass','fail')">
-              <list decoration-muted="samples_to_test &lt;= 0">
-                <field name="name" string="MIC / Property"/>
-                <field name="uom_text" string="UOM"/>
-                <field name="lsl_text" string="LSL"/>
-                <field name="target_text" string="Target"/>
-                <field name="usl_text" string="USL"/>
-                <field name="samples_to_test" string="Samples"/>
-                <field name="measurements_per_sample" string="Logs / Sample"/>
-                <button name="action_open_measurement_logs" type="object"
-                        string="Enter Results" icon="fa-pencil-square-o" class="btn-link"/>
-              </list>
-            </field>
-          </page>
-          <page string="4. QC Notes" name="qc_notes">
-            <field name="rm_qc_review_notes" nolabel="1" placeholder="Inspection observations, corrective action notes, or review comments"/>
-          </page>
-        </notebook>
-      </sheet>
-    </form></field>
+        </group>
+      </page>
+      <page string="Notes"><field name="rm_qc_review_notes" nolabel="1"/></page>
+    </notebook>
+  </sheet>
+</form></field>
   </record>
   <record id="action_rm_qc_detailed_check" model="ir.actions.act_window">
-    <field name="name">RM QC Inspections (Quality Checks)</field>
+    <field name="name">3. Receipt / Production QC Results</field>
     <field name="res_model">quality.check</field><field name="view_mode">list,form</field>
     <field name="domain">[('rm_qc_specification_id','!=',False)]</field>
   </record>

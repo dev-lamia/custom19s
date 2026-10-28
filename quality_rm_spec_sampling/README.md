@@ -1,3 +1,14 @@
+## Quick Daily Workflow (Simplified UI - 2026-10-28)
+
+The current interface uses a short sequence:
+
+1. **QC Setup (once per product)**: open the product's **QC Setup** tab, set `Incoming QC Required`, and create a **QC Standard / TDS**. Load tests, review limits and sample counts, then **Send for Approval** and **Approve QC Standard**. Reuse the same approved standard for later purchases.
+2. **Purchase Requests**: add product and quantity, **Submit PR**, **Manager Approve**, then choose a vendor and **Create RFQ**. The optional `Needs QC?` column is read-only and sourced from the product.
+3. **Receive Material**: process the PO in the standard Purchase/Inventory apps. Open/Create RM Inspection on the incoming receipt.
+4. **QC Results**: each test has **Enter Results**. Fill actual measurements, manually judge reference-only tests, and select defect codes only for genuine defects. Pass requires complete, acceptable results; failure and stock disposition remain separate.
+
+Extra sampling details and product properties are still accessible in secondary tabs; no original Excel parameter, condition, or security policy was removed.
+
 # RM QC Specification, Sampling & Quality Check Extension
 
 | Information | Value |
