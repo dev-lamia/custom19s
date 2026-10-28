@@ -1,9 +1,3 @@
-## Purchase Requisition removal — 2026-10-28
-
-**Current module (19.0.1.0.8):** Purchase Requisition models, menu, views, ACLs, approval role and PR number sequence have been removed. The existing `purchase.order.button_confirm()` QC-specification requirement is retained unchanged in `models/purchase_order.py`.
-
-**Upgrade warning:** Existing custom `PRQ/...` records belong to the retired PR models and may be removed from the live database during module upgrade. **Back up the Odoo database and filestore before upgrading.** Previously created standard RFQs/POs are separate `purchase.order` records and are not explicitly modified by this update. Do not uninstall/reinstall the entire module to perform this change; **Upgrade** it.
-
 ### Simplified QC Specification workflow (2026-10-28)
 
 - **Excel basis:** `Main Sheet` requests a predefined per-product TDS table, a duplication option, and auto-fetched TDS values for the inspector. It does **not** require an end-user `Load Tests` button or a `Create New Version` workflow.
@@ -16,8 +10,8 @@
 The current interface uses a short sequence:
 
 1. **QC Setup (once per product)**: open the product's **QC Setup** tab, set `Incoming QC Required`, and create a **QC Standard / TDS**. Review automatically populated tests, limits and sample counts, then **Send for QC Approval** and **Approve QC Standard**. Reuse the same approved standard for later purchases.
-2. **Purchase Order (standard Odoo)**: create an RFQ directly in Purchase; a QC-required material cannot have its PO confirmed without an approved incoming TDS.
-3. **Receive Material**: process the confirmed PO in standard Purchase/Inventory. Open/Create RM Inspection on the incoming receipt.
+2. **Purchase Requests**: add product and quantity, **Submit PR**, **Manager Approve**, then choose a vendor and **Create RFQ**. The optional `Needs QC?` column is read-only and sourced from the product.
+3. **Receive Material**: process the PO in the standard Purchase/Inventory apps. Open/Create RM Inspection on the incoming receipt.
 4. **QC Results**: each test has **Enter Results**. Fill actual measurements, manually judge reference-only tests, and select defect codes only for genuine defects. Pass requires complete, acceptable results; failure and stock disposition remain separate.
 
 Extra sampling details and product properties are still accessible in secondary tabs; no original Excel parameter, condition, or security policy was removed.
@@ -28,7 +22,7 @@ Extra sampling details and product properties are still accessible in secondary 
 |---|---|
 | Technical module | `quality_rm_spec_sampling` |
 | Odoo version | 19.0 |
-| Module version | 19.0.1.0.8 |
+| Module version | 19.0.1.0.1 |
 | Author | Softeko_Lamia |
 | Documentation updated | 2026-10-28 |
 | Source | `RM Master_QC_Specification_With_Sampling.xlsx` (7 sheets) |
@@ -48,7 +42,7 @@ Extra sampling details and product properties are still accessible in secondary 
 | BasicidentificationProduct Spec | configurable product identification fields | 48 |
 | Conusmable allocation | reference department/cadence matrix | 43 |
 | Main Sheet | specification controller form, inspector log behavior | layout/workflow |
-| Rough Work | Original workbook includes PR; this add-on now starts with a standard Odoo PO after QC setup | source context only |
+| Rough Work | RM → QC manager → PR → manager approval → PO | workflow |
 
 **Original source values are preserved as text:** LSL/Target/USL, UOM, method, sample size, measurement counts, inspection level/frequency. Complex values such as `Nominal - 5%`, `Standard + 0.05`, visual grades, `9.5 / 3.0`, and `AQL 1.0` are not silently interpreted as numeric accept/reject criteria.
 
@@ -58,6 +52,7 @@ After installation, the module's `RM QC Specification & Sampling` menu appears a
 
 - QC Checks / Inspection Logs (same `quality.check` records, extended form)
 - QC Specifications / TDS
+- Purchase Requisitions
 - Master Configurations → QC Master Parameters, RM Defect Catalog, Product Identification Templates, Department Consumable Allocation
 
 There is also an **RM QC Inspection** button on incoming stock receipts and **Production QC Checks** on manufacturing orders, plus a **RM QC & Identification** tab on the Product template.
@@ -70,8 +65,10 @@ flowchart TD
     B -->|Yes| C[QC Controller: TDS and sampling specification]
     C --> D[Submit to QC Manager]
     D --> E[Manager confirms specification]
-    E --> H[Purchase User creates RFQ / PO directly]
-    B -->|No| H
+    E --> F[Planner creates PR]
+    B -->|No| F
+    F --> G[PR Approver approves]
+    G --> H[Purchase User creates RFQ / PO]
     H --> I[Goods Receipt / Lot entry]
     I --> J[Create RM Quality Check on receipt]
     J --> K[Load approved TDS and log template]
@@ -82,7 +79,7 @@ flowchart TD
     O -. Disposition policy not specified .-> P[Manual Hold / Retest / Reject decisions]
 ```
 
-**Important:** The custom Purchase Requisition (PR) feature was removed from this add-on in 19.0.1.0.8. Use standard Odoo Purchase RFQs/POs directly. PO confirmation checks for an approved incoming specification **only for products explicitly marked `Incoming QC Required`**. Any independent PR add-on installed outside this module is unaffected.
+**Important:** this custom PR workflow is separate from any other PR app already installed. It does **not** replace existing PR apps or backdate their data. A PO made by another route also checks for an approved incoming specification **only for products explicitly marked `Incoming QC Required`**.
 
 ### Raw Material setup
 
@@ -94,11 +91,12 @@ flowchart TD
 6. Enter product-specific nominal numeric values where required; tick *Nominal Value Entered*, save and press **Resolve Nominal +/- Limits** on the relevant parameter row. This supports explicit `Nominal ± amount` or `Nominal ± percentage`. Other expressions must be manually approved as numeric limits or kept as reference/manual tests.
 7. Submit to QC Manager, then have a user in **QC Manager** group confirm. Approved specifications are locked; **Action > Duplicate** creates a fresh draft for the workbook-requested duplication (not automatic version approval); prior inspections remain unchanged.
 
-### Direct purchase order / RFQ
+### PR and RFQ
 
-- Use standard **Purchase → Requests for Quotation** to create an RFQ directly (there is no PR screen in this module).
-- For QC-required products, approved incoming QC standards must exist before **Confirm Order**; non-QC products are unaffected.
-- The PO uses Odoo's standard vendor, price, taxes, approval and stock receipt processes. The removed PR workflow is not required.
+- `QC Required`: approved TDS is necessary before submitting/approving the PR and before **confirming** the PO.
+- `Non-QC`: the PR approval path runs without TDS.
+- PR approver uses **PR / GM Approver** group; purchaser needs Odoo Purchase User rights to generate RFQ.
+- The RFQ/PO is created **in draft**. Vendor, price, tax and terms must be verified by Purchase.
 
 ### Incoming inspection on a receipt
 
@@ -120,7 +118,7 @@ flowchart TD
 
 ### Consumable allocation
 
-43 rows and 12 department flags are displayed as a **reference matrix**. `As per ROP`, `Single time`, and `Mixed` retain their original labels. **No new reordering points, requisitions, or stock moves are created** by this matrix. Original 0/1 flags are treated as applicability flags, not quantities.
+43 rows and 12 department flags are displayed as a **reference matrix**. `As per ROP`, `Single time`, and `Mixed` retain their original labels. **No new reordering points, PRs, or stock moves are created** by this matrix. Original 0/1 flags are treated as applicability flags, not quantities.
 
 ## Conditions and validations
 
@@ -129,6 +127,7 @@ flowchart TD
 | Submit TDS | Specification requires at least one parameter | Block empty submission |
 | QC Manager confirms TDS | Caller belongs to QC Manager group | Store confirmation/time |
 | Edit confirmed TDS | Source snapshot is locked | Duplicate a new draft |
+| PR submit/approve | If `Incoming QC Required`, matching confirmed incoming TDS must exist | Block PR otherwise |
 | Confirm PO | Same condition for flagged RM; non-QC unaffected | Block PO otherwise |
 | Generate receipt QC | Incoming only, QC required, match product, lot and company | Create linked checks; avoid duplicate |
 | Generate logs | `Actual Samples × Measurements per Sample`, max 3000 | Add only missing rows |
@@ -148,13 +147,13 @@ flowchart TD
 
 ## Security — temporary open access for internal users (19.0.1.0.1)
 
-All **logged-in internal users** (`base.group_user`), including Administrator, have full CRUD rights for the remaining **QC custom models**. All QC menus and workflow buttons are accessible within their native Odoo app permissions. The removed PR groups and access rules are no longer part of this add-on. This broad-access test configuration should be restricted for production.
+All **logged-in internal users** (`base.group_user`), including Administrator, now have full CRUD rights for the 11 **custom RM QC** models. All custom module menus and workflow buttons are visible to those users regardless of assigned RM QC Extension role. All internal users can confirm/archive TDS and approve PR for evaluation. QC Master Parameters now allow creating new records in the list view.
 
-**Scope:** Does not grant permissions to portal/public users, nor override standard Odoo Product/Purchase/Quality/Inventory/Manufacturing access rights. Standard RFQ/PO creation still requires the normal Odoo Purchase permissions. The extension root may be nested under Quality depending on the installed menu structure.
+**Scope:** Does not grant permissions to portal/public users, nor override standard Odoo Product/Purchase/Quality/Inventory/Manufacturing access rights. In particular, **Create RFQ** is visible but still requires Odoo **Purchase User** rights and the normal native `purchase.order` ACL. The extension root is still nested under Quality if the installed Quality menu allows it, so an internal user without standard Quality menu access may need to open the add-on using the Apps/menu system or be granted Quality access.
 
-**Business safety:** QC-required products still need approved specifications for PO confirmation; approved TDS is still locked for revision; QC Pass still requires completed valid measurements. Company record rules stay in force.
+**Business safety:** QC-required products still need approved specifications for PR/PO; approved TDS is still locked for revision; QC Pass still requires completed valid measurements. Company record rules stay in force.
 
-**Before production:** Restore specific QC Controller/Manager roles and tighter ACLs. Simply hiding a button/menu using Access Management may not prevent backend method calls; reapply security server-side too. This temporary test configuration deliberately grants broad master record deletion rights to internal users—use a staging database and backups.
+**Before production:** Restore specific QC Controller/Manager/PR roles and tighter ACLs. Simply hiding a button/menu using Access Management may not prevent backend method calls; reapply security server-side too. This temporary test configuration deliberately grants broad master record deletion rights to internal users—use a staging database and backups.
 
 ## Installation
 
@@ -177,7 +176,7 @@ All **logged-in internal users** (`base.group_user`), including Administrator, h
 | QC02 | Defects RM001–RM020 imported without duplicates |
 | QC03 | QC Controller creates PET specification and resolves 12 ±5% -> 11.4–12.6 |
 | QC04 | Spec cannot be confirmed by inspector, or modified after confirmation |
-| QC05 | Create a standard RFQ without PR; QC-required PO confirmation requires approved TDS; non-QC PO does not |
+| QC05 | Non-QC PR passes without TDS; QC-required PR cannot submit without confirmed TDS |
 | QC06 | Confirm PO for QC-required item without TDS is blocked; unflagged item unaffected |
 | QC07 | Done receipt with two different lots creates two quality.check records; rerun avoids duplicates |
 | QC08 | Inspector cannot Pass before every log is populated; failed numeric log prevents Pass |
@@ -196,6 +195,7 @@ All **logged-in internal users** (`base.group_user`), including Administrator, h
 | `rm.qc.parameter.template` | 21 incoming / 45 production source parameter masters |
 | `rm.qc.defect` | 20 predefined errors |
 | `product.template` (inherited) | Incoming QC Required flag, type, identification |
+| `rm.qc.purchase.request` / `.line` | Internal PR to manager approval to RFQ |
 | `stock.picking` (inherited) | Create/check receipt-based QC inspections |
 | `mrp.production` (inherited) | Stage-wise Production QC check creation |
 | `rm.qc.consumable.allocation` | 43 reference rows |
@@ -216,6 +216,10 @@ The spreadsheet does not define a complete AQL batch disposition/stock release p
 ### UI update verification
 
 XML parse, Python compilation, record references and ZIP extraction are statically checked. Live installation and UI clicks in an Odoo 19 database are not verified.
+
+### Administrator PR approval compatibility (19.0.1.0.3)
+
+Odoo users with Administration / Access Rights or Settings administrator permissions may use **Manager Approve** for submitted requisitions without assignment to **RM QC Extension / PR / GM Approver**. Regular users must have that custom approver group. Submission, approved incoming RM TDS and RFQ creation checks still apply.
 
 
 ## Product smart-button navigation (19.0.1.0.6)

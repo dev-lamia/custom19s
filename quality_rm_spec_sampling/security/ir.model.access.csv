@@ -14,8 +14,15 @@ access_qc_specline_inspector,QC spec line read,model_rm_qc_specification_line,gr
 access_qc_specline_controller,QC spec line controller,model_rm_qc_specification_line,group_rm_qc_controller,1,1,1,1
 access_qc_insp_param_inspector,QC inspection params inspector,model_rm_qc_inspection_parameter,group_rm_qc_inspector,1,1,1,1
 access_qc_insp_log_inspector,QC inspection logs inspector,model_rm_qc_inspection_log,group_rm_qc_inspector,1,1,1,1
+access_qc_pr_inspector,QC PR read inspector,model_rm_qc_purchase_request,group_rm_qc_inspector,1,0,0,0
+access_qc_pr_controller,QC PR controller,model_rm_qc_purchase_request,group_rm_qc_controller,1,1,1,0
+access_qc_pr_approver,QC PR approver,model_rm_qc_purchase_request,group_rm_qc_pr_approver,1,1,1,0
+access_qc_prline_inspector,QC PR line read inspector,model_rm_qc_purchase_request_line,group_rm_qc_inspector,1,0,0,0
+access_qc_prline_controller,QC PR line controller,model_rm_qc_purchase_request_line,group_rm_qc_controller,1,1,1,1
 access_qc_alloc_inspector,Consumable reference inspector,model_rm_qc_consumable_allocation,group_rm_qc_inspector,1,0,0,0
 access_qc_alloc_controller,Consumable reference controller,model_rm_qc_consumable_allocation,group_rm_qc_controller,1,1,1,0
+access_qc_pr_purchase,QC PR purchase RFQ,model_rm_qc_purchase_request,purchase.group_purchase_user,1,1,0,0
+access_qc_prline_purchase,QC PR line purchase read,model_rm_qc_purchase_request_line,purchase.group_purchase_user,1,0,0,0
 access_rm_qc_internal_read_rm_qc_product_identification,Internal read: Product technical identification,model_rm_qc_product_identification,base.group_user,1,1,1,1
 access_rm_qc_internal_read_rm_qc_identification_template,Internal read: Product identification field template,model_rm_qc_identification_template,base.group_user,1,1,1,1
 access_rm_qc_internal_read_rm_qc_specification,Internal read: QC specification on product,model_rm_qc_specification,base.group_user,1,1,1,1
@@ -25,3 +32,5 @@ access_rm_qc_internal_read_rm_qc_inspection_parameter,Internal read: QC inspecti
 access_rm_qc_internal_read_rm_qc_inspection_log,Internal read: QC sample measurement log,model_rm_qc_inspection_log,base.group_user,1,1,1,1
 access_rm_qc_internal_read_rm_qc_defect,Internal read: QC defect catalog on inspection,model_rm_qc_defect,base.group_user,1,1,1,1
 access_rm_qc_internal_full_consumable_allocation,Internal full access: rm qc consumable allocation,model_rm_qc_consumable_allocation,base.group_user,1,1,1,1
+access_rm_qc_internal_full_purchase_request,Internal full access: rm qc purchase request,model_rm_qc_purchase_request,base.group_user,1,1,1,1
+access_rm_qc_internal_full_purchase_request_line,Internal full access: rm qc purchase request line,model_rm_qc_purchase_request_line,base.group_user,1,1,1,1
