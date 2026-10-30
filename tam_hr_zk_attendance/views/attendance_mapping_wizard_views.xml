@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- Historical mapping/correction wizard. Keep all actions scoped to the exact device + PIN. -->
+    <record id="zk_attendance_mapping_wizard_view_form" model="ir.ui.view">
+        <field name="name">zk.attendance.mapping.wizard.form</field>
+        <field name="model">zk.attendance.mapping.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Historical Punch Tool" create="false" edit="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Historical Punch Tool</h1>
+                    </div>
+                    <!-- Load the context default in the client. Without the dependency field,
+                         related device/PIN/company values may be blank on a new wizard. -->
+                    <field name="device_user_id" invisible="1"/>
+                    <group>
+                        <group string="Device Identity">
+                            <field name="device_id"/>
+                            <field name="pin"/>
+                            <field name="employee_id" invisible="1"/>
+                            <field name="employee_public_id" string="Current Employee"
+                                   context="{'allowed_company_ids': eligible_employee_company_ids}"/>
+                            <field name="matching_log_count"/>
+                            <field name="current_employee_log_count" invisible="not employee_id"/>
+                        </group>
+                        <group string="Choose the safe action">
+                            <field name="workflow" invisible="1"/>
+                            <!-- Device ownership remains unchanged; only the employee
+                                 selector can search the manager's other allowed companies. -->
+                            <field name="company_id" invisible="1"/>
+                            <field name="eligible_employee_company_ids" invisible="1"/>
+                            <field name="mode" invisible="1"/>
+                            <field name="mapping_mode" string="Mapping action" widget="radio" invisible="workflow != 'map'"/>
+                            <field name="correction_mode" string="Correction action" widget="radio" invisible="workflow != 'correct'"/>
+                            <!-- Public employee directory: no private HR access or quick creation. -->
+                            <!-- Public directory with no private HR read permission. -->
+                            <field name="correct_employee_public_id"
+                                   domain="[('company_id', 'in', eligible_employee_company_ids)]"
+                                   context="{'allowed_company_ids': eligible_employee_company_ids}"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True, 'no_open': True}"
+                                   invisible="workflow != 'correct'"
+                                   required="workflow == 'correct'"/>
+                            <field name="date_from" required="workflow == 'correct' or mapping_mode == 'map_rebuild'"/>
+                            <field name="date_to" required="workflow == 'correct' or mapping_mode == 'map_rebuild'"/>
+                            <field name="confirm_rebuild" invisible="(workflow == 'map' and mapping_mode != 'map_rebuild') or (workflow == 'correct' and correction_mode != 'correct_attendance')" required="(workflow == 'map' and mapping_mode == 'map_rebuild') or (workflow == 'correct' and correction_mode == 'correct_attendance')"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="workflow != 'map'"><strong>Map past punches:</strong> the current employee is already correct; choose whether to only link old unmapped raw punches or also rebuild derived Odoo attendance.</div>
+                    <div class="alert alert-warning" role="alert" invisible="workflow != 'correct'"><strong>Fix wrong employee:</strong> choose an existing employee in one of your permitted companies. If the employee is missing, create the complete record in the Employees application first. Matching raw punches in the selected date range are reassigned, and the current Odoo device/PIN mapping is updated. The physical device is not modified.</div>
+                </sheet>
+                <footer>
+                    <button name="action_apply" string="Link Unmapped Punches" type="object" class="btn-primary" invisible="workflow != 'map' or mapping_mode != 'map_only'"/>
+                    <button name="action_apply" string="Link Punches and Rebuild Attendance" type="object" class="btn-primary" invisible="workflow != 'map' or mapping_mode != 'map_rebuild'"/>
+                    <button name="action_correct_attendance" string="Correct Employee and Rebuild Attendance" type="object" class="btn-primary" invisible="workflow != 'correct' or correction_mode != 'correct_attendance'"/>
+                    <button name="action_correct_raw" string="Move Punches to Correct Employee" type="object" class="btn-secondary" invisible="workflow != 'correct' or correction_mode != 'correct_raw'"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

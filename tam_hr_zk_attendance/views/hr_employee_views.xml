@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.biometric.employee.id</field>
+        <field name="model">hr.employee</field>
+        <field name="active" eval="True"/>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='job_title']" position="after">
+                <field name="device_user_id" string="Employee ID"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_employee_public_form" model="ir.ui.view">
+        <field name="name">hr.employee.public.form.biometric.employee.id</field>
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id" ref="hr.hr_employee_public_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='job_title']" position="after">
+                <field name="device_id_num" string="Employee ID" readonly="1" invisible="not is_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

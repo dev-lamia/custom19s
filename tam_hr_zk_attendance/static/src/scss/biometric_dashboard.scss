@@ -1,0 +1,264 @@
+.o_form_view.o_bio_dashboard {
+  background: #f5f7fa;
+}
+
+.o_bio_dashboard .o_form_renderer {
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+  padding: 0;
+}
+
+.o_bio_dashboard .o_bio_dashboard_content {
+  min-height: 100%;
+  padding: 1.5rem;
+}
+
+.o_bio_dashboard .o_bio_dashboard_hero {
+  padding: 1.75rem 2rem;
+  color: #fff;
+  background: linear-gradient(120deg, #40335e, #087c82);
+  border-radius: 14px;
+}
+
+.o_bio_dashboard .o_bio_dashboard_hero h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 2rem;
+}
+
+.o_bio_dashboard .o_bio_dashboard_hero p {
+  margin: .4rem 0 0;
+  opacity: .9;
+}
+
+.o_bio_dashboard .o_bio_dashboard_cards {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.o_bio_dashboard .o_bio_dashboard_card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 184px;
+  padding: 1.4rem 1rem;
+  color: #293445;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(25, 42, 65, .07);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.o_bio_dashboard .o_bio_dashboard_card:hover {
+  transform: translateY(-2px);
+  border-color: #0b7f85;
+  box-shadow: 0 8px 20px rgba(25, 42, 65, .12);
+}
+
+.o_bio_dashboard .o_bio_dashboard_icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: .55rem;
+  color: #087c82;
+  font-size: 2.7rem;
+  line-height: 52px;
+  text-align: center;
+}
+
+.o_bio_dashboard .o_bio_dashboard_number {
+  color: #172436;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.o_bio_dashboard .o_bio_dashboard_number .o_field_widget {
+  display: inline;
+}
+
+.o_bio_dashboard .o_bio_dashboard_number input {
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.o_bio_dashboard .o_bio_dashboard_label {
+  margin-top: .35rem;
+  color: #64748b;
+  font-size: .9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.o_bio_dashboard .o_bio_dashboard_card--unmapped .o_bio_dashboard_icon { color: #d97706; }
+.o_bio_dashboard .o_bio_dashboard_card--commands .o_bio_dashboard_icon { color: #7251a6; }
+
+.o_bio_dashboard .o_bio_dashboard_guide {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  color: #43536a;
+  background: #eef6f6;
+  border-left: 4px solid #087c82;
+  border-radius: 0 8px 8px 0;
+}
+
+@media (max-width: 991.98px) {
+  .o_bio_dashboard .o_bio_dashboard_cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575.98px) {
+  .o_bio_dashboard .o_bio_dashboard_content { padding: 1rem; }
+  .o_bio_dashboard .o_bio_dashboard_cards { grid-template-columns: 1fr; }
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(25, 42, 65, .07);
+}
+
+.o_bio_dashboard .o_bio_dashboard_section_title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+}
+
+.o_bio_dashboard .o_bio_dashboard_section_title h2 {
+  margin: 0;
+  color: #172436;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.o_bio_dashboard .o_bio_dashboard_card--users .o_bio_dashboard_icon { color: #2563eb; }
+.o_bio_dashboard .o_bio_dashboard_card--mapped .o_bio_dashboard_icon { color: #059669; }
+
+.o_bio_dashboard .o_bio_dashboard_icon_img { width: 52px; height: 52px; margin-bottom: .55rem; }
+.o_bio_device_kanban { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; padding: 1rem; }
+.o_bio_device_card { min-height: 330px; padding: 1.1rem; background: #fff; border: 1px solid #dbe4ed; border-radius: 14px; box-shadow: 0 3px 12px rgba(25,42,65,.08); }
+.o_bio_device_card__terminal { display:block; width:92px; height:92px; margin:1rem auto .8rem; }
+.o_bio_device_card__screen { padding:.55rem; border-radius:5px; font-family:monospace; text-align:center; }
+.o_bio_device_card__screen--online { color:#ecfdf5; background:#087c82; }
+.o_bio_device_card__screen--offline { color:#fff1f2; background:#b42318; }
+.o_bio_device_card__attention { margin:.55rem 0 0; color:#9a6700; font-size:.8rem; font-weight:700; text-align:center; }
+.o_bio_device_card__name { font-size:1.05rem; font-weight:700; text-align:center; }
+.o_bio_device_card__meta { color:#64748b; font-size:.85rem; text-align:center; }
+.o_bio_device_card__stats { display:flex; justify-content:space-around; margin-top:1rem; padding-top:.8rem; border-top:1px solid #e2e8f0; }
+.o_bio_device_card__stats strong { display:block; font-size:1.1rem; text-align:center; }
+.o_bio_device_card__stats span { color:#64748b; font-size:.75rem; }
+
+
+/* Compile with Odoo variables so the dark asset receives its dark palette. */
+.o_form_view.o_bio_dashboard {
+  color: $o-gray-900;
+  background: $o-webclient-background-color;
+}
+
+.o_bio_dashboard .o_bio_dashboard_cards {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.o_bio_dashboard .o_bio_dashboard_card,
+.o_bio_dashboard .o_bio_dashboard_recent,
+.o_bio_device_card {
+  color: $o-gray-900;
+  background: $o-view-background-color;
+  border-color: $o-gray-300;
+}
+
+.o_bio_dashboard .o_bio_dashboard_number,
+.o_bio_dashboard .o_bio_dashboard_section_title h2,
+.o_bio_device_card__name,
+.o_bio_device_card__stats strong {
+  color: $o-gray-900;
+}
+
+.o_bio_dashboard .o_bio_dashboard_label,
+.o_bio_device_card__meta,
+.o_bio_device_card__stats span {
+  color: $o-gray-700;
+}
+
+.o_bio_dashboard .o_bio_dashboard_card:hover {
+  border-color: $o-action;
+}
+
+.o_bio_device_card__stats {
+  border-top-color: $o-gray-300;
+}
+
+/* The embedded list has its own cells, so give it explicit theme-safe foregrounds. */
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table th,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table td,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table .o_data_cell,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table .o_column_title {
+  color: $o-gray-900 !important;
+  border-color: $o-gray-300;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table tbody tr,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table tbody td {
+  background-color: $o-view-background-color;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table thead tr,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table thead th {
+  background-color: $o-gray-300;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table tbody tr:hover td {
+  background-color: mix($o-action, $o-view-background-color, 12%);
+}
+
+.o_bio_device_user_identity {
+  display: flex;
+  align-items: baseline;
+  gap: .45rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.o_bio_device_user_identity .o_field_widget,
+.o_bio_device_user_identity .o_field_widget input {
+  display: inline-block;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.o_bio_mapping_actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.o_form_view .o_bio_mapping_action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 12.5rem;
+  min-height: 2.5rem;
+  text-align: center;
+}

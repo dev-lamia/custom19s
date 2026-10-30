@@ -13,6 +13,41 @@ class SaleGdnConfiguration(models.Model):
     # Odoo's standard active flag archives the record without deleting it.
     active = fields.Boolean(string='Active', default=True, tracking=True)
 
+    job_code_ids = fields.One2many(
+        'sale.job.code.configuration',
+        'gdn_configuration_id',
+        string='Job Codes',
+        readonly=True,
+    )
+    job_code_count = fields.Integer(
+        string='Job Codes',
+        compute='_compute_job_code_count',
+    )
+
+    @api.depends('job_code_ids')
+    def _compute_job_code_count(self):
+        """Count all linked Job Codes, including disabled ones."""
+        counts = self.env['sale.job.code.configuration'].with_context(
+            active_test=False
+        )._read_group(
+            [('gdn_configuration_id', 'in', self.ids)],
+            ['gdn_configuration_id'],
+            ['__count'],
+        )
+        count_by_gdn = {gdn.id: count for gdn, count in counts}
+        for gdn in self:
+            gdn.job_code_count = count_by_gdn.get(gdn.id, 0)
+
+    def action_view_job_codes(self):
+        """Open the Job Code list filtered to the current GDN."""
+        self.ensure_one()
+        action = self.env.ref(
+            'crm_requirement_form.action_sale_job_code_configuration'
+        ).read()[0]
+        action['domain'] = [('gdn_configuration_id', '=', self.id)]
+        action['context'] = {'active_test': False}
+        return action
+
     def action_open_disable_wizard(self):
         """Ask for an audit reason before archiving selected GDN records."""
         gdns = self.filtered('active')

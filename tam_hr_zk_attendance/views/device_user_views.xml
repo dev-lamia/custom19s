@@ -1,0 +1,329 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- Device User card view for the device-specific PIN cache and employee mapping. -->
+    <record id="zk_device_user_view_kanban" model="ir.ui.view">
+        <field name="name">zk.device.user.kanban</field>
+        <field name="model">zk.device.user</field>
+        <field name="arch" type="xml">
+            <kanban class="o_bio_device_user_kanban" create="false" delete="false">
+                <field name="image_1920"/>
+                <field name="device_id"/>
+                <field name="pin"/>
+                <field name="name"/>
+                <field name="eligible_employee_company_ids"/>
+                <field name="employee_public_id"/>
+                <field name="company_id"/>
+                <field name="device_location"/>
+                <field name="updated_at"/>
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <aside class="o_kanban_aside_full">
+                            <t t-if="record.image_1920.raw_value">
+                                <field name="image_1920" widget="background_image" options="{&quot;zoom&quot;: true, &quot;zoom_delay&quot;: 1000, &quot;preview_image&quot;: &quot;image_1920&quot;}" class="d-block position-relative"/>
+                            </t>
+                            <div t-else="" class="d-flex align-items-center justify-content-center bg-100 bg-gradient">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-75 h-75 opacity-50" viewBox="0 0 20 20">
+                                    <g fill="currentColor">
+                                        <path d="M 10 11 C 4.08 11 2 14 2 16 L 2 19 L 18 19 L 18 16 C 18 14 15.92 11 10 11 Z"/>
+                                        <circle cx="10" cy="5.5" r="4.5"/>
+                                    </g>
+                                </svg>
+                            </div>
+                        </aside>
+                        <main class="ms-2">
+                            <field class="fw-bold fs-5" name="name" placeholder="Device User"/>
+                            <div>
+                                <i class="fa fa-fw me-2 fa-id-badge text-primary" title="Biometric ID" role="img"/>
+                                <field name="pin"/>
+                            </div>
+                            <div>
+                                <i class="fa fa-fw me-2 fa-server text-primary" title="Device" role="img"/>
+                                <field name="device_id"/>
+                            </div>
+                            <div t-if="record.employee_public_id.raw_value">
+                                <i class="fa fa-fw me-2 fa-user text-primary" title="Mapped Employee" role="img"/>
+                                <field name="employee_public_id"
+                                       context="{'allowed_company_ids': eligible_employee_company_ids}"/>
+                            </div>
+                            <div t-else="" class="text-muted">
+                                <i class="fa fa-fw me-2 fa-user-o" title="Unmapped employee" role="img"/>Not mapped</div>
+                            <div t-if="record.device_location.raw_value">
+                                <i class="fa fa-fw me-2 fa-map-marker text-primary" title="Location" role="img"/>
+                                <field name="device_location"/>
+                            </div>
+                            <div>
+                                <i class="fa fa-fw me-2 fa-building text-primary" title="Company" role="img"/>
+                                <field name="company_id"/>
+                            </div>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <!-- Dense Device User list for administration and mapping review. -->
+    <record id="zk_device_user_view_list" model="ir.ui.view">
+        <field name="name">zk.device.user.list</field>
+        <field name="model">zk.device.user</field>
+        <field name="arch" type="xml">
+            <list create="false" delete="false">
+                <field name="device_id"/>
+                <field name="pin" string="Biometric ID"/>
+                <field name="name"/>
+                <field name="eligible_employee_company_ids" column_invisible="True"/>
+                <field name="employee_public_id" string="Mapped Employee"
+                       context="{'allowed_company_ids': eligible_employee_company_ids}"/>
+                <field name="device_location" string="Location" optional="show"/>
+                <field name="company_id" optional="show"/>
+                <field name="updated_at"/>
+            </list>
+        </field>
+    </record>
+    <!-- Action menu for explicitly selected users in the Device Users list. -->
+    <record id="zk_device_user_batch_transfer_server_action" model="ir.actions.server">
+        <field name="name">Transfer Selected Users</field>
+        <field name="model_id" ref="model_zk_device_user"/>
+        <field name="binding_model_id" ref="model_zk_device_user"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_open_batch_transfer_wizard()</field>
+        <!-- Odoo 19 ir.actions.server does not expose groups_id.
+             Authorization is enforced in action_open_batch_transfer_wizard()
+             and the transient wizard action_transfer(), alongside model ACLs.
+             The Device Users menu is also restricted to Biometric Managers. -->
+    </record>
+    <!-- Search/grouping for Device Users. PIN identity is always scoped by device. -->
+    <record id="zk_device_user_view_search" model="ir.ui.view">
+        <field name="name">zk.device.user.search</field>
+        <field name="model">zk.device.user</field>
+        <field name="arch" type="xml">
+            <search string="Search Device Users">
+                <field name="pin" string="Biometric ID"/>
+                <field name="name" string="Name on Device"/>
+                <field name="employee_id"/>
+                <field name="device_id"/>
+                <field name="device_location" string="Location"/>
+                <field name="company_id" string="Company"/>
+                <filter string="Mapped" name="mapped" domain="[('employee_id', '!=', False)]"/>
+                <filter string="Unmapped" name="unmapped" domain="[('employee_id', '=', False)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Company" name="group_company" context="{&quot;group_by&quot;: &quot;company_id&quot;}"/>
+                    <filter string="Location" name="group_location" context="{&quot;group_by&quot;: &quot;device_location&quot;}"/>
+                    <filter string="Device" name="group_device" context="{&quot;group_by&quot;: &quot;device_id&quot;}"/>
+                    <filter string="Employee" name="group_employee" context="{&quot;group_by&quot;: &quot;employee_id&quot;}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <!-- Device User form: cached terminal identity, employee mapping, update, and transfer actions. -->
+    <record id="zk_device_user_view_form" model="ir.ui.view">
+        <field name="name">zk.device.user.form</field>
+        <field name="model">zk.device.user</field>
+        <field name="arch" type="xml">
+            <form string="Device User">
+                <!-- User/device actions. Transfer is cross-device; Update applies to this same device/PIN. -->
+                <header>
+                    <field name="active" invisible="1"/>
+                    <button name="action_update_device_name" string="Update Device User" type="object" class="btn-primary" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_open_transfer_wizard" string="Transfer to Device" type="object" class="btn-secondary" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_pull_from_device" string="Refresh from Device" type="object" class="btn-secondary" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_archive_local" string="Archive Local Record" type="object" class="btn-secondary" invisible="not active" groups="tam_hr_zk_attendance.group_biometric_manager" confirm="Archive this record in Odoo only? No command will be sent to the physical device."/>
+                    <button name="action_delete_local" string="Delete Archived Local Record" type="object" class="btn-secondary" invisible="active" groups="tam_hr_zk_attendance.group_biometric_manager" confirm="Permanently delete this archived Odoo cache record? No command will be sent to the physical device."/>
+                </header>
+                <sheet>
+                    <!-- Profile header: user image, terminal display name, and explicit Biometric ID label. -->
+                    <div class="d-flex flex-column flex-sm-row align-items-center">
+                        <div class="o_employee_avatar ms-2 p-0">
+                            <field name="image_1920" widget="image" class="m-0" options="{&quot;size&quot;: [128, 158], &quot;zoom&quot;: true, &quot;preview_image&quot;: &quot;image_1920&quot;, &quot;img_class&quot;: &quot;border rounded h-100 object-fit-contain&quot;}"/>
+                        </div>
+                        <div class="col-12 col-sm-8 px-4">
+                            <div class="oe_title mw-100 ps-0">
+                                <h1>
+                                    <field name="name" placeholder="Name shown on the biometric device"/>
+                                </h1>
+                                <div class="o_bio_device_user_identity">
+                                    <span class="text-muted">Biometric ID:</span>
+                                    <field name="pin" string="Biometric ID" readonly="1" nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Device ownership and employee mapping. Mapping is authoritative only for this device + PIN. -->
+                    <group>
+                        <group string="Device User">
+                            <field name="device_id" readonly="1"/>
+                            <field name="device_location" string="Location" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                        <group string="Employee Mapping">
+                            <!-- A mapped employee may work at a device owned by
+                                 another company if the manager has access to both. -->
+                            <field name="eligible_employee_company_ids" invisible="1"/>
+                            <!-- Preserve the familiar mapping label in the visible form,
+                                 while the public HR proxy has its own unique model label. -->
+                            <field name="employee_public_id" string="Mapped Employee"
+                                   domain="[('company_id', 'in', eligible_employee_company_ids)]"
+                                   context="{'allowed_company_ids': eligible_employee_company_ids}"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True, 'no_open': True}"/>
+                            <div class="o_bio_mapping_actions">
+                                <button name="action_open_mapping_wizard" string="Map Past Punches" type="object" class="btn-primary o_bio_mapping_action" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                                <button name="action_open_correction_wizard" string="Fix Wrong Employee" type="object" class="btn-secondary o_bio_mapping_action" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                            </div>
+                            <div class="text-muted small mt-2">Map past punches when this employee is already correct. Fix wrong employee only when this device and biometric ID were linked to the wrong person.</div>
+                        </group>
+                    </group>
+                    <!-- Cached device-user attributes used by supported update/transfer commands. -->
+                    <group string="Device Details" col="4">
+                        <field name="privilege"/>
+                        <field name="card"/>
+                        <field name="group_id"/>
+                        <field name="timezone"/>
+                        <field name="password" password="True"/>
+                        <field name="updated_at" readonly="1"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">This mapping is unique to this device and biometric ID. Archive/Delete affects Odoo's cache only; delete the person from the physical terminal manually first. Nothing is changed on the biometric device.</div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Main Device Users action; Kanban opens first. -->
+    <record id="zk_device_user_action" model="ir.actions.act_window">
+        <field name="name">Device Users</field>
+        <field name="res_model">zk.device.user</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="zk_device_user_view_search"/>
+    </record>
+    <!-- Safe command-status card view. Raw command payloads remain hidden. -->
+    <record id="zk_device_command_view_kanban" model="ir.ui.view">
+        <field name="name">zk.device.command.kanban</field>
+        <field name="model">zk.device.command</field>
+        <field name="arch" type="xml">
+            <kanban create="false" delete="false" default_order="id desc">
+                <field name="device_id"/>
+                <field name="operation"/>
+                <field name="state"/>
+                <field name="waiting_too_long"/>
+                <field name="company_id"/>
+                <field name="device_location"/>
+                <field name="sent_at"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card">
+                            <div class="oe_kanban_details">
+                                <strong>
+                                    <field name="operation"/>
+                                </strong>
+                                <div>
+                                    <field name="state" widget="badge"/>
+                                </div>
+                                <div t-if="record.waiting_too_long.raw_value" class="text-danger">Waiting too long</div>
+                                <div>
+                                    <i class="fa fa-server fa-fw me-2 text-primary" title="Device" role="img"/>
+                                    <field name="device_id"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-map-marker fa-fw me-2 text-primary" title="Location" role="img"/>
+                                    <field name="device_location"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-building fa-fw me-2 text-primary" title="Company" role="img"/>
+                                    <field name="company_id"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <!-- Command history list. Exposes status/progress only, never biometric payload content. -->
+    <record id="zk_device_command_view_list" model="ir.ui.view">
+        <field name="name">zk.device.command.list</field>
+        <field name="model">zk.device.command</field>
+        <field name="arch" type="xml">
+            <list create="false" delete="false" default_order="id desc">
+                <field name="device_id"/>
+                <field name="operation"/>
+                <field name="state" widget="badge"/>
+                <field name="waiting_too_long" optional="show"/>
+                <field name="device_location" string="Location" optional="show"/>
+                <field name="company_id" optional="show"/>
+                <field name="received_log_count" optional="show"/>
+                <field name="last_payload_at" optional="show"/>
+                <field name="return_code"/>
+                <field name="sent_at"/>
+                <field name="completed_at"/>
+            </list>
+        </field>
+    </record>
+    <!-- Search/grouping for command history and waiting-too-long requests. -->
+    <record id="zk_device_command_view_search" model="ir.ui.view">
+        <field name="name">zk.device.command.search</field>
+        <field name="model">zk.device.command</field>
+        <field name="arch" type="xml">
+            <search string="Search Command History">
+                <field name="operation"/>
+                <field name="device_id"/>
+                <field name="device_location" string="Location"/>
+                <field name="company_id" string="Company"/>
+                <field name="state"/>
+                <filter string="Queued" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Sent" name="sent" domain="[('state', '=', 'sent')]"/>
+                <filter string="Waiting Too Long" name="waiting_too_long" domain="[('waiting_too_long', '=', True)]"/>
+                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                <filter string="Completed" name="done" domain="[('state', '=', 'done')]"/>
+                <group>
+                    <filter string="Company" name="group_company" context="{&quot;group_by&quot;: &quot;company_id&quot;}"/>
+                    <filter string="Location" name="group_location" context="{&quot;group_by&quot;: &quot;device_location&quot;}"/>
+                    <filter string="Device" name="group_device" context="{&quot;group_by&quot;: &quot;device_id&quot;}"/>
+                    <filter string="Status" name="group_status" context="{&quot;group_by&quot;: &quot;state&quot;}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <!-- Safe command detail form. Raw ADMS command text is intentionally not rendered. -->
+    <record id="zk_device_command_view_form" model="ir.ui.view">
+        <field name="name">zk.device.command.form</field>
+        <field name="model">zk.device.command</field>
+        <field name="arch" type="xml">
+            <form string="Device Command" create="false" delete="false">
+                <header>
+                    <button name="action_cancel" string="Cancel Pending Command" type="object" class="btn-secondary" invisible="state != 'pending'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="device_id"/>
+                            <field name="device_location" string="Location"/>
+                            <field name="company_id"/>
+                            <field name="operation"/>
+                            <field name="state" widget="badge"/>
+                            <field name="waiting_too_long"/>
+                        </group>
+                        <group>
+                            <field name="sent_at"/>
+                            <field name="completed_at"/>
+                            <field name="return_code"/>
+                            <field name="version_response"/>
+                        </group>
+                    </group>
+                    <group string="Attendance Import Progress">
+                        <field name="received_log_count"/>
+                        <field name="skipped_log_count"/>
+                        <field name="unmapped_log_count"/>
+                        <field name="last_payload_at"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">Raw command payloads and biometric templates remain hidden. For INFO/version requests, only validated release identifiers appear in Safe Version Response; Return 0 alone does not prove a version was supplied.</div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Command History action. -->
+    <record id="zk_device_command_action" model="ir.actions.act_window">
+        <field name="name">Command History</field>
+        <field name="res_model">zk.device.command</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="zk_device_command_view_search"/>
+    </record>
+</odoo>

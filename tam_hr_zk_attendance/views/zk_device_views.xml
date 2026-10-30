@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- Primary device view. The card intentionally resembles a generic attendance terminal, not a branded product. -->
+    <record id="zk_device_view_kanban" model="ir.ui.view">
+        <field name="name">zk.device.view.kanban</field>
+        <field name="model">zk.device</field>
+        <field name="arch" type="xml">
+            <kanban class="o_bio_device_kanban" create="false">
+                <field name="name"/>
+                <field name="serial_number"/>
+                <field name="company_id"/>
+                <field name="address_id"/>
+                <field name="connection_status"/>
+                <field name="last_seen"/>
+                <field name="device_user_count"/>
+                <field name="pending_command_count"/>
+                <field name="allow_push"/>
+                <field name="is_approved"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_bio_device_card">
+                            <img alt="Biometric attendance terminal" class="o_bio_device_card__terminal" src="/tam_hr_zk_attendance/static/src/img/device.svg"/>
+                            <div t-if="record.connection_status.raw_value == 'online'" class="o_bio_device_card__screen o_bio_device_card__screen--online">Online</div>
+                            <div t-else="" class="o_bio_device_card__screen o_bio_device_card__screen--offline">Offline</div>
+                            <div t-if="!record.is_approved.raw_value" class="o_bio_device_card__attention">Needs approval</div>
+                            <div class="o_bio_device_card__name">
+                                <field name="name"/>
+                            </div>
+                            <div class="o_bio_device_card__meta">SN: <field name="serial_number"/>
+                            </div>
+                            <div class="o_bio_device_card__meta">
+                                <field name="company_id"/> · <field name="address_id"/>
+                            </div>
+                            <div class="o_bio_device_card__meta">Last seen: <field name="last_seen"/>
+                            </div>
+                            <div class="o_bio_device_card__stats">
+                                <div>
+                                    <strong>
+                                        <field name="device_user_count"/>
+                                    </strong>
+                                    <span>Users</span>
+                                </div>
+                                <div>
+                                    <strong>
+                                        <field name="pending_command_count"/>
+                                    </strong>
+                                    <span>Waiting</span>
+                                </div>
+                                <div>
+                                    <strong>
+                                        <field name="allow_push"/>
+                                    </strong>
+                                    <span>Attendance</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <!-- Administrative device list. -->
+    <record id="zk_device_view_list" model="ir.ui.view">
+        <field name="name">zk.device.view.list</field>
+        <field name="model">zk.device</field>
+        <field name="arch" type="xml">
+            <list string="Biometric Devices">
+                <field name="name"/>
+                <field name="serial_number"/>
+                <field name="company_id" optional="show"/>
+                <field name="address_id" string="Location" optional="show"/>
+                <field name="connection_status" widget="badge"/>
+                <field name="last_seen"/>
+                <field name="is_approved"/>
+                <field name="allow_push"/>
+            </list>
+        </field>
+    </record>
+    <!-- Device search and multi-company grouping. -->
+    <record id="zk_device_view_search" model="ir.ui.view">
+        <field name="name">zk.device.view.search</field>
+        <field name="model">zk.device</field>
+        <field name="arch" type="xml">
+            <search string="Search Biometric Devices">
+                <field name="name" string="Device Name"/>
+                <field name="serial_number" string="Serial Number"/>
+                <field name="address_id" string="Location"/>
+                <field name="company_id" string="Company"/>
+                <filter string="Approved" name="approved" domain="[('is_approved', '=', True)]"/>
+                <filter string="Needs Approval" name="not_approved" domain="[('is_approved', '=', False)]"/>
+                <filter string="Attendance Enabled" name="attendance_enabled" domain="[('allow_push', '=', True)]"/>
+                <separator/>
+                <filter string="Online" name="online" domain="[('connection_status', '=', 'online')]"/>
+                <filter string="Offline" name="offline" domain="[('connection_status', '=', 'offline')]"/>
+                <group>
+                    <filter string="Company" name="group_company" context="{&quot;group_by&quot;: &quot;company_id&quot;}"/>
+                    <filter string="Location" name="group_location" context="{&quot;group_by&quot;: &quot;address_id&quot;}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <!-- Device configuration and diagnostics. Meaningful configuration changes are tracked in chatter. -->
+    <record id="zk_device_view_form" model="ir.ui.view">
+        <field name="name">zk.device.view.form</field>
+        <field name="model">zk.device</field>
+        <field name="arch" type="xml">
+            <form string="Biometric Device">
+                <!-- Manager actions queue asynchronous ADMS work; the device executes it on a later poll. -->
+                <header>
+                    <button name="action_open_attendance_pull_wizard" string="Pull Attendance" type="object" class="btn-primary" invisible="device_type == 'acc'" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_pull_users" string="Pull Users and Templates" type="object" class="btn-secondary" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_pull_profile_pictures" string="Pull Profile Photos" type="object" class="btn-secondary" invisible="device_type != 'acc'" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_request_device_info" string="Request Classic Version Info" type="object" class="btn-secondary" invisible="device_type != 'att'" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_sync_timezone" string="Sync Timezone" type="object" class="btn-secondary" invisible="device_type == 'acc'" groups="tam_hr_zk_attendance.group_biometric_manager"/>
+                    <button name="action_restart_device" string="Restart Device" type="object" class="btn-secondary" invisible="device_type == 'acc'" groups="tam_hr_zk_attendance.group_biometric_manager" confirm="Queue a remote restart for this terminal? It will restart when it next contacts Odoo."/>
+                </header>
+                <sheet>
+                    <!-- Smart buttons are manager-only because Device Users and Command History are restricted models. -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_device_users" type="object" class="oe_stat_button" icon="fa-users" groups="tam_hr_zk_attendance.group_biometric_manager">
+                            <field name="device_user_count" widget="statinfo" string="Device Users"/>
+                        </button>
+                        <button name="action_open_device_commands" type="object" class="oe_stat_button" icon="fa-tasks" groups="tam_hr_zk_attendance.group_biometric_manager">
+                            <field name="pending_command_count" widget="statinfo" string="Requests Waiting"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Bahrain Main Entrance"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Connection and Location">
+                            <field name="serial_number" readonly="id"/>
+                            <field name="company_id"/>
+                            <field name="address_id" string="Location"/>
+                            <field name="tz"/>
+                            <field name="is_approved"/>
+                            <field name="allow_push"/>
+                        </group>
+                        <group string="Device Status">
+                            <field name="connection_status" widget="badge"/>
+                            <field name="last_seen"/>
+                            <field name="latest_command_state" widget="badge"/>
+                            <field name="device_user_photo_count" readonly="1"/>
+                            <field name="device_type"/>
+                            <field name="device_name"/>
+                            <field name="firmware_version"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Workflow">
+                            <div class="alert alert-info" role="alert">Pull Users and Templates includes Classic face templates. ACC registry details update automatically when the device registers; Classic Version Info is a manual read-only request. Profile photos are separate from face enrollment.</div>
+                        </page>
+                        <page string="Technical Details">
+                            <group>
+                                <field name="push_version"/>
+                                <field name="adms_protocol_version"/>
+                                <field name="last_metadata_at"/>
+                                <field name="metadata_source"/>
+                                <field name="last_registry_at"/>
+                                <field name="ip_address"/>
+                                <field name="face_function_enabled"/>
+                                <field name="finger_function_enabled"/>
+                                <field name="max_finger_count"/>
+                                <field name="max_user_finger_count"/>
+                                <field name="max_multi_biodata_count"/>
+                                <field name="max_multi_biophoto_count"/>
+                                <field name="multi_biodata_support"/>
+                                <field name="multi_biophoto_support"/>
+                                <field name="multi_bio_version"/>
+                                <field name="sip_device_type"/>
+                                <field name="zkfp_version"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <!-- Devices open in Kanban first, with list/form available for administration. -->
+    <record id="zk_device_action" model="ir.actions.act_window">
+        <field name="name">Devices</field>
+        <field name="res_model">zk.device</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="zk_device_view_search"/>
+    </record>
+</odoo>

@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zk_machine_attendance_operator,access.zk.machine.attendance.operator,model_zk_machine_attendance,group_biometric_user,1,0,0,0
+access_zk_machine_attendance_manager,access.zk.machine.attendance.manager,model_zk_machine_attendance,group_biometric_manager,1,0,0,0
+access_zk_device_operator,access.zk.device.operator,model_zk_device,group_biometric_user,1,0,0,0
+access_zk_device_manager,access.zk.device.manager,model_zk_device,group_biometric_manager,1,1,1,1
+access_zk_dashboard_operator,access.zk.biometric.dashboard.operator,model_zk_biometric_dashboard,group_biometric_user,1,0,0,0
+access_zk_device_user_manager,access.zk.device.user.manager,model_zk_device_user,group_biometric_manager,1,1,1,0
+access_zk_device_command_manager,access.zk.device.command.manager,model_zk_device_command,group_biometric_manager,1,1,0,0
+access_zk_attendance_pull_wizard_manager,access.zk.attendance.pull.wizard.manager,model_zk_attendance_pull_wizard,group_biometric_manager,1,1,1,1
+access_zk_device_user_transfer_wizard_manager,access.zk.device.user.transfer.wizard.manager,model_zk_device_user_transfer_wizard,group_biometric_manager,1,1,1,1
+access_zk_attendance_mapping_wizard_manager,access.zk.attendance.mapping.wizard.manager,model_zk_attendance_mapping_wizard,group_biometric_manager,1,1,1,1
+access_zk_biometric_template_internal,access.zk.biometric.template.internal,model_zk_device_biometric_template,group_biometric_protocol_internal,1,1,1,0
+access_zk_fingerprint_internal,access.zk.fingerprint.internal,model_zk_device_fingerprint,group_biometric_protocol_internal,1,1,1,0
+access_zk_device_user_sync_internal,access.zk.device.user.sync.internal,model_zk_device_user_sync_wizard,group_biometric_protocol_internal,1,0,0,0
+access_zk_device_user_batch_transfer_wizard_manager,access.zk.device.user.batch.transfer.wizard.manager,model_zk_device_user_batch_transfer_wizard,group_biometric_manager,1,1,1,1

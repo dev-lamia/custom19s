@@ -29,6 +29,12 @@
         <field name="arch" type="xml">
             <form string="GDN Configuration" create="0" edit="1" delete="0" class="o_crm_req_config_form">
                 <sheet class="o_crm_req_config_sheet">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_job_codes" type="object"
+                                class="oe_stat_button" icon="fa-barcode">
+                            <field name="job_code_count" widget="statinfo" string="Job Codes"/>
+                        </button>
+                    </div>
                     <div class="o_crm_req_config_hero">
                         <div>
                             <div class="o_crm_req_config_kicker">Graphic Design Number</div>

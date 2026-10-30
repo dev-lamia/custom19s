@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- Singleton dashboard record used by the fixed form action. -->
+    <record id="zk_biometric_dashboard_record" model="zk.biometric.dashboard">
+        <field name="name">Biometric Attendance</field>
+    </record>
+    <!-- Operational dashboard. Buttons must respect the same ACLs as their destination models. -->
+    <record id="zk_biometric_dashboard_view_form" model="ir.ui.view">
+        <field name="name">zk.biometric.dashboard.form</field>
+        <field name="model">zk.biometric.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Biometric Attendance" create="false" edit="false" delete="false" class="o_bio_dashboard">
+                <div class="o_bio_dashboard_content container-fluid">
+                    <!-- Dashboard counters are computed in Python and scoped to the user enabled companies. -->
+                    <section class="o_bio_dashboard_hero">
+                        <h1>Biometric Attendance</h1>
+                        <p>See device health, attendance activity, and employee mapping work for your active companies.</p>
+                    </section>
+                    <section class="o_bio_dashboard_cards">
+                        <button name="action_open_devices" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--devices">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/device.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="device_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Devices</span>
+                        </button>
+                        <button name="action_open_online_devices" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--online">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/device.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="connected_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Online Now</span>
+                        </button>
+                        <button name="action_open_offline_devices" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--offline">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/device.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="offline_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Offline</span>
+                        </button>
+                        <button name="action_open_today" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--punches">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/attendance.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="today_punch_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Punches Today</span>
+                        </button>
+                        <button name="action_open_unmapped" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--unmapped">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/unmapped.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="unmapped_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Need Employee Mapping</span>
+                        </button>
+                        <button name="action_open_device_users" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--users" groups="tam_hr_zk_attendance.group_biometric_manager">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/device_users.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="mapped_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Mapped Device Users</span>
+                        </button>
+                        <button name="action_open_commands" type="object" class="o_bio_dashboard_card o_bio_dashboard_card--commands" groups="tam_hr_zk_attendance.group_biometric_manager">
+                            <img alt="Biometric attendance icon" class="o_bio_dashboard_icon_img" src="/tam_hr_zk_attendance/static/src/img/command.svg"/>
+                            <span class="o_bio_dashboard_number">
+                                <field name="pending_command_count"/>
+                            </span>
+                            <span class="o_bio_dashboard_label">Requests Waiting</span>
+                        </button>
+                    </section>
+                    <section class="o_bio_dashboard_recent">
+                        <div class="o_bio_dashboard_section_title">
+                            <h2>Latest 10 Punches</h2>
+                            <button name="action_open_all_logs" type="object" class="btn btn-link">View attendance analysis</button>
+                        </div>
+                        <field name="recent_punch_ids" nolabel="1" readonly="1">
+                            <list create="false" edit="false" delete="false">
+                                <field name="punching_time"/>
+                                <field name="employee_id"/>
+                                <field name="device_id"/>
+                                <field name="device_id_num" string="PIN"/>
+                                <field name="punch_type"/>
+                            </list>
+                        </field>
+                    </section>
+                </div>
+            </form>
+        </field>
+    </record>
+    <!-- Open the singleton dashboard in form mode. -->
+    <record id="zk_biometric_dashboard_action" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">zk.biometric.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="zk_biometric_dashboard_record"/>
+    </record>
+</odoo>

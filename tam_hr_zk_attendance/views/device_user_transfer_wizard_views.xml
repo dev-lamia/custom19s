@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- Cross-device transfer wizard. Same-device updates use the Device User form action instead. -->
+    <record id="zk_device_user_transfer_wizard_view_form" model="ir.ui.view">
+        <field name="name">zk.device.user.transfer.wizard.form</field>
+        <field name="model">zk.device.user.transfer.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Transfer Device User" create="false" edit="true" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Transfer Device User</h1>
+                    </div>
+                    <group>
+                        <group string="Source User">
+                            <field name="device_user_id" invisible="1"/>
+                            <field name="source_device_id"/>
+                            <field name="source_pin"/>
+                            <field name="source_name"/>
+                            <field name="employee_id"/>
+                            <field name="template_count"/>
+                            <field name="source_face_count"/>
+                            <field name="source_has_photo"/>
+                            <field name="source_company_id" invisible="1"/>
+                            <field name="permitted_device_company_ids" invisible="1"/>
+                        </group>
+                        <group string="Destination">
+                            <field name="target_device_id" required="1"
+                                   domain="[('is_approved', '=', True), ('company_id', 'in', permitted_device_company_ids)]"
+                                   context="{'allowed_company_ids': permitted_device_company_ids}"
+                                   options="{&quot;no_create&quot;: true, &quot;no_create_edit&quot;: true}"/>
+                            <field name="target_last_user_sync_at"/>
+                            <field name="target_cache_status"/>
+                            <field name="target_face_count"/>
+                            <field name="target_has_photo"/>
+                        </group>
+                    </group>
+                    <group string="Choose what to transfer">
+                        <field name="source_is_security_push" invisible="1"/>
+                        <field name="include_profile"/>
+                        <field name="include_fingerprints"/>
+                        <field name="include_face"/>
+                        <field name="include_photo"/>
+                        <field name="include_readback"/>
+                        <field name="include_access" invisible="not source_is_security_push"/>
+                    </group>
+                    <group string="Security PUSH destination access" invisible="not source_is_security_push or not include_access and not include_profile">
+                        <field name="authorization_group_id"
+                               invisible="not include_profile"
+                               required="include_profile"/>
+                        <field name="authorization_timezone_id"
+                               invisible="not include_access"
+                               required="include_access"/>
+                        <field name="authorization_door_id"
+                               invisible="not include_access"
+                               required="include_access"/>
+                    </group>
+                    <group string="Confirmation">
+                        <field name="confirm_transfer"/>
+                    </group>
+                    <div class="text-muted" invisible="not source_is_security_push">Access policy values belong to the destination terminal. Defaults are not approval. A profile photo is not a face enrollment.</div>
+                    <div class="text-muted" invisible="source_is_security_push">Classic ADMS always creates normal users (Pri=0). Face templates are sent only when their native format is compatible; test recognition on the terminal after completion.</div>
+                </sheet>
+                <footer>
+                    <button name="action_transfer" string="Transfer User" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

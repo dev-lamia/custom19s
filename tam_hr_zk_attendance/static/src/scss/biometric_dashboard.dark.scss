@@ -1,0 +1,49 @@
+/* Overrides loaded by Odoo only with web.assets_backend_lazy_dark. */
+.o_form_view.o_bio_dashboard {
+  color: $o-gray-900;
+  background: $o-webclient-background-color;
+}
+
+.o_bio_dashboard .o_bio_dashboard_card,
+.o_bio_dashboard .o_bio_dashboard_recent,
+.o_bio_device_card {
+  color: $o-gray-900;
+  background: $o-view-background-color;
+  border-color: $o-gray-300;
+}
+
+.o_bio_dashboard .o_bio_dashboard_number,
+.o_bio_dashboard .o_bio_dashboard_section_title h2,
+.o_bio_device_card__name,
+.o_bio_device_card__stats strong {
+  color: $o-gray-900;
+}
+
+.o_bio_dashboard .o_bio_dashboard_label,
+.o_bio_device_card__meta,
+.o_bio_device_card__stats span {
+  color: $o-gray-700;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table th,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table td,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table .o_data_cell,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table .o_column_title {
+  color: $o-gray-900 !important;
+  border-color: $o-gray-300;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table tbody tr,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table tbody td {
+  background-color: $o-view-background-color;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table thead tr,
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table thead th {
+  background-color: $o-gray-300;
+}
+
+.o_bio_dashboard .o_bio_dashboard_recent .o_list_table tbody tr:hover td {
+  background-color: mix($o-action, $o-view-background-color, 12%);
+}

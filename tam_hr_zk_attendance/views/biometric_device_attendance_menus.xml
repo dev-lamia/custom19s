@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- Application root menu. -->
+    <menuitem id="menu_biometric_device_root" name="Biometric Attendance" action="zk_biometric_dashboard_action" groups="tam_hr_zk_attendance.group_biometric_user" sequence="35" web_icon="tam_hr_zk_attendance,static/description/icon.png"/>
+    <!-- Daily operational overview for biometric attendance. -->
+    <menuitem id="biometric_dashboard_menu" name="Dashboard" action="zk_biometric_dashboard_action" parent="menu_biometric_device_root" groups="tam_hr_zk_attendance.group_biometric_user" sequence="1"/>
+    <!-- Physical biometric devices. -->
+    <menuitem id="zk_device_menu" name="Devices" action="zk_device_action" parent="menu_biometric_device_root" groups="tam_hr_zk_attendance.group_biometric_user" sequence="10"/>
+    <!-- Manager-only device/PIN to employee mappings. -->
+    <menuitem id="zk_device_user_menu" name="Device Users" action="zk_device_user_action" parent="menu_biometric_device_root" groups="tam_hr_zk_attendance.group_biometric_manager" sequence="20"/>
+    <!-- Read-only raw attendance evidence and analysis. -->
+    <menuitem id="machine_attendance_menu" name="Attendance Logs" action="machine_attendance_action" parent="menu_biometric_device_root" groups="tam_hr_zk_attendance.group_biometric_user" sequence="30"/>
+    <!-- Manager-only asynchronous ADMS command history. -->
+    <menuitem id="zk_device_command_menu" name="Command History" action="zk_device_command_action" parent="menu_biometric_device_root" groups="tam_hr_zk_attendance.group_biometric_manager" sequence="40"/>
+</odoo>
