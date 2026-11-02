@@ -1,6 +1,6 @@
 {
     'name': 'Dynamic Approval',
-    'version': '19.0.1.0.13',
+    'version': '19.0.1.4.0',
     'category': 'Customizations',
     'summary': 'Standallone approval workflow for any Odoo object button',
     'description': '''

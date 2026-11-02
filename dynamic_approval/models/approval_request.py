@@ -125,22 +125,24 @@ class ProfessionalApprovalRequest(models.Model):
         ], order='id desc', limit=1)
 
     @api.model
-    def create_from_rule(self, rule, record, method_name):
-        stage_lines = rule._configured_stage_approvers(record)
-        approvers = stage_lines if rule.use_stage_approvers else rule.approver_line_ids
+    def create_from_rule(self, rule, record, method_name, stage_value=None, button_label=None):
         stage_value = (
-            rule._current_stage_value(record) if rule.use_stage_approvers
-            else rule.stage_option_id.value or False
+            stage_value if stage_value is not None else (
+                rule._current_stage_value(record) if rule.use_stage_approvers
+                else rule.stage_option_id.value or False
+            )
         )
+        stage_lines = rule._configured_stage_approvers_for_value(stage_value)
+        approvers = stage_lines if rule.use_stage_approvers else rule.approver_line_ids
         request = self.sudo().create({
             'rule_id': rule.id,
             'source_model': record._name,
             'source_id': record.id,
             'source_name': record.display_name,
             'method_name': method_name,
-            'button_label': rule.button_id.button_label or method_name,
+            'button_label': button_label or rule.button_id.button_label or method_name,
             'request_owner_id': self.env.user.id,
-            'stage_field_name': rule.stage_field_id.name or False,
+            'stage_field_name': False if method_name.startswith('__stage_write__::') else (rule.stage_field_id.name or False),
             'stage_value': stage_value,
         })
         for approver in approvers:
@@ -158,7 +160,7 @@ class ProfessionalApprovalRequest(models.Model):
     def _stage_is_current(self, record=None):
         """Pending/approved stage-bound approvals must not survive a stage edit."""
         self.ensure_one()
-        if not self.stage_field_name:
+        if not self.stage_field_name or self.method_name.startswith('__stage_write__::'):
             return True
         record = record if record is not None else self._source_record()
         if not record or self.stage_field_name not in record._fields:

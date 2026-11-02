@@ -115,7 +115,7 @@ class ProfessionalApprovalRule(models.Model):
     button_id = fields.Many2one(
         'professional.approval.button',
         string='Button / Action',
-        required=True,
+        required=False,
         domain="[('model_id', '=', model_id)]",
         tracking=True,
     )
@@ -204,14 +204,14 @@ class ProfessionalApprovalRule(models.Model):
                 rules = self.sudo().search([
                     ('active', '=', True),
                     ('model_name', '!=', False),
-                    ('method_name', '!=', False),
                 ])
                 for rule in rules:
                     rule._install_state_write_wrapper(rule.model_name)
-                    rule._install_method_wrapper(
-                        rule.model_name,
-                        rule.method_name,
-                    )
+                    if rule.method_name:
+                        rule._install_method_wrapper(
+                            rule.model_name,
+                            rule.method_name,
+                        )
         except Exception:
             # During the first installation the model table may not exist yet.
             # create() installs wrappers after the XML records are loaded.
@@ -229,7 +229,7 @@ class ProfessionalApprovalRule(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if {'active', 'model_id', 'button_id'} & set(vals):
+        if {'active', 'model_id', 'button_id', 'use_stage_approvers', 'stage_field_id'} & set(vals):
             self._install_related_wrappers()
         return res
 
@@ -242,7 +242,7 @@ class ProfessionalApprovalRule(models.Model):
         as soon as the rule is saved/upgraded.
         """
         for rec in self.sudo().filtered(
-            lambda rule: rule.active and rule.model_name and rule.method_name
+            lambda rule: rule.active and rule.model_name and (rule.method_name or rule.use_stage_approvers)
         ):
             rec._install_state_write_wrapper(rec.model_name)
             rec._install_method_wrapper(rec.model_name, rec.method_name)
@@ -492,6 +492,13 @@ class ProfessionalApprovalRule(models.Model):
         value = self._current_stage_value(record)
         if value is False:
             return self.env['professional.approval.stage.approver']
+        return self._configured_stage_approvers_for_value(value)
+
+    def _configured_stage_approvers_for_value(self, value):
+        self.ensure_one()
+        if not self.use_stage_approvers or value is False or value is None:
+            return self.env['professional.approval.stage.approver']
+        value = str(value)
         return self.stage_approver_line_ids.filtered(
             lambda line: line.user_id and line.stage_option_id.value == value
         )
@@ -504,6 +511,68 @@ class ProfessionalApprovalRule(models.Model):
         if not self.stage_field_id or not self.stage_option_id:
             return True
         return self._current_stage_value(record) == self.stage_option_id.value
+
+    def _stage_transition_method_name(self, field_name, target_value):
+        self.ensure_one()
+        return '__stage_write__::%s::%s' % (field_name, target_value)
+
+    def _find_stage_transition_rule(self, record, field_name, target_value):
+        model = self.env['ir.model'].sudo().search([('model', '=', record._name)], limit=1)
+        domain = [
+            ('active', '=', True),
+            ('use_stage_approvers', '=', True),
+            ('model_name', '=', record._name),
+        ]
+        if model:
+            domain = [
+                ('active', '=', True),
+                ('use_stage_approvers', '=', True),
+                '|',
+                ('model_name', '=', record._name),
+                ('model_id', '=', model.id),
+            ]
+        rules = self.sudo().search(domain, order='sequence, id')
+        if not rules:
+            return False
+
+        record_company = False
+        if 'company_id' in record._fields:
+            record_company = record.company_id
+        if not record_company:
+            record_company = self.env.company
+
+        def _matches_company(rule):
+            if rule.company_ids:
+                return record_company in rule.company_ids
+            if rule.company_id:
+                return rule.company_id == record_company
+            return True
+
+        rules = rules.filtered(_matches_company).filtered(
+            lambda r: r.stage_field_id and r.stage_field_id.name == field_name
+            and bool(r._configured_stage_approvers_for_value(target_value))
+        )
+        if not rules:
+            return False
+
+        current_user = self.env.user
+        explicit = rules.filtered(lambda r: current_user.id in r.initiator_ids.ids)
+        global_rules = rules.filtered(lambda r: not r.initiator_ids)
+        for bucket in (explicit, global_rules):
+            company_specific = bucket.filtered(
+                lambda r: bool(r.company_ids) or bool(r.company_id)
+            )
+            company_global = bucket - company_specific
+            for scoped_bucket in (company_specific, company_global):
+                conditional = scoped_bucket.filtered(
+                    lambda r: not r._domain_is_empty() and r._record_matches_condition(record)
+                )
+                if conditional:
+                    return conditional[0]
+                fallback = scoped_bucket.filtered(lambda r: r._domain_is_empty())
+                if fallback:
+                    return fallback[0]
+        return False
 
     @api.model
     def _find_rule(self, record, method_name):
@@ -575,11 +644,10 @@ class ProfessionalApprovalRule(models.Model):
         rules = self.sudo().search([
             ('active', '=', True),
             ('model_name', '=', model_name),
-            ('method_name', '!=', False),
         ])
         if rules:
             self._install_state_write_wrapper(model_name)
-        for method_name in set(rules.mapped('method_name')):
+        for method_name in set(rules.filtered('method_name').mapped('method_name')):
             self._install_method_wrapper(model_name, method_name)
 
     @api.model
@@ -625,10 +693,79 @@ class ProfessionalApprovalRule(models.Model):
                 else {}
             )
 
+            approved_stage_requests = records.env['professional.approval.request']
+            if (
+                isinstance(vals, dict)
+                and vals
+                and bool(records)
+                and not records.env.context.get('_professional_approval_bypass')
+                and not records.env.context.get('_professional_approval_execution')
+            ):
+                Request = records.env['professional.approval.request']
+                Rule = records.env['professional.approval.rule']
+                for record in records:
+                    for field_name, target_raw in vals.items():
+                        if field_name not in record._fields:
+                            continue
+                        rule = Rule._find_stage_transition_rule(record, field_name, target_raw)
+                        if not rule:
+                            continue
+                        current_value = rule._current_stage_value(record)
+                        target_value = str(target_raw.id) if hasattr(target_raw, 'id') else str(target_raw)
+                        if current_value == target_value:
+                            continue
+                        method_name = rule._stage_transition_method_name(field_name, target_value)
+                        target_option = rule.stage_approver_line_ids.filtered(
+                            lambda l: l.stage_option_id.value == target_value
+                        )[:1].stage_option_id
+                        target_label = target_option.name or target_value
+
+                        approved_request = Request.sudo().search([
+                            ('source_model', '=', record._name),
+                            ('source_id', '=', record.id),
+                            ('method_name', '=', method_name),
+                            ('state', '=', 'approved'),
+                            ('approval_consumed', '=', False),
+                        ], order='id desc', limit=1)
+                        if approved_request:
+                            approved_stage_requests |= approved_request
+                            continue
+
+                        pending_request = Request.get_active_request(record._name, record.id, method_name)
+                        if pending_request:
+                            raise ValidationError(_(
+                                'Approval is pending to change %s to %s. Waiting for: %s'
+                            ) % (
+                                rule.stage_field_id.field_description or field_name,
+                                target_label,
+                                pending_request.next_approver_names or _('approver'),
+                            ))
+
+                        request = Request.create_from_rule(
+                            rule, record, method_name,
+                            stage_value=target_value,
+                            button_label=_('Change %(field)s to %(value)s') % {
+                                'field': rule.stage_field_id.field_description or field_name,
+                                'value': target_label,
+                            },
+                        )
+                        raise ValidationError(_(
+                            'Approval request created to change %s to %s. Waiting for: %s'
+                        ) % (
+                            rule.stage_field_id.field_description or field_name,
+                            target_label,
+                            request.next_approver_names or _('approver'),
+                        ))
+
             # This is the model's normal resolved write method. For chatter
             # models it passes through mail.thread.write(), so all standard
             # Odoo tracking/subtypes remain exactly as they are by default.
             result = original(records, vals)
+
+            if approved_stage_requests:
+                approved_stage_requests.with_context(
+                    _professional_approval_invalidation=True
+                ).write({'approval_consumed': True})
 
             if not should_check:
                 return result
