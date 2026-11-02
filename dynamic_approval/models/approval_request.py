@@ -126,6 +126,12 @@ class ProfessionalApprovalRequest(models.Model):
 
     @api.model
     def create_from_rule(self, rule, record, method_name):
+        stage_lines = rule._configured_stage_approvers(record)
+        approvers = stage_lines if rule.use_stage_approvers else rule.approver_line_ids
+        stage_value = (
+            rule._current_stage_value(record) if rule.use_stage_approvers
+            else rule.stage_option_id.value or False
+        )
         request = self.sudo().create({
             'rule_id': rule.id,
             'source_model': record._name,
@@ -135,9 +141,9 @@ class ProfessionalApprovalRequest(models.Model):
             'button_label': rule.button_id.button_label or method_name,
             'request_owner_id': self.env.user.id,
             'stage_field_name': rule.stage_field_id.name or False,
-            'stage_value': rule.stage_option_id.value or False,
+            'stage_value': stage_value,
         })
-        for approver in rule.approver_line_ids:
+        for approver in approvers:
             self.env['professional.approval.request.line'].sudo().create({
                 'request_id': request.id,
                 'user_id': approver.user_id.id,

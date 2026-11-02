@@ -10,7 +10,8 @@
                 <field name="model_id"/>
                 <field name="button_id"/>
                 <field name="stage_field_id" optional="show"/>
-                <field name="stage_option_id" optional="show"/>
+                <field name="use_stage_approvers" optional="show"/>
+                <field name="stage_option_id" optional="hide"/>
                 <field name="company_ids" widget="many2many_tags" optional="show"/>
                 <field name="sequential_approval" optional="hide"/>
                 <field name="minimum_approvals" optional="show"/>
@@ -80,7 +81,8 @@
                                    invisible="not model_id"/>
                             <field name="model_name" readonly="1" invisible="not model_id"/>
                             <field name="method_name" readonly="1" invisible="not button_id"/>
-                            <separator string="Optional Stage / Status Approval"/>
+                            <separator string="Stage / Status Approval Settings"/>
+                            <field name="use_stage_approvers" invisible="not model_id"/>
                             <field name="stage_field_id"
                                    domain="[('model_id', '=', model_id), ('ttype', 'in', ['selection', 'many2one']), '|', '|', '|', ('name', 'ilike', 'state'), ('name', 'ilike', 'status'), ('name', 'ilike', 'stage'), ('name', 'ilike', 'phase')]"
                                    options="{'no_create': True, 'no_edit': True}"
@@ -89,15 +91,37 @@
                                    domain="[('field_id', '=', stage_field_id)]"
                                    context="{'approval_stage_field_id': stage_field_id}"
                                    options="{'no_create': True, 'no_edit': True}"
-                                   invisible="not stage_field_id"/>
-                            <div class="text-muted" invisible="not stage_field_id">
-                                This rule protects the selected button when the document is currently
-                                at this stage/status. Other stages can use separate approval rules.
+                                   invisible="not stage_field_id or use_stage_approvers"/>
+                            <div class="text-muted" invisible="not stage_field_id or use_stage_approvers">
+                                Legacy mode: this rule protects the selected button at one selected stage.
                             </div>
                         </group>
                     </group>
 
                     <notebook>
+                        <page string="Stage-wise Approvers" name="stage_approvers"
+                              invisible="not use_stage_approvers or not stage_field_id">
+                            <div class="alert alert-info" role="alert">
+                                Choose the Approver beside each Stage / Status. Empty Approver means
+                                that stage does not require approval. Use Add a line for another
+                                approver on the same stage. This controls the selected Button / Action.
+                            </div>
+                            <button name="action_load_stage_options" type="object"
+                                    string="Load Missing Stages" class="btn-secondary"
+                                    icon="fa-refresh" invisible="not id"/>
+                            <field name="stage_approver_line_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="stage_field_id" column_invisible="True"/>
+                                    <field name="stage_option_id"
+                                           domain="[('field_id', '=', stage_field_id)]"
+                                           options="{'no_create': True, 'no_edit': True}"/>
+                                    <field name="user_id"
+                                           options="{'no_create': True, 'no_edit': True}"/>
+                                    <field name="required" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
                         <page string="Approval Flow" name="approval_flow">
                             <group>
                                 <group string="Approval Policy">
@@ -115,8 +139,9 @@
                                 </group>
                             </group>
 
-                            <separator string="Approvers"/>
-                            <field name="approver_line_ids" nolabel="1">
+                            <separator string="Default Approvers" invisible="use_stage_approvers"/>
+                            <field name="approver_line_ids" nolabel="1"
+                                   invisible="use_stage_approvers">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="user_id"

@@ -26,6 +26,51 @@ class ProfessionalApprovalRuleApprover(models.Model):
     required = fields.Boolean(string='Required', default=True)
 
 
+class ProfessionalApprovalStageApprover(models.Model):
+    """One configured approver for one selectable stage/status."""
+
+    _name = 'professional.approval.stage.approver'
+    _description = 'Stage / Status Approver Assignment'
+    _order = 'sequence, id'
+
+    rule_id = fields.Many2one(
+        'professional.approval.rule', string='Approval Rule',
+        required=True, ondelete='cascade', index=True,
+    )
+    stage_field_id = fields.Many2one(
+        'ir.model.fields', string='Stage Field',
+        related='rule_id.stage_field_id', readonly=True,
+    )
+    stage_option_id = fields.Many2one(
+        'professional.approval.stage.option', string='Stage / Status',
+        required=True, ondelete='restrict', index=True,
+        domain="[('field_id', '=', stage_field_id)]",
+    )
+    user_id = fields.Many2one(
+        'res.users', string='Approver',
+        help='Leave empty to skip approval for this stage.',
+    )
+    sequence = fields.Integer(string='Sequence', default=10)
+    required = fields.Boolean(string='Required', default=True)
+
+    @api.constrains('rule_id', 'stage_option_id', 'user_id')
+    def _check_assignment(self):
+        for line in self:
+            if (line.stage_option_id and line.rule_id.stage_field_id
+                    and line.stage_option_id.field_id != line.rule_id.stage_field_id):
+                raise ValidationError(_(
+                    'The selected stage does not belong to this rule stage field.'
+                ))
+            if line.user_id and self.search_count([
+                ('id', '!=', line.id), ('rule_id', '=', line.rule_id.id),
+                ('stage_option_id', '=', line.stage_option_id.id),
+                ('user_id', '=', line.user_id.id),
+            ]):
+                raise ValidationError(_(
+                    'This approver is already configured for the same stage.'
+                ))
+
+
 class ProfessionalApprovalRule(models.Model):
     _name = 'professional.approval.rule'
     _description = 'Dynamic Approval Rule'
@@ -97,6 +142,19 @@ class ProfessionalApprovalRule(models.Model):
         ondelete='restrict',
         domain="[('field_id', '=', stage_field_id)]",
         help='Select the current value that should require these approvers.',
+    )
+    use_stage_approvers = fields.Boolean(
+        string='Set Approvers by Stage / Status',
+        default=False,
+        tracking=True,
+        help=(
+            'When enabled, select the approver separately for every stage. '
+            'Only stages with an assigned user require approval for the selected button.'
+        ),
+    )
+    stage_approver_line_ids = fields.One2many(
+        'professional.approval.stage.approver', 'rule_id',
+        string='Stage / Status Approvers', copy=True,
     )
     initiator_ids = fields.Many2many(
         'res.users',
@@ -212,22 +270,48 @@ class ProfessionalApprovalRule(models.Model):
         for rec in self:
             rec.request_count = count_by_rule.get(rec.id, 0)
 
-    @api.constrains('approver_line_ids', 'minimum_approvals')
+    @api.constrains(
+        'approver_line_ids', 'stage_approver_line_ids',
+        'minimum_approvals', 'use_stage_approvers',
+    )
     def _check_approvers(self):
         for rec in self:
-            if not rec.approver_line_ids:
-                raise ValidationError(_('Please add at least one approver.'))
             if rec.minimum_approvals < 1:
                 raise ValidationError(_('Minimum approvals must be at least 1.'))
-            if rec.minimum_approvals > len(rec.approver_line_ids):
-                raise ValidationError(_('Minimum approvals cannot exceed approver count.'))
+            if rec.use_stage_approvers:
+                mapped_lines = rec.stage_approver_line_ids.filtered('user_id')
+                if not mapped_lines:
+                    raise ValidationError(_(
+                        'Assign an approver to at least one Stage / Status row.'
+                    ))
+                # Different stages may have different approver counts; the
+                # request caps its threshold to the selected stage's count.
+            else:
+                if not rec.approver_line_ids:
+                    raise ValidationError(_('Please add at least one approver.'))
+                if rec.minimum_approvals > len(rec.approver_line_ids):
+                    raise ValidationError(_(
+                        'Minimum approvals cannot exceed approver count.'
+                    ))
 
-    @api.constrains('model_id', 'stage_field_id', 'stage_option_id')
+    @api.constrains(
+        'model_id', 'stage_field_id', 'stage_option_id',
+        'use_stage_approvers', 'stage_approver_line_ids',
+    )
     def _check_stage_configuration(self):
         for rec in self:
-            if not rec.stage_field_id and not rec.stage_option_id:
+            if rec.use_stage_approvers:
+                if not rec.stage_field_id:
+                    raise ValidationError(_(
+                        'Select the Stage / Status Field for stage-wise approvers.'
+                    ))
+                if rec.stage_option_id:
+                    raise ValidationError(_(
+                        'Clear the single Stage / Status Value when using stage-wise approvers.'
+                    ))
+            elif not rec.stage_field_id and not rec.stage_option_id:
                 continue
-            if not rec.stage_field_id or not rec.stage_option_id:
+            elif not rec.stage_field_id or not rec.stage_option_id:
                 raise ValidationError(_(
                     'Select both a Stage / Status Field and a Stage / Status Value.'
                 ))
@@ -239,31 +323,112 @@ class ProfessionalApprovalRule(models.Model):
                 raise ValidationError(_(
                     'Stage/status fields must be Selection or Many2one fields.'
                 ))
-            if rec.stage_option_id.field_id != rec.stage_field_id:
+            if rec.stage_option_id and rec.stage_option_id.field_id != rec.stage_field_id:
                 raise ValidationError(_(
                     'The chosen stage/status value belongs to a different field.'
                 ))
+            for line in rec.stage_approver_line_ids:
+                if line.stage_option_id.field_id != rec.stage_field_id:
+                    raise ValidationError(_(
+                        'A stage approver row references a different stage field.'
+                    ))
+
+    def _stage_option_commands(self):
+        """Pre-fill one row per stage; leave user choice to the manager."""
+        self.ensure_one()
+        if not self.stage_field_id:
+            return []
+        options = self.env['professional.approval.stage.option'].sudo().refresh_for_field(
+            self.stage_field_id.id
+        )
+        return [(0, 0, {
+            'stage_option_id': option.id, 'sequence': (index + 1) * 10,
+            'required': True,
+        }) for index, option in enumerate(options)]
+
+    @api.onchange('use_stage_approvers')
+    def _onchange_use_stage_approvers(self):
+        if self.use_stage_approvers:
+            self.stage_option_id = False
+            if self.stage_field_id and not self.stage_approver_line_ids:
+                self.stage_approver_line_ids = self._stage_option_commands()
 
     @api.onchange('stage_field_id')
     def _onchange_stage_field_id(self):
         self.stage_option_id = False
+        # Changing a field invalidates assignments from the old field.
+        self.stage_approver_line_ids = [(5, 0, 0)]
         if self.stage_field_id:
-            self.env['professional.approval.stage.option'].sudo().refresh_for_field(
-                self.stage_field_id.id
-            )
+            if self.use_stage_approvers:
+                self.stage_approver_line_ids = self._stage_option_commands()
+            else:
+                self.env['professional.approval.stage.option'].sudo().refresh_for_field(
+                    self.stage_field_id.id
+                )
 
     @api.onchange('model_id')
     def _onchange_model_id(self):
         self.button_id = False
         self.stage_field_id = False
         self.stage_option_id = False
+        self.stage_approver_line_ids = [(5, 0, 0)]
+        self.use_stage_approvers = False
         domain = [('id', '=', False)]
         if self.model_id:
             self.env['professional.approval.button'].sudo().refresh_model_buttons(
                 self.model_id.id
             )
             domain = [('model_id', '=', self.model_id.id)]
+            # Pick the model's most likely statusbar field automatically.
+            # The manager may change this field if the view uses another one.
+            fields = self.env['ir.model.fields'].sudo().search([
+                ('model_id', '=', self.model_id.id),
+                ('ttype', 'in', ['selection', 'many2one']),
+                ('name', 'in', ['state', 'stage_id', 'status', 'status_id',
+                               'stage', 'x_stage_id', 'x_status']),
+            ])
+            detected = self.env['ir.model.fields']
+            for preferred in (
+                'state', 'stage_id', 'status', 'status_id',
+                'stage', 'x_stage_id', 'x_status',
+            ):
+                detected = fields.filtered(lambda item: item.name == preferred)[:1]
+                if detected:
+                    break
+            if not detected:
+                # Studio/custom models often have x_ names. Do not confuse
+                # an address state_id with a workflow stage.
+                custom_candidates = self.env['ir.model.fields'].sudo().search([
+                    ('model_id', '=', self.model_id.id),
+                    ('ttype', 'in', ['selection', 'many2one']),
+                    '|', ('name', 'ilike', 'stage'),
+                    ('name', 'ilike', 'status'),
+                ], order='name, id', limit=10)
+                detected = custom_candidates[:1]
+            if detected:
+                self.stage_field_id = detected
+                self.use_stage_approvers = True
+                self.stage_approver_line_ids = self._stage_option_commands()
         return {'domain': {'button_id': domain}}
+
+    def action_load_stage_options(self):
+        """Load missing stages without overwriting existing approver choices."""
+        self.ensure_one()
+        if not self.stage_field_id:
+            raise ValidationError(_('Select a Stage / Status Field first.'))
+        options = self.env['professional.approval.stage.option'].sudo().refresh_for_field(
+            self.stage_field_id.id
+        )
+        present = set(self.stage_approver_line_ids.mapped('stage_option_id').ids)
+        additions = [(0, 0, {
+            'stage_option_id': option.id, 'sequence': (i + 1) * 10,
+        }) for i, option in enumerate(options) if option.id not in present]
+        if additions:
+            self.write({'stage_approver_line_ids': additions})
+        return {'type': 'ir.actions.client', 'tag': 'display_notification',
+                'params': {'title': _('Stages Loaded'),
+                           'message': _('Available stages are ready for approver selection.'),
+                           'type': 'success', 'sticky': False}}
 
     def action_refresh_buttons(self):
         for rec in self:
@@ -309,20 +474,36 @@ class ProfessionalApprovalRule(models.Model):
             return False
         return bool(record.sudo().search_count(expression.AND([domain, [('id', '=', record.id)]])))
 
-    def _stage_matches(self, record):
-        """Check the live stage/status of a source record, not its display label."""
+    def _current_stage_value(self, record):
+        """The technical stage/status key of this particular document."""
         self.ensure_one()
+        if not self.stage_field_id or self.stage_field_id.name not in record._fields:
+            return False
+        current = record.sudo()[self.stage_field_id.name]
+        if self.stage_field_id.ttype == 'many2one':
+            return str(current.id) if current else ''
+        return str(current) if current is not None else ''
+
+    def _configured_stage_approvers(self, record):
+        """Return only actual assigned users for the document's current stage."""
+        self.ensure_one()
+        if not self.use_stage_approvers:
+            return self.env['professional.approval.stage.approver']
+        value = self._current_stage_value(record)
+        if value is False:
+            return self.env['professional.approval.stage.approver']
+        return self.stage_approver_line_ids.filtered(
+            lambda line: line.user_id and line.stage_option_id.value == value
+        )
+
+    def _stage_matches(self, record):
+        """Stage assignments take precedence over the legacy single-stage rule."""
+        self.ensure_one()
+        if self.use_stage_approvers:
+            return bool(self._configured_stage_approvers(record))
         if not self.stage_field_id or not self.stage_option_id:
             return True
-        field_name = self.stage_field_id.name
-        if field_name not in record._fields:
-            return False
-        current = record.sudo()[field_name]
-        if self.stage_field_id.ttype == 'many2one':
-            value = str(current.id) if current else ''
-        else:
-            value = str(current) if current is not None else ''
-        return value == self.stage_option_id.value
+        return self._current_stage_value(record) == self.stage_option_id.value
 
     @api.model
     def _find_rule(self, record, method_name):
@@ -375,7 +556,7 @@ class ProfessionalApprovalRule(models.Model):
                 # priority over domain-free rules within each stage scope.
                 for stage_specific in (True, False):
                     matching = scoped_bucket.filtered(
-                        lambda r: bool(r.stage_option_id) == stage_specific
+                        lambda r: bool(r.stage_option_id or r.use_stage_approvers) == stage_specific
                         and r._stage_matches(record)
                     )
                     conditional = matching.filtered(
