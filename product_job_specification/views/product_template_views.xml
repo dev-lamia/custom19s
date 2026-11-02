@@ -1,0 +1,31 @@
+<odoo>
+    <record id="view_product_template_job_spec" model="ir.ui.view">
+        <field name="name">product.template.job.specification</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Product Specification" name="product_job_specification">
+                    <group>
+                        <group string="Job Reference">
+                            <field name="spec_job_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="spec_design_name" readonly="1"/>
+                            <field name="spec_customer_id" readonly="1"/>
+                            <field name="spec_customer_code" readonly="1"/>
+                        </group>
+                        <group string="Production Dimensions">
+                            <field name="spec_one_up_size" readonly="1"/>
+                            <field name="spec_num_ups" readonly="1"/>
+                            <field name="spec_one_repeat_size" readonly="1"/>
+                            <field name="spec_num_repeats" readonly="1"/>
+                            <field name="spec_circumference" readonly="1"/>
+                            <field name="spec_print_width" readonly="1"/>
+                            <field name="spec_film_width" readonly="1"/>
+                            <field name="spec_sleeve_size" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

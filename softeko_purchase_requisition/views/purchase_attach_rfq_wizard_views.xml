@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_softeko_purchase_requisition_attach_rfq_wizard_form" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.attach.rfq.wizard.form</field>
+        <field name="model">softeko.purchase.requisition.attach.rfq.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Attach Existing RFQ">
+                <group>
+                    <field name="requisition_id"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="linked_rfq_ids" invisible="1"/>
+                    <field name="rfq_id"
+                           options="{'no_create': True}"
+                           domain="[('company_id', '=', company_id), ('state', 'in', ['draft', 'sent', 'to approve']), ('id', 'not in', linked_rfq_ids)]"/>
+                </group>
+                <div class="text-muted">
+                    The PR will be attached to the selected RFQ and its material lines will be appended. Existing RFQ lines are preserved. No line traceability or quantity matching is performed.
+                </div>
+                <footer>
+                    <button name="action_attach" type="object" string="Attach RFQ" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

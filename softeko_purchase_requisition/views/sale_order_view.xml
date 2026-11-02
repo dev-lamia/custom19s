@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_form_inherit_create_pr" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.create.pr</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Header button -->
+            <xpath expr="//header/button[@name='action_quotation_send']" position="after">
+                <button name="action_create_purchase_requisition" type="object" string="Create PR" class="btn-primary" invisible="state == 'cancel' or pr_count > 0"/>
+            </xpath>
+
+
+            <!-- Smart button -->
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_purchase_requisitions"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-list"
+                        invisible="pr_count == 0">
+                    <field name="pr_count" widget="statinfo" string="PRs"/>
+                </button>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

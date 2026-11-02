@@ -1,6 +1,6 @@
 {
     'name': 'Project Plate Technical Data Sheet',
-    'version': '19.0.1.0.13',
+    'version': '19.0.1.3.0',
     'category': 'Customizations',
     'author': 'Softeko_HUMAYRA',
     'license': 'LGPL-3',

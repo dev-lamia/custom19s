@@ -1,6 +1,6 @@
 {'name': 'Access Management',
  'summary': 'Advancedd User, Group & Multi-Company Access Control for Odoo 19',
- 'version': '19.0.1.0.8',
+ 'version': '19.0.1.0.1',
  'category': 'Administration/Access Rights',
  'author': 'Softeko_Lamia',
  'maintainer': 'Lamia',

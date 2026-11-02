@@ -1,5 +1,5 @@
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 from markupsafe import Markup, escape
 import re
 
@@ -16,12 +16,11 @@ class PlateTds(models.Model):
     gdn_id = fields.Many2one('sale.gdn.configuration', string='GDN', required=True, index=True, ondelete='restrict')
     sale_line_id = fields.Many2one('sale.order.line', string='Sales Order Line', readonly=True)
     sale_order_id = fields.Many2one('sale.order', string='Sales Order', readonly=True, tracking=True)
-    supplier_id = fields.Many2one('res.partner', string='Supplier', tracking=True)
-    supplier_code = fields.Char(string='Supplier Code', tracking=True)
+
     supplier_name = fields.Char(string='Supplier Name', tracking=True)
     customer_id = fields.Many2one('res.partner', string='Customer', readonly=True, tracking=True)
     customer_code = fields.Char(string='Customer Code', readonly=True, tracking=True)
-    pr_rfq = fields.Char(string='PR No. / RFQ', tracking=True)
+    
     job_code = fields.Char(string='Job Code', readonly=True)
 
     job_code_id = fields.Many2one(
@@ -31,15 +30,17 @@ class PlateTds(models.Model):
         readonly=True,
     )
 
-    @api.depends('sale_line_id')
+    @api.depends('sale_line_id', 'gdn_id.source_line_id', 'sale_line_id.job_code')
     def _compute_job_code_id(self):
-        lines = self.mapped('sale_line_id')
+        lines = self.mapped('sale_line_id') | self.mapped('gdn_id.source_line_id')
         jobs = self.env['sale.job.code.configuration'].search([
-            ('source_line_id', 'in', lines.ids)
-        ])
-        job_map = {job.source_line_id.id: job.id for job in jobs}
+            ('source_line_id', 'in', lines.ids),
+        ]) if lines else self.env['sale.job.code.configuration']
+        by_line = {job.source_line_id.id: job.id for job in jobs}
         for rec in self:
-            rec.job_code_id = job_map.get(rec.sale_line_id.id, False)
+            line = rec.sale_line_id or rec.gdn_id.source_line_id
+            rec.job_code_id = by_line.get(line.id, False) if line else False
+
 
     design_name = fields.Char(string='Job Description / Design Name', readonly=True)
     structure = fields.Char(string='Structure', compute='_compute_gdn_details', readonly=True)
@@ -48,8 +49,34 @@ class PlateTds(models.Model):
     so_no = fields.Char(string='S.O. No.', readonly=True)
     gdn_number = fields.Char(string='GDN Number', readonly=True)
     design_type = fields.Selection([('new', 'New'), ('repeat', 'Repeat')], string='Type of Design', default='new')
-    fg_width = fields.Float(string='Width of FG (mm)', digits=(16, 2), readonly=True)
-    fg_length = fields.Float(string='Length of FG (mm)', digits=(16, 2), readonly=True)
+    
+    fg_width = fields.Float(
+        string='Width of FG (mm)', digits=(16, 2),
+        compute='_compute_fg_dimensions', readonly=True,
+    )
+    fg_length = fields.Float(
+        string='Length of FG (mm)', digits=(16, 2),
+        compute='_compute_fg_dimensions', readonly=True,
+    )
+
+    @api.depends(
+        'gdn_id', 'gdn_id.fg_type', 'gdn_id.width', 'gdn_id.length',
+        'gdn_id.source_line_id.req_coil_width_mm',
+        'gdn_id.source_line_id.req_cutoff_length_mm',
+    )
+    def _compute_fg_dimensions(self):
+        for rec in self:
+            gdn = rec.gdn_id
+            if not gdn:
+                rec.fg_width = 0.0
+                rec.fg_length = 0.0
+            elif gdn.fg_type == 'roll':
+                line = gdn.source_line_id
+                rec.fg_width = line.req_coil_width_mm or 0.0
+                rec.fg_length = line.req_cutoff_length_mm or 0.0
+            else:
+                rec.fg_width = gdn.width or 0.0
+                rec.fg_length = gdn.length or 0.0
 
     side_gusset = fields.Float(
         string='Side Gusset (mm)',
@@ -64,16 +91,18 @@ class PlateTds(models.Model):
         readonly=True,
     )
 
-    @api.depends(
-        'job_code_id',
-        'job_code_id.job_pouch_side_gusset',
-        'job_code_id.job_pouch_bottom_gusset',
-    )
+
+    @api.depends('sale_line_id', 'gdn_id.source_line_id')
     def _compute_job_gussets(self):
         for rec in self:
             job = rec.job_code_id
-            rec.side_gusset = job.job_pouch_side_gusset or 0.0 if job else 0.0
-            rec.bottom_gusset = job.job_pouch_bottom_gusset or 0.0 if job else 0.0
+            rec.side_gusset = (
+                job.job_pouch_side_gusset or 0.0 if job else 0.0
+            )
+            rec.bottom_gusset = (
+                job.job_pouch_bottom_gusset or 0.0 if job else 0.0
+            )
+
 
     print_type = fields.Char(
         string='Print Type',
@@ -136,7 +165,21 @@ class PlateTds(models.Model):
             line = rec.sale_line_id or rec.gdn_id.source_line_id
             rec.print_area_width = line.job_print_area if line else 0.0
 
-    film_width = fields.Float(string='Film Width (mm)', digits=(16, 2), tracking=True)
+    film_width = fields.Float(
+        string='Width of Film (mm)', digits=(16, 2),
+        compute='_compute_film_width', readonly=True,
+    )
+
+    @api.depends('sale_line_id', 'gdn_id.source_line_id',
+                 'sale_line_id.job_film_size_to_be_used',
+                 'gdn_id.source_line_id.job_film_size_to_be_used')
+    def _compute_film_width(self):
+        for rec in self:
+            line = rec.sale_line_id or rec.gdn_id.source_line_id
+            rec.film_width = (
+                rec._job_mm_value(line.job_film_size_to_be_used)
+                if line else 0.0
+            )
     one_repeat_length = fields.Float(
         string='One Repeat Length (mm)',
         digits=(16, 2),
@@ -202,7 +245,7 @@ class PlateTds(models.Model):
     staggering = fields.Boolean(string='Staggering', tracking=True)
     staggering_displacement = fields.Float(string='Staggering Displacement (mm)', digits=(16, 2), tracking=True)
     ink_grade = fields.Char(string='Ink Grade', tracking=True)
-    plate_line_ids = fields.One2many('plate.tds.line', 'tds_id', string='Plate Codes', copy=True)
+    plate_line_ids = fields.One2many('plate.tds.line', 'tds_id', string='Plate Information', copy=True)
     production_layout_ids = fields.Many2many(
         'ir.attachment', 'plate_tds_prod_att_rel', 'tds_id', 'attachment_id', string='Production Layout')
     plate_layout_ids = fields.Many2many(
@@ -307,22 +350,13 @@ class PlateTds(models.Model):
             'design_name': gdn.design_name or '',
             'so_no': line.order_id.name or '',
             'gdn_number': gdn.gdn_number or '',
-            'fg_width': gdn.width or 0.0,
-            'fg_length': gdn.length or 0.0,
             
-            'production_layout_ids': [(6, 0, gdn.doc_production_layout_ids.ids)],
-            'plate_layout_ids': [(6, 0, gdn.doc_plate_layout_ids.ids)],
         }
 
     @api.onchange('task_id')
     def _onchange_task_id(self):
         if self.task_id:
             self.update(self._prepare_from_task(self.task_id))
-
-    @api.onchange('supplier_id')
-    def _onchange_supplier_id(self):
-        if self.supplier_id:
-            self.supplier_name = self.supplier_id.name
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -338,11 +372,13 @@ class PlateTds(models.Model):
 
 
 
+
     def action_confirm(self):
         self.write({'state': 'confirmed'})
 
     def action_reset_draft(self):
         self.write({'state': 'draft'})
+
 
     def action_print_tds(self):
         self.ensure_one()
@@ -355,24 +391,24 @@ class PlateTdsLine(models.Model):
     _order = 'sequence, id'
 
     tds_id = fields.Many2one('plate.tds', string='Plate TDS', required=True, ondelete='cascade')
-    sequence = fields.Integer(string='Sequence', default=10 , tracking=True)
+    sequence = fields.Integer(string='Sequence', default=10)
     
     plate_product_id = fields.Many2one(
         'product.product',
-        string='Plate Code',
+        string='Plate Descriptiom',
         domain="[('product_tmpl_id.is_plate', '=', True)]",
         ondelete='restrict',
     )
 
-    description = fields.Char(string='Plate Description' , tracking=True)
-    plate_sequence = fields.Integer(string='Plate Sequence' , tracking=True)
-    remarks = fields.Char(string='Remarks', tracking=True)
+    # description = fields.Char(string='Plate Description')
+    plate_sequence = fields.Integer(string='Plate Sequence')
+    remarks = fields.Char(string='Remarks')
 
 
 
     def write(self, vals):
         tracked_fields = {
-            'plate_product_id', 'plate_code',
+            'plate_product_id',
             'description', 'plate_sequence', 'remarks',
         }
         changed = tracked_fields.intersection(vals)

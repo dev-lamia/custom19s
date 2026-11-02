@@ -1,0 +1,265 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <!-- List view -->
+    <record id="view_purchase_requisition_list" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.list</field>
+        <field name="model">softeko.purchase.requisition</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Requisitions">
+                <field name="name"/>
+                <field name="requester_id"/>
+                <field name="department_id"/>
+                <field name="date_request"/>
+                <field name="activity_ids" widget="list_activity"/>
+                <field name="sale_order_id"/>
+                <field name="customer_id"/>
+                <field name="reset_requested" optional="hide"/>
+                <field name="rfq_review_required" optional="hide"/><field name="cancel_requested" optional="hide"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_purchase_requisition_form" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.form</field>
+        <field name="model">softeko.purchase.requisition</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Requisition">
+                <header>
+    <field name="is_employee" invisible="1"/>
+    <field name="is_manager" invisible="1"/>
+    <field name="is_po_link" invisible="1"/>
+    <field name="is_scm_approver" invisible="1"/>
+    <field name="is_finance" invisible="1"/>
+    <field name="is_po_issuer" invisible="1"/>
+    <field name="rfq_created" invisible="1"/>
+    <field name="rfq_count" invisible="1"/>
+    <field name="from_office_supply" invisible="1"/>
+    <field name="reset_requested" invisible="1"/>
+    <field name="cancel_requested" invisible="1"/>
+    <field name="rfq_review_required" invisible="1"/>
+    <field name="reset_ready" invisible="1"/>
+    <field name="can_request_reset" invisible="1"/>
+    <field name="can_request_cancel" invisible="1"/>
+    <field name="can_finalize_reset" invisible="1"/>
+
+    <!-- Primary workflow actions come first for predictable Odoo header UX. -->
+    <button name="action_finalize_reset" type="object" string="Complete Reset to Draft" class="btn-primary" invisible="not can_finalize_reset"/>
+    <button name="action_submit" type="object" string="Submit" class="btn-primary" invisible="not is_employee or state != 'draft'"/>
+    <button name="action_manager_approve" type="object" string="Approve" class="btn-primary" invisible="not is_manager or state != 'submitted' or reset_requested or cancel_requested"/>
+
+    <button name="action_create_rfq" type="object" string="Create RFQ" class="btn-primary" invisible="state != 'rfq' or not is_po_link or rfq_created or reset_requested or cancel_requested"/>
+    <button name="action_complete_rfq_review" type="object" string="Send for Approval" class="btn-primary" invisible="state != 'rfq' or not is_po_link or not rfq_created or not rfq_review_required or reset_requested or cancel_requested"/>
+    <button name="action_mark_rfq_issued" type="object" string="Approve" class="btn-primary" invisible="state != 'rfq' or not rfq_created or rfq_review_required or not is_scm_approver or reset_requested or cancel_requested"/>
+
+    <button name="action_fd_approve" type="object" string="Approve" class="btn-primary" invisible="state != 'finance_approved' or not is_finance or reset_requested or cancel_requested or ((not from_office_supply) and (not rfq_created))"/>
+    <button name="action_create_po_from_supply" type="object" string="Create PO" class="btn-primary" invisible="not from_office_supply or not is_po_issuer or state != 'po_issued' or rfq_created or reset_requested or cancel_requested"/>
+
+    <!-- Secondary workflow actions. Existing RFQs can still be split into additional RFQs. -->
+    <button name="action_create_rfq" type="object" string="Create Additional RFQ" invisible="state != 'rfq' or not is_po_link or not rfq_created or reset_requested or cancel_requested"/>
+    <button name="action_open_attach_existing_rfq" type="object" string="Attach Existing RFQ" invisible="state != 'rfq' or not is_po_link or reset_requested or cancel_requested"/>
+
+    <!-- Send Back is intentionally kept: unlike Reset, it returns the PR one approval step for correction. -->
+    <button name="action_manager_review" type="object" string="Send Back" invisible="state != 'submitted' or not is_manager or reset_requested or cancel_requested"/>
+    <button name="action_manager_review" type="object" string="Send Back" invisible="state != 'rfq' or not rfq_review_required or not is_po_link or reset_requested or cancel_requested"/>
+    <button name="action_manager_review" type="object" string="Send Back" invisible="state != 'rfq' or rfq_review_required or rfq_created or not is_po_link or reset_requested or cancel_requested"/>
+    <button name="action_manager_review" type="object" string="Send Back" invisible="state != 'rfq' or rfq_review_required or not rfq_created or not is_scm_approver or reset_requested or cancel_requested"/>
+    <button name="action_fd_review" type="object" string="Send Back" invisible="from_office_supply or state != 'finance_approved' or not is_finance or reset_requested or cancel_requested"/>
+
+    <button name="action_open_reset_wizard" type="object" string="Reset to Draft" invisible="not can_request_reset"/>
+    <button name="action_open_cancel_wizard" type="object" string="Cancel" invisible="not can_request_cancel"/>
+
+    <!-- Statusbar when Sale Order EXISTS -->
+    <field name="state" widget="statusbar" invisible="not sale_order_id" statusbar_visible="draft,submitted,rfq,finance_approved,sale_order,po_issued,done,canceled"/>
+    <!-- Statusbar when Sale Order is EMPTY -->
+    <field name="state" widget="statusbar" invisible="sale_order_id or from_office_supply" statusbar_visible="draft,submitted,rfq,finance_approved,po_issued,done,canceled"/>
+    <field name="state" widget="statusbar" invisible="not from_office_supply" statusbar_visible="draft,finance_approved,po_issued,done,canceled"/>
+</header><sheet>
+                    <widget name="web_ribbon" title="RESET REQUESTED" bg_color="text-bg-info" invisible="not reset_requested"/>
+                    <widget name="web_ribbon" title="CANCEL REQUESTED" bg_color="text-bg-danger" invisible="not cancel_requested"/>
+                    <widget name="web_ribbon" title="RFQ REVIEW" bg_color="text-bg-info" invisible="not rfq_review_required or reset_requested or cancel_requested"/>
+                    <widget name="web_ribbon" title="OFFICE SUPPLY" bg_color="text-bg-primary" invisible="not from_office_supply or rfq_review_required or reset_requested or cancel_requested"/>
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+
+                    <group col="2">
+                        <group>
+                            <field name="requester_id" string="Name" readonly="1"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="date_request"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1" force_save="1"/>
+                            <field name="cost_center" invisible="from_office_supply"/>
+                            <field name="project_ref" invisible="from_office_supply"/>
+                        </group>
+                        <group>
+                            <field name="sale_order_id" readonly="state != 'draft'" invisible="from_office_supply"/>
+                            <field name="customer_id" readonly="1" invisible="from_office_supply"/>
+                            <field name="customer_credit_limit" readonly="1" invisible="from_office_supply"/>
+                            <field name="sale_order_state" readonly="1" invisible="from_office_supply"/>
+                            <button name="action_update_sales_prices" type="object" string="Update Prices" icon="fa-refresh" class="btn-link mb-1 px-0" invisible="from_office_supply or not rfq_created"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="special_instruction"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Material Detail">
+                            <field name="material_line_ids" readonly="state != 'draft'" widget="product_label_section_and_note_field_o2m" mode="list,kanban" options="{'subsections': True}">
+                                <list editable="bottom">
+                                    <control>
+                                        <create name="add_product_control" string="Add a product"/>
+                                        <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
+                                        <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
+                                        <button name="action_add_from_catalog" string="Catalog" type="object" class="px-4 btn-link" context="{'order_id': parent.id}"/>
+                                    </control>
+                                    <field name="display_type" column_invisible="True"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="sale_line_id" column_invisible="True"/>
+                                    <field name="categ_id" readonly="display_type"/>
+                                    <field name="product_id" widget="product_label_section_and_note_field" domain="[('categ_id', '=', categ_id)]" required="not display_type" optional="show" force_save="1"/>
+                                    <field name="name" widget="section_and_note_text" optional="show"/>
+                                    <field name="product_qty" required="not display_type"/>
+                                    <field name="product_uom_id" column_invisible="parent.from_office_supply" force_save="1"/>
+                                    <field name="required_date" column_invisible="parent.from_office_supply"/>
+                                    <field name="estimated_price" column_invisible="not parent.from_office_supply"/>
+                                    <field name="sales_price" widget="monetary" options="{'currency_field': 'sales_currency_id'}" readonly="1" optional="show" column_invisible="parent.from_office_supply"/>
+                                    <field name="sales_currency_id" column_invisible="True"/>
+                                    <field name="priority"/>
+                                    <button name="action_open_delivery_schedule" type="object" string="Delivery Schedule" class="btn-link" invisible="display_type" column_invisible="parent.from_office_supply"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Purchase Orders" groups="purchase.group_purchase_user,purchase.group_purchase_manager,account.group_account_user">
+                            <field name="purchase_order_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="date_order"/>
+                                    <field name="state"/>
+                                    <field name="amount_total"/>
+                                </list>
+                            </field>
+                        </page>
+
+                    </notebook>
+                </sheet>
+
+                <chatter>
+                    <field name="message_ids"/>
+                    <field name="activity_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban view -->
+    <record id="view_purchase_requisition_kanban" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.kanban</field>
+        <field name="model">softeko.purchase.requisition</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column" records_draggable="false">
+                <field name="name"/>
+                <field name="requester_id"/>
+                <field name="department_id"/>
+                <field name="date_request"/>
+                <field name="state"/>
+                <field name="activity_ids"/>
+
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_record oe_kanban_global_click border-0 shadow-none">
+                            <field name="name" class="fw-bold fs-4"/>
+                            <div class="text-muted">
+                                <field name="department_id"/>
+                            </div>
+
+                            <div class="mt-1">
+                                <div>
+                                    <strong>Requester: </strong>
+                                    <field name="requester_id"/>
+                                </div>
+                                <div>
+                                    <strong>Date: </strong>
+                                    <field name="date_request"/>
+                                </div>
+                            </div>
+
+                            <footer class="pt-1 mt-1 d-flex justify-content-end">
+                                <field name="activity_ids" widget="kanban_activity"/>
+                                <field name="requester_id" widget="many2one_avatar_user"/>
+                            </footer>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+   
+    <!-- Search view: follows Odoo Purchase search patterns -->
+    <record id="view_purchase_requisition_search" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.search</field>
+        <field name="model">softeko.purchase.requisition</field>
+        <field name="arch" type="xml">
+            <search string="Search Purchase Requisition">
+                <field name="name" string="Requisition" filter_domain="['|', '|', '|', ('name', 'ilike', self), ('project_ref', 'ilike', self), ('cost_center', 'ilike', self), ('purchase_order_ids', 'ilike', self)]"/>
+                <field name="requester_id"/>
+                <field name="department_id"/>
+                <field name="product_ids" string="Product"/>
+                <field name="sale_order_id"/>
+                <field name="customer_id"/>
+                <field name="purchase_order_ids" string="RFQ / PO"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="activity_user_id" string="Activities of"/>
+                <field name="activity_type_id" string="Activity type"/>
+
+                <filter name="my_requisitions" string="My Requisitions" domain="[('requester_id', '=', uid)]"/>
+                <filter name="filter_activities_my" string="My Activities" domain="[('activity_user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="rfq" string="SCM Approval" domain="[('state', '=', 'rfq')]"/>
+                <filter name="finance" string="Finance Approval" domain="[('state', '=', 'finance_approved')]"/>
+                <filter name="confirm_sale_order" string="Confirm Sale Order" domain="[('state', '=', 'sale_order')]"/>
+                <filter name="po_stage" string="Issue PO" domain="[('state', '=', 'po_issued')]"/>
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'canceled')]"/>
+                <separator/>
+                <filter name="reset_requested" string="Reset Requested" domain="[('reset_requested', '=', True)]"/>
+                <filter name="cancel_requested" string="Cancel Requested" domain="[('cancel_requested', '=', True)]"/>
+                <filter name="rfq_review_required" string="RFQ Review Required" domain="[('rfq_review_required', '=', True)]"/><filter name="office_supply" string="Office Supply" domain="[('from_office_supply', '=', True)]"/>
+                <filter name="has_rfq" string="Has RFQ / PO" domain="[('purchase_order_ids', '!=', False)]"/>
+                <filter name="no_rfq" string="No RFQ / PO" domain="[('purchase_order_ids', '=', False)]"/>
+                <separator/>
+                <filter name="request_date" string="Request Date" date="date_request"/>
+
+                <filter invisible="1" string="Late Activities" name="activities_overdue" domain="[('my_activity_date_deadline', '&lt;', 'today')]"/>
+                <filter invisible="1" string="Today Activities" name="activities_today" domain="[('my_activity_date_deadline', '=', 'today')]"/>
+                <filter invisible="1" string="Future Activities" name="activities_upcoming_all" domain="[('my_activity_date_deadline', '&gt;', 'today')]"/>
+                <filter string="Warnings" name="activities_exception" domain="[('activity_exception_decoration', '!=', False)]"/>
+
+                <group>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Requester" name="group_requester" context="{'group_by': 'requester_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                    <filter string="Request Month" name="group_request_month" context="{'group_by': 'date_request:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_purchase_requisition" model="ir.actions.act_window">
+            <field name="name">Purchase Requisitions</field>
+            <field name="res_model">softeko.purchase.requisition</field>
+            <field name="view_mode">kanban,list,form,activity</field>
+            <field name="search_view_id" ref="view_purchase_requisition_search"/>
+    </record>
+
+    <menuitem id="menu_purchase_requisition_root" name="Purchase Requisition" sequence="10" web_icon="softeko_purchase_requisition,static/description/icon.png"/>
+    <menuitem id="menu_purchase_requisition" name="Purchase Requisitions" parent="menu_purchase_requisition_root" action="action_purchase_requisition" sequence="10"/>
+</odoo>

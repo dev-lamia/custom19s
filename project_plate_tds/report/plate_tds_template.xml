@@ -16,10 +16,10 @@
                             style="width:100%; font-size:10px;">
                             <tr>
                                 <td>
-                                    <strong>Supplier Code</strong>
+                                    <strong>Document</strong>
                                 </td>
                                 <td>
-                                    <span t-esc="o.supplier_code or ''" />
+                                    <span t-esc="o.name or ''" />
                                 </td>
                                 <td>
                                     <strong>Doc. No.</strong>
@@ -33,7 +33,7 @@
                                     <strong>Supplier Name</strong>
                                 </td>
                                 <td>
-                                    <span t-esc="o.supplier_name or (o.supplier_id.name or '')" />
+                                    <span t-esc="o.supplier_name or ''" />
                                 </td>
                                 <td>
                                     <strong>Date</strong>
@@ -50,10 +50,10 @@
                                     <span t-esc="o.customer_id.name or ''" />
                                 </td>
                                 <td>
-                                    <strong>PR No. / RFQ</strong>
+                                    <strong>GDN Number</strong>
                                 </td>
                                 <td>
-                                    <span t-esc="o.pr_rfq or ''" />
+                                    <span t-esc="o.gdn_number or ''" />
                                 </td>
                             </tr>
                             <tr>
@@ -196,7 +196,7 @@
                                     <strong>Print Area Width (mm)</strong>
                                 </th>
                                 <th>
-                                    <strong>Film Width (mm)</strong>
+                                    <strong>Width of Film (mm)</strong>
                                 </th>
                             </tr>
                             <tr>

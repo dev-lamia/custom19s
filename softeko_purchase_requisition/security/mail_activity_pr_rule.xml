@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="rule_mail_activity_pr_only_assigned_modify" model="ir.rule">
+                <field name="name">Only Assigned User Can Modify PR Activities</field>
+                <field name="model_id" ref="mail.model_mail_activity"/>
+                <field name="global" eval="True"/>
+
+                <!-- Apply ONLY to write/unlink -->
+                <field name="perm_read" eval="False"/>
+                <field name="perm_create" eval="False"/>
+                <field name="perm_write" eval="True"/>
+                <field name="perm_unlink" eval="True"/>
+
+                <field name="domain_force">
+                    <![CDATA[
+                        ['|',
+                            ('res_model', '!=', 'softeko.purchase.requisition'),
+                            ('user_id', '=', user.id)
+                        ]
+                    ]]>
+                </field>
+       </record>
+</odoo>

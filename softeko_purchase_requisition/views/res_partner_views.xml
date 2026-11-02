@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_partner_form_inherit_credit_limit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.credit.limit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Put it in Sales & Purchase tab (exists in your form) -->
+            <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
+                <field name="credit_limit"
+                       invisible="customer_rank == 0"
+                       groups="account.group_account_user,purchase.group_purchase_user,purchase.group_purchase_manager"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

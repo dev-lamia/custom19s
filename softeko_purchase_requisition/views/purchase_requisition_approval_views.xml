@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_purchase_requisition_approval_list" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.approval.list</field>
+        <field name="model">softeko.purchase.requisition.approval</field>
+        <field name="arch" type="xml">
+            <list string="Approval Configuration" create="1" edit="1" delete="1">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="no_manager_approval_employee_ids" widget="many2many_tags" optional="show"/>
+                <field name="link_user_ids" widget="many2many_tags" optional="show"/>
+                <field name="scm_approver_ids" widget="many2many_tags" optional="show"/>
+                <field name="finance_user_ids" widget="many2many_tags" optional="hide"/>
+                <field name="po_user_ids" widget="many2many_tags" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_purchase_requisition_approval_form" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.approval.form</field>
+        <field name="model">softeko.purchase.requisition.approval</field>
+        <field name="arch" type="xml">
+            <form string="Approval Configuration">
+                <sheet>
+                    <group col="2">
+                        <field name="name"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+
+                    <group string="Manager Approval Exceptions">
+                        <field name="no_manager_approval_employee_ids"
+                               widget="many2many_tags"
+                               domain="[('user_id', '!=', False)]"/>
+                    </group>
+                    <separator string="Note"/>
+                    <p class="text-muted">
+                        Employees selected here skip Manager Approval only for this configuration's company.
+                        Their HR reporting manager is not changed. On Submit, the PR moves directly to RFQ/PO Link.
+                    </p>
+
+                    <group string="Stage Access (Select Users)">
+                        <field name="link_user_ids" widget="many2many_tags" string="RFQ Create"
+                               domain="[('share', '=', False)]"/>
+                        <field name="scm_approver_ids" widget="many2many_tags" string="SCM Approvers"
+                               domain="[('share', '=', False)]"/>
+                        <field name="finance_user_ids" widget="many2many_tags"
+                               domain="[('share', '=', False)]"/>
+                        <field name="po_user_ids" widget="many2many_tags"
+                               domain="[('share', '=', False)]"/>
+                    </group>
+
+                    <separator string="Note"/>
+                    <p class="text-muted">
+                        Configuration is company-specific. Selected internal users receive workflow activities for that company.
+                    </p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_purchase_requisition_approval_search" model="ir.ui.view">
+        <field name="name">softeko.purchase.requisition.approval.search</field>
+        <field name="model">softeko.purchase.requisition.approval</field>
+        <field name="arch" type="xml">
+            <search string="Approval Configuration">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_purchase_requisition_approval" model="ir.actions.act_window">
+        <field name="name">Approval Configuration</field>
+        <field name="res_model">softeko.purchase.requisition.approval</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_purchase_requisition_approval_search"/>
+        <field name="context">{'default_company_id': allowed_company_ids[0]}</field>
+        <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
+    </record>
+
+    <menuitem id="menu_purchase_requisition_config"
+              name="Configuration"
+              parent="menu_purchase_requisition_root"
+              sequence="50"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_purchase_requisition_approval"
+              name="Approval"
+              parent="menu_purchase_requisition_config"
+              action="action_purchase_requisition_approval"
+              sequence="10"
+              groups="base.group_system"/>
+
+</odoo>

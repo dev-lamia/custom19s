@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_activity_type_pr_workflow" model="mail.activity.type">
+        <field name="name">PR Workflow</field>
+        <field name="summary">Purchase Requisition Workflow</field>
+        <field name="icon">fa-tasks</field>
+        <field name="res_model">softeko.purchase.requisition</field>
+        <field name="category">default</field>
+    </record>
+</odoo>
