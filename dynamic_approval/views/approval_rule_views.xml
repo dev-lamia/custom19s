@@ -9,6 +9,8 @@
                 <field name="name"/>
                 <field name="model_id"/>
                 <field name="button_id"/>
+                <field name="stage_field_id" optional="show"/>
+                <field name="stage_option_id" optional="show"/>
                 <field name="company_ids" widget="many2many_tags" optional="show"/>
                 <field name="sequential_approval" optional="hide"/>
                 <field name="minimum_approvals" optional="show"/>
@@ -78,6 +80,20 @@
                                    invisible="not model_id"/>
                             <field name="model_name" readonly="1" invisible="not model_id"/>
                             <field name="method_name" readonly="1" invisible="not button_id"/>
+                            <separator string="Optional Stage / Status Approval"/>
+                            <field name="stage_field_id"
+                                   domain="[('model_id', '=', model_id), ('ttype', 'in', ['selection', 'many2one']), '|', '|', '|', ('name', 'ilike', 'state'), ('name', 'ilike', 'status'), ('name', 'ilike', 'stage'), ('name', 'ilike', 'phase')]"
+                                   options="{'no_create': True, 'no_edit': True}"
+                                   invisible="not model_id"/>
+                            <field name="stage_option_id"
+                                   domain="[('field_id', '=', stage_field_id)]"
+                                   context="{'approval_stage_field_id': stage_field_id}"
+                                   options="{'no_create': True, 'no_edit': True}"
+                                   invisible="not stage_field_id"/>
+                            <div class="text-muted" invisible="not stage_field_id">
+                                This rule protects the selected button when the document is currently
+                                at this stage/status. Other stages can use separate approval rules.
+                            </div>
                         </group>
                     </group>
 
