@@ -84,7 +84,7 @@ class ProfessionalApprovalRule(models.Model):
     stage_field_id = fields.Many2one(
         'ir.model.fields',
         string='Stage / Status Field',
-        ondelete='restrict',
+        ondelete='set null',
         help=(
             'Optional: select a stage/status field of the business model. '
             'The approval rule applies only while the document is in the '
