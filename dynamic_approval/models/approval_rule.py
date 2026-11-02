@@ -81,6 +81,23 @@ class ProfessionalApprovalRule(models.Model):
         readonly=True,
         index=True,
     )
+    stage_field_id = fields.Many2one(
+        'ir.model.fields',
+        string='Stage / Status Field',
+        ondelete='restrict',
+        help=(
+            'Optional: select a stage/status field of the business model. '
+            'The approval rule applies only while the document is in the '
+            'chosen stage/status.'
+        ),
+    )
+    stage_option_id = fields.Many2one(
+        'professional.approval.stage.option',
+        string='Stage / Status Value',
+        ondelete='restrict',
+        domain="[('field_id', '=', stage_field_id)]",
+        help='Select the current value that should require these approvers.',
+    )
     initiator_ids = fields.Many2many(
         'res.users',
         'professional_approval_rule_initiator_rel',
@@ -205,9 +222,41 @@ class ProfessionalApprovalRule(models.Model):
             if rec.minimum_approvals > len(rec.approver_line_ids):
                 raise ValidationError(_('Minimum approvals cannot exceed approver count.'))
 
+    @api.constrains('model_id', 'stage_field_id', 'stage_option_id')
+    def _check_stage_configuration(self):
+        for rec in self:
+            if not rec.stage_field_id and not rec.stage_option_id:
+                continue
+            if not rec.stage_field_id or not rec.stage_option_id:
+                raise ValidationError(_(
+                    'Select both a Stage / Status Field and a Stage / Status Value.'
+                ))
+            if rec.stage_field_id.model_id != rec.model_id:
+                raise ValidationError(_(
+                    'The selected stage/status field does not belong to this model.'
+                ))
+            if rec.stage_field_id.ttype not in ('selection', 'many2one'):
+                raise ValidationError(_(
+                    'Stage/status fields must be Selection or Many2one fields.'
+                ))
+            if rec.stage_option_id.field_id != rec.stage_field_id:
+                raise ValidationError(_(
+                    'The chosen stage/status value belongs to a different field.'
+                ))
+
+    @api.onchange('stage_field_id')
+    def _onchange_stage_field_id(self):
+        self.stage_option_id = False
+        if self.stage_field_id:
+            self.env['professional.approval.stage.option'].sudo().refresh_for_field(
+                self.stage_field_id.id
+            )
+
     @api.onchange('model_id')
     def _onchange_model_id(self):
         self.button_id = False
+        self.stage_field_id = False
+        self.stage_option_id = False
         domain = [('id', '=', False)]
         if self.model_id:
             self.env['professional.approval.button'].sudo().refresh_model_buttons(
@@ -260,6 +309,21 @@ class ProfessionalApprovalRule(models.Model):
             return False
         return bool(record.sudo().search_count(expression.AND([domain, [('id', '=', record.id)]])))
 
+    def _stage_matches(self, record):
+        """Check the live stage/status of a source record, not its display label."""
+        self.ensure_one()
+        if not self.stage_field_id or not self.stage_option_id:
+            return True
+        field_name = self.stage_field_id.name
+        if field_name not in record._fields:
+            return False
+        current = record.sudo()[field_name]
+        if self.stage_field_id.ttype == 'many2one':
+            value = str(current.id) if current else ''
+        else:
+            value = str(current) if current is not None else ''
+        return value == self.stage_option_id.value
+
     @api.model
     def _find_rule(self, record, method_name):
         model = self.env['ir.model'].sudo().search([('model', '=', record._name)], limit=1)
@@ -306,15 +370,23 @@ class ProfessionalApprovalRule(models.Model):
             )
             company_global = bucket - company_specific
             for scoped_bucket in (company_specific, company_global):
-                conditional = scoped_bucket.filtered(
-                    lambda r: not r._domain_is_empty()
-                    and r._record_matches_condition(record)
-                )
-                if conditional:
-                    return conditional[0]
-                fallback = scoped_bucket.filtered(lambda r: r._domain_is_empty())
-                if fallback:
-                    return fallback[0]
+                # A stage-specific rule wins over a stage-agnostic rule in the
+                # same user/company scope. Existing domain-specific rules keep
+                # priority over domain-free rules within each stage scope.
+                for stage_specific in (True, False):
+                    matching = scoped_bucket.filtered(
+                        lambda r: bool(r.stage_option_id) == stage_specific
+                        and r._stage_matches(record)
+                    )
+                    conditional = matching.filtered(
+                        lambda r: not r._domain_is_empty()
+                        and r._record_matches_condition(record)
+                    )
+                    if conditional:
+                        return conditional[0]
+                    fallback = matching.filtered(lambda r: r._domain_is_empty())
+                    if fallback:
+                        return fallback[0]
         return False
 
     @api.model
