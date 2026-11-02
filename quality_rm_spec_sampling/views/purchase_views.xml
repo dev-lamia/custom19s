@@ -1,0 +1,62 @@
+<odoo>
+  <record id="view_rm_qc_pr_list" model="ir.ui.view">
+    <field name="name">rm.qc.purchase.request.list</field>
+    <field name="model">rm.qc.purchase.request</field>
+    <field name="arch" type="xml"><list string="Purchase Requisitions">
+      <field name="name"/><field name="requested_on"/><field name="requested_by"/>
+      <field name="origin_department"/><field name="partner_id"/><field name="state"/>
+      <field name="purchase_order_id"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_pr_form" model="ir.ui.view">
+    <field name="name">rm.qc.purchase.request.form</field>
+    <field name="model">rm.qc.purchase.request</field>
+    <field name="arch" type="xml">
+      <form string="Purchase Request (PR)">
+  <header>
+    <button name="action_submit" type="object" string="1. Submit PR" class="btn-primary" invisible="state != 'draft'" groups="base.group_user"/>
+    <button name="action_approve" type="object" string="2. Manager Approve" class="btn-primary" invisible="state != 'submitted'" groups="base.group_user"/>
+    <button name="action_create_rfq" type="object" string="3. Create RFQ" class="btn-primary" invisible="state != 'approved'" groups="base.group_user"/>
+    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('cancelled','ordered')"/>
+    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,ordered"/>
+  </header>
+  <sheet>
+    <div class="oe_title"><label for="name"/><h1><field name="name" readonly="1"/></h1></div>
+    <div class="alert alert-info" role="alert">Add materials and quantity, Submit PR, get Manager Approval, then select Vendor and Create RFQ. The QC requirement comes automatically from each product.</div>
+    <group string="Request" col="2">
+      <group><field name="requested_by"/><field name="requested_on"/><field name="origin_department"/></group>
+      <group>
+        <field name="partner_id" invisible="state in ('draft','submitted')" readonly="state == 'ordered'"/>
+        <field name="purchase_order_id" invisible="not purchase_order_id"/>
+      </group>
+    </group>
+    <notebook>
+      <page string="Materials" name="materials">
+        <field name="line_ids" nolabel="1" readonly="state != 'draft'">
+          <list editable="bottom">
+            <field name="product_id" string="Material"/>
+            <field name="quantity"/>
+            <field name="uom_id" string="Unit"/>
+            <field name="qc_required" string="Needs QC?" optional="hide" readonly="1"/>
+            <field name="price_unit" optional="hide"/>
+          </list>
+        </field>
+      </page>
+      <page string="Other Details">
+        <group>
+          <field name="company_id"/>
+          <field name="approved_by"/>
+          <field name="approved_on"/>
+          <field name="notes"/>
+        </group>
+      </page>
+    </notebook>
+    <chatter/>
+  </sheet>
+</form></field>
+  </record>
+  <record id="action_rm_qc_pr" model="ir.actions.act_window">
+    <field name="name">2. Purchase Requests</field>
+    <field name="res_model">rm.qc.purchase.request</field><field name="view_mode">list,form</field>
+  </record>
+</odoo>

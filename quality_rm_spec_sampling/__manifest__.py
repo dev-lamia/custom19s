@@ -1,6 +1,6 @@
 {
     'name': 'RM QC Specification, Sampling & Quality Check Extension',
-    'version': '19.0.1.0.8',
+    'version': '19.0.1.0.9',
     'category': 'Manufacturing/Quality',
     'summary': 'Raw-material TDS, sampling, QC logs, defects, QC approval and production templates',
     'author': 'Softeko_Lamia',
@@ -19,6 +19,7 @@
         'views/product_views.xml',
         'views/mrp_production_views.xml',
         'views/consumable_views.xml',
+        'views/purchase_views.xml',
         'views/menus.xml',
     ],
     'post_init_hook': 'post_init_hook',

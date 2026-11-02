@@ -1,3 +1,13 @@
+## [19.0.1.0.9] - 2026-10-28
+
+### Fixed
+- [2026-10-28] Avoid deleting legacy parent `ir.ui.view` records during PR removal; other modules may inherit them through `inherit_id`.
+- [2026-10-28] Hide legacy PR navigation while retaining PR model/view/action XML IDs for upgrade compatibility and historical data preservation.
+- [2026-10-28] Preserve direct Purchase Order QC confirmation validation without changing Inspection logic.
+
+### Migration
+- [2026-10-28] Removed the destructive 19.0.1.0.8 pre-migration that unlinked PR UI records. PR database schema and records are intentionally not dropped.
+
 ## [19.0.1.0.8] - 2026-10-28
 
 ### [Removed]

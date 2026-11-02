@@ -233,3 +233,20 @@ This is a UI/navigation update only; business validations and approvals are unch
 Manage property definitions at **RM Quality → More / Master Data → Product Property Configuration**. Each master field has a Material Type, Property Name, optional Default Unit, Sequence, and Active flag. When a Product is created, or its RM Material Type changes, the corresponding technical property lines are generated/synchronized automatically. Product users fill in Value and Unit, not the property name. No **Load Property Templates** action is required.
 
 Existing product properties are synchronized by the 19.0.1.0.7 post-upgrade script. Unrelated/duplicate property records are disabled rather than deleted so previously entered data remains available for material-type reversal. The QC TDS tolerance and sampling rules remain separate from product identification properties.
+
+
+## Legacy Purchase Requisition Upgrade Compatibility (19.0.1.0.9)
+
+Purchase Requisition is removed from the daily **RM Quality** menu and from
+the supported workflow. Use direct Purchase Orders followed by Receipt QC.
+
+When upgrading databases that previously installed the PR feature, its
+technical model, view and action definitions are intentionally retained but
+hidden to preserve pre-existing PRQ records and any other module's inherited
+views. This release **does not delete historical PR data**. A separate,
+backup-based migration is required to permanently drop those structures
+after all third-party references are reviewed.
+
+Do **not uninstall** the RM Quality module to remove its PR screen: uninstall
+removes the entire module and its view dependencies. Replace the addon and
+choose **Upgrade** instead.
