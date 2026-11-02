@@ -3,4 +3,8 @@
     <field name="name">RM QC Specification</field><field name="code">rm.qc.specification</field>
     <field name="prefix">QCS/</field><field name="padding">5</field>
   </record>
+  <record id="seq_rm_qc_pr" model="ir.sequence">
+    <field name="name">QC Purchase Requisition</field><field name="code">rm.qc.purchase.request</field>
+    <field name="prefix">PRQ/</field><field name="padding">5</field>
+  </record>
 </odoo>

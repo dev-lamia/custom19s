@@ -1,26 +1,3 @@
-## [19.0.1.0.9] - 2026-10-28
-
-### Fixed
-- [2026-10-28] Avoid deleting legacy parent `ir.ui.view` records during PR removal; other modules may inherit them through `inherit_id`.
-- [2026-10-28] Hide legacy PR navigation while retaining PR model/view/action XML IDs for upgrade compatibility and historical data preservation.
-- [2026-10-28] Preserve direct Purchase Order QC confirmation validation without changing Inspection logic.
-
-### Migration
-- [2026-10-28] Removed the destructive 19.0.1.0.8 pre-migration that unlinked PR UI records. PR database schema and records are intentionally not dropped.
-
-## [19.0.1.0.8] - 2026-10-28
-
-### [Removed]
-- [2026-10-28] Removed this add-on's Purchase Requisition (PR) forms, models, menus, security rules, approval role, sequence and related RFQ creation action.
-
-### [Changed]
-- [2026-10-28] Preserved direct `purchase.order.button_confirm()` validation of approved incoming QC specification in its own `models/purchase_order.py`; existing QC Setup, receipt sampling, inspection and production QC are unchanged.
-- [2026-10-28] Simplified RM Quality navigation to **1. QC Setup (Once)** and **2. Receipt QC Results** plus Master Data.
-- [2026-10-28] Added upgrade cleanup for obsolete PR user-interface/security records. Back up existing `PRQ` data before upgrading; the removed model's historical records may not survive the upgrade.
-
-### [Docs]
-- [2026-10-28] Updated README to reflect direct Purchase RFQ/PO flow without this add-on's PR.
-
 ## [19.0.1.0.7] - 2026-10-28
 ### [Update]
 - [2026-10-28] Made **More / Master Data → Product Property Configuration** the single source of technical product identification fields, maintained by RM Material Type with optional Default Unit and Active status.
