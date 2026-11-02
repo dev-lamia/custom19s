@@ -1,0 +1,1344 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo noupdate="1">
+  <record id="qc_template_incoming_003" model="rm.qc.parameter.template">
+    <field name="name">Film Thickness / Caliper</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="30"/>
+    <field name="material_type">film</field>
+    <field name="category_text">Substrates &amp; Films</field>
+    <field name="item_text">BOPP / PET / PE / CPP Film</field>
+    <field name="uom_text">µm (Micron)</field>
+    <field name="lsl_text">Nominal - 5%</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 5%</field>
+    <field name="inspection_method">Digital Micrometer / Dial Gauge</field>
+    <field name="lot_size">Inbound Lot / Shipment</field>
+    <field name="sample_size">5 Rolls / Pallet</field>
+    <field name="measurements_per_sample" eval="5"/>
+    <field name="sample_method">Across Web Width</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Received Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="3"/>
+  </record>
+  <record id="qc_template_incoming_004" model="rm.qc.parameter.template">
+    <field name="name">Film Grammage / Basis Weight</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="40"/>
+    <field name="material_type">film</field>
+    <field name="category_text">Substrates &amp; Films</field>
+    <field name="item_text">BOPP / PET / PE / CPP Film</field>
+    <field name="uom_text">gsm (g/m²)</field>
+    <field name="lsl_text">Nominal - 3%</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 3%</field>
+    <field name="inspection_method">GSM Cutter &amp; Analytical Balance</field>
+    <field name="lot_size">Inbound Lot / Shipment</field>
+    <field name="sample_size">3 Rolls / Pallet</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Random Roll Cut</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Every Received Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="4"/>
+  </record>
+  <record id="qc_template_incoming_005" model="rm.qc.parameter.template">
+    <field name="name">Surface Corona Treatment / Dyne Level</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="50"/>
+    <field name="material_type">film</field>
+    <field name="category_text">Substrates &amp; Films</field>
+    <field name="item_text">BOPP / PET / PE / CPP Film</field>
+    <field name="uom_text">dynes/cm</field>
+    <field name="lsl_text">38</field>
+    <field name="target_text">42</field>
+    <field name="usl_text">46</field>
+    <field name="inspection_method">Dyne Test Pens / Solutions</field>
+    <field name="lot_size">Inbound Lot / Shipment</field>
+    <field name="sample_size">All Rolls Sampled</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Outer &amp; Core Layers</field>
+    <field name="inspection_level">Normal (AQL 0.65)</field>
+    <field name="inspection_frequency">Every Received Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="5"/>
+  </record>
+  <record id="qc_template_incoming_006" model="rm.qc.parameter.template">
+    <field name="name">Coefficient of Friction (COF - Kinetic)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="60"/>
+    <field name="material_type">film</field>
+    <field name="category_text">Substrates &amp; Films</field>
+    <field name="item_text">BOPP / PET / PE Film</field>
+    <field name="uom_text">Ratio</field>
+    <field name="lsl_text">0.20</field>
+    <field name="target_text">0.25</field>
+    <field name="usl_text">0.35</field>
+    <field name="inspection_method">COF Tester (ASTM D1894)</field>
+    <field name="lot_size">Inbound Lot / Shipment</field>
+    <field name="sample_size">3 Rolls / Pallet</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Film-to-Film (Outside/Inside)</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Every Received Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="6"/>
+  </record>
+  <record id="qc_template_incoming_007" model="rm.qc.parameter.template">
+    <field name="name">Tensile Strength &amp; Elongation (MD/TD)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="70"/>
+    <field name="material_type">film</field>
+    <field name="category_text">Substrates &amp; Films</field>
+    <field name="item_text">BOPP / PET Film</field>
+    <field name="uom_text">MPa / %</field>
+    <field name="lsl_text">Nominal - 10%</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 10%</field>
+    <field name="inspection_method">Universal Testing Machine (UTM)</field>
+    <field name="lot_size">Inbound Lot / Shipment</field>
+    <field name="sample_size">2 Rolls / Lot</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">MD and TD Strips</field>
+    <field name="inspection_level">Normal (AQL 2.5)</field>
+    <field name="inspection_frequency">Per Supplier Certificate / Spot Check</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="7"/>
+  </record>
+  <record id="qc_template_incoming_008" model="rm.qc.parameter.template">
+    <field name="name">Thermal Shrinkage (MD/TD)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="80"/>
+    <field name="material_type">film</field>
+    <field name="category_text">Substrates &amp; Films</field>
+    <field name="item_text">BOPP / PET Film</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">0.0%</field>
+    <field name="target_text">1.5%</field>
+    <field name="usl_text">2.5%</field>
+    <field name="inspection_method">Hot Air Oven (150°C / 5 min)</field>
+    <field name="lot_size">Inbound Lot / Shipment</field>
+    <field name="sample_size">2 Rolls / Lot</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">MD and TD Cutouts</field>
+    <field name="inspection_level">Normal (AQL 2.5)</field>
+    <field name="inspection_frequency">Every Received Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="8"/>
+  </record>
+  <record id="qc_template_incoming_009" model="rm.qc.parameter.template">
+    <field name="name">Viscosity (As Delivered)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="90"/>
+    <field name="material_type">ink</field>
+    <field name="category_text">Printing Inks &amp; Solvents</field>
+    <field name="item_text">Flexo Inks (NC / PU )</field>
+    <field name="uom_text">Sec</field>
+    <field name="lsl_text">25</field>
+    <field name="target_text">35</field>
+    <field name="usl_text">45</field>
+    <field name="inspection_method">Zahn Cup #4 / Ford Cup #4</field>
+    <field name="lot_size">Inbound Lot / Batch</field>
+    <field name="sample_size">1 Drum per Batch</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Top / Middle / Bottom</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Delivered Drum</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="9"/>
+  </record>
+  <record id="qc_template_incoming_010" model="rm.qc.parameter.template">
+    <field name="name">Specific Gravity / Density</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="100"/>
+    <field name="material_type">ink</field>
+    <field name="category_text">Printing Inks &amp; Solvents</field>
+    <field name="item_text">Flexo Inks (NC / PU )</field>
+    <field name="uom_text">g/cm³</field>
+    <field name="lsl_text">0.95</field>
+    <field name="target_text">1.05</field>
+    <field name="usl_text">1.15</field>
+    <field name="inspection_method">Pycnometer / Hydrometer</field>
+    <field name="lot_size">Inbound Lot / Batch</field>
+    <field name="sample_size">1 Sample per Batch</field>
+    <field name="measurements_per_sample" eval="2"/>
+    <field name="sample_method">Mixed Ink Drum Sample</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Every Delivered Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="10"/>
+  </record>
+  <record id="qc_template_incoming_011" model="rm.qc.parameter.template">
+    <field name="name">Solid Content (NVC)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="110"/>
+    <field name="material_type">ink</field>
+    <field name="category_text">Printing Inks &amp; Solvents</field>
+    <field name="item_text">Flexo Inks (NC / PU )</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">30%</field>
+    <field name="target_text">35%</field>
+    <field name="usl_text">45%</field>
+    <field name="inspection_method">Moisture / Moisture-Moist Balance</field>
+    <field name="lot_size">Inbound Lot / Batch</field>
+    <field name="sample_size">1 Sample per Batch</field>
+    <field name="measurements_per_sample" eval="2"/>
+    <field name="sample_method">Evaporation Dish Test</field>
+    <field name="inspection_level">Normal (AQL 2.5)</field>
+    <field name="inspection_frequency">Per Supplier COA / Spot Check</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="11"/>
+  </record>
+  <record id="qc_template_incoming_012" model="rm.qc.parameter.template">
+    <field name="name">Color Match (Wet &amp; Dry Drawdown)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="120"/>
+    <field name="material_type">ink</field>
+    <field name="category_text">Printing Inks &amp; Solvents</field>
+    <field name="item_text">Flexo Inks (NC / PU )</field>
+    <field name="uom_text">ΔE</field>
+    <field name="lsl_text">0.0</field>
+    <field name="target_text">0.0</field>
+    <field name="usl_text">1.5</field>
+    <field name="inspection_method">Spectrophotometer vs Master Sample</field>
+    <field name="lot_size">Inbound Lot / Batch</field>
+    <field name="sample_size">1 Sample per Drum</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Standard Lab Proofing</field>
+    <field name="inspection_level">Tightened (AQL 0.65)</field>
+    <field name="inspection_frequency">Every Ink Batch / Color</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="12"/>
+  </record>
+  <record id="qc_template_incoming_013" model="rm.qc.parameter.template">
+    <field name="name">Solvent Purity / Gas Chromatography</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="130"/>
+    <field name="material_type">solvent</field>
+    <field name="category_text">Printing Inks &amp; Solvents</field>
+    <field name="item_text">Solvents (EA / IPA / TOL)</field>
+    <field name="uom_text">% Purity</field>
+    <field name="lsl_text">99.0%</field>
+    <field name="target_text">99.5%</field>
+    <field name="usl_text">100%</field>
+    <field name="inspection_method">Gas Chromatography / Refractometer</field>
+    <field name="lot_size">Inbound Tanker / Barrel</field>
+    <field name="sample_size">1 Sample per Barrel/Tanker</field>
+    <field name="measurements_per_sample" eval="2"/>
+    <field name="sample_method">Tanker Top/Bottom Sampling</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Tanker Delivery</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="13"/>
+  </record>
+  <record id="qc_template_incoming_014" model="rm.qc.parameter.template">
+    <field name="name">Water Content / Moisture</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="140"/>
+    <field name="material_type">solvent</field>
+    <field name="category_text">Printing Inks &amp; Solvents</field>
+    <field name="item_text">Solvents (EA / IPA / TOL)</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">0.0%</field>
+    <field name="target_text">0.05%</field>
+    <field name="usl_text">0.20%</field>
+    <field name="inspection_method">Karl Fischer Titrator</field>
+    <field name="lot_size">Inbound Tanker / Barrel</field>
+    <field name="sample_size">1 Sample per Tanker</field>
+    <field name="measurements_per_sample" eval="2"/>
+    <field name="sample_method">Sealed Container Sampling</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Tanker Delivery</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="14"/>
+  </record>
+  <record id="qc_template_incoming_015" model="rm.qc.parameter.template">
+    <field name="name">Component Ratio / Mixing Viscosity</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="150"/>
+    <field name="material_type">solvent</field>
+    <field name="category_text">Adhesives &amp; Resins</field>
+    <field name="item_text">Solventless Adhesive</field>
+    <field name="uom_text">mPa·s</field>
+    <field name="lsl_text">800</field>
+    <field name="target_text">1200</field>
+    <field name="usl_text">1600</field>
+    <field name="inspection_method">Brookfield Viscometer</field>
+    <field name="lot_size">Inbound Lot / Drum</field>
+    <field name="sample_size">1 Container per Batch</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Part A &amp; Part B Tests</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Delivered Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="15"/>
+  </record>
+  <record id="qc_template_incoming_016" model="rm.qc.parameter.template">
+    <field name="name">Solid Content (Part A / Part B)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="160"/>
+    <field name="material_type">solvent</field>
+    <field name="category_text">Adhesives &amp; Resins</field>
+    <field name="item_text">Solventless Adhesive</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">98%</field>
+    <field name="target_text">100%</field>
+    <field name="usl_text">100%</field>
+    <field name="inspection_method">Lab Oven Evaporation Test</field>
+    <field name="lot_size">Inbound Lot / Drum</field>
+    <field name="sample_size">1 Container per Batch</field>
+    <field name="measurements_per_sample" eval="2"/>
+    <field name="sample_method">Lab Weighing</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Per Supplier COA / Verification</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="16"/>
+  </record>
+  <record id="qc_template_incoming_017" model="rm.qc.parameter.template">
+    <field name="name">Valve Dimensions (Outer Dia / Height)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="170"/>
+    <field name="material_type">valve</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Degassing Valves</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">Nominal - 0.1</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 0.1</field>
+    <field name="inspection_method">Digital Vernier Caliper</field>
+    <field name="lot_size">Inbound Carton Lot</field>
+    <field name="sample_size">80 Valves per Lot (AQL)</field>
+    <field name="measurements_per_sample" eval="5"/>
+    <field name="sample_method">Random Selection (MIL-STD-105E)</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Delivered Box Lot</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="17"/>
+  </record>
+  <record id="qc_template_incoming_018" model="rm.qc.parameter.template">
+    <field name="name">Cracking Pressure (Opening)</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="180"/>
+    <field name="material_type">valve</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Degassing Valves</field>
+    <field name="uom_text">mbar</field>
+    <field name="lsl_text">4.0</field>
+    <field name="target_text">8.0</field>
+    <field name="usl_text">12.0</field>
+    <field name="inspection_method">Degassing Valve Test Bench</field>
+    <field name="lot_size">Inbound Carton Lot</field>
+    <field name="sample_size">32 Valves per Lot</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Pneumatic Pressure Rig</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Delivered Batch</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="18"/>
+  </record>
+  <record id="qc_template_incoming_019" model="rm.qc.parameter.template">
+    <field name="name">Zipper Flange Width / Lock Height</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="190"/>
+    <field name="material_type">zipper</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Press-to-Close Zipper Profile</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">Nominal - 0.2</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 0.2</field>
+    <field name="inspection_method">Optical Comparator / Caliper</field>
+    <field name="lot_size">Inbound Spool Lot</field>
+    <field name="sample_size">3 Spools per Box</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Spool Outer/Inner Layer</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Every Received Shipment</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="19"/>
+  </record>
+  <record id="qc_template_incoming_020" model="rm.qc.parameter.template">
+    <field name="name">Zipper Holding / Opening Force</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="200"/>
+    <field name="material_type">zipper</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Press-to-Close Zipper Profile</field>
+    <field name="uom_text">N/25mm</field>
+    <field name="lsl_text">12.0</field>
+    <field name="target_text">18.0</field>
+    <field name="usl_text">25.0</field>
+    <field name="inspection_method">Tensile Tester Pull Test</field>
+    <field name="lot_size">Inbound Spool Lot</field>
+    <field name="sample_size">3 Spools per Box</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Manual &amp; Tensile Pull</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Every Received Shipment</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="20"/>
+  </record>
+  <record id="qc_template_incoming_021" model="rm.qc.parameter.template">
+    <field name="name">Core Inner Diameter (3" / 6")</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="210"/>
+    <field name="material_type">core</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Paper Core</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">76.0</field>
+    <field name="target_text">76.2</field>
+    <field name="usl_text">76.4</field>
+    <field name="inspection_method">Plug Gauge / Vernier Caliper</field>
+    <field name="lot_size">Inbound Bundle Lot</field>
+    <field name="sample_size">10 Cores per Pallet</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Both Core Ends</field>
+    <field name="inspection_level">Normal (AQL 1.0)</field>
+    <field name="inspection_frequency">Every Core Delivery</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="21"/>
+  </record>
+  <record id="qc_template_incoming_022" model="rm.qc.parameter.template">
+    <field name="name">Core Wall Thickness &amp; Crush Strength</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="220"/>
+    <field name="material_type">core</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Paper Core</field>
+    <field name="uom_text">mm / kN</field>
+    <field name="lsl_text">9.5 / 3.0</field>
+    <field name="target_text">10.0 / 4.0</field>
+    <field name="usl_text">11.0 / N/A</field>
+    <field name="inspection_method">Vernier Caliper &amp; Radial Crush Tester</field>
+    <field name="lot_size">Inbound Bundle Lot</field>
+    <field name="sample_size">5 Cores per Pallet</field>
+    <field name="measurements_per_sample" eval="2"/>
+    <field name="sample_method">Radial Force Application</field>
+    <field name="inspection_level">Normal (AQL 1.5)</field>
+    <field name="inspection_frequency">Every Core Delivery</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="22"/>
+  </record>
+  <record id="qc_template_incoming_023" model="rm.qc.parameter.template">
+    <field name="name">Tape Thickness Uniformity</field>
+    <field name="scope">incoming</field>
+    <field name="sequence" eval="230"/>
+    <field name="material_type">tape</field>
+    <field name="category_text">Accessories &amp; Consumables</field>
+    <field name="item_text">Mounting Tape (Sticky Back)</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">0.49</field>
+    <field name="target_text">0.50</field>
+    <field name="usl_text">0.51</field>
+    <field name="inspection_method">Digital Micrometer</field>
+    <field name="lot_size">Inbound Roll Lot</field>
+    <field name="sample_size">3 Rolls per Box</field>
+    <field name="measurements_per_sample" eval="4"/>
+    <field name="sample_method">Across Tape Width</field>
+    <field name="inspection_level">Normal (AQL 0.65)</field>
+    <field name="inspection_frequency">Every Delivered Shipment</field>
+    <field name="source_sheet">MasterSampleParametersRmcheck</field>
+    <field name="source_row" eval="23"/>
+  </record>
+  <record id="qc_template_production_003" model="rm.qc.parameter.template">
+    <field name="name">Dyne Level</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="30"/>
+    <field name="process">Pre-Press Setup</field>
+    <field name="item_text">Raw Substrate</field>
+    <field name="uom_text">dynes/cm</field>
+    <field name="lsl_text">38</field>
+    <field name="target_text">40</field>
+    <field name="usl_text">44</field>
+    <field name="inspection_method">Dyne Pen / Test Solutions</field>
+    <field name="lot_size">Per Roll / Lot</field>
+    <field name="sample_size">1 Roll</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Every Roll / Batch Setup</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="3"/>
+  </record>
+  <record id="qc_template_production_004" model="rm.qc.parameter.template">
+    <field name="name">Caliper / Thickness Tolerance</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="40"/>
+    <field name="process">Pre-Press Setup</field>
+    <field name="item_text">Substrate</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">-5%</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+5%</field>
+    <field name="inspection_method">Digital Micrometer</field>
+    <field name="lot_size">Per Roll / Lot</field>
+    <field name="sample_size">1 Roll</field>
+    <field name="measurements_per_sample" eval="5"/>
+    <field name="sample_method">Across Web Width</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Every Roll / Job Setup</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="4"/>
+  </record>
+  <record id="qc_template_production_005" model="rm.qc.parameter.template">
+    <field name="name">Ink Viscosity (Solvent/Water)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="50"/>
+    <field name="process">Pre-Press Setup</field>
+    <field name="item_text">Printing Ink</field>
+    <field name="uom_text">Sec</field>
+    <field name="lsl_text">18</field>
+    <field name="target_text">22</field>
+    <field name="usl_text">26</field>
+    <field name="inspection_method">Zahn Cup #3 / Ford Cup #4</field>
+    <field name="lot_size">Per Batch / Tank</field>
+    <field name="sample_size">All Tanks</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">In-tank / Circulation</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Setup &amp; Every 30 mins</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="5"/>
+  </record>
+  <record id="qc_template_production_006" model="rm.qc.parameter.template">
+    <field name="name">Color Delta E (ΔE)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="60"/>
+    <field name="process">Live Press Run</field>
+    <field name="item_text">Printed Film</field>
+    <field name="uom_text">ΔE</field>
+    <field name="lsl_text">0.0</field>
+    <field name="target_text">0.0</field>
+    <field name="usl_text">2.5</field>
+    <field name="inspection_method">Spectrophotometer (CIELAB)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="6"/>
+  </record>
+  <record id="qc_template_production_007" model="rm.qc.parameter.template">
+    <field name="name">Solid Ink Density (SID)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="70"/>
+    <field name="process">Live Press Run</field>
+    <field name="item_text">Printed Film</field>
+    <field name="uom_text">D</field>
+    <field name="lsl_text">Standard - 0.05</field>
+    <field name="target_text">Standard</field>
+    <field name="usl_text">Standard + 0.05</field>
+    <field name="inspection_method">Densitometer / Spectrophotometer</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="7"/>
+  </record>
+  <record id="qc_template_production_008" model="rm.qc.parameter.template">
+    <field name="name">Dot Gain / TVI (at 50% tint)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="80"/>
+    <field name="process">Live Press Run</field>
+    <field name="item_text">Printed Film</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">12%</field>
+    <field name="target_text">15%</field>
+    <field name="usl_text">18%</field>
+    <field name="inspection_method">Densitometer</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="8"/>
+  </record>
+  <record id="qc_template_production_009" model="rm.qc.parameter.template">
+    <field name="name">Registration (Lateral &amp; Longitudinal)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="90"/>
+    <field name="process">Live Press Run</field>
+    <field name="item_text">Printed Film</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-0.5</field>
+    <field name="target_text">0.0</field>
+    <field name="usl_text">+0.5</field>
+    <field name="inspection_method">Video Registration System / Magnifier</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="9"/>
+  </record>
+  <record id="qc_template_production_010" model="rm.qc.parameter.template">
+    <field name="name">Dryer Temperature</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="100"/>
+    <field name="process">Live Press Run</field>
+    <field name="item_text">Drying System</field>
+    <field name="uom_text">°C</field>
+    <field name="lsl_text">60</field>
+    <field name="target_text">70</field>
+    <field name="usl_text">80</field>
+    <field name="inspection_method">Inline Temperature Sensor / IR Gun</field>
+    <field name="lot_size">Continuous</field>
+    <field name="sample_size">Continuous</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Continuous / Logged</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Hourly / Shift Start</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="10"/>
+  </record>
+  <record id="qc_template_production_011" model="rm.qc.parameter.template">
+    <field name="name">Ink Adhesion</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="110"/>
+    <field name="process">Post-Print QC</field>
+    <field name="item_text">Printed Roll</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">95%</field>
+    <field name="target_text">100%</field>
+    <field name="usl_text">100%</field>
+    <field name="inspection_method">ASTM D3359 Cross-Hatch Tape Test</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="11"/>
+  </record>
+  <record id="qc_template_production_012" model="rm.qc.parameter.template">
+    <field name="name">Rub / Scuff Resistance</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="120"/>
+    <field name="process">Post-Print QC</field>
+    <field name="item_text">Printed Roll</field>
+    <field name="uom_text">Cycles</field>
+    <field name="lsl_text">100</field>
+    <field name="target_text">200</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Sutherland Rub Tester</field>
+    <field name="lot_size">Per Job / Lot</field>
+    <field name="sample_size">1 Roll per Lot</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Print Web Sample</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Per Printed Lot</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="12"/>
+  </record>
+  <record id="qc_template_production_013" model="rm.qc.parameter.template">
+    <field name="name">Repeat Length</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="130"/>
+    <field name="process">Post-Print QC</field>
+    <field name="item_text">Printed Roll</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-0.5</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+0.5</field>
+    <field name="inspection_method">Precision Steel Ruler / Encoder</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="13"/>
+  </record>
+  <record id="qc_template_production_014" model="rm.qc.parameter.template">
+    <field name="name">Barcode Readability (ANSI Grade)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="140"/>
+    <field name="process">Post-Print QC</field>
+    <field name="item_text">Printed Roll</field>
+    <field name="uom_text">Grade</field>
+    <field name="lsl_text">Grade B</field>
+    <field name="target_text">Grade A</field>
+    <field name="usl_text">Grade A</field>
+    <field name="inspection_method">Barcode Verifier</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="14"/>
+  </record>
+  <record id="qc_template_production_015" model="rm.qc.parameter.template">
+    <field name="name">Residual Solvent (Laminating/Food Safe)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="150"/>
+    <field name="process">Post-Print QC</field>
+    <field name="item_text">Printed Roll</field>
+    <field name="uom_text">mg/m²</field>
+    <field name="lsl_text">0.0</field>
+    <field name="target_text">0.0</field>
+    <field name="usl_text">5.0</field>
+    <field name="inspection_method">Gas Chromatography (GC)</field>
+    <field name="lot_size">Per Job / Lot</field>
+    <field name="sample_size">1 Roll per Batch</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Inner Core / Outer Layer</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Per Production Batch</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="15"/>
+  </record>
+  <record id="qc_template_production_016" model="rm.qc.parameter.template">
+    <field name="name">Adhesive Coating Weight (Dry)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="160"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Film</field>
+    <field name="uom_text">gsm (g/m²)</field>
+    <field name="lsl_text">1.4</field>
+    <field name="target_text">1.8</field>
+    <field name="usl_text">2.2</field>
+    <field name="inspection_method">Solvent Wash &amp; Weigh (Gravimetric)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="16"/>
+  </record>
+  <record id="qc_template_production_017" model="rm.qc.parameter.template">
+    <field name="name">Dyne Level (Corona Treated)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="170"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Primary Film</field>
+    <field name="uom_text">dynes/cm</field>
+    <field name="lsl_text">38</field>
+    <field name="target_text">42</field>
+    <field name="usl_text">46</field>
+    <field name="inspection_method">Dyne Pen / Test Solution</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="17"/>
+  </record>
+  <record id="qc_template_production_018" model="rm.qc.parameter.template">
+    <field name="name">Dyne Level (Corona Treated)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="180"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Secondary Film</field>
+    <field name="uom_text">dynes/cm</field>
+    <field name="lsl_text">38</field>
+    <field name="target_text">42</field>
+    <field name="usl_text">46</field>
+    <field name="inspection_method">Dyne Pen / Test Solution</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="18"/>
+  </record>
+  <record id="qc_template_production_019" model="rm.qc.parameter.template">
+    <field name="name">Bond Strength (Initial)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="190"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Film</field>
+    <field name="uom_text">N/15mm</field>
+    <field name="lsl_text">0.8</field>
+    <field name="target_text">1.2</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Tensile Tester (180° Peel)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="19"/>
+  </record>
+  <record id="qc_template_production_020" model="rm.qc.parameter.template">
+    <field name="name">Bond Strength (Cured - 24-48 hrs)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="200"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Film</field>
+    <field name="uom_text">N/15mm</field>
+    <field name="lsl_text">2.0 (FT)</field>
+    <field name="target_text">3.5</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Tensile Tester (ASTM F904)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="20"/>
+  </record>
+  <record id="qc_template_production_021" model="rm.qc.parameter.template">
+    <field name="name">Heat Seal Strength</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="210"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Film</field>
+    <field name="uom_text">N/15mm</field>
+    <field name="lsl_text">25.0</field>
+    <field name="target_text">35.0</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Universal Testing Machine (UTM)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="21"/>
+  </record>
+  <record id="qc_template_production_022" model="rm.qc.parameter.template">
+    <field name="name">Optical Clarity / Haze</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="220"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Film</field>
+    <field name="uom_text">%</field>
+    <field name="lsl_text">0.0</field>
+    <field name="target_text">1.5</field>
+    <field name="usl_text">3.0</field>
+    <field name="inspection_method">Haze Meter</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="22"/>
+  </record>
+  <record id="qc_template_production_023" model="rm.qc.parameter.template">
+    <field name="name">Curing Chamber Temp / Time</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="230"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Roll</field>
+    <field name="uom_text">°C / Hrs</field>
+    <field name="lsl_text">40 / 24</field>
+    <field name="target_text">45 / 48</field>
+    <field name="usl_text">50 / 72</field>
+    <field name="inspection_method">Calibrated Sensor / Timer</field>
+    <field name="lot_size">Per Chamber Lot</field>
+    <field name="sample_size">All Chambers</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Continuous Log</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Per Curing Cycle</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="23"/>
+  </record>
+  <record id="qc_template_production_024" model="rm.qc.parameter.template">
+    <field name="name">Web Tension / Winding Profile</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="240"/>
+    <field name="process">Lamination</field>
+    <field name="item_text">Laminated Roll</field>
+    <field name="uom_text">N/m</field>
+    <field name="lsl_text">Standard - 10%</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Standard + 10%</field>
+    <field name="inspection_method">Load Cell Tension Indicator</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="24"/>
+  </record>
+  <record id="qc_template_production_025" model="rm.qc.parameter.template">
+    <field name="name">Roll Width Tolerance</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="250"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Roll</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-0.5</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+0.5</field>
+    <field name="inspection_method">Precision Digital Caliper / Steel Ruler</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="25"/>
+  </record>
+  <record id="qc_template_production_026" model="rm.qc.parameter.template">
+    <field name="name">Roll Outer Diameter (OD)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="260"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Roll</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">Nominal - 5</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 5</field>
+    <field name="inspection_method">Measuring Tape</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="26"/>
+  </record>
+  <record id="qc_template_production_027" model="rm.qc.parameter.template">
+    <field name="name">Edge Straightness / Telescoping</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="270"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Roll</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">0.0</field>
+    <field name="target_text">0.0</field>
+    <field name="usl_text">1.0</field>
+    <field name="inspection_method">Steel Straight Edge / Dial Indicator</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="27"/>
+  </record>
+  <record id="qc_template_production_028" model="rm.qc.parameter.template">
+    <field name="name">Core Inner Diameter (ID)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="280"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Roll</field>
+    <field name="uom_text">Inch / mm</field>
+    <field name="lsl_text">76.0</field>
+    <field name="target_text">76.2</field>
+    <field name="usl_text">76.4</field>
+    <field name="inspection_method">Vernier Caliper / Plug Gauge</field>
+    <field name="lot_size">Per Core Batch</field>
+    <field name="sample_size">Sample Cores</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Random Core Select</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Per Batch / Order</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="28"/>
+  </record>
+  <record id="qc_template_production_029" model="rm.qc.parameter.template">
+    <field name="name">Joints Count per Roll</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="290"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Roll</field>
+    <field name="uom_text">Count</field>
+    <field name="lsl_text">0</field>
+    <field name="target_text">0</field>
+    <field name="usl_text">1</field>
+    <field name="inspection_method">Visual Inspection / Tally Counter</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="29"/>
+  </record>
+  <record id="qc_template_production_030" model="rm.qc.parameter.template">
+    <field name="name">Splice Tape Alignment &amp; Flagging</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="300"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Roll</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">0.0</field>
+    <field name="target_text">0.0</field>
+    <field name="usl_text">2.0</field>
+    <field name="inspection_method">Visual &amp; High-contrast Indicator Tape</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="30"/>
+  </record>
+  <record id="qc_template_production_031" model="rm.qc.parameter.template">
+    <field name="name">Dust / Trim Burrs</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="310"/>
+    <field name="process">Slitting</field>
+    <field name="item_text">Slit Web</field>
+    <field name="uom_text">Visual</field>
+    <field name="lsl_text">Free</field>
+    <field name="target_text">Free</field>
+    <field name="usl_text">Trace</field>
+    <field name="inspection_method">Magnifying Glass / Dust Wipe</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="31"/>
+  </record>
+  <record id="qc_template_production_032" model="rm.qc.parameter.template">
+    <field name="name">Pouch Width</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="320"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-1.0</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+1.0</field>
+    <field name="inspection_method">Precision Steel Ruler</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="32"/>
+  </record>
+  <record id="qc_template_production_033" model="rm.qc.parameter.template">
+    <field name="name">Pouch Length</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="330"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-1.0</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+1.0</field>
+    <field name="inspection_method">Precision Steel Ruler</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="33"/>
+  </record>
+  <record id="qc_template_production_034" model="rm.qc.parameter.template">
+    <field name="name">Bottom / Side Gusset Depth</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="340"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-1.0</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+1.0</field>
+    <field name="inspection_method">Precision Ruler</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="34"/>
+  </record>
+  <record id="qc_template_production_035" model="rm.qc.parameter.template">
+    <field name="name">Main Seal Width</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="350"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">Nominal - 0.5</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 0.5</field>
+    <field name="inspection_method">Vernier Caliper</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="35"/>
+  </record>
+  <record id="qc_template_production_036" model="rm.qc.parameter.template">
+    <field name="name">Seal Integrity / Burst Pressure</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="360"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">Bar / kPa</field>
+    <field name="lsl_text">0.8</field>
+    <field name="target_text">1.2</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Restrained Plate Burst Tester (ASTM F2054)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="36"/>
+  </record>
+  <record id="qc_template_production_037" model="rm.qc.parameter.template">
+    <field name="name">Seal Strength (Main / Zipper)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="370"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">N/15mm</field>
+    <field name="lsl_text">30.0</field>
+    <field name="target_text">45.0</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Tensile Tester (ASTM F88)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="37"/>
+  </record>
+  <record id="qc_template_production_038" model="rm.qc.parameter.template">
+    <field name="name">Bubble Test</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="380"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">Visual</field>
+    <field name="lsl_text">No Leak</field>
+    <field name="target_text">Pass</field>
+    <field name="usl_text">Pass</field>
+    <field name="inspection_method">Water Submersion Vacuum Chamber (ASTM D3078)</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="38"/>
+  </record>
+  <record id="qc_template_production_039" model="rm.qc.parameter.template">
+    <field name="name">Zipper Opening / Retention Force</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="390"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">N</field>
+    <field name="lsl_text">10.0</field>
+    <field name="target_text">18.0</field>
+    <field name="usl_text">25.0</field>
+    <field name="inspection_method">Force Gauge / Tensile Tester</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="39"/>
+  </record>
+  <record id="qc_template_production_040" model="rm.qc.parameter.template">
+    <field name="name">Tear Notch Placement / Depth</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="400"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">Nominal - 0.5</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">Nominal + 0.5</field>
+    <field name="inspection_method">Vernier Caliper</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="40"/>
+  </record>
+  <record id="qc_template_production_041" model="rm.qc.parameter.template">
+    <field name="name">Corner Radius / Die Cut Quality</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="410"/>
+    <field name="process">Pouch Making</field>
+    <field name="item_text">Finished Pouch</field>
+    <field name="uom_text">Visual</field>
+    <field name="lsl_text">Smooth</field>
+    <field name="target_text">Smooth</field>
+    <field name="usl_text">Smooth</field>
+    <field name="inspection_method">Visual / Radius Gauge</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="41"/>
+  </record>
+  <record id="qc_template_production_042" model="rm.qc.parameter.template">
+    <field name="name">Valve Position (X / Y Offset)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="420"/>
+    <field name="process">Valving</field>
+    <field name="item_text">Valve Placement</field>
+    <field name="uom_text">mm</field>
+    <field name="lsl_text">-2.0</field>
+    <field name="target_text">Nominal</field>
+    <field name="usl_text">+2.0</field>
+    <field name="inspection_method">Precision Template / Ruler</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="42"/>
+  </record>
+  <record id="qc_template_production_043" model="rm.qc.parameter.template">
+    <field name="name">Valve Seal Strength</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="430"/>
+    <field name="process">Valving</field>
+    <field name="item_text">Valve Seal</field>
+    <field name="uom_text">N/15mm</field>
+    <field name="lsl_text">15.0</field>
+    <field name="target_text">25.0</field>
+    <field name="usl_text">N/A</field>
+    <field name="inspection_method">Tensile Tester / Pull Test</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="43"/>
+  </record>
+  <record id="qc_template_production_044" model="rm.qc.parameter.template">
+    <field name="name">Opening Pressure (Cracking)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="440"/>
+    <field name="process">Valving</field>
+    <field name="item_text">Valve Assembly</field>
+    <field name="uom_text">mbar</field>
+    <field name="lsl_text">4.0</field>
+    <field name="target_text">8.0</field>
+    <field name="usl_text">12.0</field>
+    <field name="inspection_method">Degassing Valve Testing Rig</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="44"/>
+  </record>
+  <record id="qc_template_production_045" model="rm.qc.parameter.template">
+    <field name="name">Closing Pressure</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="450"/>
+    <field name="process">Valving</field>
+    <field name="item_text">Valve Assembly</field>
+    <field name="uom_text">mbar</field>
+    <field name="lsl_text">1.5</field>
+    <field name="target_text">3.0</field>
+    <field name="usl_text">6.0</field>
+    <field name="inspection_method">Degassing Valve Testing Rig</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="45"/>
+  </record>
+  <record id="qc_template_production_046" model="rm.qc.parameter.template">
+    <field name="name">Leakage Around Seal (Bypass)</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="460"/>
+    <field name="process">Valving</field>
+    <field name="item_text">Valve Seal</field>
+    <field name="uom_text">Visual</field>
+    <field name="lsl_text">No Leak</field>
+    <field name="target_text">Pass</field>
+    <field name="usl_text">Pass</field>
+    <field name="inspection_method">Submerged Pressure Tester</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="46"/>
+  </record>
+  <record id="qc_template_production_047" model="rm.qc.parameter.template">
+    <field name="name">Filter Mesh Attachment</field>
+    <field name="scope">production</field>
+    <field name="sequence" eval="470"/>
+    <field name="process">Valving</field>
+    <field name="item_text">Valve Filter</field>
+    <field name="uom_text">Visual</field>
+    <field name="lsl_text">100% Intact</field>
+    <field name="target_text">Intact</field>
+    <field name="usl_text">Intact</field>
+    <field name="inspection_method">Tactile &amp; Visual Inspection</field>
+    <field name="lot_size">All</field>
+    <field name="sample_size">All</field>
+    <field name="measurements_per_sample" eval="3"/>
+    <field name="sample_method">Start / Middle / End</field>
+    <field name="inspection_level">Normal</field>
+    <field name="inspection_frequency">Start / Middle / End</field>
+    <field name="source_sheet">MasterSampling_For jobs</field>
+    <field name="source_row" eval="47"/>
+  </record>
+</odoo>
