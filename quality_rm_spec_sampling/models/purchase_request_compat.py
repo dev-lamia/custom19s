@@ -1,3 +1,10 @@
+"""Legacy PR model compatibility only.
+
+No Purchase Requisition menu is exposed. This model and its original fields are
+retained to keep historic records and third-party inherited views valid during
+upgrades; removing them requires a separately coordinated database migration.
+"""
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
@@ -155,17 +162,3 @@ class RmQcPurchaseRequestLine(models.Model):
         if any(rec.request_id.state != 'draft' for rec in self):
             raise UserError(_('PR lines can only be removed in Draft.'))
         return super().unlink()
-
-
-class PurchaseOrder(models.Model):
-    _inherit = 'purchase.order'
-
-    def button_confirm(self):
-        Spec = self.env['rm.qc.specification']
-        for order in self:
-            for line in order.order_line.filtered(lambda l: not l.display_type and l.product_id.rm_qc_required):
-                if not Spec.with_company(order.company_id)._find_approved(line.product_id):
-                    raise UserError(_('Cannot confirm PO %s: %s has no QC Manager-confirmed '
-                                      'Incoming RM Specification.')
-                                    % (order.name, line.product_id.display_name))
-        return super().button_confirm()

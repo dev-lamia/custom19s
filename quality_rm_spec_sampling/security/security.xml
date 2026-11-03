@@ -22,19 +22,9 @@
     <field name="privilege_id" ref="privilege_rm_qc"/>
     <field name="implied_ids" eval="[(4, ref('group_rm_qc_controller'))]"/>
   </record>
-  <record id="group_rm_qc_pr_approver" model="res.groups">
-    <field name="name">PR / GM Approver</field>
-    <field name="privilege_id" ref="privilege_rm_qc"/>
-    <field name="implied_ids" eval="[(4, ref('group_rm_qc_controller'))]"/>
-  </record>
   <record id="rule_qc_spec_company" model="ir.rule">
     <field name="name">QC Specification: allowed companies</field>
     <field name="model_id" ref="model_rm_qc_specification"/>
-    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
-  </record>
-  <record id="rule_pr_company" model="ir.rule">
-    <field name="name">QC Purchase Request: allowed companies</field>
-    <field name="model_id" ref="model_rm_qc_purchase_request"/>
     <field name="domain_force">[('company_id', 'in', company_ids)]</field>
   </record>
 </odoo>

@@ -35,7 +35,7 @@ class StockPicking(models.Model):
                 seen.add(key)
                 spec = Specification.with_company(picking.company_id)._find_approved(product)
                 if not spec:
-                    raise UserError(_('QC Manager confirmed specification missing for %s.')
+                    raise UserError(_('Active QC Standard missing for %s.')
                                     % product.display_name)
                 existing = QualityCheck.search([
                     ('picking_id', '=', picking.id), ('product_id', '=', product.id),

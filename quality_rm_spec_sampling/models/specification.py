@@ -34,8 +34,8 @@ class RmQcSpecification(models.Model):
                              string='Scope', required=True, default='incoming', tracking=True)
     process = fields.Char(string='Production Stage',
                           help='For production specifications use the exact process stage.')
-    state = fields.Selection([('draft', 'Draft'), ('submitted', 'Submitted for QC Approval'),
-                              ('approved', 'QC Manager Confirmed'), ('archived', 'Archived')],
+    state = fields.Selection([('draft', 'Draft'), ('submitted', 'Legacy Submitted'),
+                              ('approved', 'Active'), ('archived', 'Archived')],
                              string='Status', default='draft', required=True, tracking=True)
     company_id = fields.Many2one('res.company', string='Company', required=True,
                                  default=lambda s: s.env.company)
@@ -45,9 +45,9 @@ class RmQcSpecification(models.Model):
     intended_use = fields.Text(string='Intended Product / Application')
     controller_id = fields.Many2one('res.users', string='QC Controller',
                                    default=lambda s: s.env.user)
-    approved_by = fields.Many2one('res.users', string='Confirmed by QC Manager', readonly=True,
+    approved_by = fields.Many2one('res.users', string='Activated By', readonly=True,
                                  copy=False)
-    approved_on = fields.Datetime(string='QC Confirmation Time', readonly=True, copy=False)
+    approved_on = fields.Datetime(string='Activation Time', readonly=True, copy=False)
     notes = fields.Text(string='TDS / Inspection Notes')
     active = fields.Boolean(default=True)
     _product_spec_unique = models.Constraint(
@@ -160,17 +160,17 @@ class RmQcSpecification(models.Model):
     def write(self, vals):
         if vals.get('state') == 'approved':
             if not self.env.user.has_group('base.group_user'):
-                raise UserError(_('Only QC Manager may confirm specifications.'))
+                raise UserError(_('Only internal users can activate QC standards.'))
         if vals.get('state') == 'archived':
             if not self.env.user.has_group('base.group_user'):
-                raise UserError(_('Only QC Manager may archive specifications.'))
+                raise UserError(_('Only internal users can archive QC standards.'))
         protected = {'product_tmpl_id', 'scope', 'process', 'line_ids', 'notes',
                      'intended_use', 'intended_customer_id'}
         if protected.intersection(vals):
             for rec in self:
                 if rec.state in ('approved', 'archived'):
                     raise UserError(_('Duplicate this specification to make revisions. '
-                                      'Approved master data is locked.'))
+                                      'Active QC Standard is locked.'))
         return super().write(vals)
 
     def action_load_parameters(self):
@@ -186,20 +186,28 @@ class RmQcSpecification(models.Model):
         return True
 
     def action_submit(self):
-        for rec in self:
-            if rec.state != 'draft':
-                raise UserError(_('Only draft specifications can be submitted.'))
-            if not rec.line_ids:
-                raise UserError(_('Add TDS / sampling parameters first.'))
-        self.write({'state': 'submitted'})
-        return True
+        """Legacy compatibility only. The module no longer has a submit/manager stage.
+
+        Keep this method because older custom actions may still reference it.
+        """
+        raise UserError(_(
+            'This QC submission step is no longer used. Open the QC Standard '
+            'and click Activate Standard instead.'
+        ))
 
     def action_approve(self):
-        if not self.env.user.has_group('base.group_user'):
-            raise UserError(_('Only the QC Manager can confirm specifications.'))
+        """Activate a QC standard; optional external dynamic approval hook.
+
+        The object button deliberately retains the action_approve method name
+        for upgrades/custom automation while removing built-in manager checks.
+        Only the underlying technical validity and draft/legacy-submitted
+        state are checked. No external approval is assumed to be installed.
+        """
         for rec in self:
-            if rec.state != 'submitted' or not rec.line_ids:
-                raise UserError(_('Submit a populated specification before confirming.'))
+            if rec.state not in ('draft', 'submitted'):
+                raise UserError(_('Only draft QC standards can be activated.'))
+            if not rec.line_ids:
+                raise UserError(_('Add at least one QC test before activation.'))
             for line in rec.line_ids:
                 if line.limit_mode == 'numeric' and line.lsl_numeric > line.usl_numeric:
                     raise ValidationError(_('Incorrect numeric limits for %s.') % line.name)
@@ -208,8 +216,6 @@ class RmQcSpecification(models.Model):
         return True
 
     def action_archive_spec(self):
-        if not self.env.user.has_group('base.group_user'):
-            raise UserError(_('Only the QC Manager can archive specifications.'))
         self.write({'state': 'archived', 'active': False})
         return True
 
@@ -300,10 +306,10 @@ class RmQcSpecificationLine(models.Model):
 
     def write(self, vals):
         if any(rec.specification_id.state in ('approved', 'archived') for rec in self):
-            raise UserError(_('Approved specification lines are locked. Duplicate the master.'))
+            raise UserError(_('Active QC Standard lines are locked. Duplicate the master.'))
         return super().write(vals)
 
     def unlink(self):
         if any(rec.specification_id.state in ('approved', 'archived') for rec in self):
-            raise UserError(_('Cannot remove approved specification lines.'))
+            raise UserError(_('Cannot remove active QC Standard lines.'))
         return super().unlink()

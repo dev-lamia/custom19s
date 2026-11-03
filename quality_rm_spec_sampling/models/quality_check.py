@@ -6,7 +6,7 @@ class QualityCheck(models.Model):
     _inherit = 'quality.check'
 
     rm_qc_specification_id = fields.Many2one(
-        'rm.qc.specification', string='Approved QC Specification', index=True,
+        'rm.qc.specification', string='Active QC Standard', index=True,
         domain="[('state','=','approved')]")
     rm_qc_scope = fields.Selection([('incoming', 'Incoming RM'), ('production', 'Production')],
                                    string='QC Scope', default='incoming')
@@ -46,7 +46,7 @@ class QualityCheck(models.Model):
                 spec = self.env['rm.qc.specification']._find_approved(
                     rec.product_id, scope, rec.rm_qc_stage)
             if not spec:
-                raise UserError(_('No QC Manager confirmed specification for this product/stage.'))
+                raise UserError(_('No active QC Standard found for this product/stage.'))
             if (spec.state != 'approved' or
                     spec.product_tmpl_id != rec.product_id.product_tmpl_id or
                     spec.scope != scope):

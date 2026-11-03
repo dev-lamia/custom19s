@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <odoo>
   <record id="view_rm_qc_product_template_inherit" model="ir.ui.view">
     <field name="name">product.template.form.inherit.rm.qc.specification</field>
@@ -5,39 +6,33 @@
     <field name="inherit_id" ref="product.product_template_only_form_view"/>
     <field name="arch" type="xml">
       <xpath expr="//div[@name='button_box']" position="inside">
-        <button name="action_rm_qc_view_specifications" type="object"
-                class="oe_stat_button" icon="fa-flask" groups="base.group_user">
-          <field name="rm_qc_specification_count" widget="statinfo"
-                 string="QC Standards"/>
+        <button name="action_rm_qc_view_specifications" type="object" class="oe_stat_button" icon="fa-flask" groups="base.group_user" invisible="not purchase_ok and not rm_qc_required and not rm_qc_material_type">
+          <field name="rm_qc_specification_count" widget="statinfo" string="QC Standards"/>
         </button>
       </xpath>
       <xpath expr="//notebook" position="inside">
-  <page string="QC Setup" name="rm_qc_product_spec">
-    <div class="alert alert-info" role="alert">Set incoming QC requirements here. Use the QC Standards smart button above to view its linked tests and approvals.</div>
-    <group string="Material" col="2">
-      <group>
-        <field name="rm_qc_required"/>
-        <field name="rm_qc_material_type" invisible="not rm_qc_required"/>
-        <field name="rm_qc_film_type" invisible="not rm_qc_required or rm_qc_material_type != 'film'"/>
-      </group>
-      <group><field name="rm_qc_intended_use" placeholder="Customer, product or intended usage"/></group>
+  <page string="RM Quality" name="rm_qc_product_spec" invisible="not purchase_ok and not rm_qc_required and not rm_qc_material_type">
+  <group col="2">
+    <group string="Material">
+      <field name="rm_qc_required" string="QC Required"/>
+      <field name="rm_qc_material_type" invisible="not rm_qc_required"/>
+      <field name="rm_qc_film_type" invisible="not rm_qc_required or rm_qc_material_type != 'film'"/>
     </group>
-    <div class="text-muted mt-2">QC Standards are managed from the smart button above. The number shows linked specifications, including drafts and archived records.</div>
-  </page>
-  <page string="RM Technical Properties" name="rm_qc_technical_properties">
-    <div class="text-muted mb-2">Properties come from RM Quality / More / Master Data / Product Property Configuration automatically for the selected Material Type. Enter only the values and units here. QC tolerance limits remain in the approved QCS / TDS.</div>
-    <group col="2"><field name="rm_qc_material_type" readonly="1"/></group>
-    <field name="rm_qc_identification_line_ids" nolabel="1"
-           domain="[('active', '=', True)]" readonly="not rm_qc_material_type">
-      <list editable="bottom" create="false" delete="false">
-        <field name="sequence" column_invisible="True"/>
-        <field name="name" string="Property" readonly="1"/>
-        <field name="value" string="Value"/>
-        <field name="uom_text" string="Unit"/>
-      </list>
-    </field>
-  </page>
-</xpath></field>
+    <group string="Usage">
+      <field name="rm_qc_intended_use" placeholder="Customer / intended product (optional)"/>
+    </group>
+  </group>
+  <separator string="Material Properties" invisible="not rm_qc_material_type"/>
+  <field name="rm_qc_identification_line_ids" nolabel="1" invisible="not rm_qc_material_type" domain="[('active', '=', True)]">
+    <list editable="bottom" create="false" delete="false">
+      <field name="sequence" column_invisible="True"/>
+      <field name="name" string="Property" readonly="1"/>
+      <field name="value" string="Value"/>
+      <field name="uom_text" string="Unit"/>
+    </list>
+  </field>
+  <div class="text-muted mt-2" invisible="not rm_qc_required">QC tests are maintained from the QC Standards smart button above. Material properties are reference values, not incoming inspection results.</div>
+</page></xpath></field>
   </record>
   <record id="view_rm_qc_identification_template_list" model="ir.ui.view">
     <field name="name">rm.qc.identification.template.list</field>

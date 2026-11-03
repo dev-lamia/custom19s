@@ -1,3 +1,40 @@
+## [19.0.1.0.10] - 2026-11-03
+
+### [Changed]
+- [2026-11-03] Consolidated Product `QC Setup` and `RM Technical Properties` into one `RM Quality` tab; retained Configuration-driven Property values and QC Standards smart button.
+- [2026-11-03] Removed the visible internal `Submit for QC Manager Approval` step. QC Standards can be activated directly from Draft by `action_approve` (renamed `Activate Standard` in UI). Existing DB state `approved` remains the technical key for compatibility, but is displayed as `Active`.
+- [2026-11-03] Renamed PO/Receipt validation messages to describe an `Active QC Standard`, not built-in QC Manager approval.
+- [2026-11-03] Simplified the QCS form to product details, QC Tests/Sampling table and notes; kept standard per-test drilldown.
+- [2026-11-03] Product `RM Quality` tab is hidden for ordinary sale-only finished goods with no RM QC configuration.
+
+### [Compatibility]
+- [2026-11-03] Retained legacy `submitted` state value, `action_submit` compatibility method (now reports a deprecation notice), PR technical records, prior QC data, duplicate-to-draft and company restrictions. Did not remove database columns or old view IDs.
+- [2026-11-03] External Dynamic Approval can be configured on `rm.qc.specification.action_approve`, but this addon does not integrate with or enforce that external module.
+- [2026-11-03] Python and XML syntax, data cross-references and ZIP integrity checked; live Odoo 19 upgrade not performed.
+
+## [19.0.1.0.9] - 2026-10-28
+
+### Fixed
+- [2026-10-28] Avoid deleting legacy parent `ir.ui.view` records during PR removal; other modules may inherit them through `inherit_id`.
+- [2026-10-28] Hide legacy PR navigation while retaining PR model/view/action XML IDs for upgrade compatibility and historical data preservation.
+- [2026-10-28] Preserve direct Purchase Order QC confirmation validation without changing Inspection logic.
+
+### Migration
+- [2026-10-28] Removed the destructive 19.0.1.0.8 pre-migration that unlinked PR UI records. PR database schema and records are intentionally not dropped.
+
+## [19.0.1.0.8] - 2026-10-28
+
+### [Removed]
+- [2026-10-28] Removed this add-on's Purchase Requisition (PR) forms, models, menus, security rules, approval role, sequence and related RFQ creation action.
+
+### [Changed]
+- [2026-10-28] Preserved direct `purchase.order.button_confirm()` validation of approved incoming QC specification in its own `models/purchase_order.py`; existing QC Setup, receipt sampling, inspection and production QC are unchanged.
+- [2026-10-28] Simplified RM Quality navigation to **1. QC Setup (Once)** and **2. Receipt QC Results** plus Master Data.
+- [2026-10-28] Added upgrade cleanup for obsolete PR user-interface/security records. Back up existing `PRQ` data before upgrading; the removed model's historical records may not survive the upgrade.
+
+### [Docs]
+- [2026-10-28] Updated README to reflect direct Purchase RFQ/PO flow without this add-on's PR.
+
 ## [19.0.1.0.7] - 2026-10-28
 ### [Update]
 - [2026-10-28] Made **More / Master Data → Product Property Configuration** the single source of technical product identification fields, maintained by RM Material Type with optional Default Unit and Active status.

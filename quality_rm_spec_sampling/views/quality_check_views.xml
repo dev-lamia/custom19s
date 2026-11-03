@@ -92,14 +92,14 @@
     <field name="model">quality.check</field>
     <field name="arch" type="xml"><form string="QC Inspection / Quality Check">
   <header>
-    <button name="action_rm_qc_load_specification" type="object" string="Load Approved Tests" class="btn-secondary" invisible="quality_state in ('pass','fail')"/>
+    <button name="action_rm_qc_load_specification" type="object" string="Load Active QC Tests" class="btn-secondary" invisible="quality_state in ('pass','fail')"/>
     <button name="do_pass" type="object" string="Pass (After Tests)" class="btn-primary" invisible="quality_state in ('pass','fail')"/>
     <button name="do_fail" type="object" string="Fail" class="btn-secondary" invisible="quality_state in ('pass','fail')"/>
     <field name="quality_state" widget="statusbar"/>
   </header>
   <sheet>
     <div class="oe_title"><label for="name"/><h1><field name="name" readonly="1"/></h1></div>
-    <div class="alert alert-info" role="alert">Receipt QC: open each test with <strong>Enter Results</strong>, record the actual measurements, then Pass or Fail. Approved tests are already loaded when the inspection is created from a Receipt.</div>
+    <div class="alert alert-info" role="alert">Receipt QC: open each test with <strong>Enter Results</strong>, record the actual measurements, then Pass or Fail. Active QC tests are already loaded when the inspection is created from a Receipt.</div>
     <group string="Receipt &amp; Product" col="2">
       <group>
         <field name="product_id"/>
