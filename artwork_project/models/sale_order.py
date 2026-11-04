@@ -37,6 +37,10 @@ class SaleOrder(models.Model):
 
     def action_create_artwork(self):
         self.ensure_one()
+        if self.repeat_job:
+            raise ValidationError(
+                _('Artwork can only be created for New Job sales orders.')
+            )
         if self.state != 'sale':
             raise ValidationError(
                 _('Artwork can only be created after the Sales Order is confirmed.')
