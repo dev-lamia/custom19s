@@ -39,6 +39,10 @@ class ArtworkProjectCreateWizard(models.TransientModel):
         self.ensure_one()
         order = self.sale_order_id
 
+        if order.repeat_job:
+            raise ValidationError(
+                _('Artwork can only be created for New Job sales orders.')
+            )
         if order.state != 'sale':
             raise ValidationError(
                 _('Artwork can only be created after the Sales Order is confirmed.')
