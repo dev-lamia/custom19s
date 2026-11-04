@@ -40,6 +40,7 @@
 - [Customer-filtered Previous Req Form (2026-11-04)](#customer-filtered-previous-req-form-2026-11-04)
 - [GDN Sale Order usage and Job Code display (2026-11-04)](#gdn-sale-order-usage-and-job-code-display-2026-11-04)
 - [Job Code and GDN cross-links with Sale Order history (2026-11-04)](#job-code-and-gdn-cross-links-with-sale-order-history-2026-11-04)
+- [Customer-filtered Requirement Form selector on Sale Orders (2026-11-04)](#customer-filtered-requirement-form-selector-on-sale-orders-2026-11-04)
 
 ## Overview
 
@@ -57,7 +58,7 @@ Users commonly work from **Requirement Forms** to submit design/product specific
 | Contacts | Customer code, synchronized WhatsApp/short name/VAT data, related Requirements and ratings | `models/res_partner.py`, `views/res_partner_views.xml` |
 | Requirement Form | Customer details, New Job / Repeat Job, specifications, feasibility, submission, document attachments, quotation creation, public submission flow | `models/requirement_form.py`, `models/product_specification.py`, `controllers/main.py`, `views/requirement_form_views.xml` |
 | Product Specifications | FG Type, product/dimensions, quantity, color reference, print and finish, layers, roll dimensions and document lines (Print Type/No of Colors no longer appear here) | `models/product_specification.py`, `views/requirement_form_views.xml` |
-| Sales | Optional Requirement Form relation, live New/Repeat Job flags, GDN selection/generation, GDN link, Job Code reuse for Repeat Jobs, new generation for New Jobs, summary fields | `models/sale_order.py`, `views/sale_order_views.xml`, `static/src/js/gdn_link_many2one.js` |
+| Sales | Customer-filtered optional Requirement Form selector, live New/Repeat Job flags, GDN selection/generation, GDN link, Job Code reuse for Repeat Jobs, new generation for New Jobs, summary fields | `models/sale_order.py`, `views/sale_order_views.xml`, `static/src/js/gdn_link_many2one.js` |
 | GDN Configuration | Source traceability, distinct Sale Orders smart button, clickable read-only related Job Codes, product/design details, **Dimensions** tab, editable Print Direction, conditional Roll Details, documents and numeric layer thickness | `models/sale_order.py`, `views/gdn_configuration_views.xml` |
 | Job Code Configuration | SQL-view-based job reference per Sale Order Line, Sale Orders usage smart button, latest confirmed Sale Order and clickable GDN reference, GDN-sourced Color Details / Print Type, **Bag-only Pouch Details** (read-only Bag Length/Width and editable Side/Bottom Gusset), editable production parameters, Roll-only read-only Roll Details, and **Quality Department → Quality Documents** (independent multi-file upload, no Document Type or REQ/GDN import); One Repeat Size uses separate storage | `models/job_code_configuration.py`, `models/sale_order.py`, `views/gdn_configuration_views.xml` |
 | Customer Ranking | Questionnaire scores, automatic/customer-average ranking, manual ranking field | `models/customer_rating.py`, `views/customer_rating_views.xml` |
@@ -811,3 +812,28 @@ On the **GDN Configuration** form (`sale.gdn.configuration`), the read-only **Jo
 | JC-GDN-09 | Open an archived GDN using a Job Code | The GDN reference remains resolvable; record access follows user permissions |
 
 **Upgrade:** Replace the complete module folder, restart the Odoo service to load new Python fields, upgrade **`crm_requirement_form`** in Apps, and hard-refresh. Python/XML syntax and archive structure can be checked offline; successful Odoo registry/view validation and live browser behavior must be verified in staging.
+
+
+## Customer-filtered Requirement Form selector on Sale Orders (2026-11-04)
+
+**Access:** Sales → Quotations / Orders → Sale Order form → **Customer** and **Requirement Form (Optional)**. The `sale.order.requirement_form_id` Many2one dropdown is limited by the currently selected `sale.order.partner_id`. The exact view-level domain is:
+
+```python
+[('partner_id', '=', partner_id), ('partner_id', '!=', False)]
+```
+
+This mirrors the existing customer-specific **Previous Req Form** dropdown on Requirement Forms. When Customer is not selected, the dropdown has no matching REQs; after selecting a Customer, only `crm.requirement.form` records with precisely that `partner_id` are offered. No extra state, New/Repeat Job, date, or submission filter is introduced. The existing no-create/no-create-edit options are unchanged. The filter applies to choices in this form's UI; it does **not** add a server-side data integrity constraint and does not silently clear a previously selected Requirement Form when Customer is changed. Related New/Repeat Job indicators, creation of Sale Order Lines, GDN and Job Code workflows and confirmation validations remain untouched.
+
+**Technical reference:** `views/sale_order_views.xml`, inherited view `sale_order_form_requirement_specification_inherit`, field `requirement_form_id`; `models/sale_order.py` (existing `sale.order.requirement_form_id`); `views/requirement_form_views.xml` (existing Previous Req domain). No model or security file changes.
+
+**Proposed QA (not runtime-tested):**
+
+| ID | Steps | Expected |
+| --- | --- | --- |
+| SO-CF-01 | Choose Customer A, open Requirement Form dropdown | Only Customer A's REQs are offered |
+| SO-CF-02 | Switch to Customer B, reopen dropdown | Only Customer B's REQs are offered |
+| SO-CF-03 | Leave Customer empty, open dropdown | No REQs are offered |
+| SO-CF-04 | Select one of Customer B's REQs | Existing New/Repeat flag and sale order data behavior works as before |
+| SO-CF-05 | Change Customer after a REQ was already selected | Newly opened dropdown is filtered, but prior selection is not automatically cleared by this UI-only change; review manually |
+
+**Documentation updated:** 2026-11-04. **Verification scope:** Static XML structure; no live Odoo registry/UI checks performed.

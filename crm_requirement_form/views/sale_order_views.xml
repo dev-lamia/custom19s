@@ -20,6 +20,7 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="requirement_form_id"
                        string="Requirement Form (Optional)"
+                       domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]"
                        options="{'no_create': True, 'no_create_edit': True}"/>
                 <!-- Live, read-only Job Type chosen in the linked Requirement Form. -->
                 <field name="new_job" readonly="1" invisible="not requirement_form_id or not new_job"/>

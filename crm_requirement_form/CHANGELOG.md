@@ -4,6 +4,14 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-04
 
+### [Changed] — Customer-specific Requirement Form dropdown in Sale Orders (2026-11-04)
+- [2026-11-04] Filtered **Sales → Quotation / Sale Order → Requirement Form (Optional)** by the currently selected Customer using `domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]"` on `sale.order.requirement_form_id` (`views/sale_order_views.xml`). Only existing Requirement Forms for that exact Customer are selectable in the UI; an empty Customer yields no results.
+- [2026-11-04] Preserved existing optional selection, no-create settings, New/Repeat Job flags, existing onchanges, Job Code/GDN processing, and all server-side validations. This is a UI dropdown restriction only, not a new backend constraint or automatic clearing of a previously selected Requirement Form.
+
+### [Docs] — Sale Order customer filtering (2026-11-04)
+- [2026-11-04] Updated `README.md` with domain, field paths, limitations, and proposed tests SO-CF-01–05. Updated this changelog without changing the module manifest or version. Static source-level checks only; live Odoo upgrade not verified.
+
+
 ### [Fixed] — Job Code Sale Orders smart button visibility (2026-11-04)
 - [2026-11-04] Moved the existing **Sale Orders** smart button into a high-priority inherited view (`sale_job_code_configuration_sale_orders_smart_button_view`), so the button is injected into the final Job Code smart-button box alongside buttons from other modules (such as Plate TDS). GDN form button and the Job Code form's field layout are unchanged.
 - [2026-11-04] Reused existing `sale_order_count` and `action_view_sale_orders()` for unique SO count and navigation, including New and Repeat Sale Orders. No Python model, generation, business validation, or Sale Order mapping was changed.
