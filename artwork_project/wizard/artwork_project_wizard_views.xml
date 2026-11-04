@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="artwork_project_create_wizard_form" model="ir.ui.view">
+        <field name="name">artwork.project.create.wizard.form</field>
+        <field name="model">artwork.project.create.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Artwork Projects">
+                <group>
+                    <field name="sale_order_id" readonly="1"/>
+                    <field name="available_template_ids" invisible="1"/>
+                    <field name="project_template_id"
+                           options="{'no_create': True, 'no_create_edit': True}"/>
+                </group>
+                <footer>
+                    <button name="action_create_project"
+                            type="object"
+                            string="Create Projects"
+                            class="btn-primary"/>
+                    <button string="Discard" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
