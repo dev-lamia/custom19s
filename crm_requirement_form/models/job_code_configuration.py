@@ -98,6 +98,100 @@ class SaleJobCodeConfiguration(models.Model):
     )
     gdn_number = fields.Char(string='GDN Number', readonly=True)
 
+    # These are live UI references. The underlying Job Code model is an SQL
+    # view: non-stored computed fields need no additional SQL view columns.
+    sale_order_count = fields.Integer(
+        string='Sale Orders',
+        compute='_compute_sale_order_usage',
+        readonly=True,
+    )
+    latest_sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Sale Order',
+        compute='_compute_sale_order_usage',
+        readonly=True,
+        help='Latest confirmed Sale Order using this Job Code.',
+    )
+    gdn_link_id = fields.Many2one(
+        'sale.gdn.configuration',
+        string='GDN Number',
+        compute='_compute_gdn_link_id',
+        readonly=True,
+        help='Open the associated GDN, including historical lines with only a GDN number.',
+    )
+
+    def _get_job_code_sale_order_lines(self):
+        """Locate all Sale Order lines using the selected Job Code(s)."""
+        codes = list({code for code in self.mapped('job_code') if code})
+        if not codes:
+            return self.env['sale.order.line']
+        return self.env['sale.order.line'].search([
+            ('job_code', 'in', codes),
+        ])
+
+    @api.depends('job_code')
+    def _compute_sale_order_usage(self):
+        """Count distinct SOs and show the latest *confirmed* SO."""
+        order_map = {code: {} for code in self.mapped('job_code') if code}
+        for line in self._get_job_code_sale_order_lines():
+            if line.order_id and line.job_code in order_map:
+                order_map[line.job_code][line.order_id.id] = line.order_id
+
+        for job in self:
+            orders = order_map.get(job.job_code, {})
+            confirmed = [
+                order for order in orders.values()
+                if order.state in ('sale', 'done')
+            ]
+            job.sale_order_count = len(orders)
+            # If there is no confirmed SO yet, retain the original reference.
+            job.latest_sale_order_id = (
+                max(confirmed, key=lambda order: order.id)
+                if confirmed else job.order_id
+            )
+
+    @api.depends('gdn_configuration_id', 'gdn_number')
+    def _compute_gdn_link_id(self):
+        """Keep GDN clickable even for legacy job lines with text-only GDN."""
+        missing = {
+            job.gdn_number for job in self
+            if not job.gdn_configuration_id and job.gdn_number
+        }
+        by_number = {}
+        if missing:
+            gdns = self.env['sale.gdn.configuration'].with_context(
+                active_test=False
+            ).search([('gdn_number', 'in', list(missing))], order='id desc')
+            for gdn in gdns:
+                by_number.setdefault(gdn.gdn_number, gdn)
+        for job in self:
+            job.gdn_link_id = (
+                job.gdn_configuration_id or by_number.get(job.gdn_number, False)
+            )
+
+    def action_view_sale_orders(self):
+        """List all Sales Orders, including Repeat Jobs, for this code."""
+        self.ensure_one()
+        order_ids = self._get_job_code_sale_order_lines().mapped('order_id').ids
+        if len(order_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Sale Order'),
+                'res_model': 'sale.order',
+                'view_mode': 'form',
+                'res_id': order_ids[0],
+                'target': 'current',
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Sale Orders using %s') % self.job_code,
+            'res_model': 'sale.order',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', order_ids)],
+            'context': {'create': False},
+            'target': 'current',
+        }
+
     design_name = fields.Char(string='Design Name', readonly=True)
     design_dimension_uom = fields.Selection(
         [

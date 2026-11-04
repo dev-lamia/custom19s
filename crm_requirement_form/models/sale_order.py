@@ -1,5 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+from markupsafe import Markup
 
 
 class SaleGdnConfiguration(models.Model):
@@ -59,6 +60,13 @@ class SaleGdnConfiguration(models.Model):
         readonly=True,
         help='Distinct Job Codes assigned to Sale Order lines using this GDN.',
     )
+    related_job_code_links = fields.Html(
+        string='Job Code',
+        compute='_compute_sale_order_usage',
+        readonly=True,
+        sanitize=False,
+        help='Open each distinct Job Code Configuration that uses this GDN.',
+    )
 
     def _get_gdn_sale_order_lines(self):
         """Find GDN usage including historical lines with only a GDN number."""
@@ -81,7 +89,10 @@ class SaleGdnConfiguration(models.Model):
     @api.depends('gdn_number')
     def _compute_sale_order_usage(self):
         """Display every distinct SO and Job Code using this GDN."""
-        usage = {gdn.id: {'orders': set(), 'codes': set()} for gdn in self}
+        usage = {
+            gdn.id: {'orders': set(), 'codes': set(), 'code_line_ids': {}}
+            for gdn in self
+        }
         numbers = {gdn.gdn_number: gdn.id for gdn in self if gdn.gdn_number}
         for line in self._get_gdn_sale_order_lines():
             gdn_id = line.gdn_configuration_id.id or numbers.get(line.gdn_number)
@@ -92,11 +103,25 @@ class SaleGdnConfiguration(models.Model):
             code = (line.job_code or '').strip()
             if code:
                 usage[gdn_id]['codes'].add(code)
+                # This SQL-view record uses the actual Sale Order Line ID.
+                stored_id = usage[gdn_id]['code_line_ids'].get(code)
+                if stored_id is None or line.id < stored_id:
+                    usage[gdn_id]['code_line_ids'][code] = line.id
 
         for gdn in self:
             result = usage[gdn.id]
             gdn.sale_order_count = len(result['orders'])
             gdn.related_job_codes = ', '.join(sorted(result['codes'])) or False
+            links = [
+                Markup(
+                    '<a href="/web#id=%s&amp;model=sale.job.code.configuration'
+                    '&amp;view_type=form" class="fw-semibold">%s</a>'
+                ) % (result['code_line_ids'][code], code)
+                for code in sorted(result['codes'])
+            ]
+            gdn.related_job_code_links = (
+                Markup(', ').join(links) if links else False
+            )
 
     def action_view_sale_orders(self):
         """Open Sale Orders which actually contain a line using this GDN."""

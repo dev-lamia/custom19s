@@ -4,6 +4,18 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-04
 
+### [Added] — Job Code Sale Orders smart button and latest SO field (2026-11-04)
+- [2026-11-04] Added a Job Code form **Sale Orders** smart button that counts and opens unique SOs containing matching `sale.order.line.job_code` values, including Repeat Jobs and historical SO states; no new sales records are created (`models/job_code_configuration.py`, `views/gdn_configuration_views.xml`).
+- [2026-11-04] Display the latest confirmed SO using this code in **Source & Traceability → Sale Order** using non-stored `latest_sale_order_id`. The SQL-view's original stored `order_id` column and all Job Code source fields remain unchanged.
+- [2026-11-04] Display clickable **GDN Number** through non-stored `gdn_link_id`, with a text-number fallback for historical lines whose `gdn_configuration_id` is empty; no GDN or SO lines are modified.
+
+### [Changed] — Clickable GDN Job Code references (2026-11-04)
+- [2026-11-04] Changed the GDN **Job Code** display from plain, comma-separated text to safe HTML links for every distinct Job Code using the GDN (`related_job_code_links`). Each link opens the existing SQL-view-backed Job Code Configuration; the previous `related_job_codes` Char computation remains available (`models/sale_order.py`, `views/gdn_configuration_views.xml`).
+
+### [Docs] — Job Code / GDN navigation and regression checks (2026-11-04)
+- [2026-11-04] Updated `README.md` and `CHANGELOG.md` with current field mappings, newest-confirmed SO rules, repeat-history lookup, legacy GDN fallback and proposed QA JC-GDN-01–09. Implementation and documentation updated on this date; no claim of live Odoo validation.
+
+
 ### [Changed] — GDN Sale Orders smart button and Job Code field (2026-11-04)
 - [2026-11-04] Replaced the **Job Codes** smart button on `sale.gdn.configuration` with a **Sale Orders** smart button that counts distinct `sale.order` records containing GDN-linked lines; clicking opens a single matching order or a filtered list of all matching orders. The lookup covers `gdn_configuration_id` and legacy records with only a `gdn_number` on the line (`models/sale_order.py`, `views/gdn_configuration_views.xml`).
 - [2026-11-04] Added a read-only **Job Code** field under **Source & Traceability** showing distinct nonempty Job Codes from those linked order lines. When multiple Job Codes use the same GDN, all are displayed as comma-separated codes; the original Source Sale Order field remains unchanged.
