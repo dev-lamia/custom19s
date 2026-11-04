@@ -48,6 +48,79 @@ class SaleGdnConfiguration(models.Model):
         action['context'] = {'active_test': False}
         return action
 
+    sale_order_count = fields.Integer(
+        string='Sale Orders',
+        compute='_compute_sale_order_usage',
+        help='Number of unique Sale Orders whose lines use this GDN.',
+    )
+    related_job_codes = fields.Char(
+        string='Job Code',
+        compute='_compute_sale_order_usage',
+        readonly=True,
+        help='Distinct Job Codes assigned to Sale Order lines using this GDN.',
+    )
+
+    def _get_gdn_sale_order_lines(self):
+        """Find GDN usage including historical lines with only a GDN number."""
+        lines = self.env['sale.order.line']
+        if not self:
+            return lines
+
+        gdn_numbers = [number for number in self.mapped('gdn_number') if number]
+        domain = [('gdn_configuration_id', 'in', self.ids)]
+        if gdn_numbers:
+            domain = [
+                '|',
+                ('gdn_configuration_id', 'in', self.ids),
+                '&',
+                ('gdn_configuration_id', '=', False),
+                ('gdn_number', 'in', gdn_numbers),
+            ]
+        return lines.search(domain)
+
+    @api.depends('gdn_number')
+    def _compute_sale_order_usage(self):
+        """Display every distinct SO and Job Code using this GDN."""
+        usage = {gdn.id: {'orders': set(), 'codes': set()} for gdn in self}
+        numbers = {gdn.gdn_number: gdn.id for gdn in self if gdn.gdn_number}
+        for line in self._get_gdn_sale_order_lines():
+            gdn_id = line.gdn_configuration_id.id or numbers.get(line.gdn_number)
+            if gdn_id not in usage:
+                continue
+            if line.order_id:
+                usage[gdn_id]['orders'].add(line.order_id.id)
+            code = (line.job_code or '').strip()
+            if code:
+                usage[gdn_id]['codes'].add(code)
+
+        for gdn in self:
+            result = usage[gdn.id]
+            gdn.sale_order_count = len(result['orders'])
+            gdn.related_job_codes = ', '.join(sorted(result['codes'])) or False
+
+    def action_view_sale_orders(self):
+        """Open Sale Orders which actually contain a line using this GDN."""
+        self.ensure_one()
+        order_ids = self._get_gdn_sale_order_lines().mapped('order_id').ids
+        if len(order_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Sale Order'),
+                'res_model': 'sale.order',
+                'view_mode': 'form',
+                'res_id': order_ids[0],
+                'target': 'current',
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Sale Orders using %s') % self.gdn_number,
+            'res_model': 'sale.order',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', order_ids)],
+            'context': {'create': False},
+            'target': 'current',
+        }
+
     def action_open_disable_wizard(self):
         """Ask for an audit reason before archiving selected GDN records."""
         gdns = self.filtered('active')

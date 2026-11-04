@@ -38,6 +38,7 @@
 - [Industry Category conversion and five-digit Job Code serial (2026-10-27)](#industry-category-conversion-and-five-digit-job-code-serial-2026-10-27)
 - [Repeat Job Job Code reuse and Sale Order Job Type (2026-11-04)](#repeat-job-job-code-reuse-and-sale-order-job-type-2026-11-04)
 - [Customer-filtered Previous Req Form (2026-11-04)](#customer-filtered-previous-req-form-2026-11-04)
+- [GDN Sale Order usage and Job Code display (2026-11-04)](#gdn-sale-order-usage-and-job-code-display-2026-11-04)
 
 ## Overview
 
@@ -56,7 +57,7 @@ Users commonly work from **Requirement Forms** to submit design/product specific
 | Requirement Form | Customer details, New Job / Repeat Job, specifications, feasibility, submission, document attachments, quotation creation, public submission flow | `models/requirement_form.py`, `models/product_specification.py`, `controllers/main.py`, `views/requirement_form_views.xml` |
 | Product Specifications | FG Type, product/dimensions, quantity, color reference, print and finish, layers, roll dimensions and document lines (Print Type/No of Colors no longer appear here) | `models/product_specification.py`, `views/requirement_form_views.xml` |
 | Sales | Optional Requirement Form relation, live New/Repeat Job flags, GDN selection/generation, GDN link, Job Code reuse for Repeat Jobs, new generation for New Jobs, summary fields | `models/sale_order.py`, `views/sale_order_views.xml`, `static/src/js/gdn_link_many2one.js` |
-| GDN Configuration | Source traceability, product/design details, **Dimensions** tab (renamed from Quantity & Dimensions), design information including editable alphanumeric Print Direction, conditional Roll Details, documents and numeric layer thickness | `models/sale_order.py`, `views/gdn_configuration_views.xml` |
+| GDN Configuration | Source traceability, distinct Sale Orders smart button, read-only related Job Code display, product/design details, **Dimensions** tab, editable Print Direction, conditional Roll Details, documents and numeric layer thickness | `models/sale_order.py`, `views/gdn_configuration_views.xml` |
 | Job Code Configuration | SQL-view-based job reference per Sale Order Line, GDN-sourced Color Details / Print Type, **Bag-only Pouch Details** (read-only Bag Length/Width and editable Side/Bottom Gusset), editable production parameters, Roll-only read-only Roll Details, and **Quality Department → Quality Documents** (independent multi-file upload, no Document Type or REQ/GDN import); One Repeat Size uses separate storage | `models/job_code_configuration.py`, `models/sale_order.py`, `views/gdn_configuration_views.xml` |
 | Customer Ranking | Questionnaire scores, automatic/customer-average ranking, manual ranking field | `models/customer_rating.py`, `views/customer_rating_views.xml` |
 | Product setup | Finished-good types, layer thickness, category type, FG-specific product settings | `models/product_extension.py`, `views/product_template_views.xml` |
@@ -280,7 +281,7 @@ The above distinguishes Python-level checks from view-only visibility/readonly r
 
 ## GDN Configuration
 
-`Sale GDN Configuration` (`sale.gdn.configuration`) is created by `sale.order.line.action_generate_gdn()`. Source links include `partner_id`, `source_order_id`, `source_line_id` and related `requirement_form_id`; the `gdn_number` is a stored name and the record carries a JSON `snapshot`. In the **Source & Traceability** card, the form displays Customer (`partner_id`), Source Sale Order (`source_order_id`) and REQ ID (`requirement_form_id`), but **does not display Source Sale Order Line (`source_line_id`)**. Only its form-view row was removed; the underlying source-line relation, synchronization logic and optional GDN list column remain intact (`views/gdn_configuration_views.xml`, record `sale_gdn_configuration_form_view`).
+`Sale GDN Configuration` (`sale.gdn.configuration`) is created by `sale.order.line.action_generate_gdn()`. Source links include `partner_id`, `source_order_id`, `source_line_id` and related `requirement_form_id`; the `gdn_number` is a stored name and the record carries a JSON `snapshot`. In the **Source & Traceability** card, the form displays Customer (`partner_id`), Source Sale Order (`source_order_id`), REQ ID (`requirement_form_id`), and the read-only **Job Code** (`related_job_codes`) showing every distinct linked Job Code, but **does not display Source Sale Order Line (`source_line_id`)**. Only its form-view row was removed; the underlying source-line relation, synchronization logic and optional GDN list column remain intact (`views/gdn_configuration_views.xml`, record `sale_gdn_configuration_form_view`).
 
 ### Tabs
 
@@ -747,3 +748,26 @@ The **Disable** list action opens an *unsaved* `sale.job.code.disable.wizard` wi
 **Proposed QA (not executed):** Confirm a GDN-ready Sale Order with a fresh Customer and verify a `00001` serial. Create another Sale Order for a Customer with an existing `0003` serial and verify that the next is `00004`. Confirm a multiple-line Sale Order and check that each generated serial increments independently with five-digit padding. Verify old Job Codes, Job Code links, GDN references, Disable wizard, Chatter and historical Sale Orders retain their original identifiers.
 
 **Installation:** Back up the database, deploy the updated module, upgrade `crm_requirement_form`, and refresh the CRM and Sales UI. These are source-level changes; **live Odoo conversion/sequence/runtime tests have not been executed**.
+
+## GDN Sale Order usage and Job Code display (2026-11-04)
+
+**User workflow:** Sales → Configuration → GDN Configurations → open a GDN. The top-right smart-button area has **Sale Orders** instead of **Job Codes**. Its number is the count of **distinct Sale Orders** using the GDN, not the count of lines. Click to open the linked Sale Order directly (one result) or a list of all linked Sales Orders (multiple results); each list item opens its existing Sale Order form. The list is sourced from actual `sale.order.line` usage, not just the GDN's original `source_order_id`.
+
+**Source matching:** `sale.gdn.configuration._get_gdn_sale_order_lines()` matches `sale.order.line.gdn_configuration_id` first; it also finds legacy lines which have only `gdn_number` and no GDN configuration reference. This finds New Job, Repeat Job, and directly selected GDN usages without creating or modifying Sale Orders. No additional Sales Order state restriction is introduced; draft/confirmed/cancelled records with an existing GDN-linked line are included for traceability. The source Sale Order reference shown in the form remains the original source and is **not** overwritten.
+
+**Job Code field:** The **Source & Traceability** card now shows the read-only `related_job_codes` Char field, computed from distinct nonempty `sale.order.line.job_code` values on those same lines, sorted and comma-separated. Multiple jobs can use the same GDN, so more than one code may be shown. This is for display only: no Job Code serials, Job Code Configuration records, or underlying Job Code model fields are deleted or generated. The prior `action_view_job_codes` backend method remains available to integrations, but its GDN form smart button is removed.
+
+**Technical implementation:** `models/sale_order.py` (`sale.gdn.configuration.sale_order_count`, `.related_job_codes`, `._get_gdn_sale_order_lines`, `._compute_sale_order_usage`, `.action_view_sale_orders`), `views/gdn_configuration_views.xml` (`sale_gdn_configuration_form_view`). Counts/Job Codes are non-stored computed fields, evaluated when read; refresh an already-open GDN form after edits to related Sale Order lines. Odoo must restart after replacing Python source, and the `crm_requirement_form` module must be upgraded to register the new fields and form view.
+
+**Proposed manual QA (not executed):**
+
+| ID | Test | Expected outcome |
+| --- | --- | --- |
+| GDN-SO-01 | Open a GDN with one original Sale Order | **Sale Orders 1**; button opens the original order |
+| GDN-SO-02 | Confirm a Repeat Job reusing the same GDN | **Sale Orders 2** (or higher); list includes original and repeat orders |
+| GDN-SO-03 | Add multiple lines with the same GDN to one order | Sale Order counted once; Job Codes de-duplicated |
+| GDN-SO-04 | Open a legacy GDN with Sale Order lines populated by GDN number but no configuration ID | Legacy orders are found via `gdn_number` fallback |
+| GDN-SO-05 | GDN has no linked orders or no coded lines | Count is 0; Job Code is blank if no codes exist; button opens an empty list |
+| GDN-SO-06 | Reopen GDN after editing a linked Sale Order | Count / Job Code display reflects saved order lines after refresh |
+
+**Validation status:** Static Python/XML and archive checks only; installation and Odoo database runtime testing are not verified.

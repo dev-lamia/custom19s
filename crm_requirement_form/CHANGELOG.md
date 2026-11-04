@@ -4,6 +4,15 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-04
 
+### [Changed] — GDN Sale Orders smart button and Job Code field (2026-11-04)
+- [2026-11-04] Replaced the **Job Codes** smart button on `sale.gdn.configuration` with a **Sale Orders** smart button that counts distinct `sale.order` records containing GDN-linked lines; clicking opens a single matching order or a filtered list of all matching orders. The lookup covers `gdn_configuration_id` and legacy records with only a `gdn_number` on the line (`models/sale_order.py`, `views/gdn_configuration_views.xml`).
+- [2026-11-04] Added a read-only **Job Code** field under **Source & Traceability** showing distinct nonempty Job Codes from those linked order lines. When multiple Job Codes use the same GDN, all are displayed as comma-separated codes; the original Source Sale Order field remains unchanged.
+- [2026-11-04] Kept `job_code_ids`, `job_code_count`, and `action_view_job_codes` in the model for compatibility, but removed only their form smart-button presentation. No Job Code serial generation, GDN numbering, SO confirmation, filtering by status, business validations, or record ownership behavior is changed.
+
+### [Docs] — GDN Sale Order traceability (2026-11-04)
+- [2026-11-04] Updated `README.md` workflow, technical model/field references, dynamic matching rules, upgrade instructions and proposed tests GDN-SO-01 through GDN-SO-06; updated this changelog. Only `models/sale_order.py`, `views/gdn_configuration_views.xml`, `README.md` and `CHANGELOG.md` were intentionally changed. Source-level checks only; Odoo runtime testing not performed.
+
+
 ### [Changed] — Customer-filtered Previous Req Form dropdown (2026-11-04)
 - [2026-11-04] Limited the **Previous Req Form** Many2one dropdown to Requirement Forms with `partner_id` equal to the current form's selected **Customer** (`views/requirement_form_views.xml`, model `crm.requirement.form`). The dynamic domain is `[('partner_id', '=', partner_id), ('partner_id', '!=', False)]`. Multiple earlier REQs belonging to that customer remain selectable; no new state/domain restrictions were added.
 - [2026-11-04] No Python, Job Code generation/reuse, GDN, requirement-copy, approval, or server-side validation logic was changed. The previously existing Repeat Job, self-selection, and specification-presence conditions are preserved.
