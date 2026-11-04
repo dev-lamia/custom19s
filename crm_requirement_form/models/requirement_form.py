@@ -594,6 +594,14 @@ class CrmRequirementForm(models.Model):
                 configuration = source_lines[0].gdn_configuration_id
                 values['gdn_configuration_id'] = configuration.id
                 values['gdn_number'] = configuration.gdn_number
+        # Repeat jobs keep the exact existing Job Code from the previous
+        # design; a fresh serial is reserved for New Jobs only.
+        if self.repeat_job and source:
+            source_line = specification._get_repeat_job_source_line(
+                gdn_configuration=values.get('gdn_configuration_id')
+            )
+            if source_line:
+                values['job_code'] = source_line.job_code
         for layer_no in range(1, 11):
             template = specification[f'layer_{layer_no}_product_tmpl_id']
             variant = specification[f'layer_{layer_no}_variant_id']

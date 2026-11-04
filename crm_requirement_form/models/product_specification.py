@@ -672,8 +672,45 @@ class ProductSpecification(models.Model):
         sanitize=False,
     )
 
+    def _get_repeat_job_source_line(self, gdn_configuration=None):
+        """Find the prior design's existing Job Code; never generate a code.
+
+        Prefer the line for the reused GDN, then the latest coded line.
+        Follow the source-design chain for repeat-of-repeat requirements.
+        """
+        self.ensure_one()
+        source = self.source_specification_id
+        gdn_id = (
+            gdn_configuration.id
+            if hasattr(gdn_configuration, 'id')
+            else gdn_configuration
+        )
+        visited = set()
+        while source and source.id not in visited:
+            visited.add(source.id)
+            coded_lines = source.sale_order_line_ids.filtered(
+                lambda line: not line.display_type and line.job_code
+            )
+            if coded_lines:
+                if gdn_id:
+                    matched = coded_lines.filtered(
+                        lambda line: line.gdn_configuration_id.id == gdn_id
+                    )
+                    if matched:
+                        coded_lines = matched
+                return coded_lines.sorted(
+                    key=lambda line: (line.order_id.id, line.id),
+                    reverse=True,
+                )[:1]
+            source = source.source_specification_id
+        return self.env['sale.order.line']
+
     @api.depends(
         'sale_order_line_ids.job_code',
+        'source_specification_id',
+        'source_specification_id.sale_order_line_ids.job_code',
+        'source_specification_id.source_specification_id',
+        'source_specification_id.source_specification_id.sale_order_line_ids.job_code',
         'sale_order_line_ids.gdn_number',
         'sale_order_line_ids.gdn_configuration_id',
         'source_specification_id.sale_order_line_ids.gdn_number',
@@ -704,6 +741,18 @@ class ProductSpecification(models.Model):
                             '<a href="/web#id={}&amp;model=sale.job.code.configuration'
                             '&amp;view_type=form">{}</a>'
                         ).format(line.id, escape(line.job_code))
+                    )
+
+            # On a new Repeat Job, show the previously confirmed Job Code
+            # immediately, just as the GDN is shown from the source design.
+            if specification.source_specification_id and not job_links:
+                source_line = specification._get_repeat_job_source_line()
+                if source_line:
+                    job_links.append(
+                        Markup(
+                            '<a href="/web#id={}&amp;model=sale.job.code.configuration'
+                            '&amp;view_type=form">{}</a>'
+                        ).format(source_line.id, escape(source_line.job_code))
                     )
 
             gdn_lines = lines

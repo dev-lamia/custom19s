@@ -706,6 +706,16 @@ class SaleOrder(models.Model):
         index=True,
         ondelete='set null',
     )
+    new_job = fields.Boolean(
+        string='New Job',
+        related='requirement_form_id.new_job',
+        readonly=True,
+    )
+    repeat_job = fields.Boolean(
+        string='Repeat Job',
+        related='requirement_form_id.repeat_job',
+        readonly=True,
+    )
     has_existing_gdn = fields.Boolean(
         string='Has Existing GDN',
         compute='_compute_has_existing_gdn',
@@ -936,10 +946,41 @@ class SaleOrder(models.Model):
                     line.gdn_configuration_id = False
                     line.gdn_number = False
 
+    def _sync_repeat_job_codes_from_source(self):
+        """Reuse source-design Job Codes for Repeat Jobs at confirmation.
+
+        A Repeat Job without a previous coded design must not silently consume
+        a new customer-specific serial or get confirmed with a blank Job Code.
+        """
+        for order in self.filtered(lambda rec: rec.requirement_form_id.repeat_job):
+            for line in order.order_line.filtered(lambda rec: not rec.display_type):
+                specification = line.requirement_specification_id
+                source_line = (
+                    specification._get_repeat_job_source_line(
+                        gdn_configuration=line.gdn_configuration_id
+                    ) if specification else self.env['sale.order.line']
+                )
+                if not source_line:
+                    raise UserError(_(
+                        'Repeat Job requires an existing Job Code for every '
+                        'Product Specification. Please confirm the previous '
+                        'REQ Sale Order before confirming %(order)s '
+                        '(design: %(design)s).',
+                        order=order.name,
+                        design=line.req_design_name or line.name,
+                    ))
+                if line.job_code != source_line.job_code:
+                    line.with_context(skip_sale_line_linked_sync=True).write({
+                        'job_code': source_line.job_code,
+                    })
+
     def _generate_missing_job_codes(self):
-        """Generate customer-wise Job Codes for non-display order lines."""
+        """Generate customer-wise Job Codes for New Jobs and direct Sales."""
         SaleLine = self.env['sale.order.line'].sudo()
         for order in self:
+            # Repeat Jobs only reuse the previous design's Job Code.
+            if order.requirement_form_id.repeat_job:
+                continue
             lines = order.order_line.filtered(lambda line: not line.display_type and not line.job_code)
             if not lines:
                 continue
@@ -1035,6 +1076,7 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         """Require GDN, ensure Customer Code, confirm, then assign Job Codes."""
         self._check_gdn_generated_before_confirm()
+        self._sync_repeat_job_codes_from_source()
         self._ensure_requirement_customer_codes()
         result = super().action_confirm()
         self._generate_missing_job_codes()

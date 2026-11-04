@@ -2,7 +2,20 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-10-27
+## [Unreleased] — Documentation Updated: 2026-11-04
+
+### [Fixed] — Repeat Job reuses the previous Job Code (2026-11-04)
+- [2026-11-04] Corrected `sale.order._generate_missing_job_codes()` to skip Sale Orders linked to a **Repeat Job**; existing New Job and direct Sale Order confirmation-time generation, customer-wise serial continuity and five-digit padding are unchanged (`models/sale_order.py`).
+- [2026-11-04] Added `sale.order._sync_repeat_job_codes_from_source()` before confirmation to reuse and verify the original design's Job Code. If the selected previous design has no generated code, confirmation raises `UserError` rather than creating a new serial.
+- [2026-11-04] Added `crm.requirement.specification._get_repeat_job_source_line()` to resolve a design-specific historical coded Sale Order Line (preferring the selected GDN, with repeat-of-repeat source-chain fallback). On selecting **Previous Req Form**, the copied design's Job Code link now displays the previous code alongside the already-existing GDN link (`models/product_specification.py`).
+- [2026-11-04] Updated `crm.requirement.form._prepare_sale_order_line_from_specification()` to populate the prior source `job_code` on Repeat Job quotation lines, retaining the existing GDN and other source mapping (`models/requirement_form.py`). Multiple designs retain independent source-code mapping.
+
+### [Added] — Read-only Requirement Form Job Type in Sale Order (2026-11-04)
+- [2026-11-04] Added non-stored, read-only related `sale.order.new_job` and `sale.order.repeat_job` fields, displayed directly under the optional Requirement Form selector in the Sale Order form only when a Requirement Form is selected (`models/sale_order.py`, `views/sale_order_views.xml`). These reflect the current New Job / Repeat Job choices made on the linked Requirement Form, without adding a second editable job-type source.
+
+### [Docs] — Repeat Job mapping, validations and test guide (2026-11-04)
+- [2026-11-04] Updated `README.md` with the source-to-repeat design mapping, conditional confirm flowchart, code reuse versus generation, Sale Order indicators, synchronization details, no-source-code error, upgrade requirements and proposed manual tests RJ-01 through RJ-08. Preserved historical notes, unchanged manifest version, and existing feature documentation.
+- [2026-11-04] **Verification:** Source-level syntax/XML/archive checks performed; live Odoo server and user-interface behavior **not runtime-tested**. This release changes only `models/product_specification.py`, `models/requirement_form.py`, `models/sale_order.py`, `views/sale_order_views.xml`, `README.md` and `CHANGELOG.md`.
 
 
 ### [Fixed] — CRM Industry Category on Lead → Opportunity conversion (2026-10-27)
