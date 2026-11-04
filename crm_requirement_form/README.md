@@ -786,6 +786,8 @@ The **Sale Order** field in the Job Code's **Source & Traceability** card now di
 
 The displayed **GDN Number** field is now `gdn_link_id` (a read-only, clickable Many2one to `sale.gdn.configuration`). It prefers the Sale Order Line's existing `gdn_configuration_id`; for historical records where only `gdn_number` text exists, it resolves a matching GDN by number (including archived GDNs). This fallback only affects navigation; no backfill or write to existing records occurs.
 
+**Job Code smart button visibility (2026-11-04):** The **Sale Orders** smart button is applied by the high-priority inherited view `sale_job_code_configuration_sale_orders_smart_button_view` (`views/gdn_configuration_views.xml`) after the main Job Code form is assembled. This preserves other addons' smart buttons (such as Plate TDS), shows the distinct Sale Order count for the current Job Code, and opens all matching New/Repeat Sale Orders. The model-side `sale_order_count`, `_compute_sale_order_usage()` and `action_view_sale_orders()` remain unchanged. If it still does not appear after upgrading, inspect the final combined view in Odoo developer mode for a later view replacing the entire button box.
+
 **Technical fields and methods:** `models/job_code_configuration.py`: `sale_order_count` (non-stored Integer), `latest_sale_order_id` (non-stored Many2one), `gdn_link_id` (non-stored Many2one), `_get_job_code_sale_order_lines()`, `_compute_sale_order_usage()`, `_compute_gdn_link_id()` and `action_view_sale_orders()`; `views/gdn_configuration_views.xml`: `sale_job_code_configuration_form_view`. Because this model has `_auto=False`, computed fields are intentionally **not stored** and require no SQL view columns or `init()` changes.
 
 ### GDN → clickable Job Codes

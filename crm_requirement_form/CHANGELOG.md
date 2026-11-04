@@ -4,6 +4,12 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-04
 
+### [Fixed] — Job Code Sale Orders smart button visibility (2026-11-04)
+- [2026-11-04] Moved the existing **Sale Orders** smart button into a high-priority inherited view (`sale_job_code_configuration_sale_orders_smart_button_view`), so the button is injected into the final Job Code smart-button box alongside buttons from other modules (such as Plate TDS). GDN form button and the Job Code form's field layout are unchanged.
+- [2026-11-04] Reused existing `sale_order_count` and `action_view_sale_orders()` for unique SO count and navigation, including New and Repeat Sale Orders. No Python model, generation, business validation, or Sale Order mapping was changed.
+- [2026-11-04] Updated documentation. Static XML/view-inheritance and ZIP checks completed; live Odoo validation not performed.
+
+
 ### [Added] — Job Code Sale Orders smart button and latest SO field (2026-11-04)
 - [2026-11-04] Added a Job Code form **Sale Orders** smart button that counts and opens unique SOs containing matching `sale.order.line.job_code` values, including Repeat Jobs and historical SO states; no new sales records are created (`models/job_code_configuration.py`, `views/gdn_configuration_views.xml`).
 - [2026-11-04] Display the latest confirmed SO using this code in **Source & Traceability → Sale Order** using non-stored `latest_sale_order_id`. The SQL-view's original stored `order_id` column and all Job Code source fields remain unchanged.

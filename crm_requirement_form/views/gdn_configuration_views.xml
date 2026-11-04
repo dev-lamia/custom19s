@@ -302,12 +302,7 @@
         <field name="arch" type="xml">
             <form string="Job Code Configuration" create="0" edit="1" delete="0" class="o_crm_req_config_form">
                 <sheet class="o_crm_req_config_sheet">
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_view_sale_orders" type="object"
-                                class="oe_stat_button" icon="fa-shopping-cart">
-                            <field name="sale_order_count" widget="statinfo" string="Sale Orders"/>
-                        </button>
-                    </div>
+                    <div class="oe_button_box" name="button_box"/>
                     <field name="gdn_number" invisible="1"/>
                     <field name="roll_type" invisible="1"/>
                     <field name="requirement_specification_id" invisible="1"/>
@@ -423,6 +418,29 @@
                 </sheet>
                 <chatter reload_on_post="True" reload_on_attachment="True" reload_on_follower="True"/>
             </form>
+        </field>
+    </record>
+
+    <!--
+        Job Code form receives smart buttons from other modules (for example,
+        Plate TDS). Inject the Sale Orders button as a late inherited view so
+        it coexists with those buttons instead of being lost on replacement.
+        Backend counting and navigation methods already exist on this model.
+    -->
+    <record id="sale_job_code_configuration_sale_orders_smart_button_view" model="ir.ui.view">
+        <field name="name">sale.job.code.configuration.form.sale.orders.smart.button</field>
+        <field name="model">sale.job.code.configuration</field>
+        <field name="inherit_id" ref="sale_job_code_configuration_form_view"/>
+        <field name="priority" eval="1000"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_sale_orders"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart">
+                    <field name="sale_order_count" widget="statinfo" string="Sale Orders"/>
+                </button>
+            </xpath>
         </field>
     </record>
 
