@@ -149,7 +149,7 @@
                                 <group col="4" class="mb-3">
                                     <field name="new_job" readonly="state == 'submitted'"/>
                                     <field name="repeat_job" readonly="state == 'submitted'"/>
-                                    <field name="previous_requirement_id" string="Previous Req Form" invisible="not repeat_job" required="repeat_job" readonly="state == 'submitted'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    <field name="previous_requirement_id" string="Previous Req Form" domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]" invisible="not repeat_job" required="repeat_job" readonly="state == 'submitted'" options="{'no_create': True, 'no_create_edit': True}"/>
                                 </group>
 
                                 <field name="next_design_number" invisible="1"/>

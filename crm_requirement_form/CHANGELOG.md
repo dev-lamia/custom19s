@@ -4,6 +4,14 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-04
 
+### [Changed] — Customer-filtered Previous Req Form dropdown (2026-11-04)
+- [2026-11-04] Limited the **Previous Req Form** Many2one dropdown to Requirement Forms with `partner_id` equal to the current form's selected **Customer** (`views/requirement_form_views.xml`, model `crm.requirement.form`). The dynamic domain is `[('partner_id', '=', partner_id), ('partner_id', '!=', False)]`. Multiple earlier REQs belonging to that customer remain selectable; no new state/domain restrictions were added.
+- [2026-11-04] No Python, Job Code generation/reuse, GDN, requirement-copy, approval, or server-side validation logic was changed. The previously existing Repeat Job, self-selection, and specification-presence conditions are preserved.
+
+### [Docs] — Customer-filtered source selection (2026-11-04)
+- [2026-11-04] Updated `README.md` navigation, source-field mapping, explicit UI-only domain scope and proposed QA cases CF-01 through CF-05. `CHANGELOG.md` records the view-only functional modification and documentation update. Static XML and ZIP checks performed; live Odoo testing **not performed**.
+
+
 ### [Changed] — Sale Order shows only the selected Job Type (2026-11-04)
 - [2026-11-04] In `views/sale_order_views.xml`, show the read-only **New Job** checkbox only when the linked Requirement Form marks New Job, or the read-only **Repeat Job** checkbox only when it marks Repeat Job. The unchecked checkbox is hidden; both are hidden if neither is selected or there is no linked Requirement Form. This changes only form visibility; no business logic, fields, Job Code generation, or source synchronization behavior is changed.
 - [2026-11-04] Updated `README.md` and proposed QA case RJ-07 for single-selected-Job-Type display. XML parsing and ZIP consistency were checked; the updated form has not been tested on a live Odoo instance.

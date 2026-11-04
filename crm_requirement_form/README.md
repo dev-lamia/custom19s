@@ -37,6 +37,7 @@
 - [Job Code disable popup and side chatter layout (2026-10-27)](#job-code-disable-popup-and-side-chatter-layout-2026-10-27)
 - [Industry Category conversion and five-digit Job Code serial (2026-10-27)](#industry-category-conversion-and-five-digit-job-code-serial-2026-10-27)
 - [Repeat Job Job Code reuse and Sale Order Job Type (2026-11-04)](#repeat-job-job-code-reuse-and-sale-order-job-type-2026-11-04)
+- [Customer-filtered Previous Req Form (2026-11-04)](#customer-filtered-previous-req-form-2026-11-04)
 
 ## Overview
 
@@ -160,6 +161,26 @@ flowchart TD
 **Direct Sale Order / New Job flow:** choose a customer and an eligible GDN (existing or generated), then confirm. `sale.order.action_confirm()` requires GDNs on product lines, and `_generate_missing_job_codes()` allocates the next customer-wise Job Code to uncoded lines **only if the order is not linked to a Repeat Job**. The existing serial format and continuity rules are unchanged.
 
 **Repeat Job:** select a **Previous Req Form** and fetch its Product Specifications. The design's existing GDN and Job Code are displayed on the new requirement design row; any linked quotation reuses that source Job Code instead of allocating a new serial. Confirmation checks that every Repeat Job line has an existing coded source specification and blocks when it does not. A Repeat Job can reference an earlier Repeat Job via the source-design chain. Staging verification of source design/GDN mapping and cross-customer GDN eligibility remains required.
+
+## Customer-filtered Previous Req Form (2026-11-04)
+
+**Where:** Requirement Forms → Product Specifications → **Repeat Job** → **Previous Req Form**. This is a backend form dropdown change implemented in `views/requirement_form_views.xml` on `crm.requirement.form.previous_requirement_id`.
+
+The Previous Req Form selector now uses the dynamic Odoo 19 Many2one domain `[('partner_id', '=', partner_id), ('partner_id', '!=', False)]`. The field `partner_id` is the current Requirement Form's **Customer**. The dropdown therefore lists only previous Requirement Forms assigned to the **same selected customer**. Changing the Customer updates the dropdown filter; with no Customer selected, no customer-linked Requirement Forms qualify. Records of other customers are excluded from the suggestions. There is **no additional state filter** or other new selection restriction.
+
+The existing Repeat Job visibility/required/read-only conditions, selection of source specifications, automatic design copy, GDN and Job Code mapping, and no-specification/self-selection onchange warnings remain unchanged. This is a **UI domain**, not a new server-side validation or record-rule security constraint; an existing cross-customer relationship is not migrated or automatically reset by this change. Customers with multiple Requirement Forms can select any matching record, subject to the pre-existing requirement for Product Specifications when copying.
+
+**Proposed QA (not run):**
+
+| Test | Steps | Expected |
+| --- | --- | --- |
+| CF-01 | Select Customer A, enable Repeat Job, open Previous Req Form dropdown | Only Requirement Forms whose `partner_id` is Customer A appear |
+| CF-02 | Create multiple Requirement Forms for Customer A | All A's Requirement Forms appear regardless of state; pre-existing no-specification warning still applies |
+| CF-03 | Select Customer B and reopen Previous Req Form dropdown | A's forms no longer appear; only B's forms appear |
+| CF-04 | Leave Customer empty and open dropdown | No customer-linked form appears |
+| CF-05 | Select an eligible previous REQ for Customer A | Existing specification, GDN and Job Code reuse logic continues unchanged |
+
+**Updated:** 2026-11-04. Source/XML validation completed; live Odoo UI/runtime testing has not been performed.
 
 ## Repeat Job Job Code reuse and Sale Order Job Type (2026-11-04)
 
