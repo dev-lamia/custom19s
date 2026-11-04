@@ -22,8 +22,8 @@
                        string="Requirement Form (Optional)"
                        options="{'no_create': True, 'no_create_edit': True}"/>
                 <!-- Live, read-only Job Type chosen in the linked Requirement Form. -->
-                <field name="new_job" readonly="1" invisible="not requirement_form_id"/>
-                <field name="repeat_job" readonly="1" invisible="not requirement_form_id"/>
+                <field name="new_job" readonly="1" invisible="not requirement_form_id or not new_job"/>
+                <field name="repeat_job" readonly="1" invisible="not requirement_form_id or not repeat_job"/>
             </xpath>
             <xpath expr="//field[@name='order_line']" position="before">
                 <field name="has_existing_gdn" invisible="1"/>

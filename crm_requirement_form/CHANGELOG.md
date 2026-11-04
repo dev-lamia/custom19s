@@ -4,6 +4,10 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-04
 
+### [Changed] — Sale Order shows only the selected Job Type (2026-11-04)
+- [2026-11-04] In `views/sale_order_views.xml`, show the read-only **New Job** checkbox only when the linked Requirement Form marks New Job, or the read-only **Repeat Job** checkbox only when it marks Repeat Job. The unchecked checkbox is hidden; both are hidden if neither is selected or there is no linked Requirement Form. This changes only form visibility; no business logic, fields, Job Code generation, or source synchronization behavior is changed.
+- [2026-11-04] Updated `README.md` and proposed QA case RJ-07 for single-selected-Job-Type display. XML parsing and ZIP consistency were checked; the updated form has not been tested on a live Odoo instance.
+
 ### [Fixed] — Repeat Job reuses the previous Job Code (2026-11-04)
 - [2026-11-04] Corrected `sale.order._generate_missing_job_codes()` to skip Sale Orders linked to a **Repeat Job**; existing New Job and direct Sale Order confirmation-time generation, customer-wise serial continuity and five-digit padding are unchanged (`models/sale_order.py`).
 - [2026-11-04] Added `sale.order._sync_repeat_job_codes_from_source()` before confirmation to reuse and verify the original design's Job Code. If the selected previous design has no generated code, confirmation raises `UserError` rather than creating a new serial.

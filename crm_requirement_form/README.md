@@ -176,7 +176,7 @@ flowchart TD
 
 - `crm.requirement.form._prepare_sale_order_line_from_specification()` copies the source Job Code to `sale.order.line.job_code` for Repeat Job designs. `_sync_specifications_to_sale_order()` uses this mapping when creating or refreshing linked quotations; the existing GDN, FG Type, quantity and other specification mapping stays as before.
 - `sale.order._sync_repeat_job_codes_from_source()` checks each linked Repeat Job line **before confirmation**, copying the exact source code if necessary. If the design has no previously coded source line, it raises a descriptive `UserError`; it will **not** allocate a new customer serial for the Repeat Job. `sale.order._generate_missing_job_codes()` explicitly skips Repeat Job orders.
-- In **Sales → Quotations / Sale Orders → form**, the existing Requirement Form selector is followed by two **read-only** indicators: **New Job** and **Repeat Job**. These are non-stored related booleans (`sale.order.new_job` and `sale.order.repeat_job`) reading `requirement_form_id.new_job` and `requirement_form_id.repeat_job`; they show only when a Requirement Form is linked, and follow later source Requirement Form changes. Direct Sale Orders without a linked Requirement Form keep their current behavior.
+- In **Sales → Quotations / Sale Orders → form**, the Requirement Form selector is followed by **only the selected, checked Job Type**: **New Job** when `sale.order.new_job` is true, or **Repeat Job** when `sale.order.repeat_job` is true. The unchecked choice is hidden (both are hidden if neither is selected or no Requirement Form is linked). Both booleans remain non-stored, read-only related fields reading `requirement_form_id.new_job` and `requirement_form_id.repeat_job` and reflect later source changes. This is a presentation-only change; direct Sale Orders without a linked Requirement Form keep their existing behavior (`views/sale_order_views.xml`).
 - Multiple designs are mapped by `requirement_specification_id` and its individual `source_specification_id`: each Repeat Job line reuses its **own** previous design's Job Code, not a single code for the whole Requirement Form.
 
 ### Conditions, synchronization and compatibility
@@ -200,7 +200,7 @@ flowchart TD
 | RJ-04 | Select previous REQ with multiple coded designs | Each new design/quotation line maps to its matching original Job Code |
 | RJ-05 | Repeat from a previous REQ without a confirmed coded source | Sale Order confirmation blocked with a clear error; no new code generated |
 | RJ-06 | Repeat an already repeated requirement | Original Job Code found through source-design chain and reused |
-| RJ-07 | Open Sales quotation linked to New Job, then Repeat Job | Read-only New Job / Repeat Job flags reflect the linked Requirement Form; hidden when no REQ linked |
+| RJ-07 | Open Sales quotation linked to New Job, then Repeat Job, and then no REQ | Only the checked New Job or Repeat Job indicator is visible; the unchecked choice is hidden; both hidden without linked REQ |
 | RJ-08 | Test repeated design linked to GDN of another customer | Only existing source-design GDN exception is allowed; unrelated customer GDN still rejected |
 
 **Upgrade:** Back up the database, deploy the revised module, restart Odoo, upgrade `crm_requirement_form`, and refresh the Sales/Requirement Form UI. The two new non-stored related Sale Order fields and inherited form view require module loading; no manifest version, sequence, table, migration or ACL change is introduced in this update.
