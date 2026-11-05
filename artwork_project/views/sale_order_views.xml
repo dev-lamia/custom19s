@@ -12,7 +12,7 @@
                         type="object"
                         string="Create Artwork"
                         class="btn-primary"
-                        invisible="not can_create_artwork or artwork_task_count != 0 or repeat_job"/>
+                        invisible="not can_create_artwork"/>
             </xpath>
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
                 <button name="action_open_artwork"

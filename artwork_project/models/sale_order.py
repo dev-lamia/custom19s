@@ -134,21 +134,26 @@ class SaleOrder(models.Model):
         compute='_compute_can_create_artwork',
     )
 
-    @api.depends('state', 'invoice_ids.state', 'invoice_ids.move_type')
+    @api.depends(
+        'state', 'invoice_ids.state', 'invoice_ids.move_type',
+        'artwork_task_ids',
+    )
     def _compute_can_create_artwork(self):
         for order in self:
             valid_invoices = order.invoice_ids.filtered(
                 lambda inv: inv.move_type == 'out_invoice'
                 and inv.state == 'posted'
             )
-            order.can_create_artwork = order.state == 'sale' and bool(valid_invoices)
+            # Repeat Jobs may already show artwork linked from a previous SO.
+            # Block duplicates only for tasks created by this specific SO.
+            order.can_create_artwork = (
+                order.state == 'sale'
+                and bool(valid_invoices)
+                and not order.artwork_task_ids
+            )
 
     def action_create_artwork(self):
         self.ensure_one()
-        if self.repeat_job:
-            raise ValidationError(
-                _('Artwork can only be created for New Job sales orders.')
-            )
         if self.state != 'sale':
             raise ValidationError(
                 _('Artwork can only be created after the Sales Order is confirmed.')
