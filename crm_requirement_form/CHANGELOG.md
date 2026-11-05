@@ -2,7 +2,17 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-11-04
+## [Unreleased] — Documentation Updated: 2026-11-05
+
+### [Fixed] — Product duplication preserves customized CRM fields (2026-11-05)
+- [2026-11-05] Set `copy=True` on `product.template.requirement_bag_type_code` (previously `copy=False`) so **Inventory → Products → Duplicate** retains the source FG Type Code instead of clearing it.
+- [2026-11-05] Explicitly allow Odoo's standard copy mechanism for the other editable CRM Product configuration values: `requirement_fg_type_id`, `requirement_category_type_id`, `is_requirement_layer`, legacy Bag/Roll flags and template/variant `thickness_microns` (`models/product_extension.py`). No `copy()` override, additional record creation or change to existing product generation/validation logic.
+- [2026-11-05] Computed and related fields continue to recompute from copied source configuration; unrelated product/Studio fields are not modified.
+
+### [Docs] — Product Duplicate update (2026-11-05)
+- [2026-11-05] Clarified limited scope: only Product fields defined in `crm_requirement_form` are copied; the unrelated external `is_plate` view expression is not changed. This does not fix a separate view composition issue.
+- [2026-11-05] Updated `README.md` field mapping, scope, proposed QA and this `CHANGELOG.md` with the actual source changes. Python/XML static validation only; live Odoo duplication not performed.
+
 
 ### [Changed] — Customer-specific Requirement Form dropdown in Sale Orders (2026-11-04)
 - [2026-11-04] Filtered **Sales → Quotation / Sale Order → Requirement Form (Optional)** by the currently selected Customer using `domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]"` on `sale.order.requirement_form_id` (`views/sale_order_views.xml`). Only existing Requirement Forms for that exact Customer are selectable in the UI; an empty Customer yields no results.

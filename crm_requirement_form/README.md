@@ -9,7 +9,7 @@
 | Author | `Softeko_Lamia` |
 | Category | CRM |
 | License | LGPL-3 |
-| Documentation Updated | 2026-11-04 |
+| Documentation Updated | 2026-11-05 |
 | Latest Verified Release | Not verified — the ZIP contains historical upgrade notes, but no verified release date |
 | Documentation Status | Source-code reviewed; **not** runtime-tested on an Odoo instance |
 
@@ -41,6 +41,7 @@
 - [GDN Sale Order usage and Job Code display (2026-11-04)](#gdn-sale-order-usage-and-job-code-display-2026-11-04)
 - [Job Code and GDN cross-links with Sale Order history (2026-11-04)](#job-code-and-gdn-cross-links-with-sale-order-history-2026-11-04)
 - [Customer-filtered Requirement Form selector on Sale Orders (2026-11-04)](#customer-filtered-requirement-form-selector-on-sale-orders-2026-11-04)
+- [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 
 ## Overview
 
@@ -837,3 +838,40 @@ This mirrors the existing customer-specific **Previous Req Form** dropdown on Re
 | SO-CF-05 | Change Customer after a REQ was already selected | Newly opened dropdown is filtered, but prior selection is not automatically cleared by this UI-only change; review manually |
 
 **Documentation updated:** 2026-11-04. **Verification scope:** Static XML structure; no live Odoo registry/UI checks performed.
+
+
+## Product duplication copies CRM custom fields (2026-11-05)
+
+**User action:** Inventory → Products → open a Product → Action (gear) → **Duplicate**.
+
+**Behavior:** The duplicated `product.template` keeps the source product's editable CRM-specific configuration fields. `models/product_extension.py` now explicitly enables Odoo's native field-copy behavior (`copy=True`) for:
+
+| Field | Model | Duplicate behavior |
+| --- | --- | --- |
+| `thickness_microns` | `product.template` | Preserves template-level layer thickness |
+| `is_requirement_bag_type` | `product.template` | Preserves the legacy Bag flag where applicable |
+| `is_requirement_roll_type` | `product.template` | Preserves the Roll flag where applicable |
+| `requirement_fg_type_id` | `product.template` | Preserves the selected configured FG Type |
+| `requirement_category_type_id` | `product.template` | Preserves the Raw Materials category Type |
+| `is_requirement_layer` | `product.template` | Preserves the Layer checkbox |
+| `requirement_bag_type_code` | `product.template` | Preserves the **FG Type Code** (previously `copy=False`) |
+| `thickness_microns` | `product.product` | Preserves the variant-level thickness when a product variant is copied |
+
+Odoo's default duplication behavior continues for all other fields. Computed, related and non-stored values such as `requirement_fg_type`, `requirement_category_initial`, `requirement_fg_bag`, `requirement_fg_roll` and `requirement_hide_gusset` are **not manually copied**; they are obtained from the duplicated record's configuration through their existing compute/related/inverse logic. The existing `create()` and `write()` normalization, FG Type validation, inventory settings, product variants and naming behavior have not been changed.
+
+**Scope:** This update covers fields defined by `crm_requirement_form` on Products. Other add-ons' fields (including Odoo Studio-created `x_*` fields) retain their own field-level copy settings; this module does **not** override arbitrary fields or Odoo's `copy()` method.
+
+**Proposed manual checks (not executed on a live Odoo database):**
+
+1. On a Bag product, populate FG Type, FG Type Code (for example `SS`), Category, and any relevant optional settings, then Duplicate. Confirm the new Product retains those values and the FG Type Code is not empty.
+2. Repeat with a Roll product and with a Layer product with Thickness (Microns).
+3. On a Raw Materials-category product, set the Category Type and duplicate; confirm the Type stays selected and its computed Category Initial is available.
+4. Confirm the duplicate is a **new Product record** and the original product remains unchanged. Verify Odoo's ordinary name adjustment and unique identifiers still follow Odoo's normal duplicate behavior.
+5. If variant-level thickness is configured, duplicate the variant and confirm it copies when that variant is the record being duplicated; also inspect template-to-variant duplication separately because Odoo variant generation is independent.
+
+**Technical references:** `models/product_extension.py` (field definitions, existing `_compute_requirement_fg_type`, `_check_requirement_fg_configuration`, `create()` and `write()`), `views/product_template_views.xml` (Product Form fields).
+
+
+### Scope note: Product form OWL `is_plate` error
+
+The view expression `requirement_category_type_id not in [7] and not is_plate` is **not present** anywhere in this `crm_requirement_form` module. The `is_plate` field is not declared by this module. A separate installed Product view/add-on contains that condition and may need its own fix if it is missing from the final Product view's loaded fields. This duplication-only update intentionally does not create an `is_plate` field, modify other add-ons, or change their view visibility conditions. A live Odoo staging registry/render test has not been executed.

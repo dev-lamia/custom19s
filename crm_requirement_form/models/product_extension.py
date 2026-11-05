@@ -9,6 +9,7 @@ class ProductTemplate(models.Model):
 
     thickness_microns = fields.Float(
         string='Thickness (Microns)',
+        copy=True,
         help='Optional default thickness used in CRM requirement form layers.',
     )
 
@@ -16,11 +17,13 @@ class ProductTemplate(models.Model):
     # The Product form now exposes the FG Type checkboxes below instead.
     is_requirement_bag_type = fields.Boolean(
         string='Legacy Bag FG Product',
+        copy=True,
         help='Legacy flag retained for backward compatibility.',
         index=True,
     )
     is_requirement_roll_type = fields.Boolean(
         string='Roll FG Product',
+        copy=True,
         help='Technical stored flag used for Roll finished-goods products.',
         index=True,
     )
@@ -28,6 +31,7 @@ class ProductTemplate(models.Model):
         'crm.requirement.fg.type',
         string='FG Type',
         domain=[('active', '=', True)],
+        copy=True,
         index=True,
         ondelete='restrict',
         help=(
@@ -39,6 +43,7 @@ class ProductTemplate(models.Model):
         'product.category.type',
         string='Type',
         domain=[('active', '=', True)],
+        copy=True,
         ondelete='restrict',
         index=True,
         help=(
@@ -81,6 +86,7 @@ class ProductTemplate(models.Model):
     )
     is_requirement_layer = fields.Boolean(
         string='Layer',
+        copy=True,
         help=(
             'Select this checkbox to make the product available in the '
             'Requirement Form Layer dropdowns.'
@@ -93,7 +99,7 @@ class ProductTemplate(models.Model):
             'Code used in the GDN Number for this FG product, for example '
             'FB, SUP, QS, 3SS, 2SS, LBL, or RS.'
         ),
-        copy=False,
+        copy=True,
         index=True,
     )
     requirement_hide_gusset = fields.Boolean(
@@ -422,6 +428,7 @@ class ProductProduct(models.Model):
 
     thickness_microns = fields.Float(
         string='Thickness (Microns)',
+        copy=True,
         help=(
             'Optional variant-specific thickness used in CRM requirement form layers. '
             'If blank, the template thickness or the first number in the variant name is used.'
