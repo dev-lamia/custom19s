@@ -4,6 +4,12 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+### [Fixed] — Preserve all selected Previous REQs when adding another (2026-11-06)
+- [2026-11-06] Corrected the Repeat Job multi-source onchange to **merge** newly imported `crm.requirement.specification` virtual rows with the existing One2many recordset instead of passing only new `Command.create` rows to `update()`. Selecting REQ-A (3 designs), then REQ-B (2 designs), retains all five independent copies until the user explicitly removes a source or a line (`models/requirement_form.py`).
+- [2026-11-06] Keeping both source IDs selected no longer discards the previously imported REQ's rows. Removing one Previous Req Form tag still removes only that source's copies (unless protected by an existing Sale Order link). Manually deleting or modifying a copied row affects the current Requirement Form, not the original source REQ; existing per-row editability and confirmed Sale Order protections are unchanged.
+- [2026-11-06] Updated source selection documentation and proposed regression tests. Existing manifest version and database schema are unchanged. Static checks only; live Odoo browser validation remains outstanding.
+
+
 ### [Fixed] — Table header layering and removal of deselected source REQs (2026-11-06)
 - [2026-11-06] Corrected the Repeat Job Product Specifications **Job Code/GDN header overlap** at the table painting level. The sticky `thead` now forms an opaque high-priority stacking context, the table uses separate borders, title overflow is clipped, and the `tbody` stays behind the header. This supersedes the earlier insufficient `th`-only sticky styling. Both x/y scrollbars remain (`static/src/scss/requirement_form_backend.scss`).
 - [2026-11-06] Previous REQ tag removal now checks all copied specifications against the **current selected sources**, not only changes to the hidden loaded-source snapshot. Deselected-source rows are removed in onchange and validated again on write. Manually entered designs, other selected sources, and confirmed SO-linked history remain protected (`models/requirement_form.py`).

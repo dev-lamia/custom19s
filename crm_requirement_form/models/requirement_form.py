@@ -621,7 +621,17 @@ class CrmRequirementForm(models.Model):
                 existing_source_ids.update(previous.specification_ids.ids)
                 next_sequence += len(commands)
             if new_commands:
-                rec.update({'specification_ids': new_commands})
+                # In an onchange the One2many already contains the current
+                # unsaved and saved designs.  Updating it using *only* CREATE
+                # commands can replace the web client's in-memory rowset,
+                # causing the previously selected REQ to disappear.  Build
+                # virtual rows, then explicitly retain the entire rowset.
+                # Do not write/copy into any of the source Requirement Forms.
+                specification_model = rec.env['crm.requirement.specification']
+                appended_rows = specification_model
+                for create_command in new_commands:
+                    appended_rows |= specification_model.new(create_command[2])
+                rec.specification_ids = rec.specification_ids | appended_rows
             # Onchange commands can be replayed by the client after a widget
             # update. Enforce one current row per source specification.
             duplicates = rec._duplicate_repeat_specification_rows()

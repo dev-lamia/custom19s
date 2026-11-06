@@ -43,7 +43,31 @@
 - [Job Code and GDN cross-links with Sale Order history (2026-11-04)](#job-code-and-gdn-cross-links-with-sale-order-history-2026-11-04)
 - [Customer-filtered Requirement Form selector on Sale Orders (2026-11-04)](#customer-filtered-requirement-form-selector-on-sale-orders-2026-11-04)
 - [Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)](#repeat-job-multi-req-import-and-sale-order-isolation-2026-11-06)
+- [Repeat Job: multiple Previous REQ merge and isolated row edits (2026-11-06)](#repeat-job-multiple-previous-req-merge-and-isolated-row-edits-2026-11-06)
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
+
+## Repeat Job: multiple Previous REQ merge and isolated row edits (2026-11-06)
+
+**Updated code:** `crm_requirement_form/models/requirement_form.py`, method
+`_onchange_previous_requirement_ids()`.
+
+When selecting multiple **Previous Req Forms** under **Product Specifications → Repeat Job**, the onchange preserves all existing `specification_ids` (saved and unsaved) and appends newly selected sources as independent virtual rows. It never replaces the entire One2many with only the newest `Command.create` list. In particular, selecting Source A (3 designs), followed by Source B (2 designs), should show **five** rows with the correct Source REQ, GDN, Job Code, product, and quantities.
+
+Removing Source A's tag removes only copies whose `source_specification_id.form_id` belongs to Source A; Source B's rows remain. Deleting a single copied design does not delete or edit the original REQ's design, and adding another source does not regenerate designs already manually deleted from still-selected sources. Quantity/UOM editing remains available on copied Repeat Job rows; other read-only fields retain their existing locking rules. A copied design that is already referenced by an existing Sale Order remains protected by the module's existing validation. There is no cross-Requirement-Form update to previously confirmed Sale Orders.
+
+**Proposed staging tests (not yet run in Odoo):**
+
+| Test | Steps | Expected result |
+| --- | --- | --- |
+| MRG-01 | Select Source A (3 rows) and then Source B (2 rows) without saving | Five independent rows; first three remain |
+| MRG-02 | Save, reload, and reopen copied designs | All five copied values persist |
+| MRG-03 | Remove Source A while both selected | Exactly Source B's two rows remain; original A unchanged |
+| MRG-04 | Re-add Source A | Three rows append once, with no duplication |
+| MRG-05 | Delete one Source B line, then select Source C | Deleted B line stays deleted; existing A/B rows remain |
+| MRG-06 | Edit a copied row's QTY and UOM | Only the current REQ changes; source REQ unchanged |
+| MRG-07 | Confirm a Sale Order, then modify a new Repeat REQ | Historical confirmed Sale Order remains unchanged |
+
+No model, field, ACL, migration or XML view was added for this patch; only the onchange merge strategy changed.
 
 ## Product Specifications scroll header and source removal correction (2026-11-06)
 
