@@ -262,113 +262,141 @@ class CrmRequirementForm(models.Model):
     def _prepare_repeat_specification_values(
         self, specification, sequence, previous_requirement=None
     ):
+        """Take a complete, independent snapshot of one previous design.
+
+        Copy all copyable stored business values, including technical notes,
+        dimensions, material variants, selected options and document lines.
+        Do not link the new row to the source's parent or its sale lines.
+        The separate source_specification_id is traceability only.
+        """
         self.ensure_one()
-        previous_requirement = (
-            previous_requirement or self.previous_requirement_id
+        specification.ensure_one()
+        previous_requirement = previous_requirement or specification.form_id
+
+        # The previous selective mapping omitted fields such as customer_notes,
+        # designer_note and design documents.  Odoo's native copy_data handles
+        # nested One2many/Many2many commands and preserves future copyable
+        # business fields without writing anything to the source record.
+        values = specification.copy_data()[0]
+        for field_name in (
+            'id', 'form_id', 'sale_order_line_ids',
+            'job_code_link', 'gdn_number_link',
+        ):
+            values.pop(field_name, None)
+
+        # The original copy=False attachment links are still useful to the
+        # repeated design. Only link the existing files: never transfer or
+        # delete their ownership on the original REQ.
+        document_fields = (
+            'doc_raw_file_ids', 'doc_customer_approved_file_ids',
+            'doc_production_layout_ids', 'doc_plate_layout_ids',
+            'doc_digital_print_file_ids', 'doc_color_separation_ids',
         )
-        simple_fields = [
-            'design_name',
-            'design_dimension_uom',
-            'color_reference',
-            'color_reference_type',
-            'no_of_colors',
-            'quantity',
-            'quantity_uom',
-            'fg_type',
-            'roll_type',
-            'bag_type',
-            'length',
-            'width',
-            'gusset',
-            'coil_width_mm',
-            'cutoff_length_mm',
-            'final_roll_direction',
-            'final_roll_weight_kg',
-            'final_roll_od_mm',
-            'final_roll_meters',
-            'core_id_mm',
-            'core_thickness_mm',
-            'core_type',
-            'material',
-            'thickness',
-            'weight',
-            'print_finish',
-            'standard_features',
-            'valve',
-            'valve_type',
-            'feature_tear_notch_zipper',
-            'feature_rounded_corners',
-            'feature_other_note',
-            'back_if_yes',
-            'additional_requirements',
-        ]
-        values = {
-            field_name: specification[field_name]
-            for field_name in simple_fields
-        }
+        for field_name in document_fields:
+            values[field_name] = [Command.set(specification[field_name].ids)]
+
+        # Old REQs can contain repeat copies made before the full snapshot
+        # logic existed. Restore any missing *technical* values from that
+        # design's ancestor while keeping QTY/UOM from the immediate source.
+        # Do not fill genuinely empty values on original (non-repeat) designs.
+        if specification.is_duplicate_copy and specification.source_specification_id:
+            ancestor = specification.source_specification_id
+            visited = {specification.id}
+            protected = {
+                'quantity', 'quantity_uom', 'quantity_uom_id',
+                'print_finish_id', 'print_finish_ids', 'standard_feature_ids',
+                'sequence', 'no_designs', 'form_id',
+                'source_specification_id', 'previous_req_form',
+                'is_duplicate_copy', 'design_document_line_ids',
+            }
+            missing_documents = {
+                name for name in document_fields if not specification[name]
+            }
+            missing_options = {
+                name for name in ('print_finish_ids', 'standard_feature_ids')
+                if not specification[name]
+            }
+            while ancestor and ancestor.id not in visited:
+                visited.add(ancestor.id)
+                ancestor_values = ancestor.copy_data()[0]
+                for field_name, value in ancestor_values.items():
+                    if field_name in protected or field_name not in self.env[
+                        'crm.requirement.specification'
+                    ]._fields:
+                        continue
+                    if values.get(field_name) in (False, None, '', 0, 0.0, []):
+                        if value not in (False, None, '', 0, 0.0, []):
+                            values[field_name] = value
+                for field_name in document_fields:
+                    if field_name in missing_documents and ancestor[field_name]:
+                        values[field_name] = [Command.set(ancestor[field_name].ids)]
+                        missing_documents.discard(field_name)
+                for field_name in tuple(missing_options):
+                    if ancestor[field_name]:
+                        values[field_name] = [Command.set(ancestor[field_name].ids)]
+                        missing_options.discard(field_name)
+                if not values.get('design_document_line_ids') and ancestor.design_document_line_ids:
+                    values['design_document_line_ids'] = ancestor.copy_data()[0].get(
+                        'design_document_line_ids', []
+                    )
+                ancestor = ancestor.source_specification_id
+
+        # Explicitly preserve fields which may have copy=False or computed
+        # inverses in previous versions but are part of the editable form.
+        for field_name in ('customer_notes', 'designer_note'):
+            if not values.get(field_name) and specification[field_name]:
+                values[field_name] = specification[field_name]
+        values['quantity_uom_id'] = specification.quantity_uom_id.id or False
+        # print_finish_id is computed+inverse from the M2M; do not explicitly
+        # assign it or Odoo may reduce a multi-selection to just one option.
+        values.pop('print_finish_id', None)
+        if specification.print_finish_ids:
+            values['print_finish_ids'] = [Command.set(specification.print_finish_ids.ids)]
+        elif not values.get('print_finish_ids'):
+            values['print_finish_ids'] = [Command.set([])]
+        if specification.standard_feature_ids:
+            values['standard_feature_ids'] = [Command.set(specification.standard_feature_ids.ids)]
+        elif not values.get('standard_feature_ids'):
+            values['standard_feature_ids'] = [Command.set([])]
         values.update({
             'sequence': sequence,
             'no_designs': sequence,
-            # Repeat-job specifications are copied as reference designs.
-            # Only QTY and UOM remain editable in the specification view.
             'is_duplicate_copy': True,
+            'source_specification_id': specification.id,
             'previous_req_form': previous_requirement.name or False,
-            'source_specification_id': specification.id or False,
-            'quantity_uom_id': specification.quantity_uom_id.id or False,
-            'bag_type_id': specification.bag_type_id.id or False,
-            'bag_type_product_tmpl_id': (
-                specification.bag_type_product_tmpl_id.id or False
-            ),
-            'print_type_id': specification.print_type_id.id or False,
-            'print_finish_id': specification.print_finish_id.id or False,
-            'print_finish_ids': [
-                (6, 0, specification.print_finish_ids.ids)
-            ],
-            'standard_feature_ids': [
-                (6, 0, specification.standard_feature_ids.ids)
-            ],
         })
-        highest_layer = 1
+
+        # Preserve legacy layer material names and manually saved thicknesses;
+        # only look up a product when the source has no product relationship.
+        highest_layer = max(int(specification.layer_visible_count or 1), 1)
         for layer_no in range(1, 11):
-            product_tmpl = specification[
-                f'layer_{layer_no}_product_tmpl_id'
-            ]
-            variant = specification[f'layer_{layer_no}_variant_id']
-            material_name = specification[f'layer_{layer_no}_material']
-
-            # Older/synced requirement records can retain the layer material
-            # snapshot while the product-template relation is empty.  Resolve
-            # the relation before creating the repeat-job copy so the layer
-            # never turns into an "Unnamed" product in the new form.
-            if not product_tmpl and material_name:
-                product_tmpl = self.env['product.template'].search([
-                    ('name', '=', material_name),
-                ], limit=1)
+            tmpl_key = f'layer_{layer_no}_product_tmpl_id'
+            variant_key = f'layer_{layer_no}_variant_id'
+            material_key = f'layer_{layer_no}_material'
+            thickness_key = f'layer_{layer_no}_thickness'
+            material_name = values.get(material_key) or specification[material_key]
+            template_id = values.get(tmpl_key)
+            variant_id = values.get(variant_key)
+            if not template_id and material_name:
+                product_tmpl = self.env['product.template'].search(
+                    [('name', '=', material_name)], limit=1,
+                )
                 if not product_tmpl:
-                    product_tmpl = self.env['product.template'].search([
-                        ('name', 'ilike', material_name),
-                    ], limit=1)
-            if product_tmpl and variant and variant.product_tmpl_id != product_tmpl:
-                variant = self.env['product.product']
-            if product_tmpl and not variant and len(product_tmpl.product_variant_ids) == 1:
-                variant = product_tmpl.product_variant_ids[:1]
-
-            if product_tmpl or material_name:
-                highest_layer = layer_no
-            values.update({
-                f'layer_{layer_no}_product_tmpl_id': product_tmpl.id or False,
-                f'layer_{layer_no}_variant_id': variant.id or False,
-                f'layer_{layer_no}_material': (
-                    material_name
-                    or product_tmpl.display_name
-                    or False
-                ),
-                f'layer_{layer_no}_thickness': (
-                    specification[f'layer_{layer_no}_thickness'] or 0.0
-                ),
-            })
-        # Show every populated layer card immediately (before the first
-        # save) instead of only Layer 1.
+                    product_tmpl = self.env['product.template'].search(
+                        [('name', 'ilike', material_name)], limit=1,
+                    )
+                template_id = product_tmpl.id or False
+            if template_id and variant_id:
+                variant = self.env['product.product'].browse(variant_id)
+                if variant.product_tmpl_id.id != template_id:
+                    variant_id = False
+            values[tmpl_key] = template_id or False
+            values[variant_key] = variant_id or False
+            values[material_key] = material_name or False
+            if thickness_key not in values:
+                values[thickness_key] = specification[thickness_key] or 0.0
+            if template_id or material_name:
+                highest_layer = max(highest_layer, layer_no)
         values['layer_visible_count'] = highest_layer
         return values
 

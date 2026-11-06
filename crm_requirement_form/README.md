@@ -45,6 +45,38 @@
 - [Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)](#repeat-job-multi-req-import-and-sale-order-isolation-2026-11-06)
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 
+## Repeat Job: Complete Source Specification Fetch and Row Isolation (2026-11-06)
+
+**Code updated 2026-11-06; Odoo runtime/browser testing not performed.** This patch works with the existing multiple-source selector and does not change the database schema or module manifest version (`19.0.0.3`).
+
+**Selection / add:** On **Requirement Forms → Product Specifications → Repeat Job → Previous Req Forms**, select one or more REQs for the selected Customer. `crm.requirement.form._onchange_previous_requirement_ids()` finds only newly selected REQs and appends separate copies of each corresponding `crm.requirement.specification`. Each row has its own `source_specification_id` (technical identity) and `previous_req_form` (Source REQ label). Previously entered rows are not cleared.
+
+**Complete data fetch:** `crm.requirement.form._prepare_repeat_specification_values()` now starts from the original specification's Odoo `copy_data()` snapshot instead of a partial hand-maintained field list. This transfers stored/copyable fields such as design details, product, quantity/UOM, FG and roll/bag settings, dimensions, layer selections and thickness snapshots, print/finish selections, features, customer/designer notes, and nested design-document lines. The six legacy attachment-category Many2many references are explicitly included (the same files are referenced, not re-owned or deleted). A Repeat-of-Repeat source with previously missing *technical* snapshot values can fall back to its older linked design; QTY/UOM remain from the **immediate selected source**. Missing data that does not exist anywhere in the source chain cannot be synthesized.
+
+**Popup and save:** The embedded Product Specification form/list has `force_save="1"` for read-only values belonging to a copied Repeat Job. Existing `crm.requirement.specification.create()` rehydrates a new copied row using **the same preparation method**, ignoring empty browser placeholders for protected technical fields while preserving user-entered **QTY and UOM**. Source-copy onchanges no longer reset saved product, layer, print/feature, or other technical snapshots. Existing **New Job** forms retain their normal editable behavior. Do not run a manual direct SQL update on specifications.
+
+**Delete / remove:** Removing a source from the multi-select removes only the **current form's** copies carrying a `source_specification_id` from that source; other selected REQs and original source designs are unaffected. Deleting an individual copied row deletes only that row on the current REQ; the stored `loaded_previous_requirement_ids` selection snapshot prevents automatic re-import when a different source is added. Reselecting an explicitly removed source can re-import it. Existing independent **draft/sent quotation sync** and **confirmed SO isolation** safeguards are unchanged.
+
+**Exact implementation:** `models/requirement_form.py` (`_prepare_repeat_specification_values`, `_repeat_specification_commands`, `_onchange_previous_requirement_ids`); `models/product_specification.py` (`create`, `_set_layer_from_product`, product/finish/feature onchange guards); `views/requirement_form_views.xml` (source identity and read-only values). No changes to `sale.order` matching, Job Code numbering, GDN creation, customer domain, or migrations.
+
+**Proposed staging tests (not run on Odoo):**
+
+| ID | Steps | Expected result |
+|---|---|---|
+| RF-01 | Select one previous REQ with populated design/product/dimension/notes/layers | Popup and list show the saved source values before saving |
+| RF-02 | Add a second previous REQ with distinct design data | New rows append and preserve the first source's data and identity |
+| RF-03 | Save/reopen the current Repeat REQ | All source-derived data, document references and editable QTY/UOM persist |
+| RF-04 | Edit only QTY/UOM on one copied row | Only that copied line is updated; no original REQ is written |
+| RF-05 | Remove one source tag | Only matching copied rows disappear; other source rows remain |
+| RF-06 | Delete a single copied row while source tag remains, then add another REQ | Deleted row stays deleted; other rows remain intact |
+| RF-07 | Repeat from an earlier Repeat REQ that has a linked original design | Missing technical data falls back without overwriting immediate QTY/UOM |
+| RF-08 | Move the current Repeat REQ to quotation stage | The previous confirmed Sale Orders retain their original data |
+| RF-09 | Select a source with multiple document categories/files | New row shows linked attachments; original document records are not deleted |
+| RF-10 | Create/Edit a normal New Job product specification | Existing editable fields and product/onchange behavior remain unchanged |
+
+**Deployment:** Backup the database; replace the complete addon; restart Odoo; upgrade `crm_requirement_form` (Apps → Upgrade); hard-refresh the browser. This is a source/view change on top of the previous 19.0.0.3 relation-table migration. Verify the source REQ's own design is populated if the fetched value is empty. No live Odoo registry, UI, or end-to-end SO testing was performed in this environment.
+
+
 ## Overview
 
 This Odoo 19 module extends CRM, Contacts, Requirement Forms, Sales, Products, Purchase, and Inventory to capture customer requirements, define finished-good designs (including bags and rolls), generate or reuse Graphic Design Numbers (GDNs), link confirmed Sale Order Lines to Job Codes, and retain references to related design and production documents.

@@ -4,6 +4,14 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+### [Fixed] — Complete Repeat Job specification fetching (2026-11-06)
+- [2026-11-06] Replaced the selective source-design field mapping in `crm.requirement.form._prepare_repeat_specification_values()` with the original specification's native `copy_data()` snapshot. Include technical notes, all existing copyable specification data, nested design-document lines and the six historical attachment categories, while preserving the row-specific `source_specification_id` and Source REQ label.
+- [2026-11-06] Align the Repeat Job's save-time source hydration with the onchange's **same full mapping**. Protect QTY/UOM edits on the copied row and stop product/FG/layer/print/feature onchanges from unexpectedly resetting inherited read-only technical values (`models/product_specification.py`).
+- [2026-11-06] Mark copied read-only fields with `force_save="1"` on the embedded Product Specification popup/list. Preserve the existing multiple-source add/remove behavior and original REQ/confirmed SO isolation. No schema change, no manifest version bump, no Job Code/GDN business-rule change.
+
+### [Docs] — Complete source data mapping and tests (2026-11-06)
+- [2026-11-06] Documented exact model/view touchpoints, source-specific copy and delete behavior, notes/attachment handling, known limitations, deployment and proposed RF-01–RF-10 tests in README. Static Python/XML checks and isolated source-snapshot tests completed; **Odoo live view, database upgrade and Sale Order workflows not runtime-tested**.
+
 ## [19.0.0.3] — Migration Patch Prepared: 2026-11-06
 
 ### [Fixed] — Missing Repeat Job Many2many relation tables (2026-11-06)
