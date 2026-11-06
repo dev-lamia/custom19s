@@ -16,7 +16,13 @@ class PlateTds(models.Model):
     gdn_id = fields.Many2one('sale.gdn.configuration', string='GDN', required=True, index=True, ondelete='restrict')
     sale_line_id = fields.Many2one('sale.order.line', string='Sales Order Line', readonly=True)
     sale_order_id = fields.Many2one('sale.order', string='Sales Order', readonly=True, tracking=True)
-
+    purchase_requisition_id = fields.Many2one(
+        'softeko.purchase.requisition',
+        string='Purchase Requisition',
+        readonly=True,
+        copy=False,
+        ondelete='set null',
+    )
     supplier_name = fields.Char(string='Supplier Name', tracking=True)
     customer_id = fields.Many2one('res.partner', string='Customer', readonly=True, tracking=True)
     customer_code = fields.Char(string='Customer Code', readonly=True, tracking=True)
@@ -378,7 +384,65 @@ class PlateTds(models.Model):
 
     def action_reset_draft(self):
         self.write({'state': 'draft'})
+        
+    def action_generate_pr(self):
+        self.ensure_one()
 
+        if self.state != 'confirmed':
+            raise UserError(_('TDS must be confirmed before generating a PR.'))
+
+        if self.purchase_requisition_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Purchase Requisition'),
+                'res_model': 'softeko.purchase.requisition',
+                'view_mode': 'form',
+                'res_id': self.purchase_requisition_id.id,
+                'target': 'current',
+            }
+
+        plate_lines = self.plate_line_ids.filtered('plate_product_id')
+        if not plate_lines:
+            raise UserError(
+                _('Please add at least one Plate Code before generating the PR.')
+            )
+
+        company = (
+            self.sale_order_id.company_id
+            or self.env.company
+        )
+
+        material_lines = []
+        for line in plate_lines.sorted('sequence'):
+            material_lines.append((
+                0,
+                0,
+                {
+                    'product_id': line.plate_product_id.id,
+                    'product_qty': 1.0,
+                }
+            ))
+
+        pr = self.env['softeko.purchase.requisition'].with_company(company).create({
+            'company_id': company.id,
+            'sale_order_id': self.sale_order_id.id or False,
+            'project_ref': self.name,
+            'special_instruction': _(
+                'Generated from Plate TDS %s.'
+            ) % self.name,
+            'material_line_ids': material_lines,
+        })
+
+        self.purchase_requisition_id = pr
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Requisition'),
+            'res_model': 'softeko.purchase.requisition',
+            'view_mode': 'form',
+            'res_id': pr.id,
+            'target': 'current',
+        }
 
     def action_print_tds(self):
         self.ensure_one()

@@ -117,15 +117,7 @@
     .o_plate_tds_notebook .nav-link.active { color: var(--tds-green-dark) !important; font-weight: 700; }
     .o_plate_tds_panel .o_list_table thead { background: #eefaf5; }
     .o_plate_tds_panel .o_list_table th { color: var(--tds-blue-dark); }
-    .o-mail-Chatter, .oe_chatter {
-        max-width: none;
-        margin: 24px;
-        padding: 16px 18px;
-        background: #fff;
-        border: 1px solid #d8e7df;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(15,23,42,.06);
-    }
+
     @media (max-width: 768px) {
         .o_form_sheet_bg { padding: 12px 6px 24px; }
         .o_form_sheet_bg .o_form_sheet { width: 100% !important; }

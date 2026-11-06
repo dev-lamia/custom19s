@@ -53,7 +53,7 @@
                                     <strong>GDN Number</strong>
                                 </td>
                                 <td>
-                                    <span t-esc="o.gdn_number or ''" />
+                                    <span t-esc="o.gdn_id.name or ''" />
                                 </td>
                             </tr>
                             <tr>
@@ -95,7 +95,7 @@
                                     <strong>GDN</strong>
                                 </td>
                                 <td>
-                                    <span t-esc="o.gdn_number or ''" />
+                                    <span t-esc="o.gdn_id.name or ''" />
                                 </td>
                             </tr>
                             <tr>

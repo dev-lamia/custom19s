@@ -21,13 +21,37 @@
         <field name="arch" type="xml">
             <form string="Plate Technical Data Sheet" class="o_plate_tds_backend">
                 <header>
-                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary"
+                    <button name="action_confirm"
+                        type="object"
+                        string="Confirm"
+                        class="btn-primary"
                         invisible="state != 'draft'" />
-                    <button name="action_reset_draft" type="object" string="Reset to Draft"
+
+                    <button name="action_generate_pr"
+                        type="object"
+                        string="Generate PR"
+                        class="btn-primary"
+                        invisible="state != 'confirmed' or purchase_requisition_id"/>
+
+                    <button name="action_generate_pr"
+                        type="object"
+                        string="Open PR"
+                        class="btn-secondary"
+                        invisible="state != 'confirmed' or not purchase_requisition_id"/>
+
+                    <button name="action_reset_draft"
+                        type="object"
+                        string="Reset to Draft"
                         invisible="state != 'confirmed'" />
-                    <button name="action_print_tds" type="object" string="Print TDS"
+
+                    <button name="action_print_tds"
+                        type="object"
+                        string="Print TDS"
                         class="btn-secondary" />
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed" />
+
+                    <field name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,confirmed" />
                 </header>
                 <sheet class="o_plate_tds_sheet">
                     <div class="o_plate_tds_hero">
@@ -56,6 +80,7 @@
                                 <field name="customer_id" readonly="1" />
                             </group>
                             <group>
+                                <field name="purchase_requisition_id" invisible="1"/>
                                 <field name="customer_code" />
                                 <field name="task_id" />
                                 <!-- <field name="gdn_id" readonly="1" /> -->

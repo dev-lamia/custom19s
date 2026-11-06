@@ -5,7 +5,7 @@
     'author': 'Softeko_HUMAYRA',
     'license': 'LGPL-3',
     'summary': 'Generate Plate TDS from Artwork Project Tasks and GDN',
-    'depends': ['sale_management', 'artwork_project', 'crm_requirement_form', 'mail', 'product'],
+    'depends': ['sale_management', 'artwork_project', 'crm_requirement_form', 'mail', 'product', 'softeko_purchase_requisition'],
     'data': [
         'security/ir.model.access.csv',
         'data/tds_sequence.xml',
