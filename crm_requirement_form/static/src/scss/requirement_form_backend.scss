@@ -947,61 +947,10 @@
     max-width: 100%;
     overflow: visible !important;
 
-    /* Odoo 19 x2many: keep both scrollbars on ONE scroll container.
-       The former th-only sticky rule was underneath body HTML links in
-       Chromium: Job Code/GDN values could draw across the heading. */
     .o_list_renderer {
-        position: relative;
         max-height: 390px;
         overflow-x: auto !important;
         overflow-y: auto !important;
-        isolation: isolate;
-    }
-
-    .o_list_renderer .o_list_table {
-        /* Sticky table headers are painted correctly above the tbody with
-           separate borders; collapsed table borders may be painted on top. */
-        border-collapse: separate !important;
-        border-spacing: 0 !important;
-    }
-
-    .o_list_renderer .o_list_table thead {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 100 !important;
-        background: #e7f6ee !important;
-        isolation: isolate;
-        box-shadow: 0 1px 0 #cbded4;
-    }
-
-    .o_list_renderer .o_list_table thead tr,
-    .o_list_renderer .o_list_table thead th {
-        background: #e7f6ee !important;
-    }
-
-    .o_list_renderer .o_list_table thead th {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 101 !important;
-        vertical-align: middle !important;
-        background-clip: padding-box;
-        overflow: hidden !important;
-        white-space: nowrap !important;
-        box-shadow: inset 0 -1px 0 #cbded4;
-    }
-
-    /* Override this module's earlier overflow:visible header-title rule.
-       The heading must never become a transparent window onto body rows. */
-    .o_list_renderer .o_list_table thead th .o_column_title {
-        position: relative;
-        overflow: hidden !important;
-        text-overflow: clip !important;
-        white-space: nowrap !important;
-    }
-
-    .o_list_renderer .o_list_table tbody {
-        position: relative;
-        z-index: 0 !important;
     }
 
     .o_field_x2many_list_row_add,

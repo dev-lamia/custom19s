@@ -149,14 +149,9 @@
                                 <group col="4" class="mb-3">
                                     <field name="new_job" readonly="state == 'submitted'"/>
                                     <field name="repeat_job" readonly="state == 'submitted'"/>
-                                    <field name="loaded_previous_requirement_ids" invisible="1" force_save="1"/>
-                                    <field name="previous_requirement_ids" string="Previous Req Forms" widget="many2many_tags"
-                                           domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]"
-                                           invisible="not repeat_job" readonly="state == 'submitted'"
-                                           options="{'no_create': True, 'no_create_edit': True}"/>
-                                    <!-- Preserve historical single-source REQ links. New records use the multi-selector. -->
-                                    <field name="previous_requirement_id" string="Legacy Previous REQ" readonly="1"
-                                           invisible="not previous_requirement_id or not repeat_job"/>
+                                    <field name="previous_requirement_id" invisible="1" force_save="1"/>
+                                    <field name="previous_requirement_synced_ids" invisible="1" force_save="1"/>
+                                    <field name="previous_requirement_ids" string="Previous Req Forms" widget="many2many_tags" force_save="1" domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]" invisible="not repeat_job" required="repeat_job" readonly="state == 'submitted'" options="{'no_create': True, 'no_create_edit': True}"/>
                                 </group>
 
                                 <field name="next_design_number" invisible="1"/>
@@ -165,24 +160,24 @@
                                         <control>
                                             <create string="Add a line"/>
                                         </control>
-                                        <field name="is_duplicate_copy" column_invisible="1"/><field name="source_specification_id" column_invisible="1" force_save="1"/><field name="previous_req_form" string="Source REQ" readonly="1" force_save="1" optional="show"/><field name="sequence" widget="handle" readonly="is_duplicate_copy" force_save="1"/>
+                                        <field name="is_duplicate_copy" column_invisible="1" force_save="1"/><field name="source_specification_id" column_invisible="1" force_save="1"/><field name="previous_req_form" column_invisible="1" force_save="1"/><field name="sequence" widget="handle" readonly="is_duplicate_copy"/>
                                         <field name="no_designs" string="Design" readonly="1"/>
-                                        <field name="design_name" string="Design Name" readonly="is_duplicate_copy" force_save="1"/>
+                                        <field name="design_name" string="Design Name" readonly="is_duplicate_copy"/>
                                         <field name="job_code_link" string="Job Code" widget="html" readonly="1" optional="show"/>
                                         <field name="gdn_number_link" string="GDN Number" widget="html" readonly="1" optional="show"/>
-                                        <field name="fg_type" string="FG Type" readonly="is_duplicate_copy" force_save="1"/>
-                                        <field name="bag_type_product_tmpl_id" string="Product" domain="[('active', '=', True), ('sale_ok', '=', True), ('requirement_fg_type', '=', fg_type)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                        <field name="fg_type" string="FG Type" readonly="is_duplicate_copy"/>
+                                        <field name="bag_type_product_tmpl_id" string="Product" domain="[('active', '=', True), ('sale_ok', '=', True), ('requirement_fg_type', '=', fg_type)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                         <field name="quantity" string="QTY"/>
                                         <field name="quantity_uom_id" string="UOM" options="{'no_create': True, 'no_create_edit': True}"/>
-                                        <field name="print_finish_id" string="Print and Finish" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                        <field name="print_finish_id" string="Print and Finish" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                     </list>
                                     <form string="Product Specification" class="o_crm_req_spec_editor">
                                         <field name="is_repeat_job" invisible="1"/>
                                         <sheet class="o_crm_req_spec_editor_sheet">
-                                            <field name="is_duplicate_copy" invisible="1"/><field name="source_specification_id" invisible="1" force_save="1" readonly="is_duplicate_copy"/><field name="sequence" invisible="1" readonly="is_duplicate_copy" force_save="1"/>
-                                            <field name="previous_req_form" invisible="1" readonly="is_duplicate_copy" force_save="1"/>
-                                            <field name="bag_type_hide_gusset" invisible="1" readonly="is_duplicate_copy" force_save="1"/>
-                                            <field name="roll_type" invisible="1" readonly="is_duplicate_copy" force_save="1"/>
+                                            <field name="is_duplicate_copy" invisible="1" force_save="1"/><field name="source_specification_id" invisible="1" force_save="1" readonly="is_duplicate_copy"/><field name="sequence" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="previous_req_form" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="bag_type_hide_gusset" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="roll_type" invisible="1" readonly="is_duplicate_copy"/>
 
                                             <div class="o_crm_req_spec_editor_header">
                                                 <div>
@@ -197,7 +192,7 @@
                                                 </div>
                                                 <div class="o_crm_req_spec_editor_badge">
                                                     <span>FG Type</span>
-                                                    <field name="fg_type" nolabel="1" required="1" class="oe_inline" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="fg_type" nolabel="1" required="1" class="oe_inline" readonly="is_duplicate_copy"/>
                                                 </div>
                                             </div>
 
@@ -207,16 +202,16 @@
                                                 </div>
                                                 <group col="2" class="o_crm_req_spec_two_col">
                                                     <group>
-                                                        <field name="design_name" required="1" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="design_dimension_uom" required="1" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="color_reference" required="1" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="color_reference_type" invisible="color_reference != 'yes'" required="color_reference == 'yes'" readonly="is_duplicate_copy" force_save="1"/>
+                                                        <field name="design_name" required="1" readonly="is_duplicate_copy"/>
+                                                        <field name="design_dimension_uom" required="1" readonly="is_duplicate_copy"/>
+                                                        <field name="color_reference" required="1" readonly="is_duplicate_copy"/>
+                                                        <field name="color_reference_type" invisible="color_reference != 'yes'" required="color_reference == 'yes'" readonly="is_duplicate_copy"/>
                                                     </group>
                                                     <group>
                                                         <field name="quantity" string="QTY" required="1"/>
                                                         <field name="quantity_uom_id" string="UOM" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
-                                                        <field name="bag_type_product_tmpl_id" string="Product" required="1" domain="[('active', '=', True), ('sale_ok', '=', True), ('requirement_fg_type', '=', fg_type)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="print_finish_id" string="Print and Finish" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                        <field name="bag_type_product_tmpl_id" string="Product" required="1" domain="[('active', '=', True), ('sale_ok', '=', True), ('requirement_fg_type', '=', fg_type)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                        <field name="print_finish_id" string="Print and Finish" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     </group>
                                                 </group>
                                             </div>
@@ -226,9 +221,9 @@
                                                     <i class="fa fa-arrows-alt"/> Bag Dimensions
                                                 </div>
                                                 <group col="3" class="o_crm_req_spec_three_col">
-                                                    <field name="length" string="Bag Length (mm)" readonly="is_duplicate_copy" force_save="1"/>
-                                                    <field name="width" string="Bag Width (mm)" readonly="is_duplicate_copy" force_save="1"/>
-                                                    <field name="gusset" string="Gusset (mm)" invisible="bag_type_hide_gusset" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="length" string="Bag Length (mm)" readonly="is_duplicate_copy"/>
+                                                    <field name="width" string="Bag Width (mm)" readonly="is_duplicate_copy"/>
+                                                    <field name="gusset" string="Gusset (mm)" invisible="bag_type_hide_gusset" readonly="is_duplicate_copy"/>
                                                 </group>
                                             </div>
 
@@ -238,17 +233,17 @@
                                                 </div>
                                                 <group col="2" class="o_crm_req_spec_two_col">
                                                     <group>
-                                                        <field name="coil_width_mm" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="cutoff_length_mm" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="final_roll_direction" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="final_roll_weight_kg" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="final_roll_od_mm" readonly="is_duplicate_copy" force_save="1"/>
+                                                        <field name="coil_width_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="cutoff_length_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="final_roll_direction" readonly="is_duplicate_copy"/>
+                                                        <field name="final_roll_weight_kg" readonly="is_duplicate_copy"/>
+                                                        <field name="final_roll_od_mm" readonly="is_duplicate_copy"/>
                                                     </group>
                                                     <group>
-                                                        <field name="final_roll_meters" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="core_id_mm" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="core_thickness_mm" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="core_type" readonly="is_duplicate_copy" force_save="1"/>
+                                                        <field name="final_roll_meters" readonly="is_duplicate_copy"/>
+                                                        <field name="core_id_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="core_thickness_mm" readonly="is_duplicate_copy"/>
+                                                        <field name="core_type" readonly="is_duplicate_copy"/>
                                                     </group>
                                                 </group>
                                             </div>
@@ -262,87 +257,87 @@
                                                 </div>
 
                                                 <div class="o_crm_req_layer_card"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_1_product_tmpl_id" string="Layer 1" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                    <field name="layer_1_product_tmpl_id" string="Layer 1" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_1_material" string="Layer 1" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_1_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_1_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_1_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_1_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_1_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 1}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 2 and not layer_2_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_2_product_tmpl_id" string="Layer 2" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 1}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 2 and not layer_2_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_2_product_tmpl_id" string="Layer 2" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_2_material" string="Layer 2" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_2_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_2_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_2_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_2_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_2_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 2}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 3 and not layer_3_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_3_product_tmpl_id" string="Layer 3" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 2}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 3 and not layer_3_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_3_product_tmpl_id" string="Layer 3" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_3_material" string="Layer 3" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_3_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_3_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_3_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_3_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_3_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 3}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 4 and not layer_4_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_4_product_tmpl_id" string="Layer 4" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 3}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 4 and not layer_4_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_4_product_tmpl_id" string="Layer 4" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_4_material" string="Layer 4" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_4_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_4_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_4_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_4_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_4_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 4}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 5 and not layer_5_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_5_product_tmpl_id" string="Layer 5" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 4}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 5 and not layer_5_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_5_product_tmpl_id" string="Layer 5" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_5_material" string="Layer 5" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_5_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_5_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_5_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_5_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_5_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 5}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 6 and not layer_6_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_6_product_tmpl_id" string="Layer 6" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 5}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 6 and not layer_6_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_6_product_tmpl_id" string="Layer 6" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_6_material" string="Layer 6" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_6_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_6_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_6_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_6_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_6_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 6}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 7 and not layer_7_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_7_product_tmpl_id" string="Layer 7" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 6}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 7 and not layer_7_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_7_product_tmpl_id" string="Layer 7" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_7_material" string="Layer 7" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_7_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_7_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_7_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_7_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_7_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 7}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 8 and not layer_8_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_8_product_tmpl_id" string="Layer 8" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 7}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 8 and not layer_8_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_8_product_tmpl_id" string="Layer 8" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_8_material" string="Layer 8" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_8_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_8_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_8_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_8_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_8_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 8}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 9 and not layer_9_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_9_product_tmpl_id" string="Layer 9" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 8}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 9 and not layer_9_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_9_product_tmpl_id" string="Layer 9" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_9_material" string="Layer 9" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_9_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_9_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_9_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_9_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_9_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 9}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 10 and not layer_10_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
-                                                    <field name="layer_10_product_tmpl_id" string="Layer 10" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1" invisible="is_duplicate_copy"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 9}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_card" invisible="layer_visible_count &lt; 10 and not layer_10_product_tmpl_id"><group col="3" class="o_crm_req_layer_row">
+                                                    <field name="layer_10_product_tmpl_id" string="Layer 10" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" invisible="is_duplicate_copy"/>
                                                     <!-- Fetched (repeat-job) copies are virtual until saved; show the stored material name so the layer never appears as "Unnamed". -->
                                                     <field name="layer_10_material" string="Layer 10" readonly="1" invisible="not is_duplicate_copy"/>
-                                                    <field name="layer_10_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_10_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
+                                                    <field name="layer_10_variant_id" invisible="1" domain="[('product_tmpl_id', '=', layer_10_product_tmpl_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
                                                     <field name="layer_10_thickness" string="Thickness (Microns)" readonly="1" force_save="1"/>
                                                 </group>
 
-                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 10}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy" force_save="1"/></div><div class="o_crm_req_layer_actions">
-                                                    <field name="layer_visible_count" widget="crm_req_layer_add_button" nolabel="1" readonly="is_duplicate_copy" force_save="1"/>
+                                                <field name="layer_visible_count" widget="crm_req_layer_remove_button" options="{'layer_no': 10}" nolabel="1" class="o_crm_req_layer_remove_slot" readonly="is_duplicate_copy"/></div><div class="o_crm_req_layer_actions">
+                                                    <field name="layer_visible_count" widget="crm_req_layer_add_button" nolabel="1" readonly="is_duplicate_copy"/>
                                                 </div>
 
                                                 <div class="o_crm_req_total_thickness">
@@ -358,13 +353,13 @@
                                                 </div>
                                                 <group col="2" class="o_crm_req_spec_two_col">
                                                     <group>
-                                                        <field name="standard_feature_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="feature_other_note" string="Other Feature / Technical Note" readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="weight" string="Weight (g)" readonly="is_duplicate_copy" force_save="1"/>
+                                                        <field name="standard_feature_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}" readonly="is_duplicate_copy"/>
+                                                        <field name="feature_other_note" string="Other Feature / Technical Note" readonly="is_duplicate_copy"/>
+                                                        <field name="weight" string="Weight (g)" readonly="is_duplicate_copy"/>
                                                     </group>
                                                     <group>
-                                                        <field name="customer_notes" string="Customer / Sales Design Note" placeholder="Sales note for designer regarding this design..." readonly="is_duplicate_copy" force_save="1"/>
-                                                        <field name="additional_requirements" readonly="is_duplicate_copy" force_save="1"/>
+                                                        <field name="customer_notes" string="Customer / Sales Design Note" placeholder="Sales note for designer regarding this design..." readonly="is_duplicate_copy"/>
+                                                        <field name="additional_requirements" readonly="is_duplicate_copy"/>
                                                     </group>
                                                 </group>
                                             </div>
@@ -373,7 +368,7 @@
                                                     <i class="fa fa-paperclip"/> Design Documents
                                                 </div>
                                                 <p class="text-muted">Add a document line, enter its type, and upload multiple files. The same lines are shown on the linked GDN.</p>
-                                                <field name="design_document_line_ids" nolabel="1" mode="list" readonly="is_duplicate_copy" force_save="1">
+                                                <field name="design_document_line_ids" nolabel="1" mode="list" readonly="is_duplicate_copy">
                                                     <list string="Design Documents" create="1" delete="1" editable="bottom" open_form_view="0">
                                                         <field name="sequence" widget="handle"/>
                                                         <field name="document_type_id" string="Document Type" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" required="1"/>

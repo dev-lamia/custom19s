@@ -1896,14 +1896,13 @@ class SaleOrderLine(models.Model):
         """
         for line in self.filtered(lambda item: not item.display_type):
             specification = line.requirement_specification_id
-            # A copied/duplicated SO line can retain an old REQ specification
-            # reference. Never write the current line into a different form's
-            # source design: only the owning REQ may receive line updates.
             if (
                 specification
                 and line.order_id.requirement_form_id
                 and specification.form_id == line.order_id.requirement_form_id
             ):
+                # Never write back to a specification belonging to a prior
+                # Requirement Form (and therefore a different Sale Order).
                 specification.with_context(
                     sale_line_sync=True,
                 ).write(line._prepare_requirement_specification_sync_values())

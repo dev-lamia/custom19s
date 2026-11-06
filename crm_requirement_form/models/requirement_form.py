@@ -114,24 +114,27 @@ class CrmRequirementForm(models.Model):
     )
     previous_requirement_ids = fields.Many2many(
         'crm.requirement.form',
-        'crm_req_form_previous_source_rel',
-        'form_id',
-        'source_form_id',
+        'crm_req_form_previous_rel',
+        'form_id', 'previous_form_id',
         string='Previous Req Forms',
         copy=False,
         help=(
-            'Select multiple previous Requirement Forms from the same customer. '
-            'Only new source designs are appended; existing designs stay intact.'
+            'Select several previous Requirement Forms. Designs from each '
+            'selected form are copied into this Requirement Form, never linked '
+            'as editable source records.'
         ),
     )
-    loaded_previous_requirement_ids = fields.Many2many(
+    previous_requirement_synced_ids = fields.Many2many(
         'crm.requirement.form',
-        'crm_req_form_loaded_source_rel',
-        'form_id',
-        'source_form_id',
-        string='Previously Loaded REQs',
+        'crm_req_form_previous_synced_rel',
+        'form_id', 'previous_form_id',
+        string='Previously Imported Req Forms',
         copy=False,
-        help='Technical selection snapshot, prevents deleted rows from being re-imported.',
+        help=(
+            'Technical selection snapshot. Allows adding/removing source '
+            'forms without re-adding a copied line deliberately deleted '
+            'from the current Requirement Form.'
+        ),
     )
     specification_ids = fields.One2many(
         'crm.requirement.specification',
@@ -210,6 +213,42 @@ class CrmRequirementForm(models.Model):
     )
 
 
+    def init(self):
+        """Preserve previously selected single REQs when upgrading the module."""
+        super().init()
+        self.env.cr.execute("""
+            INSERT INTO crm_req_form_previous_rel (form_id, previous_form_id)
+            SELECT id, previous_requirement_id
+              FROM crm_requirement_form
+             WHERE previous_requirement_id IS NOT NULL
+               AND previous_requirement_id <> id
+            ON CONFLICT DO NOTHING
+        """)
+        self.env.cr.execute("""
+            INSERT INTO crm_req_form_previous_synced_rel (form_id, previous_form_id)
+            SELECT form_id, previous_form_id
+              FROM crm_req_form_previous_rel
+            ON CONFLICT DO NOTHING
+        """)
+
+    @api.constrains('previous_requirement_ids', 'partner_id')
+    def _check_previous_requirement_selection(self):
+        for rec in self:
+            if rec in rec.previous_requirement_ids:
+                raise ValidationError(
+                    _('A Requirement Form cannot import itself.')
+                )
+            for previous in rec.previous_requirement_ids:
+                if rec.partner_id and previous.partner_id != rec.partner_id:
+                    raise ValidationError(
+                        _('Previous Req Forms must belong to the same customer.')
+                    )
+                if not previous.specification_ids:
+                    raise ValidationError(
+                        _('Previous Req Form %s has no Product Specifications.')
+                        % previous.display_name
+                    )
+
     @api.constrains('feasibility_yes', 'feasibility_cancel')
     def _check_feasibility_choice(self):
         for rec in self:
@@ -243,9 +282,9 @@ class CrmRequirementForm(models.Model):
         for rec in self:
             if rec.new_job:
                 rec.repeat_job = False
-                rec.previous_requirement_id = False
                 rec.previous_requirement_ids = [Command.clear()]
-                rec.loaded_previous_requirement_ids = [Command.clear()]
+                rec._onchange_previous_requirement_ids()
+                rec.previous_requirement_id = False
                 for specification in rec.specification_ids:
                     specification.previous_req_form = False
 
@@ -255,400 +294,282 @@ class CrmRequirementForm(models.Model):
             if rec.repeat_job:
                 rec.new_job = False
             else:
-                rec.previous_requirement_id = False
                 rec.previous_requirement_ids = [Command.clear()]
-                rec.loaded_previous_requirement_ids = [Command.clear()]
+                rec._onchange_previous_requirement_ids()
+                rec.previous_requirement_id = False
 
     def _prepare_repeat_specification_values(
         self, specification, sequence, previous_requirement=None
     ):
-        """Take a complete, independent snapshot of one previous design.
-
-        Copy all copyable stored business values, including technical notes,
-        dimensions, material variants, selected options and document lines.
-        Do not link the new row to the source's parent or its sale lines.
-        The separate source_specification_id is traceability only.
-        """
         self.ensure_one()
-        specification.ensure_one()
-        previous_requirement = previous_requirement or specification.form_id
-
-        # The previous selective mapping omitted fields such as customer_notes,
-        # designer_note and design documents.  Odoo's native copy_data handles
-        # nested One2many/Many2many commands and preserves future copyable
-        # business fields without writing anything to the source record.
-        values = specification.copy_data()[0]
-        for field_name in (
-            'id', 'form_id', 'sale_order_line_ids',
-            'job_code_link', 'gdn_number_link',
-        ):
-            values.pop(field_name, None)
-
-        # The original copy=False attachment links are still useful to the
-        # repeated design. Only link the existing files: never transfer or
-        # delete their ownership on the original REQ.
-        document_fields = (
-            'doc_raw_file_ids', 'doc_customer_approved_file_ids',
-            'doc_production_layout_ids', 'doc_plate_layout_ids',
-            'doc_digital_print_file_ids', 'doc_color_separation_ids',
+        previous_requirement = (
+            previous_requirement or self.previous_requirement_id
         )
-        for field_name in document_fields:
-            values[field_name] = [Command.set(specification[field_name].ids)]
-
-        # Old REQs can contain repeat copies made before the full snapshot
-        # logic existed. Restore any missing *technical* values from that
-        # design's ancestor while keeping QTY/UOM from the immediate source.
-        # Do not fill genuinely empty values on original (non-repeat) designs.
-        if specification.is_duplicate_copy and specification.source_specification_id:
-            ancestor = specification.source_specification_id
-            visited = {specification.id}
-            protected = {
-                'quantity', 'quantity_uom', 'quantity_uom_id',
-                'print_finish_id', 'print_finish_ids', 'standard_feature_ids',
-                'sequence', 'no_designs', 'form_id',
-                'source_specification_id', 'previous_req_form',
-                'is_duplicate_copy', 'design_document_line_ids',
-            }
-            missing_documents = {
-                name for name in document_fields if not specification[name]
-            }
-            missing_options = {
-                name for name in ('print_finish_ids', 'standard_feature_ids')
-                if not specification[name]
-            }
-            while ancestor and ancestor.id not in visited:
-                visited.add(ancestor.id)
-                ancestor_values = ancestor.copy_data()[0]
-                for field_name, value in ancestor_values.items():
-                    if field_name in protected or field_name not in self.env[
-                        'crm.requirement.specification'
-                    ]._fields:
-                        continue
-                    if values.get(field_name) in (False, None, '', 0, 0.0, []):
-                        if value not in (False, None, '', 0, 0.0, []):
-                            values[field_name] = value
-                for field_name in document_fields:
-                    if field_name in missing_documents and ancestor[field_name]:
-                        values[field_name] = [Command.set(ancestor[field_name].ids)]
-                        missing_documents.discard(field_name)
-                for field_name in tuple(missing_options):
-                    if ancestor[field_name]:
-                        values[field_name] = [Command.set(ancestor[field_name].ids)]
-                        missing_options.discard(field_name)
-                if not values.get('design_document_line_ids') and ancestor.design_document_line_ids:
-                    values['design_document_line_ids'] = ancestor.copy_data()[0].get(
-                        'design_document_line_ids', []
-                    )
-                ancestor = ancestor.source_specification_id
-
-        # Explicitly preserve fields which may have copy=False or computed
-        # inverses in previous versions but are part of the editable form.
-        for field_name in ('customer_notes', 'designer_note'):
-            if not values.get(field_name) and specification[field_name]:
-                values[field_name] = specification[field_name]
-        values['quantity_uom_id'] = specification.quantity_uom_id.id or False
-        # print_finish_id is computed+inverse from the M2M; do not explicitly
-        # assign it or Odoo may reduce a multi-selection to just one option.
-        values.pop('print_finish_id', None)
-        if specification.print_finish_ids:
-            values['print_finish_ids'] = [Command.set(specification.print_finish_ids.ids)]
-        elif not values.get('print_finish_ids'):
-            values['print_finish_ids'] = [Command.set([])]
-        if specification.standard_feature_ids:
-            values['standard_feature_ids'] = [Command.set(specification.standard_feature_ids.ids)]
-        elif not values.get('standard_feature_ids'):
-            values['standard_feature_ids'] = [Command.set([])]
+        simple_fields = [
+            'design_name',
+            'design_dimension_uom',
+            'color_reference',
+            'color_reference_type',
+            'no_of_colors',
+            'quantity',
+            'quantity_uom',
+            'fg_type',
+            'roll_type',
+            'bag_type',
+            'length',
+            'width',
+            'gusset',
+            'coil_width_mm',
+            'cutoff_length_mm',
+            'final_roll_direction',
+            'final_roll_weight_kg',
+            'final_roll_od_mm',
+            'final_roll_meters',
+            'core_id_mm',
+            'core_thickness_mm',
+            'core_type',
+            'material',
+            'thickness',
+            'weight',
+            'print_finish',
+            'standard_features',
+            'valve',
+            'valve_type',
+            'feature_tear_notch_zipper',
+            'feature_rounded_corners',
+            'feature_other_note',
+            'back_if_yes',
+            'additional_requirements',
+        ]
+        values = {
+            field_name: specification[field_name]
+            for field_name in simple_fields
+        }
         values.update({
             'sequence': sequence,
             'no_designs': sequence,
+            # Repeat-job specifications are copied as reference designs.
+            # Only QTY and UOM remain editable in the specification view.
             'is_duplicate_copy': True,
-            'source_specification_id': specification.id,
             'previous_req_form': previous_requirement.name or False,
+            'source_specification_id': specification.id or False,
+            'quantity_uom_id': specification.quantity_uom_id.id or False,
+            'bag_type_id': specification.bag_type_id.id or False,
+            'bag_type_product_tmpl_id': (
+                specification.bag_type_product_tmpl_id.id or False
+            ),
+            'print_type_id': specification.print_type_id.id or False,
+            'print_finish_id': specification.print_finish_id.id or False,
+            'print_finish_ids': [
+                (6, 0, specification.print_finish_ids.ids)
+            ],
+            'standard_feature_ids': [
+                (6, 0, specification.standard_feature_ids.ids)
+            ],
         })
-
-        # Preserve legacy layer material names and manually saved thicknesses;
-        # only look up a product when the source has no product relationship.
-        highest_layer = max(int(specification.layer_visible_count or 1), 1)
+        highest_layer = 1
         for layer_no in range(1, 11):
-            tmpl_key = f'layer_{layer_no}_product_tmpl_id'
-            variant_key = f'layer_{layer_no}_variant_id'
-            material_key = f'layer_{layer_no}_material'
-            thickness_key = f'layer_{layer_no}_thickness'
-            material_name = values.get(material_key) or specification[material_key]
-            template_id = values.get(tmpl_key)
-            variant_id = values.get(variant_key)
-            if not template_id and material_name:
-                product_tmpl = self.env['product.template'].search(
-                    [('name', '=', material_name)], limit=1,
-                )
+            product_tmpl = specification[
+                f'layer_{layer_no}_product_tmpl_id'
+            ]
+            variant = specification[f'layer_{layer_no}_variant_id']
+            material_name = specification[f'layer_{layer_no}_material']
+
+            # Older/synced requirement records can retain the layer material
+            # snapshot while the product-template relation is empty.  Resolve
+            # the relation before creating the repeat-job copy so the layer
+            # never turns into an "Unnamed" product in the new form.
+            if not product_tmpl and material_name:
+                product_tmpl = self.env['product.template'].search([
+                    ('name', '=', material_name),
+                ], limit=1)
                 if not product_tmpl:
-                    product_tmpl = self.env['product.template'].search(
-                        [('name', 'ilike', material_name)], limit=1,
-                    )
-                template_id = product_tmpl.id or False
-            if template_id and variant_id:
-                variant = self.env['product.product'].browse(variant_id)
-                if variant.product_tmpl_id.id != template_id:
-                    variant_id = False
-            values[tmpl_key] = template_id or False
-            values[variant_key] = variant_id or False
-            values[material_key] = material_name or False
-            if thickness_key not in values:
-                values[thickness_key] = specification[thickness_key] or 0.0
-            if template_id or material_name:
-                highest_layer = max(highest_layer, layer_no)
+                    product_tmpl = self.env['product.template'].search([
+                        ('name', 'ilike', material_name),
+                    ], limit=1)
+            if product_tmpl and variant and variant.product_tmpl_id != product_tmpl:
+                variant = self.env['product.product']
+            if product_tmpl and not variant and len(product_tmpl.product_variant_ids) == 1:
+                variant = product_tmpl.product_variant_ids[:1]
+
+            if product_tmpl or material_name:
+                highest_layer = layer_no
+            values.update({
+                f'layer_{layer_no}_product_tmpl_id': product_tmpl.id or False,
+                f'layer_{layer_no}_variant_id': variant.id or False,
+                f'layer_{layer_no}_material': (
+                    material_name
+                    or product_tmpl.display_name
+                    or False
+                ),
+                f'layer_{layer_no}_thickness': (
+                    specification[f'layer_{layer_no}_thickness'] or 0.0
+                ),
+            })
+        # Show every populated layer card immediately (before the first
+        # save) instead of only Layer 1.
         values['layer_visible_count'] = highest_layer
         return values
 
-    def _repeat_specification_commands(
-        self, previous_requirement, start_sequence=1,
-        excluded_source_ids=None,
-    ):
-        """Append independent copies; never clear or modify existing designs."""
+    def _repeat_specification_commands(self, previous_requirement):
+        """Return additive import commands for legacy server integrations."""
         self.ensure_one()
-        excluded_source_ids = set(excluded_source_ids or ())
         commands = []
-        sequence = start_sequence
+        existing_ids = set(
+            self.specification_ids.mapped('source_specification_id').ids
+        )
+        sequence = max(self.specification_ids.mapped('sequence') or [0]) + 1
         for specification in previous_requirement.specification_ids.sorted(
             key=lambda line: (line.sequence, line.id)
         ):
-            if specification.id in excluded_source_ids:
+            if specification.id in existing_ids:
                 continue
             commands.append(Command.create(
                 self._prepare_repeat_specification_values(
-                    specification, sequence,
+                    specification,
+                    sequence,
                     previous_requirement=previous_requirement,
                 )
             ))
-            excluded_source_ids.add(specification.id)
+            existing_ids.add(specification.id)
             sequence += 1
         return commands
 
-    def _check_previous_source_selection(self, sources):
-        """Validate sources without mutating original Requirement Forms."""
+    def _sync_previous_requirement_sources(self, added_ids=(), removed_ids=()):
+        """Modify only this form's copied designs for changed source tags."""
         self.ensure_one()
-        if self._origin.id and self._origin in sources:
-            raise ValidationError(
-                _('A Requirement Form cannot repeat itself.')
-            )
-        if sources and (
-            not self.partner_id or any(
-                source.partner_id != self.partner_id for source in sources
-            )
-        ):
-            raise ValidationError(
-                _('Previous Req Forms must belong to the selected Customer.')
-            )
-        invalid = sources.filtered(lambda source: not source.specification_ids)
-        if invalid:
-            raise ValidationError(_(
-                'These previous Requirement Forms have no Product Specifications: %s'
-            ) % ', '.join(invalid.mapped('name')))
-
-    @api.constrains('previous_requirement_ids', 'partner_id')
-    def _check_previous_requirement_ids(self):
-        for rec in self:
-            rec._check_previous_source_selection(rec.previous_requirement_ids)
-
-    def _unselected_previous_specification_rows(self, selected_sources):
-        """Copied rows whose source REQ is no longer selected.
-
-        Use the CURRENT tag selection, not only the hidden 'loaded' snapshot:
-        when an upgraded or unsaved form loses that snapshot, computing the
-        difference from it fails to remove the visible copied rows. Manual
-        specifications (without a source and copy marker) are not touched.
-        """
-        self.ensure_one()
-        selected_names = set(selected_sources.mapped('name'))
-        return self.specification_ids.filtered(
-            lambda line: (
-                (line.source_specification_id
-                 and line.source_specification_id.form_id not in selected_sources)
-                or (
-                    line.is_duplicate_copy
-                    and not line.source_specification_id
-                    and line.previous_req_form
-                    and line.previous_req_form not in selected_names
+        removed_ids = set(removed_ids)
+        added_ids = set(added_ids)
+        if removed_ids:
+            removed_names = set(self.env['crm.requirement.form'].browse(
+                sorted(removed_ids)
+            ).mapped('name'))
+            obsolete = self.specification_ids.filtered(
+                lambda line: (
+                    line.source_specification_id
+                    and line.source_specification_id.form_id.id in removed_ids
+                ) or (
+                    not line.source_specification_id
+                    and line.is_duplicate_copy
+                    and line.previous_req_form in removed_names
                 )
             )
-        )
+            if obsolete:
+                obsolete.with_context(skip_requirement_audit=True).unlink()
 
-    def _duplicate_repeat_specification_rows(self):
-        """Only redundant copies of the *same exact source design*.
-
-        A Repeat Job can legitimately contain identical-looking designs from
-        different REQs. Never merge those and never delete a row referenced by
-        a Sale Order: its production history belongs to that order.
-        """
-        self.ensure_one()
-        grouped = {}
-        for line in self.specification_ids.sorted(
-            key=lambda row: (row.sequence or 0, row.no_designs or 0)
-        ):
-            source = line.source_specification_id
-            # A few older browser saves dropped the hidden copy flag while
-            # retaining the source link. The source link is authoritative.
-            if source:
-                grouped.setdefault(source.id, []).append(line)
-
-        redundant = self.env['crm.requirement.specification']
-        for rows in grouped.values():
-            # Preserve a SO-linked row in preference to a temporary copy.
-            keeper = next(
-                (row for row in rows if row.sale_order_line_ids), rows[0]
-            )
-            for row in rows:
-                if row != keeper and not row.sale_order_line_ids:
-                    redundant |= row
-        return redundant
-
-    def _remove_persisted_duplicate_repeat_rows(self):
-        """Idempotent cleanup after an O2M save; leave source REQs untouched."""
-        for rec in self:
-            duplicates = rec._duplicate_repeat_specification_rows()
-            if duplicates:
-                duplicates.with_context(
-                    skip_requirement_audit=True,
-                    skip_requirement_resequence=True,
-                ).unlink()
-                self.env['crm.requirement.specification']._resequence_form_lines(rec)
-
-    def _append_unloaded_previous_requirements(self, sources):
-        """Server fallback for imports and clients without onchange commands."""
-        self.ensure_one()
-        self._check_previous_source_selection(sources)
-        existing_source_ids = set(
+        existing_sources = set(
             self.specification_ids.mapped('source_specification_id').ids
         )
-        next_sequence = max(
-            self.specification_ids.mapped('sequence') or [0]
-        ) + 1
-        commands = []
-        for source in sources.sorted(key=lambda rec: rec.id):
-            for specification in source.specification_ids.sorted(
-                key=lambda rec: (rec.sequence, rec.id)
+        next_number = max(self.specification_ids.mapped('sequence') or [0]) + 1
+        for previous in self.env['crm.requirement.form'].browse(
+            sorted(added_ids)
+        ).exists():
+            if previous == self or not previous.specification_ids:
+                continue
+            for source in previous.specification_ids.sorted(
+                key=lambda line: (line.sequence, line.id)
             ):
-                if specification.id in existing_source_ids:
+                if source.id in existing_sources:
                     continue
-                commands.append(Command.create(
-                    self._prepare_repeat_specification_values(
-                        specification, next_sequence,
-                        previous_requirement=source,
-                    )
-                ))
-                existing_source_ids.add(specification.id)
-                next_sequence += 1
-        if commands:
-            self.with_context(skip_requirement_audit=True).write({
-                'specification_ids': commands,
-            })
-        self.with_context(skip_requirement_audit=True).write({
-            'loaded_previous_requirement_ids': [Command.set(
-                self.previous_requirement_ids.ids
-            )],
-        })
+                values = self._prepare_repeat_specification_values(
+                    source, next_number, previous_requirement=previous
+                )
+                values['form_id'] = self.id
+                self.env['crm.requirement.specification'].with_context(
+                    skip_requirement_audit=True,
+                ).create(values)
+                existing_sources.add(source.id)
+                next_number += 1
 
     @api.onchange('previous_requirement_ids')
     def _onchange_previous_requirement_ids(self):
-        """Import only newly selected REQs; never replace previously added rows."""
+        """Incremental imports: a removed source never clears other lines."""
         for rec in self:
             selected = rec.previous_requirement_ids
-            loaded = rec.loaded_previous_requirement_ids
-            # An unchanged hidden snapshot may be absent in an onchange RPC
-            # (notably on upgraded, already-saved forms). Use the persisted
-            # selection instead of treating every selected REQ as newly added.
-            if not loaded and rec._origin.id:
-                loaded = (
-                    rec._origin.loaded_previous_requirement_ids
-                    or rec._origin.previous_requirement_ids
-                )
-            # A pre-save wizard can sometimes lose its hidden M2M snapshot.
-            # A source with visible copied designs has already been imported;
-            # never reload its deleted designs while adding a different REQ.
-            visible_sources = rec.specification_ids.mapped(
-                'source_specification_id.form_id'
+            invalid = selected.filtered(
+                lambda previous: previous == rec._origin
+                or (rec.partner_id and previous.partner_id != rec.partner_id)
+                or not previous.specification_ids
             )
-            loaded |= visible_sources & selected
-            added = selected - loaded
-            try:
-                rec._check_previous_source_selection(selected)
-            except ValidationError as error:
-                rec.previous_requirement_ids = [Command.set(loaded.ids)]
-                return {
-                    'warning': {
-                        'title': _('Invalid Previous Requirement'),
-                        'message': str(error),
-                    }
-                }
+            if invalid:
+                selected -= invalid
+                rec.previous_requirement_ids = [Command.set(selected.ids)]
 
-            # Selection is authoritative. The hidden loaded M2M may be empty
-            # even while copied rows are visible, so delta-only removal is
-            # insufficient (the user could remove a tag but keep all rows).
-            removed_lines = rec._unselected_previous_specification_rows(selected)
-            if removed_lines.filtered(lambda line: line.sale_order_line_ids):
-                rec.previous_requirement_ids = [Command.set(loaded.ids)]
-                return {
-                    'warning': {
-                        'title': _('Previous REQ is used by a Sale Order'),
-                        'message': _(
-                            'Cannot remove a previous REQ whose copied '
-                            'designs are already linked to a Sale Order.'
-                        ),
-                    },
-                }
-            if removed_lines:
-                rec.specification_ids = rec.specification_ids - removed_lines
+            tracked = rec.previous_requirement_synced_ids
+            removed_ids = set((tracked - selected).ids)
+            if removed_ids:
+                removed_names = set((tracked - selected).mapped('name'))
+                obsolete = rec.specification_ids.filtered(
+                    lambda line: (
+                        line.source_specification_id
+                        and line.source_specification_id.form_id.id in removed_ids
+                    ) or (
+                        not line.source_specification_id
+                        and line.is_duplicate_copy
+                        and line.previous_req_form in removed_names
+                    )
+                )
+                if obsolete:
+                    # Assign the surviving recordset: never clear unrelated
+                    # One2many rows or reparent original source records.
+                    rec.specification_ids -= obsolete
 
-            # Normalize already imported lines BEFORE adding any new source.
-            # Also fixes old duplicated copies during the very next edit.
-            duplicates = rec._duplicate_repeat_specification_rows()
-            if duplicates:
-                rec.specification_ids = rec.specification_ids - duplicates
-
-            next_sequence = max(
-                rec.specification_ids.mapped('sequence') or [0]
-            ) + 1
-            new_commands = []
-            existing_source_ids = set(
+            source_ids = set(
                 rec.specification_ids.mapped('source_specification_id').ids
             )
-            for previous in added.sorted(key=lambda source: source.id):
-                commands = rec._repeat_specification_commands(
-                    previous, start_sequence=next_sequence,
-                    excluded_source_ids=existing_source_ids,
-                )
-                new_commands.extend(commands)
-                existing_source_ids.update(previous.specification_ids.ids)
-                next_sequence += len(commands)
-            if new_commands:
-                # In an onchange the One2many already contains the current
-                # unsaved and saved designs.  Updating it using *only* CREATE
-                # commands can replace the web client's in-memory rowset,
-                # causing the previously selected REQ to disappear.  Build
-                # virtual rows, then explicitly retain the entire rowset.
-                # Do not write/copy into any of the source Requirement Forms.
-                specification_model = rec.env['crm.requirement.specification']
-                appended_rows = specification_model
-                for create_command in new_commands:
-                    appended_rows |= specification_model.new(create_command[2])
-                rec.specification_ids = rec.specification_ids | appended_rows
-            # Onchange commands can be replayed by the client after a widget
-            # update. Enforce one current row per source specification.
-            duplicates = rec._duplicate_repeat_specification_rows()
-            if duplicates:
-                rec.specification_ids = rec.specification_ids - duplicates
-            rec.loaded_previous_requirement_ids = [Command.set(selected.ids)]
+            next_number = max(
+                rec.specification_ids.mapped('sequence') or [0]
+            ) + 1
+            commands = []
+            for previous in (selected - tracked).sorted(key=lambda form: form.id):
+                for source in previous.specification_ids.sorted(
+                    key=lambda line: (line.sequence, line.id)
+                ):
+                    if source.id in source_ids:
+                        continue
+                    commands.append(Command.create(
+                        rec._prepare_repeat_specification_values(
+                            source, next_number, previous_requirement=previous
+                        )
+                    ))
+                    source_ids.add(source.id)
+                    next_number += 1
+            if commands:
+                # Command.create appends rows; unlike Command.clear it cannot
+                # delete or overwrite lines already copied from another REQ.
+                rec.update({'specification_ids': commands})
+
+            rec.previous_requirement_synced_ids = [Command.set(selected.ids)]
+            rec.previous_requirement_id = selected[:1].id or False
             if selected:
                 rec.repeat_job = True
                 rec.new_job = False
+            elif tracked:
+                # Removing the last selected source should not leave a
+                # required-but-empty Repeat Job selector on Save.
+                rec.repeat_job = False
+                rec.new_job = True
+
+            if invalid:
+                return {
+                    'warning': {
+                        'title': _('Invalid Previous Requirement'),
+                        'message': _(
+                            'Select only previous Requirement Forms for the '
+                            'same customer which contain Product Specifications.'
+                        ),
+                    }
+                }
 
     @api.onchange('previous_requirement_id')
     def _onchange_previous_requirement_id(self):
-        """Legacy single-source API remains supported without clearing rows."""
+        """Backward compatibility for integrations using the old field."""
         for rec in self:
             previous = rec.previous_requirement_id
             if previous and previous not in rec.previous_requirement_ids:
-                rec.previous_requirement_ids = [Command.link(previous.id)]
+                rec.previous_requirement_ids = [Command.set(
+                    (rec.previous_requirement_ids | previous).ids
+                )]
                 rec._onchange_previous_requirement_ids()
 
     @api.depends('specification_ids')
@@ -659,18 +580,6 @@ class CrmRequirementForm(models.Model):
     @api.onchange('specification_ids')
     def _onchange_specification_ids_numbering(self):
         for rec in self:
-            # Odoo's editable x2many widget can replay an import's create
-            # commands after the source-selector onchange has completed.
-            # Normalize the current rows here as well, before numbering them.
-            # The helper groups by exact source specification ID and protects
-            # rows already referenced by Sale Orders. No source is reloaded.
-            if rec.repeat_job:
-                redundant = rec._duplicate_repeat_specification_rows()
-                if redundant:
-                    rec.specification_ids = rec.specification_ids - redundant
-
-            # A manually deleted design must stay deleted: this onchange
-            # *only* normalizes/renumbers the rows still in this form.
             for design_no, specification in enumerate(
                 rec.specification_ids, start=1
             ):
@@ -871,22 +780,21 @@ class CrmRequirementForm(models.Model):
     def _sync_specifications_to_sale_order(self, order):
         self.ensure_one()
         order.ensure_one()
-        if order.requirement_form_id != self:
-            raise ValidationError(_(
-                'Cannot synchronize another Requirement Form\'s Sale Order.'
-            ))
-        # Confirmed/cancelled orders are historical records; never rewrite them
-        # when a later Repeat Requirement is edited or submitted.
-        if order.state not in ('draft', 'sent'):
+        # A Repeat Job must never rewrite the original source Sale Order.
+        # Confirmed orders are historical snapshots, not editable quotations.
+        if order.requirement_form_id != self or order.state not in ('draft', 'sent'):
             return
         existing_lines = {
             line.requirement_specification_id.id: line
             for line in order.order_line
             if line.requirement_specification_id
+            and line.requirement_specification_id.form_id == self
         }
         for specification in self.specification_ids.sorted(
             key=lambda line: (line.sequence, line.id)
         ):
+            if specification.form_id != self:
+                continue
             values = self._prepare_sale_order_line_from_specification(specification)
             existing_line = existing_lines.get(specification.id)
             if existing_line:
@@ -1007,8 +915,7 @@ class CrmRequirementForm(models.Model):
         orders = self.env['sale.order'].search(domain)
         if orders and self.payment_term_id:
             orders.filtered(
-                lambda order: order.state in ('draft', 'sent')
-                and order.payment_term_id != self.payment_term_id
+                lambda order: order.payment_term_id != self.payment_term_id
             ).write({'payment_term_id': self.payment_term_id.id})
         if orders:
             orders.filtered(
@@ -1027,11 +934,10 @@ class CrmRequirementForm(models.Model):
                 'target': 'current',
             }
 
-        # Refresh only this form's draft quotations. A confirmed Sale Order
-        # and its production snapshots must never be rewritten by later REQs.
-        for linked_order in orders.filtered(
-            lambda order: order.state in ('draft', 'sent')
-        ):
+        # The Product Specifications are native Odoo fields now. Whenever the
+        # Quotation smart button is used, push the latest saved specification
+        # values to all existing linked quotations before opening them.
+        for linked_order in orders:
             self._sync_specifications_to_sale_order(linked_order)
         if self.lead_id:
             self.lead_id._refresh_requirement_summary()
@@ -1084,7 +990,7 @@ class CrmRequirementForm(models.Model):
             'job_code_links',
             'gdn_number_links',
             'specification_ids',
-            'loaded_previous_requirement_ids',
+            'previous_requirement_synced_ids',
         }
 
     def _requirement_audit_value(self, field_name):
@@ -1165,20 +1071,15 @@ class CrmRequirementForm(models.Model):
         vals = dict(vals)
         previous_id = vals.get('previous_requirement_id')
         if previous_id and 'previous_requirement_ids' not in vals:
-            # Legacy one-source callers can keep using the original field.
+            # Older API clients still setting the Many2one get an additive
+            # import, rather than replacing the entire specification table.
             vals['previous_requirement_ids'] = [Command.link(previous_id)]
-        prior_sources = {rec.id: rec.previous_requirement_ids for rec in self}
-        # Source rows connected to existing SOs must never be silently
-        # deleted, even if the client includes O2M delete commands.
-        linked_source_lines = {
-            rec.id: rec.specification_ids.filtered(
-                lambda line: line.source_specification_id
-                and line.sale_order_line_ids
-            )
-            for rec in self
-        }
-        sources_changed = 'previous_requirement_ids' in vals
-        specs_supplied = 'specification_ids' in vals
+            vals['repeat_job'] = True
+            vals['new_job'] = False
+        old_sources = (
+            {rec.id: set(rec.previous_requirement_ids.ids) for rec in self}
+            if 'previous_requirement_ids' in vals else {}
+        )
 
         excluded = self._requirement_audit_excluded_fields()
         audit_fields = []
@@ -1202,55 +1103,28 @@ class CrmRequirementForm(models.Model):
 
         old_leads = self.mapped('lead_id')
         result = super().write(vals)
-        if sources_changed or specs_supplied:
+        if old_sources:
             for rec in self:
-                selected = rec.previous_requirement_ids
-                previously = prior_sources.get(rec.id, selected)
-                removed = previously - selected if sources_changed else self.env[
-                    'crm.requirement.form'
-                ]
-                # Never erase an already-confirmed SO's source line; raising
-                # here rolls back all commands from super().write().
-                protected = linked_source_lines.get(rec.id)
-                if protected and any(
-                    not line.exists()
-                    or line.source_specification_id.form_id in removed
-                    for line in protected
-                ):
-                    raise ValidationError(_(
-                        'Cannot delete a Repeat Job specification already '
-                        'used by a Sale Order.'
-                    ))
-                if sources_changed:
-                    # Also handle old/corrupted loaded-source snapshots. The
-                    # chosen REQs, not the prior snapshot, decide which copied
-                    # designs belong here; protect all SO-linked rows.
-                    remove_rows = rec._unselected_previous_specification_rows(
-                        selected
-                    )
-                    if remove_rows.filtered(lambda line: line.sale_order_line_ids):
-                        raise ValidationError(_(
-                            'Cannot remove a Repeat Job specification already '
-                            'used by a Sale Order.'
-                        ))
-                    if remove_rows:
-                        remove_rows.with_context(
-                            skip_requirement_audit=True,
-                            skip_requirement_resequence=True,
-                        ).unlink()
-                if sources_changed and not specs_supplied:
-                    # An API/legacy client with no O2M commands still gets
-                    # only the newly chosen source, once. A saved manual line
-                    # deletion never causes a source to be imported again.
-                    added = selected - previously
-                    if added:
-                        rec._append_unloaded_previous_requirements(added)
-                if rec.repeat_job:
-                    rec._remove_persisted_duplicate_repeat_rows()
-                if sources_changed and rec.loaded_previous_requirement_ids != selected:
-                    rec.with_context(skip_requirement_audit=True).write({
-                        'loaded_previous_requirement_ids': [Command.set(selected.ids)],
-                    })
+                current_ids = set(rec.previous_requirement_ids.ids)
+                previous_ids = old_sources[rec.id]
+                rec._sync_previous_requirement_sources(
+                    added_ids=current_ids - previous_ids,
+                    removed_ids=previous_ids - current_ids,
+                )
+                # Align job type for API callers which bypass onchange.
+                sync_values = {
+                    'previous_requirement_synced_ids': [
+                        Command.set(sorted(current_ids))
+                    ],
+                    'previous_requirement_id': next(
+                        iter(sorted(current_ids)), False
+                    ),
+                }
+                if current_ids:
+                    sync_values.update({'repeat_job': True, 'new_job': False})
+                elif previous_ids:
+                    sync_values.update({'repeat_job': False, 'new_job': True})
+                rec.with_context(skip_requirement_audit=True).write(sync_values)
         summary_leads = old_leads | self.mapped('lead_id')
         if summary_leads:
             summary_leads._refresh_requirement_summary()
@@ -1339,6 +1213,8 @@ class CrmRequirementForm(models.Model):
             previous_id = vals.get('previous_requirement_id')
             if previous_id and 'previous_requirement_ids' not in vals:
                 vals['previous_requirement_ids'] = [Command.link(previous_id)]
+                vals['repeat_job'] = True
+                vals['new_job'] = False
             if vals.get('lead_id') and not vals.get('customer_id'):
                 lead = self.env['crm.lead'].browse(vals['lead_id']).exists()
                 if lead:
@@ -1396,20 +1272,18 @@ class CrmRequirementForm(models.Model):
             if vals.get('name') in (False, None, '', 'New', 'Requirement Form'):
                 vals['name'] = self._generate_requirement_reference(vals)
         records = super().create(vals_list)
-        for record, values in zip(records, vals_list):
-            if record.previous_requirement_ids:
-                if 'specification_ids' not in values:
-                    record._append_unloaded_previous_requirements(
-                        record.previous_requirement_ids
-                    )
-                else:
-                    record.with_context(skip_requirement_audit=True).write({
-                        'loaded_previous_requirement_ids': [Command.set(
-                            record.previous_requirement_ids.ids
-                        )],
-                    })
-            if record.repeat_job:
-                record._remove_persisted_duplicate_repeat_rows()
+        for record in records:
+            selected = record.previous_requirement_ids
+            if selected:
+                # The UI has already created virtual copied rows; only fill
+                # missing ones when this form was created via RPC/import.
+                record._sync_previous_requirement_sources(added_ids=selected.ids)
+                record.with_context(skip_requirement_audit=True).write({
+                    'previous_requirement_synced_ids': [Command.set(selected.ids)],
+                    'previous_requirement_id': selected[:1].id,
+                    'repeat_job': True,
+                    'new_job': False,
+                })
         leads = records.mapped('lead_id')
         if leads:
             leads._refresh_requirement_summary()

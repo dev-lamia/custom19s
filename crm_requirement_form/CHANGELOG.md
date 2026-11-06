@@ -4,79 +4,19 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
-### [Fixed] — Preserve all selected Previous REQs when adding another (2026-11-06)
-- [2026-11-06] Corrected the Repeat Job multi-source onchange to **merge** newly imported `crm.requirement.specification` virtual rows with the existing One2many recordset instead of passing only new `Command.create` rows to `update()`. Selecting REQ-A (3 designs), then REQ-B (2 designs), retains all five independent copies until the user explicitly removes a source or a line (`models/requirement_form.py`).
-- [2026-11-06] Keeping both source IDs selected no longer discards the previously imported REQ's rows. Removing one Previous Req Form tag still removes only that source's copies (unless protected by an existing Sale Order link). Manually deleting or modifying a copied row affects the current Requirement Form, not the original source REQ; existing per-row editability and confirmed Sale Order protections are unchanged.
-- [2026-11-06] Updated source selection documentation and proposed regression tests. Existing manifest version and database schema are unchanged. Static checks only; live Odoo browser validation remains outstanding.
+### [Added] — Multiple Previous Requirement Forms (2026-11-06)
+- [2026-11-06] Added `crm.requirement.form.previous_requirement_ids` as a customer-filtered, multi-select Many2many for **Product Specifications → Repeat Job**. Selecting REQ-A and then REQ-B appends independent source-specific copied designs without clearing prior rows (`models/requirement_form.py`, `views/requirement_form_views.xml`).
+- [2026-11-06] Added technical `previous_requirement_synced_ids` to distinguish a newly selected source from an already processed source. This prevents deleted copied rows from reappearing when another source is selected. Source ownership remains in `crm.requirement.specification.source_specification_id`.
+- [2026-11-06] Added source-by-source backend sync for API imports and writes that bypass form onchanges. Multiple selected REQs are copied only once; removing one REQ deletes only that REQ's local imported rows.
 
+### [Fixed] — Copy/delete and previous Sale Order isolation (2026-11-06)
+- [2026-11-06] Replaced the **destructive single-source `Command.clear()`** selection-onchange behavior with incremental One2many additions and source-specific removals; unrelated/manual specification lines remain intact. Re-selecting a removed REQ copies missing designs once; local QTY/UOM edits stay on the current REQ (`models/requirement_form.py`).
+- [2026-11-06] Added a migration-safe legacy single-selection import in `crm.requirement.form.init()` and retained hidden `previous_requirement_id` for older integrations; the backend view persists copy provenance in hidden One2many list fields.
+- [2026-11-06] Guarded `_sync_specifications_to_sale_order()` by Requirement Form ownership and draft/sent Sale Order state. Guarded `sale.order.line._sync_linked_requirement_and_gdn()` so sale-line write-back cannot modify a specification from a different REQ (`models/requirement_form.py`, `models/sale_order.py`).
+- [2026-11-06] When deleting an imported design, only its own eligible current draft quotation line may be removed. Prior source REQs, confirmed Sales Orders, and GDN-owned source lines are retained (`models/product_specification.py`).
 
-### [Fixed] — Table header layering and removal of deselected source REQs (2026-11-06)
-- [2026-11-06] Corrected the Repeat Job Product Specifications **Job Code/GDN header overlap** at the table painting level. The sticky `thead` now forms an opaque high-priority stacking context, the table uses separate borders, title overflow is clipped, and the `tbody` stays behind the header. This supersedes the earlier insufficient `th`-only sticky styling. Both x/y scrollbars remain (`static/src/scss/requirement_form_backend.scss`).
-- [2026-11-06] Previous REQ tag removal now checks all copied specifications against the **current selected sources**, not only changes to the hidden loaded-source snapshot. Deselected-source rows are removed in onchange and validated again on write. Manually entered designs, other selected sources, and confirmed SO-linked history remain protected (`models/requirement_form.py`).
-- [2026-11-06] No change to Job Code, GDN generation, business validations, or module version. Static validation only; live Odoo UI behavior is not verified.
-
-### [Fixed] — Sticky list header and immediate duplicate normalization (2026-11-06)
-- [2026-11-06] Prevent scrolling **Job Code**/**GDN Number** links from appearing over the Product Specifications list header. The header cells now have an opaque background and explicit sticky stacking inside the existing bounded scroll area (`static/src/scss/requirement_form_backend.scss`). Horizontal and vertical scrolling are preserved.
-- [2026-11-06] Normalize redundant Repeat Job rows by their **exact** `source_specification_id` on the One2many row-change onchange as well as previous-source selection and save. This addresses client-side replay of copied x2many rows without importing any deleted source or touching independent designs/previous confirmed Sale Orders (`models/requirement_form.py`).
-- [2026-11-06] No change to Job Code or GDN generation, source data copying, selection filtering, schema, manifest version, or other business workflows. Static source checks only; browser/runtime behavior not yet verified.
-
-### [Docs] — Scroll and repeat-row regression tests (2026-11-06)
-- [2026-11-06] Updated README with the intended scroll/header and deduplication behavior and proposed staging cases, including existing repeated rows and no cross-REQ merging.
-
-### [Fixed] — Previous REQ removal, duplicate rows and deleted-line persistence (2026-11-06)
-- [2026-11-06] Corrected multi-source onchange selection tracking with persisted/visible-source fallback, so removing a **Previous Req Forms** tag removes only that source's current copies and adding another source does not re-import an earlier deleted design.
-- [2026-11-06] Deduplicate by exact `source_specification_id` during onchange and on form save. Never merge designs solely because the Job Code, GDN or name matches. Preserve rows already referenced by Sale Orders and reject removal of those references rather than rewriting confirmed order history (`models/requirement_form.py`).
-- [2026-11-06] Keep full source snapshot copying, GDN/Job Code rules and existing quotation isolation unchanged. No new fields or migration; existing module version remains `19.0.0.3`.
-
-### [Docs] — Previous REQ row lifecycle (2026-11-06)
-- [2026-11-06] Documented Remove/Reselect/Save/Delete behavior, original source/confirmed SO protections, and proposed DEL-01–DEL-10 regression checks in README. Python syntax and offline tests do not constitute live Odoo verification.
-
-### [Fixed] — Complete Repeat Job specification fetching (2026-11-06)
-- [2026-11-06] Replaced the selective source-design field mapping in `crm.requirement.form._prepare_repeat_specification_values()` with the original specification's native `copy_data()` snapshot. Include technical notes, all existing copyable specification data, nested design-document lines and the six historical attachment categories, while preserving the row-specific `source_specification_id` and Source REQ label.
-- [2026-11-06] Align the Repeat Job's save-time source hydration with the onchange's **same full mapping**. Protect QTY/UOM edits on the copied row and stop product/FG/layer/print/feature onchanges from unexpectedly resetting inherited read-only technical values (`models/product_specification.py`).
-- [2026-11-06] Mark copied read-only fields with `force_save="1"` on the embedded Product Specification popup/list. Preserve the existing multiple-source add/remove behavior and original REQ/confirmed SO isolation. No schema change, no manifest version bump, no Job Code/GDN business-rule change.
-
-### [Docs] — Complete source data mapping and tests (2026-11-06)
-- [2026-11-06] Documented exact model/view touchpoints, source-specific copy and delete behavior, notes/attachment handling, known limitations, deployment and proposed RF-01–RF-10 tests in README. Static Python/XML checks and isolated source-snapshot tests completed; **Odoo live view, database upgrade and Sale Order workflows not runtime-tested**.
-
-## [19.0.0.3] — Migration Patch Prepared: 2026-11-06
-
-### [Fixed] — Missing Repeat Job Many2many relation tables (2026-11-06)
-- [2026-11-06] Addressed `psycopg2.errors.UndefinedTable: relation "crm_req_form_previous_source_rel" does not exist` during `_onchange_previous_requirement_id` on `crm.requirement.form` by adding a **versioned pre-upgrade migration** (`migrations/19.0.0.3/pre-10-relation-tables.py`).
-- [2026-11-06] Ensure **both** `crm_req_form_previous_source_rel` and `crm_req_form_loaded_source_rel` exist with the verified `form_id` / `source_form_id` columns and indexed source-side lookup. `CREATE TABLE IF NOT EXISTS` preserves already-present relation tables/rows and leaves existing REQ designs, Sales Orders, GDNs, and Job Codes untouched.
-- [2026-11-06] Bumped `__manifest__.py` from `19.0.0.0` to `19.0.0.3` so Odoo can discover this migration when upgrading from an older installed version, without modifying existing `19.0.0.1`/`19.0.0.2` scripts. **No Product/REQ/quotation business-rule or report logic changed.**
-
-### [Docs] — Deployment and verification (2026-11-06)
-- [2026-11-06] Updated README with root cause, migration execution conditions, mandatory module Upgrade, PostgreSQL existence verification, rollback caveats, and proposed RT-01–06 regression tests. Source inspection and syntax checks only; **live database upgrade not verified**.
-
-
-
-### [Added] — Multiple previous REQs for one Repeat Job (2026-11-06)
-- [2026-11-06] Added `crm.requirement.form.previous_requirement_ids` multi-select source list, and `loaded_previous_requirement_ids` selection snapshot. The `Previous Req Forms` tags picker is restricted to the selected customer; legacy `previous_requirement_id` is retained for previously created forms and API callers.
-- [2026-11-06] New selections append independent Product Specification copies with source-specific `source_specification_id` and `previous_req_form` values. Existing rows are not cleared, and duplicate source rows are not imported twice. Removing a selected source affects only copies in the current REQ; source REQ and other selected sources remain intact. The list now shows a **Source REQ** column to distinguish the imported rows (`models/requirement_form.py`, `views/requirement_form_views.xml`).
-- [2026-11-06] Added server-side source validation and `create`/`write` import fallback so multi-source copying is not limited to onchange execution.
-
-### [Fixed] — Quotation history and source data isolation (2026-11-06)
-- [2026-11-06] Restricted Requirement Form → Quotation synchronization and payment-term auto-refresh to draft/sent SOs only. Confirmed/cancelled historical SO lines no longer receive automatic rewrites on new REQ submissions or quotation smart-button visits.
-- [2026-11-06] Protected `sale.order.line` → Requirement Specification synchronization with a matching `requirement_form_id` owner check. Writing a new Repeat SO cannot write copied line data into an unrelated/previous Requirement Form's original specification.
-- [2026-11-06] Preserved the existing customer-specific GDN selection, source GDN/Job Code matching, repeat serial reuse, and normal SO confirmation rules.
-
-### [Docs] — Repeat multi-source traceability and isolation (2026-11-06)
-- [2026-11-06] Updated README with field mappings, source isolation, technical methods, deployment guidance and proposed MR-01–MR-10 regression tests. Source-code and static checks only; **Odoo upgrade, browser interaction and live quotations were not runtime tested**.
-
-### [Fixed] — Product Form upgrade ParseError (2026-11-06)
-- [2026-11-06] Removed the invalid `<field name="is_plate" invisible="1"/>` reference from `views/product_template_views.xml`, as `product.template.is_plate` is not declared by this module and was absent in the reported upgrade environment.
-- [2026-11-06] Kept the multi-Previous-REQ source isolation, existing Sale Order synchronization safeguards, and CRM Product duplication settings unchanged. The external OWL conditional-expression issue, if still present, must be resolved in the module or view that owns it.
-
-### [Docs] — Upgrade failure diagnosis (2026-11-06)
-- [2026-11-06] Reconciled README current behavior with the previous 2026-11-05 compatibility attempt; documented that this revision removes its invalid dependency and does not claim an Odoo runtime test.
-
-### [Changed, Superseded on 2026-11-06] — Earlier Product Form OWL workaround (2026-11-05)
-- [2026-11-05] Inserted hidden `<field name="is_plate" invisible="1"/>` in `views/product_template_views.xml` so the pre-existing external Product view condition `requirement_category_type_id not in [7] and not is_plate` receives that model field in the client. The external field and visibility condition are not redefined or changed; the CRM-defined Product field copy behavior remains unchanged.
-- [2026-11-05] **Compatibility caveat:** This view expects a separate installed customization to declare `product.template.is_plate`; the field is not supplied by `crm_requirement_form`. Static Python/XML/ZIP tests passed. **Live Odoo upgrade and OWL rendering were not tested.**
-
-### [Docs] — Product form OWL compatibility (2026-11-05)
-- [2026-11-05] Updated README troubleshooting and verification guidance for the external `is_plate` field and its required presence on the product model.
+### [Docs] — Multiple REQ selection and order isolation (2026-11-06)
+- [2026-11-06] Updated `README.md` metadata/navigation, detailed user scenarios, field/source lineage, copy/removal/synchronization rules, staging upgrade guidance and twelve proposed QA cases; updated this changelog. Manifest version `19.0.0.0` remains unchanged. Python compilation/XML parsing and ZIP checks performed; live Odoo or database tests **not performed**.
 
 
 ### [Fixed] — Product duplication preserves customized CRM fields (2026-11-05)
@@ -85,7 +25,7 @@
 - [2026-11-05] Computed and related fields continue to recompute from copied source configuration; unrelated product/Studio fields are not modified.
 
 ### [Docs] — Product Duplicate update (2026-11-05)
-- [2026-11-05] Clarified duplication scope: only Product fields defined in `crm_requirement_form` are copied. A subsequent view-only compatibility fix loads the existing external `is_plate` field without changing that external expression.
+- [2026-11-05] Clarified limited scope: only Product fields defined in `crm_requirement_form` are copied; the unrelated external `is_plate` view expression is not changed. This does not fix a separate view composition issue.
 - [2026-11-05] Updated `README.md` field mapping, scope, proposed QA and this `CHANGELOG.md` with the actual source changes. Python/XML static validation only; live Odoo duplication not performed.
 
 

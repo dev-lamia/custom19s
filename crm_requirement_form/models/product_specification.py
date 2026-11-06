@@ -903,20 +903,9 @@ class ProductSpecification(models.Model):
             if source_id:
                 source = self.browse(source_id).exists()
                 if source:
-                    target_form = self.env['crm.requirement.form']
-                    if vals.get('form_id'):
-                        target_form = target_form.browse(
-                            vals['form_id']
-                        ).exists()
-                    if target_form:
-                        source_vals = target_form._prepare_repeat_specification_values(
-                            source,
-                            sequence=vals.get('sequence') or 1,
-                            previous_requirement=source.form_id,
-                        )
-                    else:
-                        source_vals = source.copy_data()[0]
-                    source_vals.pop('form_id', None)
+                    source_vals = source.copy_data(default={
+                        'form_id': vals.get('form_id') or source.form_id.id,
+                    })[0]
                     # The browser can submit empty values for readonly fields
                     # of an onchange-created repeat row.  Never let those
                     # placeholders overwrite the fetched source design.  A
@@ -926,7 +915,8 @@ class ProductSpecification(models.Model):
                         source_vals.pop(field_name, None)
                     allowed_from_client = {
                         'form_id', 'quantity', 'quantity_uom',
-                        'quantity_uom_id',
+                        'quantity_uom_id', 'source_specification_id',
+                        'previous_req_form', 'is_duplicate_copy',
                     }
                     for field_name in allowed_from_client:
                         if field_name in vals:
@@ -937,9 +927,7 @@ class ProductSpecification(models.Model):
             hydrated_vals_list.append(vals)
         vals_list = hydrated_vals_list
 
-        for values in vals_list:
-            if not values.get('source_specification_id'):
-                self._prepare_bag_type_values([values])
+        self._prepare_bag_type_values(vals_list)
         for vals in vals_list:
             populated_layers = [
                 layer_no
@@ -1071,6 +1059,25 @@ class ProductSpecification(models.Model):
 
     def unlink(self):
         forms = self.mapped('form_id')
+        # Removing an imported design may also remove its own draft quotation
+        # row, but never touch the source REQ/Sale Order or confirmed orders.
+        # A GDN owned by the current line must retain its source link.
+        copied_quote_lines = self.filtered(
+            lambda spec: spec.source_specification_id
+            or (spec.is_duplicate_copy and spec.previous_req_form)
+        ).mapped('sale_order_line_ids').filtered(
+            lambda line: line.order_id.state in ('draft', 'sent')
+            and line.order_id.requirement_form_id
+            == line.requirement_specification_id.form_id
+            and (
+                not line.gdn_configuration_id
+                or line.gdn_configuration_id.source_line_id != line
+            )
+        )
+        if copied_quote_lines:
+            copied_quote_lines.with_context(
+                skip_sale_line_linked_sync=True
+            ).unlink()
         audit_entries = []
         if not self.env.context.get('skip_requirement_audit'):
             for rec in self:
@@ -1242,8 +1249,6 @@ class ProductSpecification(models.Model):
     @api.onchange('fg_type')
     def _onchange_fg_type(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             product_tmpl = rec.bag_type_product_tmpl_id
             if (
                 product_tmpl
@@ -1268,8 +1273,6 @@ class ProductSpecification(models.Model):
     @api.onchange('bag_type_product_tmpl_id')
     def _onchange_bag_type_product_tmpl_id_gusset(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             if (
                 rec.bag_type_product_tmpl_id
                 and rec.bag_type_product_tmpl_id._requirement_should_hide_gusset()
@@ -1324,8 +1327,6 @@ class ProductSpecification(models.Model):
         # product default. Recalculate only when the selected product/variant
         # actually differs from the stored record.
         original = self._origin
-        if self.is_duplicate_copy and self.source_specification_id:
-            return
         if original and original.id:
             old_tmpl = original[f'layer_{layer_no}_product_tmpl_id']
             old_variant = original[f'layer_{layer_no}_variant_id']
@@ -1406,8 +1407,6 @@ class ProductSpecification(models.Model):
     @api.onchange('bag_type_product_tmpl_id')
     def _onchange_bag_type_product_tmpl_id(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             product_tmpl = rec.bag_type_product_tmpl_id
             if not product_tmpl:
                 rec.bag_type = False
@@ -1431,8 +1430,6 @@ class ProductSpecification(models.Model):
     @api.onchange('bag_type_id')
     def _onchange_bag_type_id(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             if rec.bag_type_id:
                 rec.bag_type = rec.bag_type_id.code or rec.bag_type_id.name
             if rec.bag_type_id.hide_gusset:
@@ -1441,23 +1438,17 @@ class ProductSpecification(models.Model):
     @api.onchange('color_reference')
     def _onchange_color_reference(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             if rec.color_reference != 'yes':
                 rec.color_reference_type = False
 
     @api.onchange('print_finish_id')
     def _onchange_print_finish_id(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             rec.print_finish = rec.print_finish_id.name or False
 
     @api.onchange('standard_feature_ids')
     def _onchange_standard_feature_ids(self):
         for rec in self:
-            if rec.is_duplicate_copy and rec.source_specification_id:
-                continue
             codes = set(rec.standard_feature_ids.mapped('code'))
             remove_codes = set()
 
