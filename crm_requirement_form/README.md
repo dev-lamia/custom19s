@@ -45,6 +45,14 @@
 - [Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)](#repeat-job-multi-req-import-and-sale-order-isolation-2026-11-06)
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 
+## Product Specifications scroll header and source removal correction (2026-11-06)
+
+In the Requirement Form (`views/requirement_form_views.xml`), `specification_ids` has the `o_crm_req_specs_list` class. Its bounded scroll is in the Odoo 19 `.o_list_renderer` element. The previous `th`-only `position: sticky` could still allow Job Code/GDN HTML links from the table body to paint above the heading. The updated SCSS sets a separate-border table and opaque sticky `thead` stacking context with body below it; both horizontal and vertical scrollbars are retained. **Verify in a browser after rebuilding assets and hard refresh**; XML and CSS checks do not prove runtime rendering.
+
+When a tag is removed from `previous_requirement_ids`, `_unselected_previous_specification_rows()` identifies copied designs whose actual source REQ is not among the remaining tags; the onchange removes them immediately and `write()` checks again on persistence, even if the hidden `loaded_previous_requirement_ids` snapshot was lost. Manual rows without source copying markers are never affected. Rows already used by a Sale Order are protected by validation instead of silently deleting historical production references. The source REQ remains untouched.
+
+**Proposed tests (not run on live Odoo):** scroll a 10+ line list through the sticky header while horizontally scrolled to Job Code/GDN; remove first and last Previous REQ tag (including on an upgraded form with empty hidden snapshot); add another source and confirm only its lines appear; verify a linked SO line cannot be deleted; save and reopen. Confirm no deleted source lines reappear.
+
 ## Product Specification table scroll and duplicate-row fix (2026-11-06)
 
 The embedded Repeat Job specification list retains its 390px vertical scrolling and full horizontal scrolling. An opaque green header with explicit sticky stacking in `static/src/scss/requirement_form_backend.scss` prevents scrolled Job Code and GDN Number **links from overlaying the column headings**. This is a frontend style change only; actual GDN/Job Code values and navigation remain unchanged.

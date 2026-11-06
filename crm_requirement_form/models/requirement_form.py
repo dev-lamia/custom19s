@@ -450,6 +450,29 @@ class CrmRequirementForm(models.Model):
         for rec in self:
             rec._check_previous_source_selection(rec.previous_requirement_ids)
 
+    def _unselected_previous_specification_rows(self, selected_sources):
+        """Copied rows whose source REQ is no longer selected.
+
+        Use the CURRENT tag selection, not only the hidden 'loaded' snapshot:
+        when an upgraded or unsaved form loses that snapshot, computing the
+        difference from it fails to remove the visible copied rows. Manual
+        specifications (without a source and copy marker) are not touched.
+        """
+        self.ensure_one()
+        selected_names = set(selected_sources.mapped('name'))
+        return self.specification_ids.filtered(
+            lambda line: (
+                (line.source_specification_id
+                 and line.source_specification_id.form_id not in selected_sources)
+                or (
+                    line.is_duplicate_copy
+                    and not line.source_specification_id
+                    and line.previous_req_form
+                    and line.previous_req_form not in selected_names
+                )
+            )
+        )
+
     def _duplicate_repeat_specification_rows(self):
         """Only redundant copies of the *same exact source design*.
 
@@ -547,7 +570,6 @@ class CrmRequirementForm(models.Model):
             )
             loaded |= visible_sources & selected
             added = selected - loaded
-            removed = loaded - selected
             try:
                 rec._check_previous_source_selection(selected)
             except ValidationError as error:
@@ -559,33 +581,23 @@ class CrmRequirementForm(models.Model):
                     }
                 }
 
-            if removed:
-                removed_names = set(removed.mapped('name'))
-                removed_lines = rec.specification_ids.filtered(
-                    lambda spec: (
-                        (
-                            spec.source_specification_id
-                            and spec.source_specification_id.form_id in removed
-                        ) or (
-                            spec.is_duplicate_copy
-                            and not spec.source_specification_id
-                            and spec.previous_req_form in removed_names
-                        )
-                    )
-                )
-                if removed_lines.filtered(lambda line: line.sale_order_line_ids):
-                    rec.previous_requirement_ids = [Command.set(loaded.ids)]
-                    return {
-                        'warning': {
-                            'title': _('Previous REQ is used by a Sale Order'),
-                            'message': _(
-                                'Cannot remove a previous REQ whose copied '
-                                'designs are already linked to a Sale Order.'
-                            ),
-                        },
-                    }
-                if removed_lines:
-                    rec.specification_ids = rec.specification_ids - removed_lines
+            # Selection is authoritative. The hidden loaded M2M may be empty
+            # even while copied rows are visible, so delta-only removal is
+            # insufficient (the user could remove a tag but keep all rows).
+            removed_lines = rec._unselected_previous_specification_rows(selected)
+            if removed_lines.filtered(lambda line: line.sale_order_line_ids):
+                rec.previous_requirement_ids = [Command.set(loaded.ids)]
+                return {
+                    'warning': {
+                        'title': _('Previous REQ is used by a Sale Order'),
+                        'message': _(
+                            'Cannot remove a previous REQ whose copied '
+                            'designs are already linked to a Sale Order.'
+                        ),
+                    },
+                }
+            if removed_lines:
+                rec.specification_ids = rec.specification_ids - removed_lines
 
             # Normalize already imported lines BEFORE adding any new source.
             # Also fixes old duplicated copies during the very next edit.
@@ -1199,17 +1211,18 @@ class CrmRequirementForm(models.Model):
                         'Cannot delete a Repeat Job specification already '
                         'used by a Sale Order.'
                     ))
-                if removed:
-                    removed_names = set(removed.mapped('name'))
-                    remove_rows = rec.specification_ids.filtered(
-                        lambda line: (
-                            (line.source_specification_id
-                             and line.source_specification_id.form_id in removed)
-                            or (line.is_duplicate_copy
-                                and not line.source_specification_id
-                                and line.previous_req_form in removed_names)
-                        )
+                if sources_changed:
+                    # Also handle old/corrupted loaded-source snapshots. The
+                    # chosen REQs, not the prior snapshot, decide which copied
+                    # designs belong here; protect all SO-linked rows.
+                    remove_rows = rec._unselected_previous_specification_rows(
+                        selected
                     )
+                    if remove_rows.filtered(lambda line: line.sale_order_line_ids):
+                        raise ValidationError(_(
+                            'Cannot remove a Repeat Job specification already '
+                            'used by a Sale Order.'
+                        ))
                     if remove_rows:
                         remove_rows.with_context(
                             skip_requirement_audit=True,

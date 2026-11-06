@@ -4,6 +4,11 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+### [Fixed] — Table header layering and removal of deselected source REQs (2026-11-06)
+- [2026-11-06] Corrected the Repeat Job Product Specifications **Job Code/GDN header overlap** at the table painting level. The sticky `thead` now forms an opaque high-priority stacking context, the table uses separate borders, title overflow is clipped, and the `tbody` stays behind the header. This supersedes the earlier insufficient `th`-only sticky styling. Both x/y scrollbars remain (`static/src/scss/requirement_form_backend.scss`).
+- [2026-11-06] Previous REQ tag removal now checks all copied specifications against the **current selected sources**, not only changes to the hidden loaded-source snapshot. Deselected-source rows are removed in onchange and validated again on write. Manually entered designs, other selected sources, and confirmed SO-linked history remain protected (`models/requirement_form.py`).
+- [2026-11-06] No change to Job Code, GDN generation, business validations, or module version. Static validation only; live Odoo UI behavior is not verified.
+
 ### [Fixed] — Sticky list header and immediate duplicate normalization (2026-11-06)
 - [2026-11-06] Prevent scrolling **Job Code**/**GDN Number** links from appearing over the Product Specifications list header. The header cells now have an opaque background and explicit sticky stacking inside the existing bounded scroll area (`static/src/scss/requirement_form_backend.scss`). Horizontal and vertical scrolling are preserved.
 - [2026-11-06] Normalize redundant Repeat Job rows by their **exact** `source_specification_id` on the One2many row-change onchange as well as previous-source selection and save. This addresses client-side replay of copied x2many rows without importing any deleted source or touching independent designs/previous confirmed Sale Orders (`models/requirement_form.py`).
