@@ -43,6 +43,7 @@
 - [Customer-filtered Requirement Form selector on Sale Orders (2026-11-04)](#customer-filtered-requirement-form-selector-on-sale-orders-2026-11-04)
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 - [Multiple Previous Requirement Forms and Sales Order isolation (2026-11-06)](#multiple-previous-requirement-forms-and-sales-order-isolation-2026-11-06)
+- [Repeat Job first-selection preview and Save deduplication (2026-11-06)](#repeat-job-first-selection-preview-and-save-deduplication-2026-11-06)
 
 ## Overview
 
@@ -937,3 +938,34 @@ Odoo's default duplication behavior continues for all other fields. Computed, re
 ### Scope note: Product form OWL `is_plate` error
 
 The view expression `requirement_category_type_id not in [7] and not is_plate` is **not present** anywhere in this `crm_requirement_form` module. The `is_plate` field is not declared by this module. A separate installed Product view/add-on contains that condition and may need its own fix if it is missing from the final Product view's loaded fields. This duplication-only update intentionally does not create an `is_plate` field, modify other add-ons, or change their view visibility conditions. A live Odoo staging registry/render test has not been executed.
+
+
+## Repeat Job first-selection preview and Save deduplication (2026-11-06)
+
+**User scenario:** In **Requirement Forms → Product Specifications**, check **Repeat Job**, select one or more **Previous Req Forms**, and immediately see each source design. If the original design has a Job Code and/or GDN from prior Sale Order Lines, its copied row displays the **same existing read-only hyperlinks before Save**. This is reference display, not creation of a new Job Code or GDN. A previous REQ containing three designs creates exactly three imported rows, not six after Save.
+
+**Why the prior code duplicated rows:** The Odoo One2many onchange creates virtual rows in the browser. The parent `write()`/`create()` then imported all newly selected REQs again on Save, even if the onchange had already produced those rows; in some web-client payloads the new row's hidden, read-only `source_specification_id` was not persisted. The link computes therefore had no original specification to follow until the second, server-created copies appeared.
+
+**Corrected implementation:**
+
+- `models/requirement_form.py::_prepare_repeat_specification_values` supplies the **existing** `crm.requirement.specification.job_code_link` and `gdn_number_link` HTML to virtual copied lines; `_onchange_previous_requirement_ids` forces link computation for new virtual imports.
+- `models/requirement_form.py::write` and `create` use `previous_requirement_synced_ids` as an import snapshot to distinguish designs already copied by the onchange from selections made through backend RPC/API. They still support additive backend import without clearing unrelated lines.
+- `_restore_imported_specification_links` can reconnect a saved current-form-only copy to its exact source when the UI drops the hidden source reference, but only if source REQ name, design name, FG Type, Product, and Print/Finish match an unclaimed original. QTY/UOM differences do not block reconciliation. No source specification, source Sale Order, or source GDN is edited.
+- `models/product_specification.py::create` discards computed preview HTML instead of persisting it as data. The saved `job_code_link` and `gdn_number_link` remain computed from the current sale lines and source chain.
+- `views/requirement_form_views.xml` keeps `previous_req_form` in the nested form Save payload (`force_save`). **Existing rows duplicated by an earlier buggy Save are deliberately not bulk-deleted automatically**, because doing so without database validation could lose user edits. Review these on a backup first.
+
+**Proposed QA (not executed on a live database):**
+
+| Test | Steps | Expected result |
+| --- | --- | --- |
+| REQ-PREV-01 | Select a previous REQ with 3 designs already linked to Job Codes/GDNs | Exactly 3 copied rows immediately show the original Job Code/GDN hyperlinks |
+| REQ-PREV-02 | Save the same new current REQ | Still exactly 3 copied rows, same links; no second set |
+| REQ-PREV-03 | Select another REQ with 2 designs, then Save | Exactly 5 rows, each linked to its own source |
+| REQ-PREV-04 | Remove only first REQ, Save | Only its 3 local copies removed; 2 copies from second REQ remain |
+| REQ-PREV-05 | Delete one copied row, Save twice | No deleted row re-imported; original source row unchanged |
+| REQ-PREV-06 | Change a copied design's QTY/UOM, Save | Only current REQ changed; source REQ and previous Sale Orders retain their values |
+| REQ-PREV-07 | Create a Repeat Job using backend API with previous REQ IDs and no UI onchange | All missing source rows created exactly once |
+| REQ-PREV-08 | Open a record previously saved with duplicate rows from the older module | No automatic deletion or overwrite; investigate redundant rows on a database backup |
+
+**Validation status:** Source reviewed, syntax/XML/ZIP verified; not verified by running Odoo 19 ORM/onchange in a live instance. Preserve a database backup before upgrade.
+

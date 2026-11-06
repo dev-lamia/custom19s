@@ -175,7 +175,7 @@
                                         <field name="is_repeat_job" invisible="1"/>
                                         <sheet class="o_crm_req_spec_editor_sheet">
                                             <field name="is_duplicate_copy" invisible="1" force_save="1"/><field name="source_specification_id" invisible="1" force_save="1" readonly="is_duplicate_copy"/><field name="sequence" invisible="1" readonly="is_duplicate_copy"/>
-                                            <field name="previous_req_form" invisible="1" readonly="is_duplicate_copy"/>
+                                            <field name="previous_req_form" invisible="1" readonly="is_duplicate_copy" force_save="1"/>
                                             <field name="bag_type_hide_gusset" invisible="1" readonly="is_duplicate_copy"/>
                                             <field name="roll_type" invisible="1" readonly="is_duplicate_copy"/>
 

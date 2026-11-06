@@ -899,6 +899,10 @@ class ProductSpecification(models.Model):
         hydrated_vals_list = []
         for incoming_vals in vals_list:
             vals = dict(incoming_vals)
+            # The parent's onchange explicitly previews these computed HTML
+            # links before Save; never try to persist computed read-only HTML.
+            vals.pop('job_code_link', None)
+            vals.pop('gdn_number_link', None)
             source_id = vals.get('source_specification_id')
             if source_id:
                 source = self.browse(source_id).exists()
