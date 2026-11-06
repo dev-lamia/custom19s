@@ -4,6 +4,14 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+### [Fixed] — Previous REQ removal, duplicate rows and deleted-line persistence (2026-11-06)
+- [2026-11-06] Corrected multi-source onchange selection tracking with persisted/visible-source fallback, so removing a **Previous Req Forms** tag removes only that source's current copies and adding another source does not re-import an earlier deleted design.
+- [2026-11-06] Deduplicate by exact `source_specification_id` during onchange and on form save. Never merge designs solely because the Job Code, GDN or name matches. Preserve rows already referenced by Sale Orders and reject removal of those references rather than rewriting confirmed order history (`models/requirement_form.py`).
+- [2026-11-06] Keep full source snapshot copying, GDN/Job Code rules and existing quotation isolation unchanged. No new fields or migration; existing module version remains `19.0.0.3`.
+
+### [Docs] — Previous REQ row lifecycle (2026-11-06)
+- [2026-11-06] Documented Remove/Reselect/Save/Delete behavior, original source/confirmed SO protections, and proposed DEL-01–DEL-10 regression checks in README. Python syntax and offline tests do not constitute live Odoo verification.
+
 ### [Fixed] — Complete Repeat Job specification fetching (2026-11-06)
 - [2026-11-06] Replaced the selective source-design field mapping in `crm.requirement.form._prepare_repeat_specification_values()` with the original specification's native `copy_data()` snapshot. Include technical notes, all existing copyable specification data, nested design-document lines and the six historical attachment categories, while preserving the row-specific `source_specification_id` and Source REQ label.
 - [2026-11-06] Align the Repeat Job's save-time source hydration with the onchange's **same full mapping**. Protect QTY/UOM edits on the copied row and stop product/FG/layer/print/feature onchanges from unexpectedly resetting inherited read-only technical values (`models/product_specification.py`).

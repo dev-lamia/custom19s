@@ -962,3 +962,35 @@ Odoo's default duplication behavior continues for all other fields. Computed, re
 **Important separate issue:** A different installed inherited Product view may still contain an expression referencing `is_plate` (e.g. `requirement_category_type_id not in [7] and not is_plate`). If that view's expression is active and `is_plate` is not present in the `product.template` model/form, it must be corrected in the owning view/module. Removing this module's invalid entry addresses the reported **upgrade ParseError**, but does not by itself fix that external view's potential OWL rendering error.
 
 **Proposed verification (not runtime tested):** Upgrade `crm_requirement_form`, then inspect the combined Product Form view, test an existing FG product and its duplicated copy, and test New/Repeat multi-source REQ workflows. If a separate OWL `is_plate` error occurs, identify the inherited view defining the conditional modifier before editing it.
+
+
+## Repeat Job multi-source removal and duplicate prevention (2026-11-06)
+
+**Observed problem:** Removing a tag in **Previous Req Forms** could leave its previously imported rows in the Product Specifications list. Re-selecting the same source, or adding another source, could append duplicate designs with the same Job Code/GDN. The source Requirement Forms themselves were not supposed to be changed.
+
+**Current behavior (implemented, not live-tested):** The `previous_requirement_ids` onchange compares the selected tags to the `loaded_previous_requirement_ids` snapshot. If the browser does not supply an unchanged hidden snapshot, the saved form's selection and the source references already present in the visible lines act as fallbacks. Only genuinely *new* sources import designs. Removing a source removes that source's copied rows, including older copies identified by their `previous_req_form` label when the source link is missing; no other source's design is removed.
+
+**Uniqueness:** Multiple sources may legitimately contain identical design names, GDNs, products or Job Codes. Uniqueness is per exact `crm.requirement.specification.source_specification_id`, **not** per Job Code, design name, GDN or customer. The source link remains authoritative even for older rows whose invisible `is_duplicate_copy` flag was not saved. The onchange drops redundant unsaved copied rows; the form `create()`/`write()` paths remove redundant *unlinked* saved copied rows. A saved design already referenced by a Sale Order is protected: the source cannot be removed through the selector while linked to a Sale Order, and referenced rows are not automatically unlinked. This preserves historical orders. Adding a source after deleting one *design row* does not automatically re-import that deleted design while its source remains selected. Removing a source entirely and selecting it again is an intentional new import of that source's designs.
+
+**Ownership:** All deletes/cleanup act only on copies belonging to the **current** Requirement Form. They never delete original/source Requirement Forms or source specifications, nor rewrite confirmed Sale Orders. Manual New Job designs without a `source_specification_id` are not deduplicated. The related field `previous_requirement_id` is retained for legacy integrations.
+
+**Technical references:** `models/requirement_form.py`: `_onchange_previous_requirement_ids()`, `_duplicate_repeat_specification_rows()`, `_remove_persisted_duplicate_repeat_rows()`, `_append_unloaded_previous_requirements()`, `create()`, `write()`. Uses existing M2M relation tables; no new field, manifest version change or migration is required. The previous full-copy implementation and `models/product_specification.py` remain unchanged.
+
+**Proposed regression tests (not executed in a live Odoo browser):**
+
+| Test | Action | Expected |
+|---|---|---|
+| DEL-01 | Select REQ A (3 designs) and REQ B (2 designs) | Exactly 5 copied rows, each tagged with its source |
+| DEL-02 | Remove A tag | Only B's two rows remain, not A's three |
+| DEL-03 | Re-add A tag | Total 5, not 8; no duplicated `source_specification_id` |
+| DEL-04 | Delete one B design, save and reopen | Deleted design remains absent; other B design and A unaffected |
+| DEL-05 | Delete a design, then add REQ C | No resurrection of the deleted design |
+| DEL-06 | Add/remove sources before first save and again on a saved REQ | Same result in both workflows |
+| DEL-07 | Two different source REQs happen to use the same Job Code | Both remain distinct if their source specification IDs differ |
+| DEL-08 | Remove a source whose copied line is used on a Sale Order | User gets validation, historical line not deleted |
+| DEL-09 | Save an already-duplicated REQ with unlinked copied rows | Excess copies of a single source specification are removed; keep first row |
+| DEL-10 | Create a new quotation after source changes | Earlier confirmed SO is not overwritten |
+
+**Deployment:** Back up the database, replace `crm_requirement_form`, restart Odoo, upgrade the app, hard-refresh the browser. After upgrading, reopen the affected Requirement Form and save it once to normalize any already-existing *unlinked* duplicated copied rows. Validate on staging before production.
+
+**Documentation updated:** 2026-11-06. **Verification status:** Python/XML syntax and focused offline logic tests; live Odoo form behavior has not been verified.

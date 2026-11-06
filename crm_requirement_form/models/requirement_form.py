@@ -450,6 +450,46 @@ class CrmRequirementForm(models.Model):
         for rec in self:
             rec._check_previous_source_selection(rec.previous_requirement_ids)
 
+    def _duplicate_repeat_specification_rows(self):
+        """Only redundant copies of the *same exact source design*.
+
+        A Repeat Job can legitimately contain identical-looking designs from
+        different REQs. Never merge those and never delete a row referenced by
+        a Sale Order: its production history belongs to that order.
+        """
+        self.ensure_one()
+        grouped = {}
+        for line in self.specification_ids.sorted(
+            key=lambda row: (row.sequence or 0, row.no_designs or 0)
+        ):
+            source = line.source_specification_id
+            # A few older browser saves dropped the hidden copy flag while
+            # retaining the source link. The source link is authoritative.
+            if source:
+                grouped.setdefault(source.id, []).append(line)
+
+        redundant = self.env['crm.requirement.specification']
+        for rows in grouped.values():
+            # Preserve a SO-linked row in preference to a temporary copy.
+            keeper = next(
+                (row for row in rows if row.sale_order_line_ids), rows[0]
+            )
+            for row in rows:
+                if row != keeper and not row.sale_order_line_ids:
+                    redundant |= row
+        return redundant
+
+    def _remove_persisted_duplicate_repeat_rows(self):
+        """Idempotent cleanup after an O2M save; leave source REQs untouched."""
+        for rec in self:
+            duplicates = rec._duplicate_repeat_specification_rows()
+            if duplicates:
+                duplicates.with_context(
+                    skip_requirement_audit=True,
+                    skip_requirement_resequence=True,
+                ).unlink()
+                self.env['crm.requirement.specification']._resequence_form_lines(rec)
+
     def _append_unloaded_previous_requirements(self, sources):
         """Server fallback for imports and clients without onchange commands."""
         self.ensure_one()
@@ -491,6 +531,21 @@ class CrmRequirementForm(models.Model):
         for rec in self:
             selected = rec.previous_requirement_ids
             loaded = rec.loaded_previous_requirement_ids
+            # An unchanged hidden snapshot may be absent in an onchange RPC
+            # (notably on upgraded, already-saved forms). Use the persisted
+            # selection instead of treating every selected REQ as newly added.
+            if not loaded and rec._origin.id:
+                loaded = (
+                    rec._origin.loaded_previous_requirement_ids
+                    or rec._origin.previous_requirement_ids
+                )
+            # A pre-save wizard can sometimes lose its hidden M2M snapshot.
+            # A source with visible copied designs has already been imported;
+            # never reload its deleted designs while adding a different REQ.
+            visible_sources = rec.specification_ids.mapped(
+                'source_specification_id.form_id'
+            )
+            loaded |= visible_sources & selected
             added = selected - loaded
             removed = loaded - selected
             try:
@@ -505,13 +560,38 @@ class CrmRequirementForm(models.Model):
                 }
 
             if removed:
+                removed_names = set(removed.mapped('name'))
                 removed_lines = rec.specification_ids.filtered(
-                    lambda spec: spec.source_specification_id
-                    and spec.source_specification_id.form_id in removed
+                    lambda spec: (
+                        (
+                            spec.source_specification_id
+                            and spec.source_specification_id.form_id in removed
+                        ) or (
+                            spec.is_duplicate_copy
+                            and not spec.source_specification_id
+                            and spec.previous_req_form in removed_names
+                        )
+                    )
                 )
-                # Only current copies are detached; source lines never change.
+                if removed_lines.filtered(lambda line: line.sale_order_line_ids):
+                    rec.previous_requirement_ids = [Command.set(loaded.ids)]
+                    return {
+                        'warning': {
+                            'title': _('Previous REQ is used by a Sale Order'),
+                            'message': _(
+                                'Cannot remove a previous REQ whose copied '
+                                'designs are already linked to a Sale Order.'
+                            ),
+                        },
+                    }
                 if removed_lines:
                     rec.specification_ids = rec.specification_ids - removed_lines
+
+            # Normalize already imported lines BEFORE adding any new source.
+            # Also fixes old duplicated copies during the very next edit.
+            duplicates = rec._duplicate_repeat_specification_rows()
+            if duplicates:
+                rec.specification_ids = rec.specification_ids - duplicates
 
             next_sequence = max(
                 rec.specification_ids.mapped('sequence') or [0]
@@ -530,6 +610,11 @@ class CrmRequirementForm(models.Model):
                 next_sequence += len(commands)
             if new_commands:
                 rec.update({'specification_ids': new_commands})
+            # Onchange commands can be replayed by the client after a widget
+            # update. Enforce one current row per source specification.
+            duplicates = rec._duplicate_repeat_specification_rows()
+            if duplicates:
+                rec.specification_ids = rec.specification_ids - duplicates
             rec.loaded_previous_requirement_ids = [Command.set(selected.ids)]
             if selected:
                 rec.repeat_job = True
@@ -552,6 +637,9 @@ class CrmRequirementForm(models.Model):
     @api.onchange('specification_ids')
     def _onchange_specification_ids_numbering(self):
         for rec in self:
+            # A deleted design must stay deleted. Do NOT re-import the
+            # selected source in this onchange; it only renumbers remaining
+            # visible rows. Source imports occur on *new* tag selections.
             for design_no, specification in enumerate(
                 rec.specification_ids, start=1
             ):
@@ -1049,6 +1137,15 @@ class CrmRequirementForm(models.Model):
             # Legacy one-source callers can keep using the original field.
             vals['previous_requirement_ids'] = [Command.link(previous_id)]
         prior_sources = {rec.id: rec.previous_requirement_ids for rec in self}
+        # Source rows connected to existing SOs must never be silently
+        # deleted, even if the client includes O2M delete commands.
+        linked_source_lines = {
+            rec.id: rec.specification_ids.filtered(
+                lambda line: line.source_specification_id
+                and line.sale_order_line_ids
+            )
+            for rec in self
+        }
         sources_changed = 'previous_requirement_ids' in vals
         specs_supplied = 'specification_ids' in vals
 
@@ -1074,23 +1171,51 @@ class CrmRequirementForm(models.Model):
 
         old_leads = self.mapped('lead_id')
         result = super().write(vals)
-        if sources_changed:
+        if sources_changed or specs_supplied:
             for rec in self:
                 selected = rec.previous_requirement_ids
                 previously = prior_sources.get(rec.id, selected)
-                if not specs_supplied:
-                    removed = previously - selected
-                    if removed:
-                        rec.specification_ids.filtered(
-                            lambda spec: spec.source_specification_id
-                            and spec.source_specification_id.form_id in removed
-                        ).with_context(skip_requirement_audit=True).unlink()
+                removed = previously - selected if sources_changed else self.env[
+                    'crm.requirement.form'
+                ]
+                # Never erase an already-confirmed SO's source line; raising
+                # here rolls back all commands from super().write().
+                protected = linked_source_lines.get(rec.id)
+                if protected and any(
+                    not line.exists()
+                    or line.source_specification_id.form_id in removed
+                    for line in protected
+                ):
+                    raise ValidationError(_(
+                        'Cannot delete a Repeat Job specification already '
+                        'used by a Sale Order.'
+                    ))
+                if removed:
+                    removed_names = set(removed.mapped('name'))
+                    remove_rows = rec.specification_ids.filtered(
+                        lambda line: (
+                            (line.source_specification_id
+                             and line.source_specification_id.form_id in removed)
+                            or (line.is_duplicate_copy
+                                and not line.source_specification_id
+                                and line.previous_req_form in removed_names)
+                        )
+                    )
+                    if remove_rows:
+                        remove_rows.with_context(
+                            skip_requirement_audit=True,
+                            skip_requirement_resequence=True,
+                        ).unlink()
+                if sources_changed and not specs_supplied:
+                    # An API/legacy client with no O2M commands still gets
+                    # only the newly chosen source, once. A saved manual line
+                    # deletion never causes a source to be imported again.
                     added = selected - previously
                     if added:
                         rec._append_unloaded_previous_requirements(added)
-                # Keep the snapshot aligned even if the browser submitted
-                # One2many commands containing manual line deletions.
-                if rec.loaded_previous_requirement_ids != selected:
+                if rec.repeat_job:
+                    rec._remove_persisted_duplicate_repeat_rows()
+                if sources_changed and rec.loaded_previous_requirement_ids != selected:
                     rec.with_context(skip_requirement_audit=True).write({
                         'loaded_previous_requirement_ids': [Command.set(selected.ids)],
                     })
@@ -1251,6 +1376,8 @@ class CrmRequirementForm(models.Model):
                             record.previous_requirement_ids.ids
                         )],
                     })
+            if record.repeat_job:
+                record._remove_persisted_duplicate_repeat_rows()
         leads = records.mapped('lead_id')
         if leads:
             leads._refresh_requirement_summary()
