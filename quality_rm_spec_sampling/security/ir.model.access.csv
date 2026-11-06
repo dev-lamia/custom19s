@@ -1,0 +1,29 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_qc_templ_inspector,QC template read inspector,model_rm_qc_parameter_template,group_rm_qc_inspector,1,0,0,0
+access_qc_templ_controller,QC template manage controller,model_rm_qc_parameter_template,group_rm_qc_controller,1,1,1,0
+access_qc_defect_inspector,QC defect read inspector,model_rm_qc_defect,group_rm_qc_inspector,1,0,0,0
+access_qc_defect_controller,QC defect manage controller,model_rm_qc_defect,group_rm_qc_controller,1,1,1,0
+access_qc_ident_template_inspector,QC identity read inspector,model_rm_qc_identification_template,group_rm_qc_inspector,1,0,0,0
+access_qc_ident_template_controller,QC identity edit controller,model_rm_qc_identification_template,group_rm_qc_controller,1,1,1,0
+access_qc_product_ident_inspector,QC product identity read,model_rm_qc_product_identification,group_rm_qc_inspector,1,0,0,0
+access_qc_product_ident_controller,QC product identity manage,model_rm_qc_product_identification,group_rm_qc_controller,1,1,1,1
+access_qc_spec_inspector,QC spec read,model_rm_qc_specification,group_rm_qc_inspector,1,0,0,0
+access_qc_spec_controller,QC spec controller,model_rm_qc_specification,group_rm_qc_controller,1,1,1,0
+access_qc_spec_manager,QC spec manager,model_rm_qc_specification,group_rm_qc_manager,1,1,1,1
+access_qc_specline_inspector,QC spec line read,model_rm_qc_specification_line,group_rm_qc_inspector,1,0,0,0
+access_qc_specline_controller,QC spec line controller,model_rm_qc_specification_line,group_rm_qc_controller,1,1,1,1
+access_qc_insp_param_inspector,QC inspection params inspector,model_rm_qc_inspection_parameter,group_rm_qc_inspector,1,1,1,1
+access_qc_insp_log_inspector,QC inspection logs inspector,model_rm_qc_inspection_log,group_rm_qc_inspector,1,1,1,1
+access_qc_alloc_inspector,Consumable reference inspector,model_rm_qc_consumable_allocation,group_rm_qc_inspector,1,0,0,0
+access_qc_alloc_controller,Consumable reference controller,model_rm_qc_consumable_allocation,group_rm_qc_controller,1,1,1,0
+access_rm_qc_internal_read_rm_qc_product_identification,Internal read: Product technical identification,model_rm_qc_product_identification,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_identification_template,Internal read: Product identification field template,model_rm_qc_identification_template,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_specification,Internal read: QC specification on product,model_rm_qc_specification,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_specification_line,Internal read: QC specification parameters,model_rm_qc_specification_line,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_parameter_template,Internal read: QC parameter reference,model_rm_qc_parameter_template,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_inspection_parameter,Internal read: QC inspection sampling snapshot,model_rm_qc_inspection_parameter,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_inspection_log,Internal read: QC sample measurement log,model_rm_qc_inspection_log,base.group_user,1,1,1,1
+access_rm_qc_internal_read_rm_qc_defect,Internal read: QC defect catalog on inspection,model_rm_qc_defect,base.group_user,1,1,1,1
+access_rm_qc_internal_full_consumable_allocation,Internal full access: rm qc consumable allocation,model_rm_qc_consumable_allocation,base.group_user,1,1,1,1
+access_rm_qc_pr_legacy_admin,Hidden PR legacy read for admins,model_rm_qc_purchase_request,base.group_system,1,0,0,0
+access_rm_qc_prline_legacy_admin,Hidden PR legacy line read for admins,model_rm_qc_purchase_request_line,base.group_system,1,0,0,0

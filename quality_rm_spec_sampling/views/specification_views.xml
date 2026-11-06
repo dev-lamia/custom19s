@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="view_rm_qc_template_list" model="ir.ui.view">
+    <field name="name">rm.qc.parameter.template.list</field>
+    <field name="model">rm.qc.parameter.template</field>
+    <field name="arch" type="xml"><list string="QC Parameter Master">
+      <field name="scope"/><field name="process" optional="show"/>
+      <field name="category_text"/><field name="item_text" optional="show"/>
+      <field name="name"/><field name="uom_text" optional="show"/>
+      <field name="sample_size"/><field name="measurements_per_sample"/>
+      <field name="inspection_frequency" optional="hide"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_template_form" model="ir.ui.view">
+    <field name="name">rm.qc.parameter.template.form</field>
+    <field name="model">rm.qc.parameter.template</field>
+    <field name="arch" type="xml">
+      <form string="QC Master Parameter"><sheet>
+        <group string="Material / Test" col="2"><group>
+          <field name="scope"/><field name="material_type"/><field name="process"/>
+          <field name="category_text"/><field name="item_text"/>
+        </group><group><field name="name"/><field name="uom_text"/>
+          <field name="inspection_method"/><field name="inspection_frequency"/>
+        </group></group>
+        <group string="TDS Reference Limits" col="2"><group>
+          <field name="lsl_text"/><field name="target_text"/><field name="usl_text"/>
+        </group><group><field name="inspection_level"/></group></group>
+        <group string="Sampling Procedure" col="2"><group>
+          <field name="lot_size"/><field name="sample_size"/>
+          <field name="measurements_per_sample"/>
+        </group><group><field name="sample_method"/></group></group>
+        <group string="Source Workbook" col="2"><group>
+          <field name="source_sheet"/><field name="source_row"/>
+        </group></group>
+      </sheet></form>
+    </field>
+  </record>
+  <record id="view_rm_qc_defect_list" model="ir.ui.view">
+    <field name="name">rm.qc.defect.list</field><field name="model">rm.qc.defect</field>
+    <field name="arch" type="xml"><list string="RM Defect Catalog"><field name="code"/>
+      <field name="name"/><field name="active"/></list></field>
+  </record>
+  <record id="view_rm_qc_defect_form" model="ir.ui.view">
+    <field name="name">rm.qc.defect.form</field><field name="model">rm.qc.defect</field>
+    <field name="arch" type="xml"><form string="RM Defect"><sheet><group>
+      <field name="code"/><field name="name"/><field name="active"/>
+    </group></sheet></form></field>
+  </record>
+  <record id="view_rm_qc_spec_list" model="ir.ui.view">
+    <field name="name">rm.qc.specification.list</field>
+    <field name="model">rm.qc.specification</field>
+    <field name="arch" type="xml"><list string="TDS / QC Specifications" decoration-success="state == 'approved'">
+      <field name="name"/><field name="product_tmpl_id"/><field name="scope"/>
+      <field name="process" optional="hide"/><field name="state"/>
+      <field name="approved_on"/><field name="company_id" optional="hide"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_spec_form" model="ir.ui.view">
+    <field name="name">rm.qc.specification.form</field>
+    <field name="model">rm.qc.specification</field>
+    <field name="arch" type="xml">
+      <form string="QC Standard / TDS">
+  <header>
+    <button name="action_approve" type="object" string="Activate Standard" class="btn-primary" invisible="state not in ('draft','submitted')" groups="base.group_user"/>
+    <button name="action_archive_spec" type="object" string="Archive" invisible="state != 'approved'" groups="base.group_user"/>
+    <field name="state" widget="statusbar" statusbar_visible="draft,approved,archived"/>
+  </header>
+  <sheet>
+    <div class="oe_title"><label for="name"/><h1><field name="name" readonly="1"/></h1></div>
+    <group col="2">
+      <group><field name="product_tmpl_id" readonly="state != 'draft'"/>
+             <field name="scope" readonly="state != 'draft'"/>
+             <field name="process" readonly="state != 'draft'" invisible="scope != 'production'"/></group>
+      <group><field name="company_id" readonly="state != 'draft'"/>
+             <field name="intended_use" placeholder="Optional" readonly="state != 'draft'"/></group>
+    </group>
+    <separator string="QC Tests &amp; Sampling"/>
+    <field name="line_ids" nolabel="1" readonly="state != 'draft'">
+      <list decoration-warning="limit_mode == 'reference'">
+        <field name="sequence" widget="handle"/>
+        <field name="name" string="Test"/>
+        <field name="uom_text" string="Unit"/>
+        <field name="lsl_text" string="Minimum"/>
+        <field name="target_text" string="Target"/>
+        <field name="usl_text" string="Maximum"/>
+        <field name="sample_size" string="Sampling Rule"/>
+        <field name="measurements_per_sample" string="Tests / Sample"/>
+      </list>
+      <form string="QC Test &amp; Sampling Rule"><sheet>
+        <group string="Test &amp; TDS Limits" col="2">
+          <group><field name="name"/><field name="uom_text"/>
+            <field name="lsl_text" string="Minimum (LSL)"/>
+            <field name="target_text"/>
+            <field name="usl_text" string="Maximum (USL)"/>
+          </group>
+          <group><field name="limit_mode" string="Result Method"/>
+            <field name="nominal_set"/>
+            <field name="nominal_numeric" invisible="not nominal_set"/>
+            <button name="action_resolve_nominal_limits" type="object" string="Calculate Limits" invisible="not nominal_set"/>
+            <field name="lsl_numeric" invisible="limit_mode != 'numeric'"/>
+            <field name="usl_numeric" invisible="limit_mode != 'numeric'"/>
+          </group>
+        </group>
+        <group string="Sampling" col="2">
+          <group><field name="sample_size"/>
+                 <field name="sample_count" string="Default Samples"/>
+                 <field name="measurements_per_sample" string="Tests per Sample"/></group>
+          <group><field name="inspection_method"/>
+                 <field name="sample_method"/>
+                 <field name="lot_size"/></group>
+        </group>
+        <group string="Other Test Details" col="2">
+          <group><field name="inspection_frequency"/><field name="inspection_level"/></group>
+          <group><field name="template_id" readonly="1"/></group>
+        </group>
+      </sheet></form>
+    </field>
+    <group string="Notes" col="1">
+      <field name="notes" nolabel="1" placeholder="Optional instructions" readonly="state != 'draft'"/>
+    </group>
+    <chatter/>
+  </sheet>
+</form></field>
+  </record>
+  <record id="action_rm_qc_spec" model="ir.actions.act_window">
+    <field name="name">1. QC Standards / TDS</field>
+    <field name="res_model">rm.qc.specification</field><field name="view_mode">list,form</field>
+  </record>
+  <record id="action_rm_qc_parameter" model="ir.actions.act_window">
+    <field name="name">QC Parameter Templates</field><field name="res_model">rm.qc.parameter.template</field>
+    <field name="view_mode">list,form</field>
+  </record>
+  <record id="action_rm_qc_defects" model="ir.actions.act_window">
+    <field name="name">RM Defect / Error Catalog</field><field name="res_model">rm.qc.defect</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>
