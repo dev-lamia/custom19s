@@ -951,6 +951,18 @@
         max-height: 390px;
         overflow-x: auto !important;
         overflow-y: auto !important;
+        isolation: isolate;
+    }
+
+    /* Odoo 19's sticky list headers must be fully opaque: otherwise the
+       scrolled Job Code/GDN HTML links show through/over the column names. */
+    .o_list_renderer .o_list_table thead th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 6 !important;
+        background: #e7f6ee !important;
+        background-clip: padding-box;
+        box-shadow: inset 0 -1px 0 #cbded4;
     }
 
     .o_field_x2many_list_row_add,

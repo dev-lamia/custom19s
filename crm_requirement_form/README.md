@@ -45,6 +45,25 @@
 - [Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)](#repeat-job-multi-req-import-and-sale-order-isolation-2026-11-06)
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 
+## Product Specification table scroll and duplicate-row fix (2026-11-06)
+
+The embedded Repeat Job specification list retains its 390px vertical scrolling and full horizontal scrolling. An opaque green header with explicit sticky stacking in `static/src/scss/requirement_form_backend.scss` prevents scrolled Job Code and GDN Number **links from overlaying the column headings**. This is a frontend style change only; actual GDN/Job Code values and navigation remain unchanged.
+
+The `@api.onchange('specification_ids')` method `_onchange_specification_ids_numbering` now runs the same source-specific duplicate detector already used during Previous REQ selection and persistence (`_duplicate_repeat_specification_rows`) before resequencing. A source design imported twice into the same Repeat REQ is reduced to one current row. Manual designs and **different** source specification IDs are never deduplicated merely because their values look identical. Sale Order-linked history is preserved by the existing duplicate helper. This onchange never re-imports a removed source design.
+
+**Proposed staging checks (not executed in Odoo):**
+
+| ID | Action | Expected |
+|---|---|---|
+| SD-01 | Scroll inside the Product Specifications list | Column names stay visible; Job Code and GDN links remain within their own data rows |
+| SD-02 | Import two REQs, scroll horizontally and vertically | Both scrollbars work; no link text bleeds into the header |
+| SD-03 | Add a second source while first already selected | Every exact source design appears once, not twice |
+| SD-04 | Delete one imported line, then edit QTY and Save | Deleted design is not automatically re-imported |
+| SD-05 | Same-looking design from a different REQ | Independent source design stays separate |
+| SD-06 | Existing Sale Order-linked design | No automatic deletion of protected historical row |
+
+This patch adds no fields and no migration. Replace module, restart, upgrade and hard refresh assets to apply SCSS updates. Source/Python/XML checks are not live rendering tests.
+
 ## Repeat Job: Complete Source Specification Fetch and Row Isolation (2026-11-06)
 
 **Code updated 2026-11-06; Odoo runtime/browser testing not performed.** This patch works with the existing multiple-source selector and does not change the database schema or module manifest version (`19.0.0.3`).

@@ -4,6 +4,14 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+### [Fixed] — Sticky list header and immediate duplicate normalization (2026-11-06)
+- [2026-11-06] Prevent scrolling **Job Code**/**GDN Number** links from appearing over the Product Specifications list header. The header cells now have an opaque background and explicit sticky stacking inside the existing bounded scroll area (`static/src/scss/requirement_form_backend.scss`). Horizontal and vertical scrolling are preserved.
+- [2026-11-06] Normalize redundant Repeat Job rows by their **exact** `source_specification_id` on the One2many row-change onchange as well as previous-source selection and save. This addresses client-side replay of copied x2many rows without importing any deleted source or touching independent designs/previous confirmed Sale Orders (`models/requirement_form.py`).
+- [2026-11-06] No change to Job Code or GDN generation, source data copying, selection filtering, schema, manifest version, or other business workflows. Static source checks only; browser/runtime behavior not yet verified.
+
+### [Docs] — Scroll and repeat-row regression tests (2026-11-06)
+- [2026-11-06] Updated README with the intended scroll/header and deduplication behavior and proposed staging cases, including existing repeated rows and no cross-REQ merging.
+
 ### [Fixed] — Previous REQ removal, duplicate rows and deleted-line persistence (2026-11-06)
 - [2026-11-06] Corrected multi-source onchange selection tracking with persisted/visible-source fallback, so removing a **Previous Req Forms** tag removes only that source's current copies and adding another source does not re-import an earlier deleted design.
 - [2026-11-06] Deduplicate by exact `source_specification_id` during onchange and on form save. Never merge designs solely because the Job Code, GDN or name matches. Preserve rows already referenced by Sale Orders and reject removal of those references rather than rewriting confirmed order history (`models/requirement_form.py`).

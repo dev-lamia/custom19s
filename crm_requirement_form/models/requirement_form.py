@@ -637,9 +637,18 @@ class CrmRequirementForm(models.Model):
     @api.onchange('specification_ids')
     def _onchange_specification_ids_numbering(self):
         for rec in self:
-            # A deleted design must stay deleted. Do NOT re-import the
-            # selected source in this onchange; it only renumbers remaining
-            # visible rows. Source imports occur on *new* tag selections.
+            # Odoo's editable x2many widget can replay an import's create
+            # commands after the source-selector onchange has completed.
+            # Normalize the current rows here as well, before numbering them.
+            # The helper groups by exact source specification ID and protects
+            # rows already referenced by Sale Orders. No source is reloaded.
+            if rec.repeat_job:
+                redundant = rec._duplicate_repeat_specification_rows()
+                if redundant:
+                    rec.specification_ids = rec.specification_ids - redundant
+
+            # A manually deleted design must stay deleted: this onchange
+            # *only* normalizes/renumbers the rows still in this form.
             for design_no, specification in enumerate(
                 rec.specification_ids, start=1
             ):
