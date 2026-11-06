@@ -7,19 +7,18 @@
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
                 <field name="can_create_artwork" invisible="1"/>
-                <field name="repeat_job" invisible="1"/>
                 <button name="action_create_artwork"
                         type="object"
                         string="Create Artwork"
                         class="btn-primary"
-                        invisible="not can_create_artwork"/>
+                        invisible="not can_create_artwork or artwork_task_count != 0"/>
             </xpath>
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
                 <button name="action_open_artwork"
                         type="object"
                         class="oe_stat_button"
                         icon="fa-paint-brush"
-                        invisible="artwork_task_count == 0 and not repeat_job">
+                        invisible="artwork_task_count == 0">
                     <field name="artwork_task_count" widget="statinfo" string="Artwork"/>
                 </button>
             </xpath>

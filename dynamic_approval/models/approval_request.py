@@ -67,14 +67,6 @@ class ProfessionalApprovalRequest(models.Model):
     source_name = fields.Char(string='Source Record', readonly=True)
     method_name = fields.Char(string='Method Name', required=True, readonly=True, index=True)
     button_label = fields.Char(string='Button', readonly=True)
-    stage_field_name = fields.Char(
-        string='Approval Stage Field', readonly=True, copy=False,
-        help='Stage/status field when this request was initiated.',
-    )
-    stage_value = fields.Char(
-        string='Approval Stage Value', readonly=True, copy=False,
-        help='Technical stage/status value when this request was initiated.',
-    )
     approval_consumed = fields.Boolean(
         string='Approval Used',
         default=False,
@@ -125,27 +117,17 @@ class ProfessionalApprovalRequest(models.Model):
         ], order='id desc', limit=1)
 
     @api.model
-    def create_from_rule(self, rule, record, method_name, stage_value=None, button_label=None):
-        stage_value = (
-            stage_value if stage_value is not None else (
-                rule._current_stage_value(record) if rule.use_stage_approvers
-                else rule.stage_option_id.value or False
-            )
-        )
-        stage_lines = rule._configured_stage_approvers_for_value(stage_value)
-        approvers = stage_lines if rule.use_stage_approvers else rule.approver_line_ids
+    def create_from_rule(self, rule, record, method_name):
         request = self.sudo().create({
             'rule_id': rule.id,
             'source_model': record._name,
             'source_id': record.id,
             'source_name': record.display_name,
             'method_name': method_name,
-            'button_label': button_label or rule.button_id.button_label or method_name,
+            'button_label': rule.button_id.button_label or method_name,
             'request_owner_id': self.env.user.id,
-            'stage_field_name': False if method_name.startswith('__stage_write__::') else (rule.stage_field_id.name or False),
-            'stage_value': stage_value,
         })
-        for approver in approvers:
+        for approver in rule.approver_line_ids:
             self.env['professional.approval.request.line'].sudo().create({
                 'request_id': request.id,
                 'user_id': approver.user_id.id,
@@ -156,21 +138,6 @@ class ProfessionalApprovalRequest(models.Model):
         request._send_activity_to_first()
         request._post_source_message(_('Approval requested for %s.') % request.button_label)
         return request
-
-    def _stage_is_current(self, record=None):
-        """Pending/approved stage-bound approvals must not survive a stage edit."""
-        self.ensure_one()
-        if not self.stage_field_name or self.method_name.startswith('__stage_write__::'):
-            return True
-        record = record if record is not None else self._source_record()
-        if not record or self.stage_field_name not in record._fields:
-            return False
-        field = record._fields[self.stage_field_name]
-        current = record.sudo()[self.stage_field_name]
-        value = str(current.id) if field.type == 'many2one' and current else (
-            '' if field.type == 'many2one' else str(current)
-        )
-        return value == self.stage_value
 
     def _source_record(self):
         self.ensure_one()
@@ -209,10 +176,6 @@ class ProfessionalApprovalRequest(models.Model):
             )
         if result == 'already':
             raise UserError(_('You already approved this request.'))
-        if result == 'stale':
-            # Never raise here: doing so rolls back cancellation of the old
-            # request and the corresponding activity cleanup.
-            return self.action_open_source()
         if result == 'completed':
             # Approval completion and the original business action are separate
             # user actions. Open the source document without executing the
@@ -377,9 +340,6 @@ class ProfessionalApprovalRequest(models.Model):
 
     def _try_approve(self, user):
         self.ensure_one()
-        if not self._stage_is_current():
-            self.action_cancel()
-            return 'stale'
         line = self.line_ids.filtered(lambda l: l.user_id.id == user.id)[:1]
         if not line:
             return 'not_approver'

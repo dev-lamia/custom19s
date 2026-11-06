@@ -2,28 +2,7 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-11-06
-
-### [Added] — Multiple previous REQs for one Repeat Job (2026-11-06)
-- [2026-11-06] Added `crm.requirement.form.previous_requirement_ids` multi-select source list, and `loaded_previous_requirement_ids` selection snapshot. The `Previous Req Forms` tags picker is restricted to the selected customer; legacy `previous_requirement_id` is retained for previously created forms and API callers.
-- [2026-11-06] New selections append independent Product Specification copies with source-specific `source_specification_id` and `previous_req_form` values. Existing rows are not cleared, and duplicate source rows are not imported twice. Removing a selected source affects only copies in the current REQ; source REQ and other selected sources remain intact. The list now shows a **Source REQ** column to distinguish the imported rows (`models/requirement_form.py`, `views/requirement_form_views.xml`).
-- [2026-11-06] Added server-side source validation and `create`/`write` import fallback so multi-source copying is not limited to onchange execution.
-
-### [Fixed] — Quotation history and source data isolation (2026-11-06)
-- [2026-11-06] Restricted Requirement Form → Quotation synchronization and payment-term auto-refresh to draft/sent SOs only. Confirmed/cancelled historical SO lines no longer receive automatic rewrites on new REQ submissions or quotation smart-button visits.
-- [2026-11-06] Protected `sale.order.line` → Requirement Specification synchronization with a matching `requirement_form_id` owner check. Writing a new Repeat SO cannot write copied line data into an unrelated/previous Requirement Form's original specification.
-- [2026-11-06] Preserved the existing customer-specific GDN selection, source GDN/Job Code matching, repeat serial reuse, and normal SO confirmation rules.
-
-### [Docs] — Repeat multi-source traceability and isolation (2026-11-06)
-- [2026-11-06] Updated README with field mappings, source isolation, technical methods, deployment guidance and proposed MR-01–MR-10 regression tests. Source-code and static checks only; **Odoo upgrade, browser interaction and live quotations were not runtime tested**.
-
-### [Fixed] — Product Form OWL `is_plate` modifier variable (2026-11-05)
-- [2026-11-05] Inserted hidden `<field name="is_plate" invisible="1"/>` in `views/product_template_views.xml` so the pre-existing external Product view condition `requirement_category_type_id not in [7] and not is_plate` receives that model field in the client. The external field and visibility condition are not redefined or changed; the CRM-defined Product field copy behavior remains unchanged.
-- [2026-11-05] **Compatibility caveat:** This view expects a separate installed customization to declare `product.template.is_plate`; the field is not supplied by `crm_requirement_form`. Static Python/XML/ZIP tests passed. **Live Odoo upgrade and OWL rendering were not tested.**
-
-### [Docs] — Product form OWL compatibility (2026-11-05)
-- [2026-11-05] Updated README troubleshooting and verification guidance for the external `is_plate` field and its required presence on the product model.
-
+## [Unreleased] — Documentation Updated: 2026-11-05
 
 ### [Fixed] — Product duplication preserves customized CRM fields (2026-11-05)
 - [2026-11-05] Set `copy=True` on `product.template.requirement_bag_type_code` (previously `copy=False`) so **Inventory → Products → Duplicate** retains the source FG Type Code instead of clearing it.
@@ -31,7 +10,7 @@
 - [2026-11-05] Computed and related fields continue to recompute from copied source configuration; unrelated product/Studio fields are not modified.
 
 ### [Docs] — Product Duplicate update (2026-11-05)
-- [2026-11-05] Clarified duplication scope: only Product fields defined in `crm_requirement_form` are copied. A subsequent view-only compatibility fix loads the existing external `is_plate` field without changing that external expression.
+- [2026-11-05] Clarified limited scope: only Product fields defined in `crm_requirement_form` are copied; the unrelated external `is_plate` view expression is not changed. This does not fix a separate view composition issue.
 - [2026-11-05] Updated `README.md` field mapping, scope, proposed QA and this `CHANGELOG.md` with the actual source changes. Python/XML static validation only; live Odoo duplication not performed.
 
 

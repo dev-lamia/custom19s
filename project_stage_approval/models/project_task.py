@@ -50,6 +50,7 @@ class ProjectTask(models.Model):
         "project_id",
         "stage_id",
         "stage_id.approver_ids",
+        "stage_id.return_stage_id",
         "approved_approver_ids",
     )
     @api.depends_context("uid")
@@ -73,7 +74,7 @@ class ProjectTask(models.Model):
             )
             task.can_review = (
                 user in approvers
-                and bool(task._get_adjacent_stage(-1))
+                and bool(task.stage_id.return_stage_id or task._get_adjacent_stage(-1))
             )
 
 
@@ -342,12 +343,22 @@ class ProjectTask(models.Model):
                 _("You are not an approver for the current stage.")
             )
 
-        previous_stage = self._get_adjacent_stage(-1)
+        previous_stage = self.stage_id.return_stage_id or self._get_adjacent_stage(-1)
 
         if not previous_stage:
+            raise UserError(_("No return stage is available for this task."))
+
+        project_stages = self.env["project.task.type"].search([
+            ("project_ids", "in", self.project_id.id),
+            ("active", "=", True),
+        ], order="sequence, id")
+        if previous_stage not in project_stages:
             raise UserError(
-                _("There is no previous stage for this task.")
+                _("Return stage '%s' is not available in project '%s'.")
+                % (previous_stage.name, self.project_id.display_name)
             )
+        if previous_stage == self.stage_id:
+            raise UserError(_("Return stage must differ from the current stage."))
 
         current_stage_name = self.stage_id.name
         approver_name = user.name
@@ -356,6 +367,8 @@ class ProjectTask(models.Model):
         self._complete_current_approval_activity(
             _("Review requested by %s.", approver_name)
         )
+        # Remove other pending approvals for the stage being rejected.
+        self._clear_stage_approval_activities()
 
         self.write({
             "stage_id": previous_stage.id,

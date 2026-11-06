@@ -12,6 +12,28 @@
                     groups="project.group_project_manager"
                     options="{'no_create': True}"
                 />
+                <field
+                    name="return_stage_id"
+                    string="Return to Stage"
+                    groups="project.group_project_manager"
+                    options="{'no_create': True, 'no_create_edit': True}"
+                />
+            </xpath>
+        </field>
+    </record>
+    <record id="stage_list_approval" model="ir.ui.view">
+        <field name="name">project.task.type.list.approval</field>
+        <field name="model">project.task.type</field>
+        <field name="inherit_id" ref="project.task_type_tree_inherited"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='project_ids']" position="after">
+                <field name="approver_ids" string="Approvers"
+                       widget="many2many_tags" optional="show"
+                       groups="project.group_project_manager"
+                       options="{'no_create': True}"/>
+                <field name="return_stage_id" string="Return to Stage"
+                       optional="show" groups="project.group_project_manager"
+                       options="{'no_create': True, 'no_create_edit': True}"/>
             </xpath>
         </field>
     </record>

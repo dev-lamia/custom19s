@@ -1,0 +1,83 @@
+<odoo>
+    <record id="view_product_template_rm_tds" model="ir.ui.view">
+        <field name="name">product.template.form.rm.tds</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="before">
+                <field name="is_plate" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="RM TDS" name="rm_tds" invisible="is_plate">
+                    <group col="1">
+                        <separator string="Dimensions &amp; Physical Properties"/>
+                        <field name="rm_tds_physical_line_ids" nolabel="1">
+                            <list editable="bottom" create="1" delete="1">
+                                <field name="sequence" widget="handle"/>
+                                <field name="property_id" context="{'default_category': 'physical'}" options="{'no_quick_create': True}"/>
+                                <field name="value_float" string="Value"/>
+                            </list>
+                        </field>
+                        <separator string="Material &amp; Surface Treatment"/>
+                        <field name="rm_tds_text_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="property_id" context="{'default_category': 'material'}" options="{'no_quick_create': True}"/>
+                                <field name="value_text" string="Value"/>
+                            </list>
+                        </field>
+                        <separator string="Barrier &amp; Quality Metrics"/>
+                        <field name="rm_tds_quality_line_ids" nolabel="1">
+                            <list editable="bottom" create="1" delete="1">
+                                <field name="sequence" widget="handle"/>
+                                <field name="property_id" context="{'default_category': 'quality'}" options="{'no_quick_create': True}"/>
+                                <field name="value_float" string="Value"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_variant_rm_tds" model="ir.ui.view">
+        <field name="name">product.product.form.rm.tds</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="before">
+                <field name="is_plate" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="RM TDS" name="rm_tds" invisible="is_plate">
+                    <group col="1">
+                        <separator string="Dimensions &amp; Physical Properties"/>
+                        <field name="rm_tds_physical_line_ids" nolabel="1">
+                            <list editable="bottom" create="1" delete="1">
+                                <field name="sequence" widget="handle"/>
+                                <field name="property_id" context="{'default_category': 'physical'}" options="{'no_quick_create': True}"/>
+                                <field name="value_float" string="Value"/>
+                            </list>
+                        </field>
+                        <separator string="Material &amp; Surface Treatment"/>
+                        <field name="rm_tds_text_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="property_id" context="{'default_category': 'material'}" options="{'no_quick_create': True}"/>
+                                <field name="value_text" string="Value"/>
+                            </list>
+                        </field>
+                        <separator string="Barrier &amp; Quality Metrics"/>
+                        <field name="rm_tds_quality_line_ids" nolabel="1">
+                            <list editable="bottom" create="1" delete="1">
+                                <field name="sequence" widget="handle"/>
+                                <field name="property_id" context="{'default_category': 'quality'}" options="{'no_quick_create': True}"/>
+                                <field name="value_float" string="Value"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

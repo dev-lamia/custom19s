@@ -9,7 +9,7 @@
 | Author | `Softeko_Lamia` |
 | Category | CRM |
 | License | LGPL-3 |
-| Documentation Updated | 2026-11-06 |
+| Documentation Updated | 2026-11-05 |
 | Latest Verified Release | Not verified — the ZIP contains historical upgrade notes, but no verified release date |
 | Documentation Status | Source-code reviewed; **not** runtime-tested on an Odoo instance |
 
@@ -41,7 +41,6 @@
 - [GDN Sale Order usage and Job Code display (2026-11-04)](#gdn-sale-order-usage-and-job-code-display-2026-11-04)
 - [Job Code and GDN cross-links with Sale Order history (2026-11-04)](#job-code-and-gdn-cross-links-with-sale-order-history-2026-11-04)
 - [Customer-filtered Requirement Form selector on Sale Orders (2026-11-04)](#customer-filtered-requirement-form-selector-on-sale-orders-2026-11-04)
-- [Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)](#repeat-job-multi-req-import-and-sale-order-isolation-2026-11-06)
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 
 ## Overview
@@ -83,35 +82,6 @@ These are **source-code-verified features**; this documentation does not imply t
 **Technical reference:** `models/requirement_document_type.py`, `models/design_document_line.py`, `models/gdn_document_line.py`, `views/requirement_form_views.xml`, `views/gdn_configuration_views.xml`, `views/requirement_option_views.xml`, `data/requirement_document_type_data.xml`, `data/requirement_document_type_migration.xml`, `security/ir.model.access.csv`.
 
 **Proposed QA (not executed):** Verify GDN has no empty prefilled Document Type rows; verify inline Add a line with multiple attachments on a new/existing REQ design; verify every document type can be selected on GDN; add a new type in Configuration and use it in both lists; upgrade an old record and confirm old files remain; rename a configured type and check the existing documents/GDN synchronization; confirm users without Sales Manager rights can select but cannot maintain the master list.
-
-## Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)
-
-**Purpose:** One Repeat Job Requirement Form can select **multiple** existing Requirement Forms for the same customer without clearing existing Product Specification rows or modifying any source Requirement Form. The new `previous_requirement_ids` Many2many field replaces the single-source selector for new interactions. Existing `previous_requirement_id` records remain supported and visible as **Legacy Previous REQ** when populated. The `loaded_previous_requirement_ids` technical field records which selections have already been imported, preventing a manually deleted design from reappearing when another REQ is selected.
-
-**Workflow:** Requirement Forms → open/create a form → Product Specifications → **Repeat Job** → select multiple **Previous Req Forms** (multi-select tags). New selections append copies of each source's designs in source order. Each copy has a distinct parent `form_id` (the current REQ), `source_specification_id` pointing to its precise source design, and a visible **Source REQ** list column (`previous_req_form`) showing its original REQ ID. Source fields, layers, product, finish, quantity and UOM are populated by `_prepare_repeat_specification_values()` and the existing `crm.requirement.specification.create()` source hydration; Job Code/GDN fallback follows that *same source design*, not another selected requirement. Repeat job rows remain restricted to editable QTY/UOM by the existing form view.
-
-**Deletion/isolation:** Selecting another REQ does not use `Command.clear()` and therefore does not overwrite already entered rows. Removing one source tag removes only *this current form's copied designs* originating from that removed source; removing an individual specification affects only that individual copied row. `loaded_previous_requirement_ids` prevents an intentionally deleted row from being imported again simply because another source was added. The original source REQ and its original specification records are not deleted, written, or reassigned by this import. Legacy source links are preserved separately.
-
-**Quotation safety:** `_sync_specifications_to_sale_order()` now checks that the SO actually belongs to the current `requirement_form_id` and synchronizes only `draft`/`sent` orders. `action_open_quotations()` and `action_submit_internal()` no longer update confirmed or cancelled orders automatically; payment term refresh is also restricted to draft/sent orders. `sale.order.line._sync_linked_requirement_and_gdn()` only writes to a specification whose `form_id` matches the SO's `requirement_form_id`, blocking accidental changes to a previous REQ's source design after an SO line is copied or reused. Existing GDN configuration ownership rules and the Job Code serial/reuse logic remain unchanged.
-
-**Exact source files:** `models/requirement_form.py` (`previous_requirement_ids`, `loaded_previous_requirement_ids`, `_onchange_previous_requirement_ids`, `_repeat_specification_commands`, `_append_unloaded_previous_requirements`, `_sync_specifications_to_sale_order`, `action_open_quotations`, `action_submit_internal`); `models/product_specification.py` (unchanged source snapshots and Job Code/GDN matching); `models/sale_order.py` (`_sync_linked_requirement_and_gdn` owner guard); `views/requirement_form_views.xml` (multi-select tags and hidden source line identity).
-
-**Proposed manual QA, not executed:**
-
-| ID | Scenario | Expected result |
-| --- | --- | --- |
-| MR-01 | Select previous REQ A then B for same customer | All designs append; no A row is replaced; source links are correct |
-| MR-02 | Delete one imported A design, then select previous REQ C | Deleted A design remains deleted; remaining A/B/C designs stay intact |
-| MR-03 | Remove REQ B tag | Only current REQ's copies originating from B are removed, not original B or A/C |
-| MR-04 | Save/reopen new multi-source REQ | All chosen sources and independent design copies remain |
-| MR-05 | Select another customer's REQ or the current REQ | Rejected (customer check or self-selection protection) |
-| MR-06 | Open quotation from a new Repeat REQ after previous SO is confirmed | Original SO lines, quantity, price, GDN and Job Code remain unchanged |
-| MR-07 | Edit copied/current draft quote line | Writes back only to its own current REQ design, not a source/other REQ |
-| MR-08 | Confirm new Repeat SO with several original Job Codes | Each copied design reuses its own source code/GDN; no new Repeat serial |
-| MR-09 | Open source REQ quotation smart button after confirmation | Confirmed SO is read-only with respect to automatic specification synchronization |
-| MR-10 | Select sources through ORM `create`/`write` rather than UI | Fallback adds only newly selected source designs without replacing existing rows |
-
-**Deployment / limitations:** Back up the database, deploy the updated addon, restart Odoo and **Upgrade** `crm_requirement_form` to create the two new Many2many relation tables and reload the form view. This update preserves the old Many2one column and does not rewrite historical records. Live Odoo runtime / browser tests were **not executed**; validate the QA scenarios on a staging database before production.
 
 ## Architecture
 
@@ -902,12 +872,6 @@ Odoo's default duplication behavior continues for all other fields. Computed, re
 **Technical references:** `models/product_extension.py` (field definitions, existing `_compute_requirement_fg_type`, `_check_requirement_fg_configuration`, `create()` and `write()`), `views/product_template_views.xml` (Product Form fields).
 
 
-### Product Form OWL compatibility — external `is_plate` (2026-11-05)
+### Scope note: Product form OWL `is_plate` error
 
-**Symptom on staging:** Product Form raises `EvalError: Name 'is_plate' is not defined` while evaluating an expression from another inherited Product view: `requirement_category_type_id not in [7] and not is_plate`.
-
-**Targeted change:** `views/product_template_views.xml`, inside the `product.template` form inheritance `product_template_form_requirement_bag_type`, includes `<field name="is_plate" invisible="1"/>`. This makes the pre-existing external field available to the Odoo 19 client-side expression evaluator without changing its value, UI, copy flag or the other module's visibility rule. **No new `is_plate` field is defined in Python.** Product duplication still copies only the existing CRM custom editable fields explicitly marked `copy=True` in `models/product_extension.py`.
-
-**Dependency warning:** The staging `product.template` model **must already have** an `is_plate` field from its other installed customization. This ZIP does not contain its definition. If it does not exist in a target database, this view would fail upgrade validation (`Field is_plate does not exist`). Check the external customization and its load order before using this fix on a different database.
-
-**Proposed manual verification (not executed):** After Odoo restart and module upgrade, open Inventory → Products, duplicate an FG product, verify the Product Form renders without the `Name 'is_plate' is not defined` OwlError, and verify FG Type / FG Type Code / Layer / Thickness are preserved. Test a Plate product too to confirm the external custom visibility rule still works.
+The view expression `requirement_category_type_id not in [7] and not is_plate` is **not present** anywhere in this `crm_requirement_form` module. The `is_plate` field is not declared by this module. A separate installed Product view/add-on contains that condition and may need its own fix if it is missing from the final Product view's loaded fields. This duplication-only update intentionally does not create an `is_plate` field, modify other add-ons, or change their view visibility conditions. A live Odoo staging registry/render test has not been executed.

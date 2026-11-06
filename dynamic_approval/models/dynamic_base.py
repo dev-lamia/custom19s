@@ -72,16 +72,8 @@ class ProfessionalApprovalBase(models.AbstractModel):
             return False
         Request = self.env['professional.approval.request']
         request = Request.get_active_request(self._name, self.id, method_name)
-        if request and not request._stage_is_current(self):
-            request.action_cancel()
-            request = False
         if request:
             result = request._try_approve(self.env.user)
-            if result == 'stale':
-                return self._approval_popup(
-                    _('Stage Changed'),
-                    _('The stage/status changed. Please start a new approval.'),
-                )
             if result == 'not_approver':
                 return self._approval_popup(
                     _('Approval Needed'),
@@ -104,17 +96,15 @@ class ProfessionalApprovalBase(models.AbstractModel):
             # Approve, or the native button returns after final approval.
             return self._professional_source_action()
 
-        approved_requests = Request.sudo().search([
+        approved_request = Request.sudo().search([
             ('source_model', '=', self._name),
             ('source_id', '=', self.id),
             ('method_name', '=', method_name),
             ('state', '=', 'approved'),
             ('approval_consumed', '=', False),
-        ], order='id desc')
-        for approved_request in approved_requests:
-            if approved_request._stage_is_current(self):
-                return False
-            approved_request.write({'approval_consumed': True})
+        ], order='id desc', limit=1)
+        if approved_request:
+            return False
 
         if not self._professional_table_ready('professional.approval.rule'):
             return False
@@ -156,11 +146,6 @@ class ProfessionalApprovalBase(models.AbstractModel):
             return self._professional_source_action()
 
         result = request._try_approve(self.env.user)
-        if result == 'stale':
-            return self._approval_popup(
-                _('Stage Changed'),
-                _('The stage/status changed. Please start a new approval.'),
-            )
         if result == 'not_approver':
             return self._approval_popup(
                 _('Approval'),
@@ -208,12 +193,9 @@ class ProfessionalApprovalBase(models.AbstractModel):
             ('method_name', 'in', rules.mapped('method_name')),
         ])
         request_by_method = {request.method_name: request for request in requests}
-        source_record = self.browse(int(record_id)).exists()
         result = []
         for rule in rules:
             request = request_by_method.get(rule.method_name)
-            if request and not request._stage_is_current(source_record):
-                request = False
             pending_for_user = False
             if request:
                 user_line = request.line_ids.filtered(

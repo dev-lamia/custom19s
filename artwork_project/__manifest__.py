@@ -2,7 +2,7 @@
     'name': 'Artwork Project Flow',
     'version': '19.0.0.1',
     'category': 'Sales/Project',
-    'summary': 'Create an artwork project and job-code tasks from confirmed Sales Orders',
+    'summary': 'Createe an artwork project and job-code tasks from confirmed Sales Orders',
     'author': 'Softeko_Lamia',
     'license': 'LGPL-3',
     'depends': [

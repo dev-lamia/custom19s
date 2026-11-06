@@ -1,0 +1,67 @@
+<odoo>
+    <record id="rm_prop_web_width" model="product.rm.tds.property">
+        <field name="name">Width of the Web (mm)</field>
+        <field name="category">physical</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="rm_prop_thickness" model="product.rm.tds.property">
+        <field name="name">Thickness (Micron)</field>
+        <field name="category">physical</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="rm_prop_density" model="product.rm.tds.property">
+        <field name="name">Density</field>
+        <field name="category">physical</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="rm_prop_optical_density" model="product.rm.tds.property">
+        <field name="name">Optical Density</field>
+        <field name="category">physical</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="rm_prop_radial_crush" model="product.rm.tds.property">
+        <field name="name">Radial Crush Strength</field>
+        <field name="category">physical</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="rm_prop_substrate_grade" model="product.rm.tds.property">
+        <field name="name">Substrate Grade</field>
+        <field name="category">material</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="rm_prop_treatment_surface" model="product.rm.tds.property">
+        <field name="name">Treatment Level Surface</field>
+        <field name="category">material</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="rm_prop_treatment_reverse" model="product.rm.tds.property">
+        <field name="name">Treatment Level Reverse</field>
+        <field name="category">material</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="rm_prop_wvtr" model="product.rm.tds.property">
+        <field name="name">WVTR (%)</field>
+        <field name="category">quality</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="rm_prop_otr" model="product.rm.tds.property">
+        <field name="name">OTR (%)</field>
+        <field name="category">quality</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="rm_prop_cof_rating" model="product.rm.tds.property">
+        <field name="name">COF Rating (%)</field>
+        <field name="category">quality</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="rm_prop_solid_content" model="product.rm.tds.property">
+        <field name="name">Solid Content (%)</field>
+        <field name="category">quality</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="rm_prop_max_moisture" model="product.rm.tds.property">
+        <field name="name">Max Moisture Allowed (%)</field>
+        <field name="category">quality</field>
+        <field name="sequence">50</field>
+    </record>
+</odoo>

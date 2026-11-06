@@ -6,13 +6,13 @@
         <field name="inherit_id" ref="project.view_task_kanban"/>
         <field name="arch" type="xml">
             <xpath expr="//kanban/templates" position="before">
-                <field name="artwork_latest_sale_order_id"/>
-                <field name="artwork_latest_sale_order_ref"/>
+                <field name="artwork_sale_order_id"/>
+                <field name="artwork_sale_order_ref"/>
             </xpath>
             <xpath expr="//t[@t-name='card']" position="inside">
-                <div t-if="record.artwork_latest_sale_order_id.raw_value" class="text-muted mt-1">
+                <div t-if="record.artwork_sale_order_id.raw_value" class="text-muted mt-1">
                     <span class="fw-semibold">Sales Order: </span>
-                    <field name="artwork_latest_sale_order_ref"/>
+                    <field name="artwork_sale_order_ref"/>
                 </div>
             </xpath>
         </field>

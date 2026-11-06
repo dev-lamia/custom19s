@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rm_tds_physical_internal,rm.tds.physical.internal,model_product_rm_tds_physical_line,base.group_user,1,1,1,1
+access_rm_tds_quality_internal,rm.tds.quality.internal,model_product_rm_tds_quality_line,base.group_user,1,1,1,1
+access_rm_tds_text_internal,rm.tds.text.internal,model_product_rm_tds_text_line,base.group_user,1,1,1,1
+access_rm_tds_property,rm.tds.property,model_product_rm_tds_property,base.group_user,1,1,1,0

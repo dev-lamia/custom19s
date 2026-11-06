@@ -149,14 +149,7 @@
                                 <group col="4" class="mb-3">
                                     <field name="new_job" readonly="state == 'submitted'"/>
                                     <field name="repeat_job" readonly="state == 'submitted'"/>
-                                    <field name="loaded_previous_requirement_ids" invisible="1" force_save="1"/>
-                                    <field name="previous_requirement_ids" string="Previous Req Forms" widget="many2many_tags"
-                                           domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]"
-                                           invisible="not repeat_job" readonly="state == 'submitted'"
-                                           options="{'no_create': True, 'no_create_edit': True}"/>
-                                    <!-- Preserve historical single-source REQ links. New records use the multi-selector. -->
-                                    <field name="previous_requirement_id" string="Legacy Previous REQ" readonly="1"
-                                           invisible="not previous_requirement_id or not repeat_job"/>
+                                    <field name="previous_requirement_id" string="Previous Req Form" domain="[('partner_id', '=', partner_id), ('partner_id', '!=', False)]" invisible="not repeat_job" required="repeat_job" readonly="state == 'submitted'" options="{'no_create': True, 'no_create_edit': True}"/>
                                 </group>
 
                                 <field name="next_design_number" invisible="1"/>
@@ -165,7 +158,7 @@
                                         <control>
                                             <create string="Add a line"/>
                                         </control>
-                                        <field name="is_duplicate_copy" column_invisible="1"/><field name="source_specification_id" column_invisible="1" force_save="1"/><field name="previous_req_form" string="Source REQ" readonly="1" force_save="1" optional="show"/><field name="sequence" widget="handle" readonly="is_duplicate_copy"/>
+                                        <field name="is_duplicate_copy" column_invisible="1"/><field name="sequence" widget="handle" readonly="is_duplicate_copy"/>
                                         <field name="no_designs" string="Design" readonly="1"/>
                                         <field name="design_name" string="Design Name" readonly="is_duplicate_copy"/>
                                         <field name="job_code_link" string="Job Code" widget="html" readonly="1" optional="show"/>
