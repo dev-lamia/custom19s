@@ -1,6 +1,6 @@
 {
     'name': 'CRM Requirement Form',
-    'version': '19.0.0.0',
+    'version': '19.0.0.3',
     'category': 'CRM',
     'summary': 'CRm requirement form with generated customer and REQ IDs',
     'author': 'Softeko_Lamia',

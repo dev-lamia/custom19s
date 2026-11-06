@@ -4,6 +4,18 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+## [19.0.0.3] — Migration Patch Prepared: 2026-11-06
+
+### [Fixed] — Missing Repeat Job Many2many relation tables (2026-11-06)
+- [2026-11-06] Addressed `psycopg2.errors.UndefinedTable: relation "crm_req_form_previous_source_rel" does not exist` during `_onchange_previous_requirement_id` on `crm.requirement.form` by adding a **versioned pre-upgrade migration** (`migrations/19.0.0.3/pre-10-relation-tables.py`).
+- [2026-11-06] Ensure **both** `crm_req_form_previous_source_rel` and `crm_req_form_loaded_source_rel` exist with the verified `form_id` / `source_form_id` columns and indexed source-side lookup. `CREATE TABLE IF NOT EXISTS` preserves already-present relation tables/rows and leaves existing REQ designs, Sales Orders, GDNs, and Job Codes untouched.
+- [2026-11-06] Bumped `__manifest__.py` from `19.0.0.0` to `19.0.0.3` so Odoo can discover this migration when upgrading from an older installed version, without modifying existing `19.0.0.1`/`19.0.0.2` scripts. **No Product/REQ/quotation business-rule or report logic changed.**
+
+### [Docs] — Deployment and verification (2026-11-06)
+- [2026-11-06] Updated README with root cause, migration execution conditions, mandatory module Upgrade, PostgreSQL existence verification, rollback caveats, and proposed RT-01–06 regression tests. Source inspection and syntax checks only; **live database upgrade not verified**.
+
+
+
 ### [Added] — Multiple previous REQs for one Repeat Job (2026-11-06)
 - [2026-11-06] Added `crm.requirement.form.previous_requirement_ids` multi-select source list, and `loaded_previous_requirement_ids` selection snapshot. The `Previous Req Forms` tags picker is restricted to the selected customer; legacy `previous_requirement_id` is retained for previously created forms and API callers.
 - [2026-11-06] New selections append independent Product Specification copies with source-specific `source_specification_id` and `previous_req_form` values. Existing rows are not cleared, and duplicate source rows are not imported twice. Removing a selected source affects only copies in the current REQ; source REQ and other selected sources remain intact. The list now shows a **Source REQ** column to distinguish the imported rows (`models/requirement_form.py`, `views/requirement_form_views.xml`).
@@ -17,7 +29,14 @@
 ### [Docs] — Repeat multi-source traceability and isolation (2026-11-06)
 - [2026-11-06] Updated README with field mappings, source isolation, technical methods, deployment guidance and proposed MR-01–MR-10 regression tests. Source-code and static checks only; **Odoo upgrade, browser interaction and live quotations were not runtime tested**.
 
-### [Fixed] — Product Form OWL `is_plate` modifier variable (2026-11-05)
+### [Fixed] — Product Form upgrade ParseError (2026-11-06)
+- [2026-11-06] Removed the invalid `<field name="is_plate" invisible="1"/>` reference from `views/product_template_views.xml`, as `product.template.is_plate` is not declared by this module and was absent in the reported upgrade environment.
+- [2026-11-06] Kept the multi-Previous-REQ source isolation, existing Sale Order synchronization safeguards, and CRM Product duplication settings unchanged. The external OWL conditional-expression issue, if still present, must be resolved in the module or view that owns it.
+
+### [Docs] — Upgrade failure diagnosis (2026-11-06)
+- [2026-11-06] Reconciled README current behavior with the previous 2026-11-05 compatibility attempt; documented that this revision removes its invalid dependency and does not claim an Odoo runtime test.
+
+### [Changed, Superseded on 2026-11-06] — Earlier Product Form OWL workaround (2026-11-05)
 - [2026-11-05] Inserted hidden `<field name="is_plate" invisible="1"/>` in `views/product_template_views.xml` so the pre-existing external Product view condition `requirement_category_type_id not in [7] and not is_plate` receives that model field in the client. The external field and visibility condition are not redefined or changed; the CRM-defined Product field copy behavior remains unchanged.
 - [2026-11-05] **Compatibility caveat:** This view expects a separate installed customization to declare `product.template.is_plate`; the field is not supplied by `crm_requirement_form`. Static Python/XML/ZIP tests passed. **Live Odoo upgrade and OWL rendering were not tested.**
 

@@ -5,12 +5,12 @@
 | Module Name | CRM Requirement Form |
 | Technical Name | `crm_requirement_form` |
 | Odoo Version | 19 (per manifest version) |
-| Module Version | `19.0.0.0` (actual `__manifest__.py`) |
+| Module Version | `19.0.0.3` (actual `__manifest__.py`) |
 | Author | `Softeko_Lamia` |
 | Category | CRM |
 | License | LGPL-3 |
 | Documentation Updated | 2026-11-06 |
-| Latest Verified Release | Not verified — the ZIP contains historical upgrade notes, but no verified release date |
+| Latest Verified Release | `19.0.0.3` migration patch prepared 2026-11-06; deployment/runtime status not verified |
 | Documentation Status | Source-code reviewed; **not** runtime-tested on an Odoo instance |
 
 > **Documentation maintenance:** Every future update to this module should update this `README.md` and `CHANGELOG.md` with the **actual changes**, related source files, verified implementation details, the documentation date, and any relevant manual tests. Do not alter existing behavior merely to update documentation.
@@ -29,6 +29,7 @@
 - [Job Code Configuration](#job-code-configuration)
 - [Data synchronization](#data-synchronization)
 - [Security](#security)
+- [Many2many relation-table repair (2026-11-06)](#many2many-relation-table-repair-2026-11-06)
 - [Installation and upgrade](#installation-and-upgrade)
 - [Proposed manual tests](#proposed-manual-tests)
 - [Troubleshooting](#troubleshooting)
@@ -83,6 +84,24 @@ These are **source-code-verified features**; this documentation does not imply t
 **Technical reference:** `models/requirement_document_type.py`, `models/design_document_line.py`, `models/gdn_document_line.py`, `views/requirement_form_views.xml`, `views/gdn_configuration_views.xml`, `views/requirement_option_views.xml`, `data/requirement_document_type_data.xml`, `data/requirement_document_type_migration.xml`, `security/ir.model.access.csv`.
 
 **Proposed QA (not executed):** Verify GDN has no empty prefilled Document Type rows; verify inline Add a line with multiple attachments on a new/existing REQ design; verify every document type can be selected on GDN; add a new type in Configuration and use it in both lists; upgrade an old record and confirm old files remain; rename a configured type and check the existing documents/GDN synchronization; confirm users without Sales Manager rights can select but cannot maintain the master list.
+
+## Many2many relation-table repair (2026-11-06)
+
+**Observed failure:** On 2026-11-06, changing **Previous Req Form** on `crm.requirement.form` raised `psycopg2.errors.UndefinedTable: relation "crm_req_form_previous_source_rel" does not exist`. The Python field was active, but its PostgreSQL Many2many join table was missing. The second new field, `loaded_previous_requirement_ids`, also requires `crm_req_form_loaded_source_rel`. A service restart or browser refresh alone does **not** apply these database-schema changes.
+
+**Fix:** Existing `19.0.0.1` and `19.0.0.2` migration folders are retained (not overwritten); the new relation repair uses version `19.0.0.3`. This package raises the module version from `19.0.0.0` to **`19.0.0.3`** and adds `migrations/19.0.0.3/pre-10-relation-tables.py` with the Odoo 19 migration entry point `migrate(cr, version)`. When the module **is upgraded from an older installed version**, the pre-migration uses idempotent `CREATE TABLE IF NOT EXISTS` statements and secondary indexes to ensure both relations exist before Odoo reloads the model and view. The tables have the exact `(form_id, source_form_id)` columns declared in `models/requirement_form.py`; the ORM handles its normal foreign-key reconciliation in the upgrade. The migration **does not delete, copy, replace, or update** any existing REQ, specification, Sale Order, GDN, Job Code, or relationship rows. It creates empty join tables only where they are absent.
+
+**Deployment steps (database backup first):**
+
+1. Take a database backup, then replace the entire `crm_requirement_form` folder with this patched package.
+2. Restart Odoo to load the new Python source.
+3. Perform a **real module Upgrade** (Apps → `crm_requirement_form` → Upgrade, or your environment's Odoo `-u crm_requirement_form` command). Copying the ZIP without upgrading does not execute the migration. The versioned script executes only when Odoo sees an installed version lower than `19.0.0.3`.
+4. After Upgrade completes, check the tables: `SELECT to_regclass('crm_req_form_previous_source_rel'), to_regclass('crm_req_form_loaded_source_rel');` Both results should be non-null. A database administrator may run the query in PostgreSQL; **do not run manual ad hoc CREATE TABLE queries in production**.
+5. Hard refresh the browser and open a Repeat Job Requirement Form. Select two source REQs for the same customer, remove one copied design, add another source, and verify that the other rows and previously confirmed Sales Orders stay unchanged.
+
+**Limitations and rollback:** There was no access to the user's live PostgreSQL database; neither upgrade execution nor table existence is runtime-verified. If the installed module already reports version `19.0.0.3` (or higher), Odoo may skip this versioned migration; first inspect installed versions and upgrade logs rather than raising the version blindly. If upgrade fails for an unrelated view/module, the database transaction may roll back and leave the relations absent; address that separate error and retry. Do not drop or recreate a table containing existing data. The external `product.template.is_plate` condition from a separate Product view remains a separate issue.
+
+**Proposed staging tests (not executed):** RT-01 upgrade an older DB with both tables absent; RT-02 upgrade when one table already exists and contains links (rows preserved); RT-03 upgrade with both tables present (idempotent); RT-04 open `previous_requirement_ids` and `loaded_previous_requirement_ids` without SQL errors; RT-05 preserve source line links and independent confirmed Sales Orders; RT-06 validate the prior unrelated `is_plate` view compatibility separately.
 
 ## Repeat Job multi-REQ import and Sale Order isolation (2026-11-06)
 
@@ -218,7 +237,7 @@ The existing Repeat Job visibility/required/read-only conditions, selection of s
 
 ## Repeat Job Job Code reuse and Sale Order Job Type (2026-11-04)
 
-**Scope and date:** Implementation and documentation updated **2026-11-04**. This section describes the actual source-code changes in the supplied update, not a historical release date. Manifest version remains `19.0.0.0`. **Source reviewed and static checks performed; Odoo runtime testing has not been executed.**
+**Scope and date:** Implementation and documentation updated **2026-11-04**. This section describes the actual source-code changes in the supplied update, not a historical release date. At the time of this 2026-11-04 feature change, manifest version was `19.0.0.0` (current migration-patch version is `19.0.0.3`). **Source reviewed and static checks performed; Odoo runtime testing has not been executed.**
 
 ### Requirement Form: fetch an existing Job Code with Previous Req Form
 
@@ -532,7 +551,7 @@ The supplied ZIP defines ACLs in `security/ir.model.access.csv`. Important verif
 6. Refresh the browser; if the GDN list widget is stale, rebuild/clear frontend assets through the normal supported Odoo deployment process.
 7. Verify user permissions, seeded configuration records, GDN/Job Code views, Repeat Job, and public form routes in a staging database before production rollout. For the 2026-10-20 GDN Documents change, confirm the six empty placeholder rows disappear after **module Upgrade**; the Document Types dropdown and uploaded files still work. **For the 2026-10-19 Pouch Details update**, also verify Odoo has created the two new `sale_order_line` gusset columns and the `sale_job_code_configuration` SQL view can read them without `UndefinedColumn` errors.
 
-**Manifest version note:** The current ZIP's `__manifest__.py` says `19.0.0.0`. Some separately preserved `UPGRADE_NOTE*.txt` files mention historical labels such as `19.0.0.33` through `.36`, but those are **not** proof of the current manifest version or dated releases. This documentation does not rewrite the manifest.
+**Manifest version note:** This patch's `__manifest__.py` says **`19.0.0.3`** (bumped from `19.0.0.0` specifically to run the 2026-11-06 relation-table migration). Some separately preserved `UPGRADE_NOTE*.txt` files mention historical labels such as `19.0.0.33` through `.36`; those are **not** proof of the currently installed module version or dated releases. Existing `migrations/19.0.0.1/` and `migrations/19.0.0.2/` WhatsApp repair scripts are preserved. The new migration executes only during an actual module upgrade.
 
 ## Proposed manual tests
 
@@ -902,12 +921,12 @@ Odoo's default duplication behavior continues for all other fields. Computed, re
 **Technical references:** `models/product_extension.py` (field definitions, existing `_compute_requirement_fg_type`, `_check_requirement_fg_configuration`, `create()` and `write()`), `views/product_template_views.xml` (Product Form fields).
 
 
-### Product Form OWL compatibility — external `is_plate` (2026-11-05)
+### Product Form upgrade compatibility — external `is_plate` (2026-11-06)
 
-**Symptom on staging:** Product Form raises `EvalError: Name 'is_plate' is not defined` while evaluating an expression from another inherited Product view: `requirement_category_type_id not in [7] and not is_plate`.
+**Observed upgrade failure (2026-11-06):** Odoo raises `Field "is_plate" does not exist in model "product.template"` while validating the Product Form inheritance. The field had been injected in `views/product_template_views.xml` by a prior compatibility attempt dated 2026-11-05. This module does not define `product.template.is_plate`, so that field inclusion was invalid in databases without the external field.
 
-**Targeted change:** `views/product_template_views.xml`, inside the `product.template` form inheritance `product_template_form_requirement_bag_type`, includes `<field name="is_plate" invisible="1"/>`. This makes the pre-existing external field available to the Odoo 19 client-side expression evaluator without changing its value, UI, copy flag or the other module's visibility rule. **No new `is_plate` field is defined in Python.** Product duplication still copies only the existing CRM custom editable fields explicitly marked `copy=True` in `models/product_extension.py`.
+**Current correction:** Removed the hidden `is_plate` entry from `product_template_form_requirement_bag_type` so this module no longer requires an unknown external field when installing or upgrading. Existing CRM Product customization fields, their duplication behavior, and other business workflows remain unchanged.
 
-**Dependency warning:** The staging `product.template` model **must already have** an `is_plate` field from its other installed customization. This ZIP does not contain its definition. If it does not exist in a target database, this view would fail upgrade validation (`Field is_plate does not exist`). Check the external customization and its load order before using this fix on a different database.
+**Important separate issue:** A different installed inherited Product view may still contain an expression referencing `is_plate` (e.g. `requirement_category_type_id not in [7] and not is_plate`). If that view's expression is active and `is_plate` is not present in the `product.template` model/form, it must be corrected in the owning view/module. Removing this module's invalid entry addresses the reported **upgrade ParseError**, but does not by itself fix that external view's potential OWL rendering error.
 
-**Proposed manual verification (not executed):** After Odoo restart and module upgrade, open Inventory → Products, duplicate an FG product, verify the Product Form renders without the `Name 'is_plate' is not defined` OwlError, and verify FG Type / FG Type Code / Layer / Thickness are preserved. Test a Plate product too to confirm the external custom visibility rule still works.
+**Proposed verification (not runtime tested):** Upgrade `crm_requirement_form`, then inspect the combined Product Form view, test an existing FG product and its duplicated copy, and test New/Repeat multi-source REQ workflows. If a separate OWL `is_plate` error occurs, identify the inherited view defining the conditional modifier before editing it.

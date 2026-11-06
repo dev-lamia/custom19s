@@ -18,11 +18,6 @@
             </xpath>
             <xpath expr="//field[@name='categ_id']" position="after">
                 <field name="show_requirement_category_type" invisible="1"/>
-                <!-- The external Product view's expression refers to is_plate.
-                     Load the existing field in the OWL form record so its
-                     boolean modifier can evaluate it without a NameError.
-                     This module does not declare or change the field. -->
-                <field name="is_plate" invisible="1"/>
                 <field name="requirement_category_type_id"
                        string="Type"
                        invisible="not show_requirement_category_type"
