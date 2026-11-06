@@ -653,6 +653,15 @@ class ProductSpecification(models.Model):
             'Repeat Job.'
         ),
     )
+    # A writable hidden marker survives One2many onchange serialization when
+    # the readonly Many2one source link is dropped by the browser. It is never
+    # used as a relation and never changes the original/source requirement.
+    source_specification_token = fields.Integer(
+        string='Imported Source Design ID',
+        copy=False,
+        index=True,
+        help='Technical source-row identifier used to preserve Repeat Job copies on Save.',
+    )
     sale_order_line_ids = fields.One2many(
         'sale.order.line',
         'requirement_specification_id',
@@ -804,6 +813,7 @@ class ProductSpecification(models.Model):
             'sale_order_line_ids',
             'design_document_line_ids',
             'source_specification_id',
+            'source_specification_token',
             'job_code_link',
             'gdn_number_link',
         }
@@ -903,13 +913,22 @@ class ProductSpecification(models.Model):
             # links before Save; never try to persist computed read-only HTML.
             vals.pop('job_code_link', None)
             vals.pop('gdn_number_link', None)
-            source_id = vals.get('source_specification_id')
+            source_id = (
+                vals.get('source_specification_id')
+                or vals.get('source_specification_token')
+            )
             if source_id:
                 source = self.browse(source_id).exists()
                 if source:
+                    # Never inherit the SOURCE Requirement Form's foreign
+                    # key.  The parent One2many supplies the new owner; if
+                    # it has not yet been injected, ORM will set it itself.
                     source_vals = source.copy_data(default={
-                        'form_id': vals.get('form_id') or source.form_id.id,
+                        'form_id': False,
                     })[0]
+                    source_vals.pop('form_id', None)
+                    if vals.get('form_id'):
+                        source_vals['form_id'] = vals['form_id']
                     # The browser can submit empty values for readonly fields
                     # of an onchange-created repeat row.  Never let those
                     # placeholders overwrite the fetched source design.  A
@@ -926,6 +945,7 @@ class ProductSpecification(models.Model):
                         if field_name in vals:
                             source_vals[field_name] = vals[field_name]
                     source_vals['source_specification_id'] = source.id
+                    source_vals['source_specification_token'] = source.id
                     source_vals['is_duplicate_copy'] = True
                     vals = source_vals
             hydrated_vals_list.append(vals)

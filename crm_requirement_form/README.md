@@ -44,6 +44,7 @@
 - [Product duplication copies CRM custom fields (2026-11-05)](#product-duplication-copies-crm-custom-fields-2026-11-05)
 - [Multiple Previous Requirement Forms and Sales Order isolation (2026-11-06)](#multiple-previous-requirement-forms-and-sales-order-isolation-2026-11-06)
 - [Repeat Job first-selection preview and Save deduplication (2026-11-06)](#repeat-job-first-selection-preview-and-save-deduplication-2026-11-06)
+- [Repeat Job first-save value persistence fix (2026-11-06)](#repeat-job-first-save-value-persistence-fix-2026-11-06)
 
 ## Overview
 
@@ -969,3 +970,36 @@ The view expression `requirement_category_type_id not in [7] and not is_plate` i
 
 **Validation status:** Source reviewed, syntax/XML/ZIP verified; not verified by running Odoo 19 ORM/onchange in a live instance. Preserve a database backup before upgrade.
 
+
+
+## Repeat Job first-save value persistence fix (2026-11-06)
+
+**Symptom addressed:** Source Requirement Form designs are visible after selecting **Previous Req Forms** but some/all readonly product data, dimensions, print/finish values or source Job Code/GDN links disappear after saving the current Requirement Form. This is a separate regression from the earlier six-row duplicate issue.
+
+**Scope of this patch:** `models/requirement_form.py`, `models/product_specification.py` and the technical hidden fields in `views/requirement_form_views.xml`. The manifest/version, other form UI sections, Sale Order sync, GDN/Job Code generation, ACLs, and unrelated Python/XML are unchanged.
+
+### Save-time source and snapshot handling
+
+1. `_prepare_imported_specification_commands()` rebuilds each **new imported One2many command** from its exact saved source specification before the ORM saves that command. The source is resolved by `source_specification_id` or `source_specification_token`; if neither was serialized, the current Previous Req Form name plus the ordered source rows are used. For multiple sources with no provenance the importer does **not** guess. Manual lines and existing-line update/delete commands are untouched.
+2. `_prepare_repeat_specification_values()` additionally carries a hidden, writable integer `source_specification_token`, distinct from the original readonly Many2one source link. Both technical fields are `force_save` in the nested list and form views, preserving the exact identity of original designs even when several designs have the same Design Name, Product and Print/Finish. `source_specification_token` is a non-relationship copy-provenance marker, `copy=False`, not a source document update. The Odoo module must be **upgraded** once to create this new field.
+3. `crm.requirement.specification.create()` rehydrates repeated designs from their source when either source reference is available, while preserving the **current copy's** QTY and UOM. It no longer defaults `form_id` to the original source Requirement Form; the new parent One2many retains ownership.
+4. `_restore_imported_specification_links()` repairs incomplete previously saved copies belonging to the selected REQ, restores dropped links and missing snapshot values, but only when a repeat-design copy is verifiably incomplete. Existing correct copies are not refreshed from an independently edited original REQ. No existing line is bulk-deleted or re-created during this repair.
+5. When the UI omits the entire newly selected One2many payload, parent `create()` and `write()` can import the newly selected source REQ on the server. When the payload explicitly contains line commands, the corresponding UI actions remain authoritative, so a deliberately deleted line is not automatically re-added on every later Save.
+
+**Important isolation:** All rebuilt/copied values belong to the **current Requirement Form**. An imported source design is never edited and its original Sales Order Lines/GDN/Job Codes are only read as references. Previously confirmed Sale Orders remain outside the modified methods.
+
+### Proposed regression tests (not performed on a live Odoo 19 database)
+
+| Test | Procedure | Expected result |
+| --- | --- | --- |
+| REQ-SAVE-01 | Select REQ-A with 3 distinct GDNs/Job Codes, Save, reopen | Exactly 3 lines; each correct Job Code and GDN remains; Product, FG Type, finish, dimensions and layers remain populated |
+| REQ-SAVE-02 | Change QTY/UOM in the copied rows, Save twice | Current REQ retains edits; source REQ and prior Sale Order retain their original quantities |
+| REQ-SAVE-03 | Select REQ-B with 2 rows after REQ-A; Save, reopen | Exactly 5 lines; each row belongs to its proper REQ, no mix-up or overwriting |
+| REQ-SAVE-04 | Remove REQ-A only, Save | Only REQ-A's three copied rows are removed, REQ-B remains |
+| REQ-SAVE-05 | Delete one copy from an already saved REQ, Save and reopen | That copy remains deleted; other lines and source forms are intact |
+| REQ-SAVE-06 | Save with three identical Design Names and different Job Codes/GDNs | Row identity preserved through the hidden technical source marker |
+| REQ-SAVE-07 | Save a new form with one manually added independent design | Manual line remains a normal editable design; no unexpected source is assigned |
+| REQ-SAVE-08 | Make a new quotation from REQ-B; reopen REQ-A's previous Sale Order | The historical Sale Order and its specifications retain their preexisting data |
+| REQ-SAVE-09 | Open a form previously affected by the blank-row save issue | The repair path may fill incomplete existing copies when their original source can be determined; review historical ambiguous rows manually |
+
+**Upgrade and verification:** Back up the database and test on staging; replace the module directory, restart Odoo, upgrade `crm_requirement_form` from Apps, then hard-refresh the browser. This ZIP was checked by Python AST/syntax, XML parsing, source-mapping synthetic tests and ZIP integrity checks. **No Odoo registry, browser Save, database migration, or business-flow runtime test was executed.** Ambiguous older rows with both REQ provenance fields missing cannot be reliably reconstructed automatically without original data mapping.

@@ -353,6 +353,7 @@ class CrmRequirementForm(models.Model):
             'is_duplicate_copy': True,
             'previous_req_form': previous_requirement.name or False,
             'source_specification_id': specification.id or False,
+            'source_specification_token': specification.id or 0,
             # Populate readonly link columns on the virtual onchange rows.
             # These values are preview-only; specification.create() discards
             # them and the existing compute handles the saved copy.
@@ -440,46 +441,188 @@ class CrmRequirementForm(models.Model):
             sequence += 1
         return commands
 
-    def _restore_imported_specification_links(self, source_ids):
-        """Recover provenance of UI-created lines if a readonly field was lost.
+    def _repeat_import_source_for_values(self, values, previous_forms, used_ids):
+        """Resolve a virtual repeat row before its One2many CREATE is saved.
 
-        Nested One2many onchanges may send the copied design but omit its
-        hidden source_specification_id.  Match only rows explicitly tagged as
-        imported from the exact REQ, using noneditable design attributes;
-        QTY/UOM are deliberately ignored as the user may have changed them.
-        Never modify any original/source design.
+        Odoo's list editor can omit readonly source/FG/product fields when it
+        serializes virtual lines.  Prefer the exact source link; otherwise use
+        the previous REQ marker and source ordering, never a different REQ.
+        """
+        source_id = (
+            values.get('source_specification_id')
+            or values.get('source_specification_token')
+        )
+        if source_id:
+            source = self.env['crm.requirement.specification'].browse(
+                source_id
+            ).exists()
+            if source and source.form_id in previous_forms:
+                return source
+            return self.env['crm.requirement.specification']
+
+        if not (values.get('is_duplicate_copy') or values.get('previous_req_form')):
+            return self.env['crm.requirement.specification']
+        previous = previous_forms.filtered(
+            lambda form: form.name == values.get('previous_req_form')
+        )
+        if len(previous) != 1 and len(previous_forms) == 1 and values.get(
+            'is_duplicate_copy'
+        ):
+            # With exactly one selected REQ, a missing readonly text marker
+            # is still unambiguous. Never guess across several sources.
+            previous = previous_forms
+        if len(previous) != 1:
+            return self.env['crm.requirement.specification']
+
+        candidates = previous.specification_ids.sorted(
+            key=lambda row: (row.sequence, row.id)
+        ).filtered(lambda row: row.id not in used_ids)
+        if not candidates:
+            return self.env['crm.requirement.specification']
+
+        # Use only values actually present in the client payload for matching;
+        # missing/empty readonly columns must not disqualify a correct source.
+        for key in ('design_name', 'fg_type', 'bag_type_product_tmpl_id',
+                    'print_finish_id'):
+            supplied = values.get(key)
+            if supplied:
+                field = self.env['crm.requirement.specification']._fields[key]
+                same = candidates.filtered(
+                    lambda row: (row[key].id if field.type == 'many2one'
+                                 else row[key]) == supplied
+                )
+                if same:
+                    candidates = same
+        return candidates[:1]
+
+    def _prepare_imported_specification_commands(self, values, previous_forms):
+        """Hydrate fetched lines *before* ORM creates incomplete UI rows.
+
+        Standard nested One2many views do not transmit every readonly field.
+        Fill the complete readonly snapshot server-side, preserving only the
+        current form's edited QTY/UOM.  Do not rewrite existing line commands.
+        """
+        commands = values.get('specification_ids')
+        if not commands or not previous_forms:
+            return
+        used_ids = set()
+        normalized = []
+        for command in commands:
+            if not isinstance(command, (list, tuple)) or not command:
+                normalized.append(command)
+                continue
+            if command[0] != 0 or len(command) < 3 or not isinstance(command[2], dict):
+                normalized.append(command)
+                continue
+            line_values = dict(command[2])
+            source = self._repeat_import_source_for_values(
+                line_values, previous_forms, used_ids
+            )
+            if not source:
+                normalized.append(command)
+                continue
+            used_ids.add(source.id)
+            # During crm.requirement.form.create() `self` is an empty model
+            # recordset; use the source parent as a valid singleton to build
+            # the snapshot without altering either parent record.
+            source_values = source.form_id._prepare_repeat_specification_values(
+                source,
+                line_values.get('sequence') or source.sequence or 1,
+                previous_requirement=source.form_id,
+            )
+            # Only the copy's quantity and UOM may intentionally differ.
+            for editable in ('quantity', 'quantity_uom', 'quantity_uom_id'):
+                if editable in line_values:
+                    source_values[editable] = line_values[editable]
+            source_values['source_specification_id'] = source.id
+            source_values['source_specification_token'] = source.id
+            source_values['previous_req_form'] = source.form_id.name
+            normalized.append(Command.create(source_values))
+        values['specification_ids'] = normalized
+
+    def _restore_imported_specification_links(self, source_ids):
+        """Repair incomplete repeat-job rows after Save, without duplicates.
+
+        A missing readonly provenance field previously left an otherwise
+        empty copied design in the database.  Recover the source by REQ tag
+        and ordering, then repopulate *only* that copy's missing snapshot.
+        Existing QTY/UOM, source records, and original Sale Orders are never
+        modified.  No missing lines are created (deletion remains respected).
         """
         self.ensure_one()
-        linked = set(self.specification_ids.mapped('source_specification_id').ids)
-        for previous in self.env['crm.requirement.form'].browse(
+        previous_forms = self.env['crm.requirement.form'].browse(
             sorted(set(source_ids))
-        ).exists():
-            candidates = self.specification_ids.filtered(
+        ).exists()
+        if not previous_forms:
+            return
+        lines = self.specification_ids.sorted(
+            key=lambda line: (line.sequence, line.id)
+        )
+        linked = set(lines.mapped('source_specification_id').ids)
+        for previous in previous_forms:
+            candidates = lines.filtered(
                 lambda line: line.is_duplicate_copy
                 and not line.source_specification_id
-                and line.previous_req_form == previous.name
-            ).sorted(key=lambda line: (line.sequence, line.id))
-            if not candidates:
-                continue
-            sources = previous.specification_ids.sorted(
-                key=lambda line: (line.sequence, line.id)
+                and (
+                    line.previous_req_form == previous.name
+                    or (
+                        line.source_specification_token
+                        and line.source_specification_token
+                        in previous.specification_ids.ids
+                    )
+                    or (len(previous_forms) == 1 and not line.previous_req_form)
+                )
             )
             for candidate in candidates:
-                matches = sources.filtered(
-                    lambda source: source.id not in linked
-                    and source.design_name == candidate.design_name
-                    and source.fg_type == candidate.fg_type
-                    and source.bag_type_product_tmpl_id
-                    == candidate.bag_type_product_tmpl_id
-                    and source.print_finish_id == candidate.print_finish_id
-                )
-                if not matches:
+                source = self._repeat_import_source_for_values({
+                    'is_duplicate_copy': True,
+                    'previous_req_form': previous.name,
+                    'source_specification_token': (
+                        candidate.source_specification_token or 0
+                    ),
+                    'design_name': candidate.design_name,
+                    'fg_type': candidate.fg_type,
+                    'bag_type_product_tmpl_id': (
+                        candidate.bag_type_product_tmpl_id.id or False
+                    ),
+                    'print_finish_id': candidate.print_finish_id.id or False,
+                }, previous, linked)
+                if not source:
                     continue
-                source = matches[:1]
+                linked.add(source.id)
                 candidate.with_context(skip_requirement_audit=True).write({
                     'source_specification_id': source.id,
+                    'source_specification_token': source.id,
                 })
-                linked.add(source.id)
+
+        # A linked copy can still contain defaults/blanks if the client sent
+        # an incomplete payload. Repair only damaged snapshots, never refresh
+        # healthy copies from a source REQ that may have changed later.
+        for line in lines.filtered(lambda spec: spec.is_duplicate_copy):
+            source = line.source_specification_id
+            if not source or source.form_id not in previous_forms:
+                continue
+            source_values = self._prepare_repeat_specification_values(
+                source, line.sequence, previous_requirement=source.form_id
+            )
+            expected_missing = any(
+                source[key] and not line[key]
+                for key in ('design_name', 'fg_type',
+                            'bag_type_product_tmpl_id', 'print_finish_id')
+            )
+            if not expected_missing:
+                # Other snapshot fields are readonly, but old repeat forms
+                # can have truly optional (empty) values. Never reset healthy
+                # rows, and never touch deliberately edited QTY/UOM.
+                continue
+            for excluded in ('sequence', 'no_designs', 'quantity',
+                             'quantity_uom', 'quantity_uom_id',
+                             'job_code_link', 'gdn_number_link'):
+                source_values.pop(excluded, None)
+            line.with_context(
+                skip_requirement_audit=True,
+                skip_requirement_resequence=True,
+            ).write(source_values)
 
     def _sync_previous_requirement_sources(self, added_ids=(), removed_ids=()):
         """Modify only this form's copied designs for changed source tags."""
@@ -1155,21 +1298,54 @@ class CrmRequirementForm(models.Model):
             for rec in self
         }
 
+        # Rebuild readonly repeat-job fields omitted by the editable O2M
+        # list, before the ORM persists the virtual rows as empty defaults.
+        if 'specification_ids' in vals:
+            selected_ids = (
+                set(self.previous_requirement_ids.ids)
+                if len(self) == 1 else set()
+            )
+            if 'previous_requirement_ids' in vals:
+                # On Save, onchange's Many2many selection is normally SET.
+                for command in vals['previous_requirement_ids']:
+                    if command[0] == 6:
+                        selected_ids = set(command[2])
+                    elif command[0] == 4:
+                        selected_ids.add(command[1])
+                    elif command[0] == 3:
+                        selected_ids.discard(command[1])
+                    elif command[0] == 5:
+                        selected_ids.clear()
+            elif len(self) == 1:
+                selected_ids = set(self.previous_requirement_ids.ids)
+            # All lines of a batch write share commands; do not attempt
+            # to guess the owner if more than one form is being modified.
+            if len(self) == 1 and selected_ids:
+                self._prepare_imported_specification_commands(
+                    vals, self.env['crm.requirement.form'].browse(
+                        sorted(selected_ids)
+                    ).exists()
+                )
+
         old_leads = self.mapped('lead_id')
         result = super().write(vals)
         if old_sources:
             for rec in self:
                 current_ids = set(rec.previous_requirement_ids.ids)
                 previous_ids = old_sources[rec.id]
-                # The UI already imported the selected lines on onchange.
-                # Recover source references in case readonly nested fields
-                # were omitted from the Save payload, before deduping.
-                rec._restore_imported_specification_links(current_ids)
                 already_previewed = set(
                     rec.previous_requirement_synced_ids.ids
                 )
+                rec._restore_imported_specification_links(current_ids)
+                # A form change made without any One2many payload (for
+                # example a client that drops virtual rows) must still import
+                # the new REQ. When rows are explicitly sent, their snapshot
+                # is authoritative so manually removed rows stay removed.
+                pending = current_ids - already_previewed
+                if 'specification_ids' not in vals:
+                    pending |= current_ids - previous_ids
                 rec._sync_previous_requirement_sources(
-                    added_ids=current_ids - already_previewed,
+                    added_ids=pending,
                     removed_ids=previous_ids - current_ids,
                 )
                 # Align job type for API callers which bypass onchange.
@@ -1186,6 +1362,12 @@ class CrmRequirementForm(models.Model):
                 elif previous_ids:
                     sync_values.update({'repeat_job': False, 'new_job': True})
                 rec.with_context(skip_requirement_audit=True).write(sync_values)
+        if 'specification_ids' in vals or old_sources:
+            for rec in self:
+                if rec.previous_requirement_ids:
+                    rec._restore_imported_specification_links(
+                        rec.previous_requirement_ids.ids
+                    )
         summary_leads = old_leads | self.mapped('lead_id')
         if summary_leads:
             summary_leads._refresh_requirement_summary()
@@ -1271,6 +1453,26 @@ class CrmRequirementForm(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # A readonly value shown on the onchange row is not guaranteed
+            # to be included in the browser's final One2many payload.
+            selected_ids = set()
+            for command in vals.get('previous_requirement_ids', []):
+                if command[0] == 6:
+                    selected_ids = set(command[2])
+                elif command[0] == 4:
+                    selected_ids.add(command[1])
+                elif command[0] == 3:
+                    selected_ids.discard(command[1])
+                elif command[0] == 5:
+                    selected_ids.clear()
+            if not selected_ids and vals.get('previous_requirement_id'):
+                selected_ids.add(vals['previous_requirement_id'])
+            if selected_ids:
+                self._prepare_imported_specification_commands(
+                    vals, self.env['crm.requirement.form'].browse(
+                        sorted(selected_ids)
+                    ).exists()
+                )
             previous_id = vals.get('previous_requirement_id')
             if previous_id and 'previous_requirement_ids' not in vals:
                 vals['previous_requirement_ids'] = [Command.link(previous_id)]
@@ -1333,17 +1535,19 @@ class CrmRequirementForm(models.Model):
             if vals.get('name') in (False, None, '', 'New', 'Requirement Form'):
                 vals['name'] = self._generate_requirement_reference(vals)
         records = super().create(vals_list)
-        for record in records:
+        for record, incoming_vals in zip(records, vals_list):
             selected = record.previous_requirement_ids
             if selected:
                 record._restore_imported_specification_links(selected.ids)
-                # UI onchange already created the selected rows and marked
-                # them processed. Only API callers without that snapshot
-                # need server-side import. Never import a second copy on Save.
+                # The client might omit the entire virtual One2many payload.
+                # In that case import server-side; if the client sent row
+                # commands, respect deleted copies and do not import them.
                 previewed = set(record.previous_requirement_synced_ids.ids)
-                record._sync_previous_requirement_sources(
-                    added_ids=set(selected.ids) - previewed
-                )
+                pending = set(selected.ids) - previewed
+                if 'specification_ids' not in incoming_vals:
+                    pending |= set(selected.ids)
+                record._sync_previous_requirement_sources(added_ids=pending)
+                record._restore_imported_specification_links(selected.ids)
                 record.with_context(skip_requirement_audit=True).write({
                     'previous_requirement_synced_ids': [Command.set(selected.ids)],
                     'previous_requirement_id': selected[:1].id,
