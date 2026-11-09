@@ -1,3 +1,9 @@
+## [19.0.1.0.12] - 2026-11-09
+
+### [Fixed] Duplicate inspections on a receipt
+- The **QC Inspection** button no longer creates a second inspection for the same receipt/product/lot when a newer QC Standard version was activated in between.
+- The receipt's inspection list now shows only RM inspections (with a QC Standard); Odoo's generic quality checks are not mixed in.
+
 ## [19.0.1.0.11] - 2026-11-09
 
 ### [Changed] UI refresh (simpler, cleaner, easier to use)

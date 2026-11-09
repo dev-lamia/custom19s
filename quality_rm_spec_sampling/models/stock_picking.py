@@ -40,7 +40,9 @@ class StockPicking(models.Model):
                 existing = QualityCheck.search([
                     ('picking_id', '=', picking.id), ('product_id', '=', product.id),
                     (('lot_ids', 'in', [lot.id]) if lot else ('lot_ids', '=', False)),
-                    ('rm_qc_specification_id', '=', spec.id),
+                    # Any RM inspection counts, even if a newer standard version was
+                    # activated later, so a second click never creates a duplicate.
+                    ('rm_qc_specification_id', '!=', False),
                 ], limit=1)
                 if existing:
                     continue
@@ -66,6 +68,8 @@ class StockPicking(models.Model):
                 (self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_list').id, 'list'),
                 (self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_form').id, 'form'),
             ],
-            'domain': [('picking_id', 'in', self.ids)],
+            # Only RM inspections; Odoo's own generic quality checks are not shown here.
+            'domain': [('picking_id', 'in', self.ids),
+                       ('rm_qc_specification_id', '!=', False)],
             'context': {'default_rm_qc_scope': 'incoming'},
         }
