@@ -1,6 +1,6 @@
 # RM Quality — Simplified Workflow (Odoo 19)
 
-**Version:** 19.0.1.0.11  
+**Version:** 19.0.1.0.12  
 **Last updated:** 2026-11-09
 
 ## Daily workflow
@@ -63,9 +63,9 @@ Extra sampling details and product properties are still accessible in secondary 
 |---|---|
 | Technical module | `quality_rm_spec_sampling` |
 | Odoo version | 19.0 |
-| Module version | 19.0.1.0.8 |
+| Module version | 19.0.1.0.13 |
 | Author | Softeko_Lamia |
-| Documentation updated | 2026-10-28 |
+| Documentation updated | 2026-11-09 |
 | Source | `RM Master_QC_Specification_With_Sampling.xlsx` (7 sheets) |
 | Verification | Python compiled; XML parsed; source import counts validated. **Odoo installation and workflow runtime NOT tested**. |
 
@@ -89,11 +89,16 @@ Extra sampling details and product properties are still accessible in secondary 
 
 ## Menu structure
 
-After installation, the module's `RM QC Specification & Sampling` menu appears as a **Quality submenu when detected**; otherwise it appears as its own menu (post-init setup uses installed model actions rather than a guessed Enterprise external ID).
+**Version 19.0.1.0.13 (2026-11-09):** The module adds no separate application. Its existing menus are placed inside the standard Odoo Quality app on **installation and upgrade**:
 
-- QC Checks / Inspection Logs (same `quality.check` records, extended form)
-- QC Specifications / TDS
-- Master Configurations → QC Master Parameters, RM Defect Catalog, Product Identification Templates, Department Consumable Allocation
+- **Quality → Quality Control → QC Standards (TDS)**
+- **Quality → Quality Control → QC Inspections** (same `quality.check` records; custom inspection view)
+- **Quality → Configuration → Test Templates**
+- **Quality → Configuration → Defect Catalog**
+- **Quality → Configuration → Product Properties**
+- **Quality → Configuration → Department Consumables**
+
+The legacy standalone `RM Quality` menu and its `Configuration` container are inactive. Their XML IDs and the existing menu/action records are retained. Native Quality Configuration access rights still apply to the configuration menus. If a customized Quality deployment does not expose `Quality Control` or `Configuration` beneath its Quality root, RM QC entries fall back to the Quality root instead of creating a new app. If the Quality app itself cannot be found, a warning is logged and the inactive legacy root is not reactivated. No QC data or core Quality menu records are deleted or overwritten.
 
 There is also an **RM QC Inspection** button on incoming stock receipts and **Production QC Checks** on manufacturing orders, plus a **RM QC & Identification** tab on the Product template.
 
@@ -138,12 +143,14 @@ flowchart TD
 ### Incoming inspection on a receipt
 
 1. Select incoming receipt, including a receipt already **Done**; batch/lot entries should already be present.
-2. Click **RM QC Inspection**. The code creates at most one new `quality.check` per **Product × Lot × Approved Specification** within that receipt, and reuses prior matches. If the product is not flagged QC Required, no custom check is created for it.
+2. Click **RM QC Inspection**. The code creates at most one `quality.check` per **Receipt × Product × Lot**, independent of later changes to the active QC Standard. It reuses an existing RM inspection and preserves its recorded TDS/measurements; if only a pending native Odoo check exists, it attaches the active RM QC Standard and loads its sampling rows rather than creating a second check. A completed native check without a Standard is not silently replaced; an explanatory error asks you to review it. If the product is not flagged QC Required, no custom check is created for it. Manual creation of a second specification-linked RM inspection for the same receipt/product/lot is rejected.
 3. Open a check from the custom Detailed QC view. Approved specification parameters and sampling rules are snapshotted into inspection parameter lines.
 4. Open each parameter, adjust **Actual Samples to Test** for the receipt's actual number of pallets/rolls (a default per-unit value is only a starting point), click **Generate Missing Sample Logs**.
 5. Enter each `Measured Value / Result`. For numeric and verified limits, the outcome is calculated. For visual, text, formula or AQL criteria, enter **Manual Evaluation** after inspection.
 6. Enter the applicable **RM001–RM020 Catalog Error** *per log* when a defect exists.
 7. Use the **standard quality.check Pass** only after **all expected measurements are complete** and within limits / manually passed. The module intercepts `do_pass`, `do_measure` and state write to prevent an unsupported Pass for these specification-linked checks. **Fail** is always available.
+
+**Existing duplicate QC records:** Upgrading prevents new RM-inspection duplicates; it does not delete, merge, or hide older QC records that may already have Passed/Failed statuses or sampling data. Review those records manually and keep the correct audited inspection. Separate lots can still require separate checks.
 
 **Pass is an inspection outcome, not a stock-release authorization.** The workbook doesn't specify whether a receipt should be blocked, held, returned, or re-tested based on failed QC. This add-on intentionally does **not** automatically change stock, create stock scrap or block validated receipts.
 
@@ -265,14 +272,14 @@ This is a UI/navigation update only; business validations and approvals are unch
 
 ### Product Properties — Automatic Configuration (19.0.1.0.7)
 
-Manage property definitions at **RM Quality → More / Master Data → Product Property Configuration**. Each master field has a Material Type, Property Name, optional Default Unit, Sequence, and Active flag. When a Product is created, or its RM Material Type changes, the corresponding technical property lines are generated/synchronized automatically. Product users fill in Value and Unit, not the property name. No **Load Property Templates** action is required.
+Manage property definitions at **Quality → Configuration → Product Properties**. Each master field has a Material Type, Property Name, optional Default Unit, Sequence, and Active flag. When a Product is created, or its RM Material Type changes, the corresponding technical property lines are generated/synchronized automatically. Product users fill in Value and Unit, not the property name. No **Load Property Templates** action is required.
 
 Existing product properties are synchronized by the 19.0.1.0.7 post-upgrade script. Unrelated/duplicate property records are disabled rather than deleted so previously entered data remains available for material-type reversal. The QC TDS tolerance and sampling rules remain separate from product identification properties.
 
 
 ## Legacy Purchase Requisition Upgrade Compatibility (19.0.1.0.9)
 
-Purchase Requisition is removed from the daily **RM Quality** menu and from
+Purchase Requisition is removed from daily **Quality** navigation and from
 the supported workflow. Use direct Purchase Orders followed by Receipt QC.
 
 When upgrading databases that previously installed the PR feature, its

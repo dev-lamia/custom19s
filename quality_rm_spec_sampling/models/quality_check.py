@@ -28,6 +28,41 @@ class QualityCheck(models.Model):
     rm_qc_failed_count = fields.Integer(string='Out-of-Spec Readings',
                                         compute='_compute_rm_qc_progress')
 
+    @api.constrains('picking_id', 'product_id', 'lot_ids',
+                    'rm_qc_specification_id', 'rm_qc_scope')
+    def _check_unique_incoming_rm_inspection(self):
+        """Do not permit two RM inspections for one receipt/product/batch.
+
+        Keep native Quality Point checks outside this constraint: Odoo can
+        legitimately create those for other inspection plans.
+        """
+        for check in self:
+            if (check.rm_qc_scope != 'incoming' or
+                    not check.picking_id or not check.product_id or
+                    not check.rm_qc_specification_id):
+                continue
+            lot_condition = (
+                ('lot_ids', 'in', check.lot_ids.ids)
+                if check.lot_ids else ('lot_ids', '=', False)
+            )
+            duplicate = self.search([
+                ('id', '!=', check.id),
+                ('picking_id', '=', check.picking_id.id),
+                ('product_id', '=', check.product_id.id),
+                ('rm_qc_specification_id', '!=', False),
+                lot_condition,
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(_(
+                    'An RM QC Inspection already exists for %(product)s on '
+                    'receipt %(receipt)s (check %(existing)s). '
+                    'Open the existing inspection instead of creating another.'
+                ) % {
+                    'product': check.product_id.display_name,
+                    'receipt': check.picking_id.name,
+                    'existing': duplicate.name,
+                })
+
     @api.depends('rm_qc_parameter_line_ids.expected_count',
                  'rm_qc_parameter_line_ids.entered_count',
                  'rm_qc_parameter_line_ids.failed_count')

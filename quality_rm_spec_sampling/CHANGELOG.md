@@ -1,8 +1,25 @@
+## [19.0.1.0.13] - 2026-11-09
+
+### [Changed] Quality app navigation
+- [2026-11-09] Reparented the existing `QC Standards (TDS)` and `QC Inspections` menu records under the installed **Quality → Quality Control** menu.
+- [2026-11-09] Reparented `Test Templates`, `Defect Catalog`, `Product Properties`, and `Department Consumables` under **Quality → Configuration**.
+- [2026-11-09] Deactivated the old standalone `RM Quality` and intermediate `Configuration` menus while preserving their XML IDs, all actions and existing records. The integration runs on **new installation and upgrade**.
+- [2026-11-09] The menu resolver does not assume an undocumented Enterprise external ID; for nonstandard Quality menu layouts, missing subsections fall back to the existing Quality root (never a new app).
+
+### [Compatibility / Testing]
+- [2026-11-09] No QC inspection creation, sampling, specification, stock, purchase, security or approval logic changed. No historical QC entries were deleted.
+- [2026-11-09] Python/XML and ZIP structure checked statically. Live Odoo 19 installation or upgrade not executed.
+
 ## [19.0.1.0.12] - 2026-11-09
 
-### [Fixed] Duplicate inspections on a receipt
-- The **QC Inspection** button no longer creates a second inspection for the same receipt/product/lot when a newer QC Standard version was activated in between.
-- The receipt's inspection list now shows only RM inspections (with a QC Standard); Odoo's generic quality checks are not mixed in.
+### [Fixed]
+- [2026-11-09] Receipt QC generation now checks for an existing `quality.check` by **receipt + product + lot**, regardless of which QC Standard was current when the original check was created. Repeated clicks or later standard revisions no longer generate a new RM inspection for the same receipt/product/lot.
+- [2026-11-09] When an uncompleted native Quality Point check exists, the receipt QC button can reuse that check and load the RM sampling standard instead of creating a second check. If the only native check is completed, the user is instructed to review that check; the module does not overwrite it.
+- [2026-11-09] A model-level constraint prevents creating a second specification-linked incoming RM inspection for the same receipt/product/lot, including manual creation through the form.
+
+### [Tests / Data safety]
+- [2026-11-09] Added proposed Odoo 19 regression tests covering repeated button clicks, QC Standard revision, duplicate manual creation, and reuse of a pending native check. Static Python checks completed; live Odoo execution not performed.
+- [2026-11-09] Previous QC records, Completed/Passed/Failed states, sampling logs, and results remain unchanged. Historical duplicates require review; no automatic record deletion, merging or hiding.
 
 ## [19.0.1.0.11] - 2026-11-09
 

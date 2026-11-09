@@ -1,7 +1,6 @@
 <odoo>
   <!-- Existing IDs remain stable so existing actions and data are preserved on upgrade. -->
-  <menuitem id="menu_rm_qc_root" name="RM Quality" sequence="70" groups="base.group_user"
-           />
+  <menuitem id="menu_rm_qc_root" name="RM Quality" sequence="70" groups="base.group_user" active="False"/>
 
   <!-- Daily work, in the order people use it -->
   <menuitem id="menu_rm_qc_spec" name="QC Standards (TDS)" parent="menu_rm_qc_root"
@@ -11,7 +10,7 @@
 
   <!-- Set-up lists -->
   <menuitem id="menu_rm_qc_master" name="Configuration" parent="menu_rm_qc_root"
-            sequence="80" groups="base.group_user"/>
+            sequence="80" groups="base.group_user" active="False"/>
   <menuitem id="menu_rm_qc_parameters" name="Test Templates" parent="menu_rm_qc_master"
             action="action_rm_qc_parameter" sequence="5"/>
   <menuitem id="menu_rm_qc_defects" name="Defect Catalog" parent="menu_rm_qc_master"
@@ -25,4 +24,9 @@
   <menuitem id="menu_rm_qc_pr" name="Legacy Purchase Requests (Hidden)" parent="menu_rm_qc_root"
             action="action_rm_qc_pr" sequence="99" groups="base.group_no_one"/>
   <record id="menu_rm_qc_pr" model="ir.ui.menu"><field name="active" eval="False"/></record>
+
+  <!-- Reuse the same menu XML IDs and actions, but move them beneath the
+       installed Quality app on BOTH installation and upgrade. This helper
+       resolves native menu records safely without assuming Enterprise IDs. -->
+  <function model="ir.ui.menu" name="_rm_qc_place_quality_menus"/>
 </odoo>

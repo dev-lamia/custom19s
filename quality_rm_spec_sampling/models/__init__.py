@@ -7,3 +7,4 @@ from . import purchase_order
 from . import stock_picking
 from . import consumable
 from . import mrp_production
+from . import menu_integration
