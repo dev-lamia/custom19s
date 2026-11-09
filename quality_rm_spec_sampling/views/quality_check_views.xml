@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_rm_qc_log_form" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.log.form</field>
+    <field name="model">rm.qc.inspection.log</field>
+    <field name="arch" type="xml">
+      <form string="QC Measurement">
+        <sheet>
+          <group>
+            <field name="sample_no"/><field name="measure_no"/>
+            <field name="value_text" string="Measured Value"/>
+            <field name="manual_result"/>
+            <field name="result" readonly="1"/>
+            <field name="defect_id"/>
+            <field name="observation"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_rm_qc_inspection_parameter_form" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.parameter.form</field>
+    <field name="model">rm.qc.inspection.parameter</field>
+    <field name="arch" type="xml">
+      <form string="Enter QC Results">
+        <header>
+          <button name="action_generate_measurements" type="object"
+                  string="Add Sample Rows" class="btn-secondary"
+                  invisible="missing_row_count == 0"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h2><field name="name" readonly="1"/></h2></div>
+          <group col="2">
+            <group string="Acceptable Range">
+              <field name="uom_text" readonly="1" string="Unit"/>
+              <field name="lsl_text" readonly="1" string="Minimum"/>
+              <field name="target_text" readonly="1" string="Target"/>
+              <field name="usl_text" readonly="1" string="Maximum"/>
+              <field name="limit_mode" readonly="1" string="Result Method"/>
+            </group>
+            <group string="Samples">
+              <field name="sample_size" readonly="1" string="Sampling Rule"/>
+              <field name="samples_to_test" string="Number of Samples"/>
+              <field name="measurements_per_sample" readonly="1" string="Readings per Sample"/>
+              <field name="progress_display" readonly="1" string="Completed"/>
+              <field name="missing_row_count" invisible="1"/>
+              <field name="duplicate_row_count" invisible="1"/>
+            </group>
+          </group>
+          <div class="alert alert-warning" role="alert"
+               invisible="duplicate_row_count == 0">
+            Duplicate sample numbers exist. Remove extra rows before marking this check Passed.
+          </div>
+          <div class="text-muted mb-2">
+            Enter each real measured value. Manual tests also need a Pass/Fail selection.
+            Defect codes are optional when no defect is found.
+          </div>
+          <separator string="Measurements"/>
+          <field name="log_ids" nolabel="1">
+            <list editable="bottom" create="false" delete="true"
+                  decoration-danger="result in ('out_of_spec','fail')"
+                  decoration-success="result == 'pass'"
+                  decoration-muted="result == 'pending'">
+              <field name="sample_no" string="Sample" readonly="1"/>
+              <field name="measure_no" string="Reading" readonly="1"/>
+              <field name="value_text" string="Value"/>
+              <field name="manual_result" string="Pass / Fail"
+                     column_invisible="parent.limit_mode == 'numeric'"/>
+              <field name="result" string="Result" readonly="1"/>
+              <field name="defect_id" string="Defect" optional="hide"/>
+              <field name="observation" string="Notes" optional="hide"/>
+            </list>
+          </field>
+          <notebook>
+            <page string="Test Details">
+              <group col="2">
+                <group>
+                  <field name="quality_check_id" readonly="1"/>
+                  <field name="inspection_method" readonly="1"/>
+                  <field name="sample_method" readonly="1"/>
+                </group>
+                <group>
+                  <field name="lot_size" readonly="1"/>
+                  <field name="inspection_level" readonly="1"/>
+                  <field name="inspection_frequency" readonly="1"/>
+                  <field name="lsl_numeric" invisible="limit_mode != 'numeric'" readonly="1"/>
+                  <field name="usl_numeric" invisible="limit_mode != 'numeric'" readonly="1"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_rm_qc_inspection_parameter_list" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.parameter.list</field>
+    <field name="model">rm.qc.inspection.parameter</field>
+    <field name="arch" type="xml">
+      <list string="QC Tests">
+        <field name="name"/><field name="uom_text"/>
+        <field name="lsl_text"/><field name="target_text"/><field name="usl_text"/>
+        <field name="samples_to_test"/><field name="progress_display"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_rm_qc_quality_check_list" model="ir.ui.view">
+    <field name="name">quality.check.rm.qc.detailed.list</field>
+    <field name="model">quality.check</field>
+    <field name="arch" type="xml">
+      <list string="QC Inspections" create="false"
+            decoration-success="quality_state == 'pass'"
+            decoration-danger="quality_state == 'fail'">
+        <field name="name" readonly="1" string="Check"/>
+        <field name="product_id"/>
+        <field name="picking_id"/>
+        <field name="rm_qc_production_id" optional="hide"/>
+        <field name="rm_qc_stage" optional="hide"/>
+        <field name="lot_ids" widget="many2many_tags" optional="show"/>
+        <field name="quality_state" string="Result"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_rm_qc_quality_check_form" model="ir.ui.view">
+    <field name="name">quality.check.rm.qc.detailed.form</field>
+    <field name="model">quality.check</field>
+    <field name="arch" type="xml">
+      <form string="QC Inspection">
+        <header>
+          <button name="do_pass" type="object" string="Pass" class="btn-primary"
+                  invisible="quality_state in ('pass','fail')"/>
+          <button name="do_fail" type="object" string="Fail" class="btn-secondary"
+                  invisible="quality_state in ('pass','fail')"/>
+          <field name="quality_state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <field name="rm_qc_is_custom" invisible="1"/>
+          <field name="rm_qc_scope" invisible="1"/>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group col="2">
+            <group string="Material">
+              <field name="product_id" readonly="1"/>
+              <field name="picking_id" readonly="1"
+                     invisible="rm_qc_scope == 'production'"/>
+              <field name="lot_ids" widget="many2many_tags" readonly="1"
+                     invisible="rm_qc_scope == 'production'"/>
+              <field name="rm_qc_production_id" readonly="1"
+                     invisible="rm_qc_scope != 'production'"/>
+              <field name="rm_qc_stage" readonly="1"
+                     invisible="rm_qc_scope != 'production'"/>
+            </group>
+            <group string="Inspection">
+              <field name="rm_qc_inspector_id"/>
+              <field name="rm_qc_date" readonly="1"/>
+              <field name="rm_qc_po_reference" readonly="1"
+                     invisible="rm_qc_scope == 'production'"/>
+            </group>
+          </group>
+          <separator string="QC Tests"/>
+          <div class="text-muted mb-2">
+            Open Enter Results for each test. Record all sample readings, then choose Pass or Fail.
+          </div>
+          <field name="rm_qc_parameter_line_ids" nolabel="1"
+                 readonly="quality_state in ('pass','fail')">
+            <list create="false" delete="false">
+              <field name="name" string="Test"/>
+              <field name="samples_to_test" string="Samples"/>
+              <field name="progress_display" string="Completed" readonly="1"/>
+              <button name="action_open_measurement_logs" type="object"
+                      string="Enter Results" icon="fa-pencil-square-o" class="btn-link"/>
+            </list>
+          </field>
+          <group string="Notes">
+            <field name="rm_qc_review_notes" nolabel="1"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="action_rm_qc_detailed_check" model="ir.actions.act_window">
+    <field name="name">QC Inspections</field>
+    <field name="res_model">quality.check</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">['|',('rm_qc_is_custom','=',True),('rm_qc_specification_id','!=',False)]</field>
+  </record>
+  <record id="action_rm_qc_detailed_list_view" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_detailed_check"/>
+    <field name="view_mode">list</field>
+    <field name="view_id" ref="view_rm_qc_quality_check_list"/>
+    <field name="sequence">1</field>
+  </record>
+  <record id="action_rm_qc_detailed_form_view" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_detailed_check"/>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="view_rm_qc_quality_check_form"/>
+    <field name="sequence">2</field>
+  </record>
+  <record id="action_rm_qc_all_checks" model="ir.actions.act_window">
+    <field name="name">Quality Checks (including Manual)</field>
+    <field name="res_model">quality.check</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

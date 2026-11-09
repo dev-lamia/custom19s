@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_rm_qc_product_template_inherit" model="ir.ui.view">
+    <field name="name">product.template.form.inherit.rm.quality.simple</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="RM Quality" name="rm_qc_product_spec"
+              invisible="not purchase_ok and not rm_qc_required and not rm_qc_material_type">
+          <group col="2">
+            <group string="QC Setup">
+              <field name="rm_qc_required" string="QC Required"/>
+              <field name="rm_qc_material_type" invisible="not rm_qc_required"
+                     required="rm_qc_required"/>
+              <field name="rm_qc_film_type"
+                     invisible="not rm_qc_required or rm_qc_material_type != 'film'"
+                     required="rm_qc_required and rm_qc_material_type == 'film'"/>
+            </group>
+            <group string="Optional Usage">
+              <field name="rm_qc_intended_use" nolabel="1"
+                     placeholder="Intended customer or application"/>
+            </group>
+          </group>
+          <separator string="Material Details" invisible="not rm_qc_material_type"/>
+          <field name="rm_qc_identification_line_ids" nolabel="1"
+                 invisible="not rm_qc_material_type">
+            <list editable="bottom" create="false" delete="false">
+              <field name="sequence" column_invisible="True"/>
+              <field name="name" string="Property" readonly="1"/>
+              <field name="value" string="Value"/>
+              <field name="uom_text" string="Unit" readonly="1"/>
+            </list>
+          </field>
+          <div class="text-muted mt-2" invisible="not rm_qc_required">
+            QC tests come from Configuration > QC Test Rules.
+            On the incoming receipt, click QC Inspection and enter results.
+          </div>
+        </page>
+      </xpath>
+    </field>
+  </record>
+  <record id="view_rm_qc_identification_template_list" model="ir.ui.view">
+    <field name="name">rm.qc.identification.template.list</field>
+    <field name="model">rm.qc.identification.template</field>
+    <field name="arch" type="xml">
+      <list string="Product Properties" editable="bottom">
+        <field name="sequence" widget="handle"/>
+        <field name="material_type"/>
+        <field name="name"/>
+        <field name="uom_text"/>
+        <field name="active" optional="hide"/>
+      </list>
+    </field>
+  </record>
+  <record id="action_rm_qc_identification_template" model="ir.actions.act_window">
+    <field name="name">Product Properties</field>
+    <field name="res_model">rm.qc.identification.template</field>
+    <field name="view_mode">list,form</field>
+  </record>
+  <record id="view_rm_qc_stock_picking_inherit" model="ir.ui.view">
+    <field name="name">stock.picking.form.inherit.rm.qc.checks</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="action_rm_qc_create_checks" type="object"
+                string="QC Inspection" class="btn-secondary"
+                invisible="picking_type_code != 'incoming'"
+                groups="base.group_user"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

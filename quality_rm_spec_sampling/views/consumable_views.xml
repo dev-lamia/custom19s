@@ -1,0 +1,30 @@
+<odoo>
+  <record id="view_rm_qc_consumable_list" model="ir.ui.view">
+    <field name="name">rm.qc.consumable.allocation.list</field>
+    <field name="model">rm.qc.consumable.allocation</field>
+    <field name="arch" type="xml"><list string="Consumable Allocation Matrix">
+      <field name="name"/><field name="cadence"/><field name="printing"/>
+      <field name="lamination"/><field name="slitting"/><field name="pouching"/>
+      <field name="valving"/><field name="production"/><field name="planning"/>
+      <field name="quality"/><field name="sales"/><field name="stores"/>
+      <field name="inks"/><field name="prepress"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_consumable_form" model="ir.ui.view">
+    <field name="name">rm.qc.consumable.allocation.form</field>
+    <field name="model">rm.qc.consumable.allocation</field>
+    <field name="arch" type="xml"><form string="Consumable Allocation Reference"><sheet>
+      <group><field name="name"/><field name="cadence"/><field name="note"/></group>
+      <group string="Applicable Departments" col="4">
+        <field name="printing"/><field name="lamination"/><field name="slitting"/>
+        <field name="pouching"/><field name="valving"/><field name="production"/>
+        <field name="planning"/><field name="quality"/><field name="sales"/>
+        <field name="stores"/><field name="inks"/><field name="prepress"/>
+      </group>
+    </sheet></form></field>
+  </record>
+  <record id="action_rm_qc_consumable" model="ir.actions.act_window">
+    <field name="name">Consumable Department Allocation</field>
+    <field name="res_model">rm.qc.consumable.allocation</field><field name="view_mode">list,form</field>
+  </record>
+</odoo>
