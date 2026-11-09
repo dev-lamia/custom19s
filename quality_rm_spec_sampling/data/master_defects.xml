@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo noupdate="1">
+  <record id="defect_rm001" model="rm.qc.defect">
+    <field name="code">RM001</field>
+    <field name="name">Thickness variation (Micron deviation out of spec)</field>
+  </record>
+  <record id="defect_rm002" model="rm.qc.defect">
+    <field name="code">RM002</field>
+    <field name="name">Roll width variation</field>
+  </record>
+  <record id="defect_rm003" model="rm.qc.defect">
+    <field name="code">RM003</field>
+    <field name="name">Telescoping roll</field>
+  </record>
+  <record id="defect_rm004" model="rm.qc.defect">
+    <field name="code">RM004</field>
+    <field name="name">Core damage / Core collapse</field>
+  </record>
+  <record id="defect_rm005" model="rm.qc.defect">
+    <field name="code">RM005</field>
+    <field name="name">Corona treatment failure (Low Dyne level)</field>
+  </record>
+  <record id="defect_rm006" model="rm.qc.defect">
+    <field name="code">RM006</field>
+    <field name="name">Gel spots / Polymer lumps</field>
+  </record>
+  <record id="defect_rm007" model="rm.qc.defect">
+    <field name="code">RM007</field>
+    <field name="name">Pinholes / Micro-perforations</field>
+  </record>
+  <record id="defect_rm008" model="rm.qc.defect">
+    <field name="code">RM008</field>
+    <field name="name">Film wrinkles / Creases</field>
+  </record>
+  <record id="defect_rm009" model="rm.qc.defect">
+    <field name="code">RM009</field>
+    <field name="name">Edge damage / Nicked edges</field>
+  </record>
+  <record id="defect_rm010" model="rm.qc.defect">
+    <field name="code">RM010</field>
+    <field name="name">Surface scratches / Abrasions</field>
+  </record>
+  <record id="defect_rm011" model="rm.qc.defect">
+    <field name="code">RM011</field>
+    <field name="name">Color shade variation (Inks)</field>
+  </record>
+  <record id="defect_rm012" model="rm.qc.defect">
+    <field name="code">RM012</field>
+    <field name="name">Viscosity out of specification (Inks / Adhesives)</field>
+  </record>
+  <record id="defect_rm013" model="rm.qc.defect">
+    <field name="code">RM013</field>
+    <field name="name">Moisture contamination / Water ingress</field>
+  </record>
+  <record id="defect_rm014" model="rm.qc.defect">
+    <field name="code">RM014</field>
+    <field name="name">Phase separation / Settling (Adhesives / Coatings)</field>
+  </record>
+  <record id="defect_rm015" model="rm.qc.defect">
+    <field name="code">RM015</field>
+    <field name="name">Expired shelf life / Pot life exceeded</field>
+  </record>
+  <record id="defect_rm016" model="rm.qc.defect">
+    <field name="code">RM016</field>
+    <field name="name">Incorrect solid content percentage</field>
+  </record>
+  <record id="defect_rm017" model="rm.qc.defect">
+    <field name="code">RM017</field>
+    <field name="name">Packaging container / Drum leakage or damage</field>
+  </record>
+  <record id="defect_rm018" model="rm.qc.defect">
+    <field name="code">RM018</field>
+    <field name="name">Labeling / Batch number mismatch</field>
+  </record>
+  <record id="defect_rm019" model="rm.qc.defect">
+    <field name="code">RM019</field>
+    <field name="name">Foreign particle contamination</field>
+  </record>
+  <record id="defect_rm020" model="rm.qc.defect">
+    <field name="code">RM020</field>
+    <field name="name">High residual solvent / Odor in raw material</field>
+  </record>
+</odoo>

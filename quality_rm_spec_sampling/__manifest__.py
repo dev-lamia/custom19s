@@ -1,0 +1,33 @@
+{
+    'name': 'RM QC Specification, Sampling & Quality Check Extension',
+    'version': '19.0.1.0.12',
+    'category': 'Manufacturing/Quality',
+    'summary': 'Simple RM quality setup, reusable TDS, sampling and inspection logs; external approvals optional',
+    'author': 'Softeko_Lamia',
+    'license': 'LGPL-3',
+    'depends': ['quality', 'quality_control', 'stock', 'purchase', 'mrp', 'mail'],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/sequence.xml',
+        'data/master_parameters.xml',
+        'data/master_defects.xml',
+        'data/master_identification.xml',
+        'data/master_consumables.xml',
+        'views/specification_views.xml',
+        'views/quality_check_views.xml',
+        'views/product_views.xml',
+        'views/mrp_production_views.xml',
+        'views/consumable_views.xml',
+        'views/purchase_views.xml',
+        'views/menus.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'quality_rm_spec_sampling/static/src/css/rm_qc.css',
+        ],
+    },
+    'post_init_hook': 'post_init_hook',
+    'application': False,
+    'installable': True,
+}
