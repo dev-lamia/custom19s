@@ -1,62 +1,78 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <odoo>
   <record id="view_rm_qc_product_template_inherit" model="ir.ui.view">
-    <field name="name">product.template.form.inherit.rm.quality.simple</field>
+    <field name="name">product.template.form.inherit.rm.qc.specification</field>
     <field name="model">product.template</field>
     <field name="inherit_id" ref="product.product_template_only_form_view"/>
     <field name="arch" type="xml">
-      <xpath expr="//notebook" position="inside">
-        <page string="RM Quality" name="rm_qc_product_spec"
-              invisible="not purchase_ok and not rm_qc_required and not rm_qc_material_type">
-          <group col="2">
-            <group string="QC Setup">
-              <field name="rm_qc_required" string="QC Required"/>
-              <field name="rm_qc_material_type" invisible="not rm_qc_required"
-                     required="rm_qc_required"/>
-              <field name="rm_qc_film_type"
-                     invisible="not rm_qc_required or rm_qc_material_type != 'film'"
-                     required="rm_qc_required and rm_qc_material_type == 'film'"/>
-            </group>
-            <group string="Optional Usage">
-              <field name="rm_qc_intended_use" nolabel="1"
-                     placeholder="Intended customer or application"/>
-            </group>
-          </group>
-          <separator string="Material Details" invisible="not rm_qc_material_type"/>
-          <field name="rm_qc_identification_line_ids" nolabel="1"
-                 invisible="not rm_qc_material_type">
-            <list editable="bottom" create="false" delete="false">
-              <field name="sequence" column_invisible="True"/>
-              <field name="name" string="Property" readonly="1"/>
-              <field name="value" string="Value"/>
-              <field name="uom_text" string="Unit" readonly="1"/>
-            </list>
-          </field>
-          <div class="text-muted mt-2" invisible="not rm_qc_required">
-            QC tests come from Configuration > QC Test Rules.
-            On the incoming receipt, click QC Inspection and enter results.
-          </div>
-        </page>
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_rm_qc_view_specifications" type="object" class="oe_stat_button" icon="fa-flask" groups="base.group_user" invisible="not purchase_ok and not rm_qc_required and not rm_qc_material_type">
+          <field name="rm_qc_specification_count" widget="statinfo" string="QC Standards"/>
+        </button>
       </xpath>
-    </field>
+      <xpath expr="//notebook" position="inside">
+  <page string="RM Quality" name="rm_qc_product_spec" invisible="not purchase_ok and not rm_qc_required and not rm_qc_material_type">
+  <group col="2">
+    <group string="Material">
+      <field name="rm_qc_required" string="QC Required" widget="boolean_toggle"/>
+      <field name="rm_qc_material_type" invisible="not rm_qc_required"/>
+      <field name="rm_qc_film_type" invisible="not rm_qc_required or rm_qc_material_type != 'film'"/>
+    </group>
+    <group string="Usage">
+      <field name="rm_qc_intended_use" placeholder="Customer / intended product (optional)"/>
+    </group>
+  </group>
+  <separator string="Material Properties" invisible="not rm_qc_material_type"/>
+  <div class="o_rm_qc_help" invisible="not rm_qc_material_type">Fill in the value for each property. Property names come from Configuration.</div>
+  <field name="rm_qc_identification_line_ids" nolabel="1" invisible="not rm_qc_material_type" domain="[('active', '=', True)]">
+    <list editable="bottom" create="false" delete="false">
+      <field name="sequence" column_invisible="True"/>
+      <field name="name" string="Property" readonly="1"/>
+      <field name="value" string="Value"/>
+      <field name="uom_text" string="Unit"/>
+    </list>
+  </field>
+  <div class="alert alert-info py-2 mt-3" role="status" invisible="not rm_qc_required">
+    <b>Where are the tests?</b> Click the <b>QC Standards</b> button at the top of this page.
+    The values above are for reference only, they are not inspection results.
+  </div>
+</page></xpath></field>
   </record>
   <record id="view_rm_qc_identification_template_list" model="ir.ui.view">
     <field name="name">rm.qc.identification.template.list</field>
     <field name="model">rm.qc.identification.template</field>
+    <field name="arch" type="xml"><list string="Product Properties" editable="bottom" sample="1">
+      <field name="sequence" widget="handle"/>
+      <field name="material_type"/>
+      <field name="name" string="Property"/>
+      <field name="uom_text" string="Default Unit"/>
+      <field name="active" widget="boolean_toggle" optional="show"/>
+    </list></field>
+  </record>
+  <record id="view_rm_qc_identification_template_search" model="ir.ui.view">
+    <field name="name">rm.qc.identification.template.search</field>
+    <field name="model">rm.qc.identification.template</field>
     <field name="arch" type="xml">
-      <list string="Product Properties" editable="bottom">
-        <field name="sequence" widget="handle"/>
+      <search string="Search Properties">
+        <field name="name" string="Property"/>
         <field name="material_type"/>
-        <field name="name"/>
-        <field name="uom_text"/>
-        <field name="active" optional="hide"/>
-      </list>
+        <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+        <group>
+          <filter name="group_material" string="Material Type" context="{'group_by': 'material_type'}"/>
+        </group>
+      </search>
     </field>
   </record>
   <record id="action_rm_qc_identification_template" model="ir.actions.act_window">
     <field name="name">Product Properties</field>
     <field name="res_model">rm.qc.identification.template</field>
     <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_rm_qc_identification_template_search"/>
+    <field name="context">{'search_default_group_material': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Add a product property</p>
+      <p>Properties added here appear automatically on every product of the same material type.</p>
+    </field>
   </record>
   <record id="view_rm_qc_stock_picking_inherit" model="ir.ui.view">
     <field name="name">stock.picking.form.inherit.rm.qc.checks</field>
@@ -64,10 +80,7 @@
     <field name="inherit_id" ref="stock.view_picking_form"/>
     <field name="arch" type="xml">
       <xpath expr="//header" position="inside">
-        <button name="action_rm_qc_create_checks" type="object"
-                string="QC Inspection" class="btn-secondary"
-                invisible="picking_type_code != 'incoming'"
-                groups="base.group_user"/>
+        <button name="action_rm_qc_create_checks" type="object" string="QC Inspection" class="btn-secondary" invisible="picking_type_code != 'incoming'" groups="base.group_user"/>
       </xpath>
     </field>
   </record>

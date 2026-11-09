@@ -5,9 +5,6 @@ from odoo.exceptions import UserError, ValidationError
 class QualityCheck(models.Model):
     _inherit = 'quality.check'
 
-    # Technical reference kept for old QC records only. New checks never use TDS.
-    rm_qc_is_custom = fields.Boolean(string='RM QC Inspection', default=False,
-                                     index=True, copy=False)
     rm_qc_specification_id = fields.Many2one(
         'rm.qc.specification', string='Active QC Standard', index=True,
         domain="[('state','=','approved')]")
@@ -25,6 +22,22 @@ class QualityCheck(models.Model):
     rm_qc_review_notes = fields.Text(string='QC Review / Observations')
     rm_qc_po_reference = fields.Char(string='PO Number', compute='_compute_rm_qc_po')
     rm_qc_batch_reference = fields.Char(string='Batch Number', compute='_compute_rm_qc_batch')
+    rm_qc_progress = fields.Float(string='Results Entered (%)',
+                                  compute='_compute_rm_qc_progress',
+                                  help='Display only: share of required readings already recorded.')
+    rm_qc_failed_count = fields.Integer(string='Out-of-Spec Readings',
+                                        compute='_compute_rm_qc_progress')
+
+    @api.depends('rm_qc_parameter_line_ids.expected_count',
+                 'rm_qc_parameter_line_ids.entered_count',
+                 'rm_qc_parameter_line_ids.failed_count')
+    def _compute_rm_qc_progress(self):
+        for rec in self:
+            params = rec.rm_qc_parameter_line_ids
+            expected = sum(params.mapped('expected_count'))
+            entered = sum(params.mapped('entered_count'))
+            rec.rm_qc_progress = min(100.0, entered * 100.0 / expected) if expected else 0.0
+            rec.rm_qc_failed_count = sum(params.mapped('failed_count'))
 
     @api.depends('picking_id', 'picking_id.origin')
     def _compute_rm_qc_po(self):
@@ -36,36 +49,54 @@ class QualityCheck(models.Model):
         for rec in self:
             rec.rm_qc_batch_reference = ', '.join(rec.lot_ids.mapped('name'))
 
-    def action_rm_qc_load_tests(self):
-        """Load the current category/stage master directly, once per QC check.
-
-        Existing logged measurements are never overwritten by master updates.
-        """
+    def action_rm_qc_load_specification(self):
+        """Populate snapshots only; never overwrite recorded test results."""
         for rec in self:
             if rec.quality_state in ('pass', 'fail'):
-                raise UserError(_('Completed checks cannot reload QC tests.'))
-            if rec.rm_qc_parameter_line_ids:
-                continue
+                raise UserError(_('Completed checks cannot reload specifications.'))
             if not rec.product_id:
-                raise UserError(_('Select a product first.'))
-            rules = self.env['rm.qc.parameter.template'].applicable_to(
-                rec.product_id, rec.rm_qc_scope, rec.rm_qc_stage)
-            rec.write({
-                'rm_qc_is_custom': True,
-                'rm_qc_parameter_line_ids': rules.inspection_commands(rec.product_id),
-            })
+                raise UserError(_('Select the received Product first.'))
+            scope = rec.rm_qc_scope or 'incoming'
+            spec = rec.rm_qc_specification_id
+            if not spec:
+                spec = self.env['rm.qc.specification']._find_approved(
+                    rec.product_id, scope, rec.rm_qc_stage)
+            if not spec:
+                raise UserError(_('No active QC Standard found for this product/stage.'))
+            if (spec.state != 'approved' or
+                    spec.product_tmpl_id != rec.product_id.product_tmpl_id or
+                    spec.scope != scope):
+                raise UserError(_('Selected specification does not match this product/scope.'))
+            if rec.rm_qc_parameter_line_ids:
+                raise UserError(_('Inspection parameters already exist; measurements will not be overwritten.'))
+            commands = [fields.Command.create({
+                'spec_line_id': line.id,
+                'name': line.name,
+                'uom_text': line.uom_text,
+                'lsl_text': line.lsl_text,
+                'target_text': line.target_text,
+                'usl_text': line.usl_text,
+                'limit_mode': line.limit_mode,
+                'lsl_numeric': line.lsl_numeric,
+                'usl_numeric': line.usl_numeric,
+                'inspection_method': line.inspection_method,
+                'lot_size': line.lot_size,
+                'sample_size': line.sample_size,
+                'samples_to_test': line.sample_count,
+                'measurements_per_sample': line.measurements_per_sample,
+                'sample_method': line.sample_method,
+                'inspection_level': line.inspection_level,
+                'inspection_frequency': line.inspection_frequency,
+            }) for line in spec.line_ids]
+            rec.write({'rm_qc_specification_id': spec.id,
+                       'rm_qc_parameter_line_ids': commands})
             rec.rm_qc_parameter_line_ids.action_generate_measurements()
         return True
 
-    def action_rm_qc_load_specification(self):
-        """Compatibility alias for old custom server actions."""
-        return self.action_rm_qc_load_tests()
-
     def _rm_qc_verify_before_pass(self):
-        for check in self.filtered(
-                lambda c: c.rm_qc_is_custom or c.rm_qc_specification_id):
+        for check in self.filtered('rm_qc_specification_id'):
             if not check.rm_qc_parameter_line_ids:
-                raise UserError(_('No QC tests are loaded for %s. Open the receipt and click QC Inspection.') % check.display_name)
+                raise UserError(_('Load the QC Sampling Log before passing %s.') % check.display_name)
             for parameter in check.rm_qc_parameter_line_ids:
                 parameter._verify_complete()
                 if any(log.result in ('fail', 'out_of_spec') for log in parameter.log_ids):
@@ -76,9 +107,9 @@ class QualityCheck(models.Model):
     def write(self, vals):
         if vals.get('quality_state') == 'pass':
             self._rm_qc_verify_before_pass()
-        if {'rm_qc_parameter_line_ids'}.intersection(vals):
+        if {'rm_qc_specification_id', 'rm_qc_parameter_line_ids'}.intersection(vals):
             if any(check.quality_state in ('pass', 'fail') for check in self):
-                raise UserError(_('Completed QC inspection measurements are locked.'))
+                raise UserError(_('Completed QC check specifications are locked.'))
         return super().write(vals)
 
     def do_pass(self):
@@ -98,12 +129,9 @@ class RmQcInspectionParameter(models.Model):
     quality_check_id = fields.Many2one('quality.check', string='Quality Check',
                                        required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(default=10)
-    # Legacy pointer retained for historical measurements only.
-    spec_line_id = fields.Many2one('rm.qc.specification.line', string='Legacy Source',
+    spec_line_id = fields.Many2one('rm.qc.specification.line', string='Specification Source',
                                   readonly=True)
-    master_parameter_id = fields.Many2one('rm.qc.parameter.template',
-                                         string='QC Rule Source', readonly=True)
-    name = fields.Char(string='QC Test', required=True)
+    name = fields.Char(string='MIC / Property', required=True)
     uom_text = fields.Char(string='UOM', readonly=True)
     lsl_text = fields.Char(string='LSL', readonly=True)
     target_text = fields.Char(string='Target', readonly=True)
@@ -114,7 +142,7 @@ class RmQcInspectionParameter(models.Model):
     usl_numeric = fields.Float(string='Numeric USL', digits=(16, 5), readonly=True)
     inspection_method = fields.Char(string='Inspection Method', readonly=True)
     lot_size = fields.Char(string='Base Inspection Lot Size', readonly=True)
-    sample_size = fields.Char(string='Sampling Instructions', readonly=True)
+    sample_size = fields.Char(string='Sampling Rule', readonly=True)
     samples_to_test = fields.Integer(string='Actual Samples to Test', default=1,
                                      help='Set this using actual pallets/rolls/batch size.')
     measurements_per_sample = fields.Integer(string='Measurements per Sample', default=1,
@@ -123,34 +151,28 @@ class RmQcInspectionParameter(models.Model):
     inspection_level = fields.Char(string='Inspection Level', readonly=True)
     inspection_frequency = fields.Char(string='Inspection Frequency', readonly=True)
     log_ids = fields.One2many('rm.qc.inspection.log', 'parameter_id', string='Measurement Logs')
-
-    progress_display = fields.Char(
-        string='Progress', compute='_compute_measurement_progress',
-    )
-    missing_row_count = fields.Integer(
-        string='Missing Measurement Rows', compute='_compute_measurement_progress',
-    )
-    duplicate_row_count = fields.Integer(
-        string='Duplicate Measurement Rows', compute='_compute_measurement_progress',
-    )
+    expected_count = fields.Integer(string='Readings Needed', compute='_compute_rm_qc_progress')
+    entered_count = fields.Integer(string='Readings Done', compute='_compute_rm_qc_progress')
+    failed_count = fields.Integer(string='Out-of-Spec Readings', compute='_compute_rm_qc_progress')
+    progress = fields.Float(string='Progress', compute='_compute_rm_qc_progress',
+                            help='Display only: percentage of required readings recorded.')
 
     @api.depends('samples_to_test', 'measurements_per_sample',
-                 'log_ids.sample_no', 'log_ids.measure_no', 'log_ids.result')
-    def _compute_measurement_progress(self):
+                 'log_ids.result', 'log_ids.sample_no', 'log_ids.measure_no')
+    def _compute_rm_qc_progress(self):
         for rec in self:
-            expected = {(s, m) for s in range(1, rec.samples_to_test + 1)
-                        for m in range(1, rec.measurements_per_sample + 1)}
-            actual = [(line.sample_no, line.measure_no) for line in rec.log_ids]
-            recorded = {pair for line in rec.log_ids
-                        if line.result != 'pending'
-                        for pair in [(line.sample_no, line.measure_no)]}
-            rec.missing_row_count = len(expected.difference(actual))
-            rec.duplicate_row_count = len(actual) - len(set(actual))
-            rec.progress_display = _('%(done)s / %(total)s completed') % {
-                'done': len(expected.intersection(recorded)),
-                'total': len(expected),
-            }
-
+            samples = max(rec.samples_to_test or 0, 0)
+            per_sample = max(rec.measurements_per_sample or 0, 0)
+            expected = samples * per_sample
+            done = {(log.sample_no, log.measure_no) for log in rec.log_ids
+                    if log.result != 'pending'
+                    and 1 <= log.sample_no <= samples
+                    and 1 <= log.measure_no <= per_sample}
+            rec.expected_count = expected
+            rec.entered_count = len(done)
+            rec.failed_count = len(rec.log_ids.filtered(
+                lambda log: log.result in ('fail', 'out_of_spec')))
+            rec.progress = min(100.0, len(done) * 100.0 / expected) if expected else 0.0
 
     @api.constrains('samples_to_test')
     def _check_samples(self):
@@ -198,25 +220,12 @@ class RmQcInspectionParameter(models.Model):
         self.ensure_one()
         expected = {(s, m) for s in range(1, self.samples_to_test + 1)
                     for m in range(1, self.measurements_per_sample + 1)}
-        actual = [(line.sample_no, line.measure_no) for line in self.log_ids]
-        if len(actual) != len(set(actual)):
-            raise UserError(_(
-                'Duplicate sample/test rows in %s. Delete the extra row, '
-                'then complete the missing measurement.'
-            ) % self.name)
-        unexpected = set(actual) - expected
-        if unexpected:
-            raise UserError(_(
-                'There are measurements outside the selected sample count in %s. '
-                'Review the rows before passing.'
-            ) % self.name)
         valid = {(line.sample_no, line.measure_no) for line in self.log_ids
                  if line.result != 'pending'}
         if not expected.issubset(valid):
-            raise UserError(_(
-                'Incomplete %s: %d of %d results entered. '
-                'Open Enter Results and fill the missing measurements.'
-            ) % (self.name, len(expected.intersection(valid)), len(expected)))
+            raise UserError(_('Incomplete %s: expected %d measured values. '
+                              'Click Generate Logs and fill each result.')
+                            % (self.name, len(expected)))
 
     def write(self, vals):
         if any(rec.quality_check_id.quality_state in ('pass', 'fail') for rec in self):
@@ -272,21 +281,6 @@ class RmQcInspectionLog(models.Model):
         for rec in self:
             if rec.sample_no < 1 or rec.measure_no < 1:
                 raise ValidationError(_('Sample and measurement numbers must be positive.'))
-
-    @api.constrains('parameter_id', 'sample_no', 'measure_no')
-    def _check_unique_measurement_row(self):
-        for rec in self:
-            duplicate = self.search_count([
-                ('parameter_id', '=', rec.parameter_id.id),
-                ('sample_no', '=', rec.sample_no),
-                ('measure_no', '=', rec.measure_no),
-                ('id', '!=', rec.id),
-            ])
-            if duplicate:
-                raise ValidationError(_(
-                    'Sample %(sample)s / Test %(test)s already exists. '
-                    'Enter the result in the existing row.'
-                ) % {'sample': rec.sample_no, 'test': rec.measure_no})
 
     def write(self, vals):
         if any(rec.parameter_id.quality_check_id.quality_state in ('pass', 'fail') for rec in self):

@@ -1,84 +1,62 @@
-from odoo import models, fields, api, _
+from odoo import models, fields, _
 from odoo.exceptions import UserError
-
-
-STAGES = [
-    ('Pre-Press Setup', 'Pre-Press Setup'),
-    ('Live Press Run', 'Live Press Run'),
-    ('Post-Print QC', 'Post-Print QC'),
-    ('Lamination', 'Lamination'),
-    ('Slitting', 'Slitting'),
-    ('Pouch Making', 'Pouch Making'),
-    ('Valving', 'Valving'),
-]
 
 
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
-    rm_qc_check_ids = fields.One2many(
-        'quality.check', 'rm_qc_production_id', string='Production QC Checks')
+    rm_qc_check_ids = fields.One2many('quality.check', 'rm_qc_production_id',
+                                     string='Production QC Check Logs')
 
     def action_rm_qc_create_production_checks(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Choose a Production QC Stage'),
-            'res_model': 'rm.qc.production.stage.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {'default_production_id': self.id},
-        }
-
-
-class ProductionStageWizard(models.TransientModel):
-    _name = 'rm.qc.production.stage.wizard'
-    _description = 'Select Production Quality Check Stage'
-
-    production_id = fields.Many2one(
-        'mrp.production', string='Manufacturing Order', required=True)
-    stage = fields.Selection(STAGES, string='Production Stage', required=True)
-
-    def action_open_check(self):
-        self.ensure_one()
-        order = self.production_id
-        Test = self.env['rm.qc.parameter.template']
+        """Stage-wise QC under quality.check; no manufacturing blocking rule imposed."""
         Check = self.env['quality.check']
-        existing = Check.search([
-            ('rm_qc_production_id', '=', order.id),
-            ('rm_qc_stage', '=', self.stage),
-            '|', ('rm_qc_is_custom', '=', True),
-                 ('rm_qc_specification_id', '!=', False),
-        ], limit=1)
-        if not existing:
-            Test.applicable_to(order.product_id, 'production', self.stage)
-            test_type = self.env['quality.point.test_type'].search([
-                ('technical_name', '=', 'passfail')], limit=1)
-            if not test_type:
-                raise UserError(_('The Pass - Fail Quality test type is missing.'))
-            values = {
-                'title': _('Production QC: %s — %s') % (order.name, self.stage),
-                'product_id': order.product_id.id,
-                'test_type_id': test_type.id,
-                'measure_on': 'product',
-                'company_id': order.company_id.id,
-                'rm_qc_is_custom': True,
-                'rm_qc_scope': 'production',
-                'rm_qc_stage': self.stage,
-                'rm_qc_production_id': order.id,
-            }
-            if 'production_id' in Check._fields:
-                values['production_id'] = order.id
-            existing = Check.create(values)
-            existing.action_rm_qc_load_tests()
+        test_type = self.env['quality.point.test_type'].search(
+            [('technical_name', '=', 'passfail')], limit=1)
+        if not test_type:
+            raise UserError(_('The standard Pass - Fail Quality test type is missing.'))
+        Spec = self.env['rm.qc.specification']
+        for order in self:
+            specs = Spec.with_company(order.company_id).search([
+                ('product_tmpl_id', '=', order.product_id.product_tmpl_id.id),
+                ('scope', '=', 'production'), ('state', '=', 'approved'),
+                ('company_id', '=', order.company_id.id),
+            ], order='approved_on desc, id desc')
+            unique_stages = set()
+            for spec in specs:
+                stage = spec.process or 'Production'
+                if stage in unique_stages:
+                    continue
+                unique_stages.add(stage)
+                existing = Check.search([
+                    ('rm_qc_production_id', '=', order.id),
+                    ('rm_qc_stage', '=', stage),
+                ], limit=1)
+                if existing:
+                    continue
+                vals = {
+                    'title': _('Production QC — %s: %s') % (order.name, stage),
+                    'product_id': order.product_id.id,
+                    'test_type_id': test_type.id,
+                    'measure_on': 'product',
+                    'company_id': order.company_id.id,
+                    'rm_qc_scope': 'production',
+                    'rm_qc_stage': stage,
+                    'rm_qc_production_id': order.id,
+                    'rm_qc_specification_id': spec.id,
+                }
+                # The native manufacturing link exists when installed integrations provide it.
+                if 'production_id' in Check._fields:
+                    vals['production_id'] = order.id
+                check = Check.create(vals)
+                check.action_rm_qc_load_specification()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Production QC'),
             'res_model': 'quality.check',
-            'res_id': existing.id,
-            'view_mode': 'form',
-            'views': [(
-                self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_form').id,
-                'form')],
-            'target': 'current',
+            'name': _('Production QC Checks'), 'view_mode': 'list,form',
+            'views': [
+                (self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_list').id, 'list'),
+                (self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_form').id, 'form'),
+            ],
+            'domain': [('rm_qc_production_id', 'in', self.ids)],
         }

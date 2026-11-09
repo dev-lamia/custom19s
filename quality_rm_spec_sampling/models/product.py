@@ -7,7 +7,7 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     rm_qc_required = fields.Boolean(string='Incoming QC Required', default=False,
-                                    help='If selected, receipt QC uses configured QC Test Rules; no TDS approval is required.')
+                                    help='An active incoming QC Standard is required before confirming a purchase order.')
     rm_qc_material_type = fields.Selection(MATERIAL_TYPES, string='RM Material Type')
     rm_qc_film_type = fields.Selection([
         ('bopp', 'BOPP'), ('pet', 'PET'), ('pe', 'PE'),

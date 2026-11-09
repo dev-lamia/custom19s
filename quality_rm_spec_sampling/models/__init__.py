@@ -1,6 +1,5 @@
 from . import master
 from . import specification
-from . import qc_rules
 from . import product
 from . import quality_check
 from . import purchase_request_compat
