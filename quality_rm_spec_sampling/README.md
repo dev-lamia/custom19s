@@ -89,18 +89,18 @@ Extra sampling details and product properties are still accessible in secondary 
 
 ## Menu structure
 
-**Version 19.0.1.0.13 (2026-11-09):** The module adds no separate application. Its existing menus are placed inside the standard Odoo Quality app on **installation and upgrade**:
+**Version 19.0.1.0.14 (2026-11-09):** Reuse the **existing Odoo 19 Quality menus**. The two extra RM QC work menus are inactive, so the Quality application has one specification entry and one inspection entry:
 
-- **Quality → Quality Control → QC Standards (TDS)**
-- **Quality → Quality Control → QC Inspections** (same `quality.check` records; custom inspection view)
+- **Quality → Quality Control → RM QC Specification** — the *existing Control Points menu* now opens the full custom `rm.qc.specification` list/form with TDS, sampling parameters and activation/versioning.
+- **Quality → Quality Control → Quality Inspection** — the *existing Quality Checks menu* now opens the custom `quality.check` list/form with sampling measurements. Both native and RM-specific checks appear (the inspection action has no specification-only filter).
 - **Quality → Configuration → Test Templates**
 - **Quality → Configuration → Defect Catalog**
 - **Quality → Configuration → Product Properties**
 - **Quality → Configuration → Department Consumables**
 
-The legacy standalone `RM Quality` menu and its `Configuration` container are inactive. Their XML IDs and the existing menu/action records are retained. Native Quality Configuration access rights still apply to the configuration menus. If a customized Quality deployment does not expose `Quality Control` or `Configuration` beneath its Quality root, RM QC entries fall back to the Quality root instead of creating a new app. If the Quality app itself cannot be found, a warning is logged and the inactive legacy root is not reactivated. No QC data or core Quality menu records are deleted or overwritten.
+**Important technical distinction:** Standard Odoo `quality.point` is a **Quality Control Point** that defines *when Odoo automatically creates checks*. This module does **not** change its model/schema or migrate/erase existing QCPs. Replacing the native **menu action** opens the custom specification **model** (`rm.qc.specification`) instead, preserving all existing TDS and sampling records. Native QCP rules remain stored and continue to operate; their original menu action is saved and restored when the add-on is uninstalled. Native `quality.check` is already the inspection model, so the existing native menu is reused directly. The standard Quality app keeps its other menus and functions.
 
-There is also an **RM QC Inspection** button on incoming stock receipts and **Production QC Checks** on manufacturing orders, plus a **RM QC & Identification** tab on the Product template.
+The earlier two custom work menu XML IDs are retained (inactive) for safe module upgrades. If a customized Enterprise Quality installation lacks the native entry, the matching custom menu is enabled only as a fallback. Configuration entries stay under Quality → Configuration, as before. Re-running the integration on upgrade does not overwrite the saved original menu actions. Static Python/XML validation does not replace a live Odoo 19 upgrade test.
 
 ## User flow
 

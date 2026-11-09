@@ -1,3 +1,15 @@
+## [19.0.1.0.14] - 2026-11-09
+
+### [Changed] Single native Quality navigation
+- [2026-11-09] Reused the **native Quality Control Points menu** for `RM QC Specification`. It now opens the existing `rm.qc.specification` list and full TDS/sampling form; no additional specification menu is shown.
+- [2026-11-09] Reused the **native Quality Checks menu** as `Quality Inspection`, with this module's sampling/measurement inspection views. The action displays all `quality.check` records, including native checks; no second inspection menu is shown.
+- [2026-11-09] Preserved the old addon menu XML IDs as inactive for upgrades; retained Quality → Configuration entries and no standalone RM Quality app.
+- [2026-11-09] Added idempotent native-menu discovery without undocumented Enterprise XML IDs; native actions/labels are saved before being changed and restored on module uninstall.
+
+### [Compatibility / Testing]
+- [2026-11-09] **Did not merge** `quality.point` and `rm.qc.specification`: native QCP check-generation rules remain intact; existing RM specification records and Odoo quality checks are not migrated or deleted.
+- [2026-11-09] No QC business validations, duplicate prevention, specification measurements, purchase or stock logic changed. Python/XML/ZIP static checks only; live Odoo 19 upgrade/uninstall tests not executed.
+
 ## [19.0.1.0.13] - 2026-11-09
 
 ### [Changed] Quality app navigation

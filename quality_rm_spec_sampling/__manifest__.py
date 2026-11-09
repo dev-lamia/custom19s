@@ -1,6 +1,6 @@
 {
     'name': 'RM QC Specification, Sampling & Quality Check Extension',
-    'version': '19.0.1.0.13',
+    'version': '19.0.1.0.14',
     'category': 'Manufacturing/Quality',
     'summary': 'Simple RM quality setup, reusable TDS, sampling and inspection logs; external approvals optional',
     'author': 'Softeko_Lamia',
@@ -28,6 +28,7 @@
         ],
     },
     'post_init_hook': 'post_init_hook',
+    'uninstall_hook': 'uninstall_hook',
     'application': False,
     'installable': True,
 }

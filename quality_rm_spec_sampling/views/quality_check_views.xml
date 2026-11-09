@@ -142,7 +142,7 @@
     <field name="name">quality.check.rm.qc.detailed.list</field>
     <field name="model">quality.check</field>
     <field name="arch" type="xml">
-      <list string="QC Inspections" create="true" sample="1">
+      <list string="Quality Inspection" create="true" sample="1">
         <field name="name" readonly="1" string="Inspection"/>
         <field name="product_id"/>
         <field name="picking_id" string="Receipt"/>
@@ -191,7 +191,7 @@
     <field name="name">quality.check.rm.qc.search</field>
     <field name="model">quality.check</field>
     <field name="arch" type="xml">
-      <search string="Search Inspections">
+      <search string="Search Quality Inspections">
         <field name="name" string="Inspection"/>
         <field name="product_id"/>
         <field name="picking_id" string="Receipt"/>
@@ -220,7 +220,7 @@
     <field name="name">quality.check.rm.qc.detailed.form</field>
     <field name="model">quality.check</field>
     <field name="arch" type="xml">
-      <form string="QC Inspection">
+      <form string="Quality Inspection">
         <header>
           <button name="action_rm_qc_load_specification" type="object" string="Load QC Tests"
                   class="btn-secondary"
@@ -337,10 +337,10 @@
        ACTIONS
        ================================================================ -->
   <record id="action_rm_qc_detailed_check" model="ir.actions.act_window">
-    <field name="name">QC Inspections</field>
+    <field name="name">Quality Inspection</field>
     <field name="res_model">quality.check</field>
     <field name="view_mode">list,kanban,form</field>
-    <field name="domain">[('rm_qc_specification_id','!=',False)]</field>
+    <field name="domain">[]</field>
     <field name="search_view_id" ref="view_rm_qc_quality_check_search"/>
     <field name="help" type="html">
       <p class="o_view_nocontent_smiling_face">No inspections yet</p>
