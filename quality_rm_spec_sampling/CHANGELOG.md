@@ -1,3 +1,14 @@
+## [19.0.1.0.15] - 2026-11-09
+
+### Fixed
+- Avoided direct modification of native Quality Control Points / Quality Checks menu actions. Instead, hide only the native navigation menu records and show RM QC Specification / Quality Inspection under Quality -> Quality Control.
+- Restore native menu action/name from 19.0.1.0.14's saved snapshots before hiding them on upgrade.
+- Explicitly hide the old RM Quality app menu using supported ir.ui.menu XML record updates.
+- Kept inspection, sampling, stock, manufacturing, permissions, master data and QC duplicate guard unchanged.
+
+### Validation
+- Python AST, XML parse, ZIP integrity verified. No live Odoo database/runtime test was performed.
+
 ## [19.0.1.0.14] - 2026-11-09
 
 ### [Changed] Single native Quality navigation

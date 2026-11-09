@@ -1,3 +1,5 @@
+**Navigation safety update (19.0.1.0.15, 2026-11-09):** Under the installed Quality app, the user sees `Quality Control > RM QC Specification` and `Quality Control > Quality Inspection`, plus four Configuration menus. The native Control Points / Quality Checks navigation entries are archived rather than their actions being rewritten. Native actions and records stay intact. Uninstall restores native menus. Existing v14 action rewrites are repaired from their saved snapshots during module upgrade. Runtime validation requires an Odoo 19 instance.
+
 # RM Quality — Simplified Workflow (Odoo 19)
 
 **Version:** 19.0.1.0.12  
