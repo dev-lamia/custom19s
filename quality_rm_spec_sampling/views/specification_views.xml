@@ -1,0 +1,393 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+
+  <!-- ================================================================
+       QC PARAMETER TEMPLATES  (master list the standards are built from)
+       ================================================================ -->
+  <record id="view_rm_qc_template_list" model="ir.ui.view">
+    <field name="name">rm.qc.parameter.template.list</field>
+    <field name="model">rm.qc.parameter.template</field>
+    <field name="arch" type="xml">
+      <list string="Test Templates" sample="1">
+        <field name="scope" widget="badge"
+               decoration-info="scope == 'incoming'"
+               decoration-warning="scope == 'production'"/>
+        <field name="process" optional="show"/>
+        <field name="category_text" string="Category"/>
+        <field name="item_text" string="Material" optional="show"/>
+        <field name="name" string="Test"/>
+        <field name="uom_text" optional="show"/>
+        <field name="sample_size" string="Sampling Rule"/>
+        <field name="measurements_per_sample" string="Tests / Sample"/>
+        <field name="inspection_frequency" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_template_search" model="ir.ui.view">
+    <field name="name">rm.qc.parameter.template.search</field>
+    <field name="model">rm.qc.parameter.template</field>
+    <field name="arch" type="xml">
+      <search string="Search Test Templates">
+        <field name="name" string="Test"/>
+        <field name="item_text" string="Material"/>
+        <field name="category_text" string="Category"/>
+        <field name="process" string="Production Stage"/>
+        <filter name="filter_incoming" string="Incoming Material"
+                domain="[('scope', '=', 'incoming')]"/>
+        <filter name="filter_production" string="Production"
+                domain="[('scope', '=', 'production')]"/>
+        <separator/>
+        <filter name="filter_archived" string="Archived"
+                domain="[('active', '=', False)]"/>
+        <group>
+          <filter name="group_scope" string="Scope" context="{'group_by': 'scope'}"/>
+          <filter name="group_material" string="Material Type" context="{'group_by': 'material_type'}"/>
+          <filter name="group_process" string="Production Stage" context="{'group_by': 'process'}"/>
+          <filter name="group_category" string="Category" context="{'group_by': 'category_text'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_template_form" model="ir.ui.view">
+    <field name="name">rm.qc.parameter.template.form</field>
+    <field name="model">rm.qc.parameter.template</field>
+    <field name="arch" type="xml">
+      <form string="Test Template">
+        <sheet>
+          <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                  invisible="active"/>
+          <field name="active" invisible="1"/>
+          <div class="oe_title o_rm_qc_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="e.g. Thickness"/></h1>
+          </div>
+          <group>
+            <group string="Where it applies">
+              <field name="scope"/>
+              <field name="material_type" invisible="scope != 'incoming'"/>
+              <field name="process" invisible="scope != 'production'"/>
+              <field name="category_text" string="Category"/>
+              <field name="item_text" string="Material"/>
+            </group>
+            <group string="Limits (from TDS)">
+              <field name="uom_text" string="Unit"/>
+              <field name="lsl_text" string="Minimum (LSL)"/>
+              <field name="target_text" string="Target"/>
+              <field name="usl_text" string="Maximum (USL)"/>
+            </group>
+          </group>
+          <group>
+            <group string="How to sample">
+              <field name="lot_size"/>
+              <field name="sample_size" string="Sampling Rule"/>
+              <field name="measurements_per_sample" string="Tests / Sample"/>
+              <field name="sample_method"/>
+            </group>
+            <group string="How to inspect">
+              <field name="inspection_method"/>
+              <field name="inspection_level"/>
+              <field name="inspection_frequency"/>
+            </group>
+          </group>
+          <group string="Source (read only)" col="2">
+            <group>
+              <field name="source_sheet"/>
+              <field name="source_row"/>
+            </group>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- ================================================================
+       DEFECT CATALOG
+       ================================================================ -->
+  <record id="view_rm_qc_defect_list" model="ir.ui.view">
+    <field name="name">rm.qc.defect.list</field>
+    <field name="model">rm.qc.defect</field>
+    <field name="arch" type="xml">
+      <list string="Defect Catalog" editable="bottom" sample="1">
+        <field name="code"/>
+        <field name="name" string="Description"/>
+        <field name="active" widget="boolean_toggle" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_defect_search" model="ir.ui.view">
+    <field name="name">rm.qc.defect.search</field>
+    <field name="model">rm.qc.defect</field>
+    <field name="arch" type="xml">
+      <search string="Search Defects">
+        <field name="code"/>
+        <field name="name" string="Description"/>
+        <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_defect_form" model="ir.ui.view">
+    <field name="name">rm.qc.defect.form</field>
+    <field name="model">rm.qc.defect</field>
+    <field name="arch" type="xml">
+      <form string="Defect">
+        <sheet>
+          <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+          <group>
+            <field name="code"/>
+            <field name="name" string="Description"/>
+            <field name="active"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- ================================================================
+       QC STANDARDS / TDS
+       ================================================================ -->
+  <record id="view_rm_qc_spec_list" model="ir.ui.view">
+    <field name="name">rm.qc.specification.list</field>
+    <field name="model">rm.qc.specification</field>
+    <field name="arch" type="xml">
+      <list string="RM QC Specification" sample="1">
+        <field name="name" string="Reference"/>
+        <field name="product_tmpl_id"/>
+        <field name="scope" widget="badge"
+               decoration-info="scope == 'incoming'"
+               decoration-warning="scope == 'production'"/>
+        <field name="process" optional="hide"/>
+        <field name="state" widget="badge"
+               decoration-success="state == 'approved'"
+               decoration-info="state == 'draft'"
+               decoration-warning="state == 'submitted'"
+               decoration-muted="state == 'archived'"/>
+        <field name="approved_on" optional="show"/>
+        <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_spec_kanban" model="ir.ui.view">
+    <field name="name">rm.qc.specification.kanban</field>
+    <field name="model">rm.qc.specification</field>
+    <field name="arch" type="xml">
+      <kanban class="o_rm_qc_card" default_group_by="state" group_create="false"
+              records_draggable="false" quick_create="false" sample="1">
+        <templates>
+          <t t-name="card">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <field name="product_tmpl_id" class="o_rm_qc_card_title"/>
+              <field name="scope" widget="badge"
+                     decoration-info="scope == 'incoming'"
+                     decoration-warning="scope == 'production'"/>
+            </div>
+            <div class="o_rm_qc_card_meta mt-1">
+              <field name="name"/>
+              <span t-if="record.process.raw_value"> - <field name="process"/></span>
+            </div>
+            <div class="o_rm_qc_card_meta mt-1" t-if="record.approved_on.raw_value">
+              Active since <field name="approved_on" widget="date"/>
+            </div>
+            <field name="state" invisible="1"/>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_spec_search" model="ir.ui.view">
+    <field name="name">rm.qc.specification.search</field>
+    <field name="model">rm.qc.specification</field>
+    <field name="arch" type="xml">
+      <search string="Search RM QC Specifications">
+        <field name="name" string="Reference"/>
+        <field name="product_tmpl_id"/>
+        <field name="process" string="Production Stage"/>
+        <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+        <filter name="filter_active" string="Active" domain="[('state', '=', 'approved')]"/>
+        <separator/>
+        <filter name="filter_incoming" string="Incoming Material" domain="[('scope', '=', 'incoming')]"/>
+        <filter name="filter_production" string="Production" domain="[('scope', '=', 'production')]"/>
+        <separator/>
+        <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+        <group>
+          <filter name="group_product" string="Product" context="{'group_by': 'product_tmpl_id'}"/>
+          <filter name="group_scope" string="Scope" context="{'group_by': 'scope'}"/>
+          <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_spec_form" model="ir.ui.view">
+    <field name="name">rm.qc.specification.form</field>
+    <field name="model">rm.qc.specification</field>
+    <field name="arch" type="xml">
+      <form string="RM QC Specification">
+        <header>
+          <button name="action_approve" type="object" string="Activate Standard"
+                  class="btn-primary" invisible="state not in ('draft', 'submitted')"
+                  groups="base.group_user"/>
+          <button name="action_duplicate_draft" type="object" string="Create New Version"
+                  class="btn-secondary" invisible="state == 'draft'"
+                  groups="base.group_user"
+                  help="Active standards are locked. This makes an editable draft copy."/>
+          <button name="action_archive_spec" type="object" string="Archive"
+                  class="btn-secondary" invisible="state != 'approved'"
+                  groups="base.group_user"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,approved,archived"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="Active" bg_color="text-bg-success"
+                  invisible="state != 'approved'"/>
+          <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                  invisible="state != 'archived'"/>
+
+          <div class="o_rm_qc_guide" invisible="state != 'draft'">
+            <div class="o_rm_qc_step">
+              <span class="o_rm_qc_num">1</span>
+              <div><b>Choose the product</b><span class="d-block o_rm_qc_hint">Tests fill in by themselves</span></div>
+            </div>
+            <div class="o_rm_qc_step">
+              <span class="o_rm_qc_num">2</span>
+              <div><b>Check the limits</b><span class="d-block o_rm_qc_hint">Edit min / max if needed</span></div>
+            </div>
+            <div class="o_rm_qc_step">
+              <span class="o_rm_qc_num">3</span>
+              <div><b>Activate Standard</b><span class="d-block o_rm_qc_hint">Then it is locked and ready</span></div>
+            </div>
+          </div>
+          <div class="alert alert-warning py-2" role="status" invisible="state not in ('approved', 'archived')">
+            This standard is locked. Click <b>Create New Version</b> to make changes.
+          </div>
+
+          <div class="oe_title o_rm_qc_title">
+            <h1><field name="product_tmpl_id" placeholder="Choose product..."
+                       readonly="state != 'draft'" options="{'no_create': True}"/></h1>
+            <div class="o_rm_qc_sub"><field name="name" readonly="1"/></div>
+          </div>
+
+          <group>
+            <group>
+              <field name="scope" readonly="state != 'draft'"/>
+              <field name="process" readonly="state != 'draft'"
+                     invisible="scope != 'production'" placeholder="e.g. Printing"/>
+              <field name="intended_use" readonly="state != 'draft'"
+                     placeholder="Customer / product (optional)"/>
+            </group>
+            <group>
+              <field name="company_id" readonly="state != 'draft'"
+                     groups="base.group_multi_company"/>
+              <field name="approved_by" invisible="state == 'draft'"/>
+              <field name="approved_on" invisible="state == 'draft'"/>
+            </group>
+          </group>
+
+          <notebook>
+            <page string="Tests &amp; Sampling" name="tests">
+              <div class="o_rm_qc_help" invisible="state != 'draft'">
+                Open a row to see all sampling details. Orange rows are checked by hand (Pass / Fail).
+              </div>
+              <field name="line_ids" nolabel="1" readonly="state != 'draft'">
+                <list decoration-warning="limit_mode == 'reference'">
+                  <field name="sequence" widget="handle"/>
+                  <field name="name" string="Test"/>
+                  <field name="uom_text" string="Unit"/>
+                  <field name="lsl_text" string="Minimum"/>
+                  <field name="target_text" string="Target"/>
+                  <field name="usl_text" string="Maximum"/>
+                  <field name="sample_size" string="Sampling Rule"/>
+                  <field name="measurements_per_sample" string="Tests / Sample"/>
+                  <field name="limit_mode" column_invisible="1"/>
+                </list>
+                <form string="Test &amp; Sampling Rule">
+                  <sheet>
+                    <group string="Test and limits" col="2">
+                      <group>
+                        <field name="name"/>
+                        <field name="uom_text" string="Unit"/>
+                        <field name="lsl_text" string="Minimum (LSL)"/>
+                        <field name="target_text"/>
+                        <field name="usl_text" string="Maximum (USL)"/>
+                      </group>
+                      <group>
+                        <field name="limit_mode" string="How is the result judged?"/>
+                        <field name="nominal_set"/>
+                        <field name="nominal_numeric" invisible="not nominal_set"/>
+                        <button name="action_resolve_nominal_limits" type="object"
+                                string="Calculate Limits" class="btn-secondary"
+                                invisible="not nominal_set"/>
+                        <field name="lsl_numeric" invisible="limit_mode != 'numeric'"/>
+                        <field name="usl_numeric" invisible="limit_mode != 'numeric'"/>
+                      </group>
+                    </group>
+                    <group string="Sampling" col="2">
+                      <group>
+                        <field name="sample_size" string="Sampling Rule"/>
+                        <field name="sample_count" string="Default Samples"/>
+                        <field name="measurements_per_sample" string="Tests per Sample"/>
+                      </group>
+                      <group>
+                        <field name="inspection_method"/>
+                        <field name="sample_method"/>
+                        <field name="lot_size"/>
+                      </group>
+                    </group>
+                    <group string="More details" col="2">
+                      <group>
+                        <field name="inspection_frequency"/>
+                        <field name="inspection_level"/>
+                      </group>
+                      <group>
+                        <field name="template_id" readonly="1"/>
+                      </group>
+                    </group>
+                  </sheet>
+                </form>
+              </field>
+            </page>
+            <page string="Notes" name="notes">
+              <field name="notes" nolabel="1" placeholder="Optional instructions for the inspector..."
+                     readonly="state != 'draft'"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- ================================================================
+       ACTIONS
+       ================================================================ -->
+  <record id="action_rm_qc_spec" model="ir.actions.act_window">
+    <field name="name">RM QC Specification</field>
+    <field name="res_model">rm.qc.specification</field>
+    <field name="view_mode">list,kanban,form</field>
+    <field name="search_view_id" ref="view_rm_qc_spec_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Create your first QC Standard</p>
+      <p>A QC Standard lists the tests, limits and sampling rules for one product.
+         Choose the product and the tests fill in automatically.</p>
+    </field>
+  </record>
+
+  <record id="action_rm_qc_parameter" model="ir.actions.act_window">
+    <field name="name">Test Templates</field>
+    <field name="res_model">rm.qc.parameter.template</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_rm_qc_template_search"/>
+    <field name="context">{'search_default_group_scope': 1}</field>
+  </record>
+
+  <record id="action_rm_qc_defects" model="ir.actions.act_window">
+    <field name="name">Defect Catalog</field>
+    <field name="res_model">rm.qc.defect</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_rm_qc_defect_search"/>
+  </record>
+</odoo>
