@@ -8,8 +8,13 @@
             <xpath expr="//kanban/templates" position="before">
                 <field name="artwork_sale_order_id"/>
                 <field name="artwork_sale_order_ref"/>
+                <field name="artwork_template_id"/>
             </xpath>
             <xpath expr="//t[@t-name='card']" position="inside">
+                <div t-if="record.artwork_template_id.raw_value" class="text-muted mt-1">
+                    <span class="fw-semibold">Template: </span>
+                    <field name="artwork_template_id"/>
+                </div>
                 <div t-if="record.artwork_sale_order_id.raw_value" class="text-muted mt-1">
                     <span class="fw-semibold">Sales Order: </span>
                     <field name="artwork_sale_order_ref"/>

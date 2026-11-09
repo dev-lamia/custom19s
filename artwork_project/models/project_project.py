@@ -4,6 +4,15 @@ from odoo import api, fields, models
 class ProjectProject(models.Model):
     _inherit = 'project.project'
 
+    artwork_template_id = fields.Many2one(
+        'project.project',
+        string='Project Template',
+        readonly=True,
+        copy=False,
+        index=True,
+        ondelete='set null',
+        help='Source template used when this artwork project was created.',
+    )
     artwork_sale_order_id = fields.Many2one(
         'sale.order',
         string='Sales Order',

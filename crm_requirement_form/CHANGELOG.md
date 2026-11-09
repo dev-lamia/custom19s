@@ -4,6 +4,19 @@
 
 ## [Unreleased] — Documentation Updated: 2026-11-06
 
+### [Fixed] — Repeat Job confirmation with missing source Job Code (2026-11-06)
+- [2026-11-06] `sale.order._sync_repeat_job_codes_from_source()` now reuses an existing source design's Job Code, without blocking confirmation when the source has no Job Code.
+- [2026-11-06] `sale.order._generate_missing_job_codes()` now also generates customer-wise serials for remaining uncoded Repeat Job order lines after confirmation. Source Requirement Forms and previous Sales Orders remain untouched; already assigned codes are reused or preserved.
+- [2026-11-06] Existing GDN prerequisites and Customer Code checks are unchanged. Only `models/sale_order.py`, `README.md`, and `CHANGELOG.md` were modified; the manifest version remains unchanged. Live Odoo 19 runtime testing is not verified.
+
+### [Docs] — Repeat Job fallback generation (2026-11-06)
+- [2026-11-06] Updated README current-behavior instructions, historical 2026-11-04 behavior notes, and proposed tests for missing, existing, and mixed coded-source lines. Historical changes retain their documented dates.
+
+
+### [Docs] — Unowned Product field reference removed from this package (2026-11-06)
+- [2026-11-06] Removed obsolete documentation-only mentions of an undeclared Product field. Confirmed no Python model, XML view or data file in this module defines or references that field. All executable files, manifest, views and module logic are byte-for-byte unchanged.
+- [2026-11-06] Documented that a missing Product field error in Odoo's merged inherited view must be fixed in the actual external owning view or dependency. This ZIP does not modify installed database views and does not independently resolve that upgrade error.
+
 ### [Fixed] — Repeat Job fetched values disappearing after Save (2026-11-06)
 - [2026-11-06] Hydrated newly imported `specification_ids` One2many create commands on `crm.requirement.form.create()`/`write()` **before** persisting. The source row is resolved from its exact source link/technical marker, or cautiously from the selected previous REQ and row order. This prevents silently saving empty/default readonly design fields after a successful onchange preview (`models/requirement_form.py`).
 - [2026-11-06] Added `crm.requirement.specification.source_specification_token` (hidden integer, copy=False) and `force_save` in nested list and popup views, to retain each copied source-design identifier even if the browser omits a readonly Many2one. The stored source link remains `source_specification_id`; QTY/UOM remain independent on the new REQ (`models/product_specification.py`, `views/requirement_form_views.xml`).
@@ -45,7 +58,7 @@
 - [2026-11-05] Computed and related fields continue to recompute from copied source configuration; unrelated product/Studio fields are not modified.
 
 ### [Docs] — Product Duplicate update (2026-11-05)
-- [2026-11-05] Clarified limited scope: only Product fields defined in `crm_requirement_form` are copied; the unrelated external `is_plate` view expression is not changed. This does not fix a separate view composition issue.
+- [2026-11-05] Clarified limited scope: only Product fields defined in `crm_requirement_form` are copied; unrelated external Product view expressions are not changed. This does not fix a separate view composition issue.
 - [2026-11-05] Updated `README.md` field mapping, scope, proposed QA and this `CHANGELOG.md` with the actual source changes. Python/XML static validation only; live Odoo duplication not performed.
 
 

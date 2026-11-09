@@ -159,15 +159,15 @@ flowchart TD
     H --> J[Confirm Sale Order]
     I --> J
     J --> K{Linked Repeat Job?}
-    K -->|Yes| M[Reuse prior design Job Code; block if missing]
-    K -->|No| N[Generate missing Job Code for New Job / direct Sale]
+    K -->|Yes| M[Reuse source Job Code if present; generate missing codes]
+    K -->|No| N[Generate missing Job Codes for New Job / direct Sale]
     M --> L[Sales / production workflow]
     N --> L
 ```
 
-**Direct Sale Order / New Job flow:** choose a customer and an eligible GDN (existing or generated), then confirm. `sale.order.action_confirm()` requires GDNs on product lines, and `_generate_missing_job_codes()` allocates the next customer-wise Job Code to uncoded lines **only if the order is not linked to a Repeat Job**. The existing serial format and continuity rules are unchanged.
+**Direct Sale Order / New Job flow:** choose a customer and an eligible GDN (existing or generated), then confirm. `sale.order.action_confirm()` requires GDNs on product lines, and `_generate_missing_job_codes()` allocates the next customer-wise Job Code to uncoded lines, including Repeat Job lines with no reusable source code. The existing serial format and continuity rules are unchanged.
 
-**Repeat Job:** select one or more **Previous Req Forms** and fetch separate copies of their Product Specifications. The design's existing GDN and Job Code are displayed on the new requirement design row; any linked quotation reuses that source Job Code instead of allocating a new serial. Confirmation checks that every Repeat Job line has an existing coded source specification and blocks when it does not. A Repeat Job can reference an earlier Repeat Job via the source-design chain. Staging verification of source design/GDN mapping and cross-customer GDN eligibility remains required.
+**Repeat Job:** select one or more **Previous Req Forms** and fetch separate copies of their Product Specifications. A source design's existing GDN and Job Code are displayed when available. The linked quotation reuses an existing source Job Code; if it has none, confirmation generates a new customer-wise Job Code for the current quotation line without blocking on the missing source code. A Repeat Job can reference an earlier Repeat Job via the source-design chain. Staging verification of source design/GDN mapping and cross-customer GDN eligibility remains required.
 
 ## Customer-filtered Previous Req Form (2026-11-04)
 
@@ -191,21 +191,27 @@ The existing Repeat Job visibility/required/read-only conditions, selection of s
 
 **Updated:** 2026-11-04. Source/XML validation completed; live Odoo UI/runtime testing has not been performed.
 
+### Repeat Job: generate Job Code when no source code exists (2026-11-06)
+
+On **Sales → Quotations → Confirm**, `sale.order._sync_repeat_job_codes_from_source()` first reuses the exact source-design Job Code if present. An uncoded previous REQ no longer blocks confirmation. After the standard confirmation, `sale.order._generate_missing_job_codes()` generates a new customer-wise Job Code for each remaining uncoded current Sale Order Line (including Repeat Job lines), using the existing serial format and historical numbering continuity. It does not update the previous REQ, source specification, or historical Sales Order. Existing linked Job Codes are not overwritten by the fallback. **GDN validation and Customer Code validation still apply.**
+
+**Proposed staging checks (not executed):** (1) a Repeat Job with a prior coded design reuses the exact code; (2) a Repeat Job with an uncoded design generates a new code on Confirm; (3) a mixed 3-design Repeat Job reuses available codes and generates only missing codes; (4) saving/reopening the original REQ/Sales Order shows no changes; (5) missing GDN still blocks; (6) direct Sales and New Job numbering are unchanged.
+
 ## Repeat Job Job Code reuse and Sale Order Job Type (2026-11-04)
 
-**Scope and date:** Implementation and documentation updated **2026-11-04**. This section describes the actual source-code changes in the supplied update, not a historical release date. Manifest version remains `19.0.0.0`. **Source reviewed and static checks performed; Odoo runtime testing has not been executed.**
+**Scope and date:** Source Job Code reuse was documented **2026-11-04**; missing-code confirmation behavior was updated **2026-11-06**. These documentation dates do not establish release dates. Manifest version remains `19.0.0.0`. **Source reviewed and static checks performed; Odoo runtime testing has not been executed.**
 
 ### Requirement Form: fetch an existing Job Code with Previous Req Form
 
 1. In **Requirement Form → Product Specifications**, choose **Repeat Job** and select one or more **Previous Req Forms** (`crm.requirement.form.previous_requirement_ids`). `_onchange_previous_requirement_ids()` imports each newly selected source's designs as separate `crm.requirement.specification` records with `source_specification_id`; only copied QTY/UOM can be edited. The old `previous_requirement_id` field remains as a hidden compatibility reference.
 2. The specification list's existing **Job Code** HTML column (`crm.requirement.specification.job_code_link`) now reads the previous design's actual `sale.order.line.job_code` when there is no current quotation Job Code. This is the same location where the GDN Number link is already displayed. It links to the original Job Code configuration until the repeat quotation has its own linked Sale Order Line. The reference is not a new Job Code record or serial.
 3. `crm.requirement.specification._get_repeat_job_source_line()` prefers a previously coded Sale Order Line with the reused GDN; otherwise it selects the most recent coded source line. When the selected previous requirement was itself a Repeat Job, the helper follows `source_specification_id` to find an earlier existing code. **It never generates one.**
-4. For a new Requirement Form (`new_job=True`, `repeat_job=False`), Job Code creation remains on Sale Order confirmation, not when selecting a requirement or opening a quotation.
+4. Generating a new Job Code (for New Jobs, direct Sales, or a Repeat Job whose source is uncoded) occurs at Sale Order confirmation, not when selecting a requirement or opening a quotation.
 
 ### Quotation / Sale Order
 
 - `crm.requirement.form._prepare_sale_order_line_from_specification()` copies the source Job Code to `sale.order.line.job_code` for Repeat Job designs. `_sync_specifications_to_sale_order()` uses this mapping when creating or refreshing linked quotations; the existing GDN, FG Type, quantity and other specification mapping stays as before.
-- `sale.order._sync_repeat_job_codes_from_source()` checks each linked Repeat Job line **before confirmation**, copying the exact source code if necessary. If the design has no previously coded source line, it raises a descriptive `UserError`; it will **not** allocate a new customer serial for the Repeat Job. `sale.order._generate_missing_job_codes()` explicitly skips Repeat Job orders.
+- `sale.order._sync_repeat_job_codes_from_source()` checks each linked Repeat Job line **before confirmation** and reuses an existing exact source-design code if available. A source with no code does **not** raise a missing-code `UserError`. After standard confirmation, `sale.order._generate_missing_job_codes()` generates a new customer-specific serial for any current line still lacking a Job Code, including Repeat Job lines.
 - In **Sales → Quotations / Sale Orders → form**, the Requirement Form selector is followed by **only the selected, checked Job Type**: **New Job** when `sale.order.new_job` is true, or **Repeat Job** when `sale.order.repeat_job` is true. The unchecked choice is hidden (both are hidden if neither is selected or no Requirement Form is linked). Both booleans remain non-stored, read-only related fields reading `requirement_form_id.new_job` and `requirement_form_id.repeat_job` and reflect later source changes. This is a presentation-only change; direct Sale Orders without a linked Requirement Form keep their existing behavior (`views/sale_order_views.xml`).
 - Multiple designs are mapped by `requirement_specification_id` and its individual `source_specification_id`: each Repeat Job line reuses its **own** previous design's Job Code, not a single code for the whole Requirement Form.
 
@@ -215,7 +221,7 @@ The existing Repeat Job visibility/required/read-only conditions, selection of s
 | --- | --- | --- | --- |
 | Select Previous Req Form | Not applicable | Copies previous designs and exposes source Job Code/GDN links | `models/requirement_form.py`, `models/product_specification.py` |
 | Open / refresh quotation | Existing new-job quotation behavior | Uses source design line's `job_code`, without allocating a serial | `crm.requirement.form._prepare_sale_order_line_from_specification()` |
-| Confirm Sale Order | Existing customer-wise missing-code generator | Validates every line has a coded source, reuses original code or blocks; no new serial | `sale.order._sync_repeat_job_codes_from_source()`, `_generate_missing_job_codes()` |
+| Confirm Sale Order | Existing customer-wise missing-code generator | Reuses an existing source code when available; otherwise generates a new code for the uncoded current line | `sale.order._sync_repeat_job_codes_from_source()`, `_generate_missing_job_codes()` |
 | Change linked Requirement Form's job type | Source remains authoritative | Source remains authoritative | `sale.order.new_job`, `.repeat_job`, `views/sale_order_views.xml` |
 
 **Scope preserved:** GDN generation and customer verification, Product Specification duplication, sequence format and customer-wise New Job numbering, production fields, document synchronization, security, and manifest are unchanged. A reused code appears on a distinct Repeat Job Sale Order Line (the SQL-backed Job Code Configuration still identifies each row by Sale Order Line ID); the original Job Code text remains identical.
@@ -226,9 +232,9 @@ The existing Repeat Job visibility/required/read-only conditions, selection of s
 | --- | --- | --- |
 | RJ-01 | Create New Job → quotation → GDN → confirm | New unique customer-wise Job Code allocated as before |
 | RJ-02 | Create Repeat Job, select previously confirmed REQ with one design | Previous Job Code and GDN are displayed in the copied design's list row before confirmation |
-| RJ-03 | Open Repeat Job quotation → confirm | Exact previous Job Code persists; no new serial; same source-design GDN retained |
+| RJ-03 | Open Repeat Job quotation with a coded source → confirm | Exact previous Job Code persists; no new serial; same source-design GDN retained |
 | RJ-04 | Select previous REQ with multiple coded designs | Each new design/quotation line maps to its matching original Job Code |
-| RJ-05 | Repeat from a previous REQ without a confirmed coded source | Sale Order confirmation blocked with a clear error; no new code generated |
+| RJ-05 | Repeat from a previous REQ without a coded source, with its GDN set | Current Sale Order confirms and receives a fresh customer-wise Job Code; source REQ and previous Sales Order remain unchanged |
 | RJ-06 | Repeat an already repeated requirement | Original Job Code found through source-design chain and reused |
 | RJ-07 | Open Sales quotation linked to New Job, then Repeat Job, and then no REQ | Only the checked New Job or Repeat Job indicator is visible; the unchecked choice is hidden; both hidden without linked REQ |
 | RJ-08 | Test repeated design linked to GDN of another customer | Only existing source-design GDN exception is allowed; unrelated customer GDN still rejected |
@@ -936,9 +942,11 @@ Odoo's default duplication behavior continues for all other fields. Computed, re
 **Technical references:** `models/product_extension.py` (field definitions, existing `_compute_requirement_fg_type`, `_check_requirement_fg_configuration`, `create()` and `write()`), `views/product_template_views.xml` (Product Form fields).
 
 
-### Scope note: Product form OWL `is_plate` error
+### Product form inherited-view validation note (2026-11-06)
 
-The view expression `requirement_category_type_id not in [7] and not is_plate` is **not present** anywhere in this `crm_requirement_form` module. The `is_plate` field is not declared by this module. A separate installed Product view/add-on contains that condition and may need its own fix if it is missing from the final Product view's loaded fields. This duplication-only update intentionally does not create an `is_plate` field, modify other add-ons, or change their view visibility conditions. A live Odoo staging registry/render test has not been executed.
+This module does not declare the unrelated missing Product field reported by the staging server during a Product form view validation failure. The supplied `views/product_template_views.xml` has no reference to that field. Odoo validates the **combined inherited Product view**, so the traceback may name this module's view even when the invalid expression originates in a different add-on, Studio customization or database view. Remove the invalid reference from its actual owning view, or restore the add-on that defines the missing field; changing this module's unrelated Product settings would not resolve the underlying issue.
+
+**Safe diagnosis (staging, before module upgrade):** use Developer Mode → Settings → Technical → User Interface → Views, or inspect `ir.ui.view` for the field name in the server error on model `product.template`. Review the owning view's full XML and inheritance chain before editing it. Keep a database backup. The reported missing-field error is **not fixed by this documentation-only ZIP revision**; no external view is modified here.
 
 
 ## Repeat Job first-selection preview and Save deduplication (2026-11-06)

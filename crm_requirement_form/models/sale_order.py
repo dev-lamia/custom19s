@@ -1045,10 +1045,11 @@ class SaleOrder(models.Model):
                     line.gdn_number = False
 
     def _sync_repeat_job_codes_from_source(self):
-        """Reuse source-design Job Codes for Repeat Jobs at confirmation.
+        """Reuse the exact source Job Code when it exists for a Repeat Job.
 
-        A Repeat Job without a previous coded design must not silently consume
-        a new customer-specific serial or get confirmed with a blank Job Code.
+        A source design without a Job Code is allowed. Its current quotation
+        line receives a new customer-wise code from the normal confirmation
+        generator, without changing the previous REQ or Sale Order.
         """
         for order in self.filtered(lambda rec: rec.requirement_form_id.repeat_job):
             for line in order.order_line.filtered(lambda rec: not rec.display_type):
@@ -1059,26 +1060,23 @@ class SaleOrder(models.Model):
                     ) if specification else self.env['sale.order.line']
                 )
                 if not source_line:
-                    raise UserError(_(
-                        'Repeat Job requires an existing Job Code for every '
-                        'Product Specification. Please confirm the previous '
-                        'REQ Sale Order before confirming %(order)s '
-                        '(design: %(design)s).',
-                        order=order.name,
-                        design=line.req_design_name or line.name,
-                    ))
+                    # A previous design may not have a confirmed Job Code yet.
+                    # Do not block this quotation or update its source order;
+                    # _generate_missing_job_codes() will assign a new code.
+                    continue
                 if line.job_code != source_line.job_code:
                     line.with_context(skip_sale_line_linked_sync=True).write({
                         'job_code': source_line.job_code,
                     })
 
     def _generate_missing_job_codes(self):
-        """Generate customer-wise Job Codes for New Jobs and direct Sales."""
+        """Generate customer-wise codes for all uncoded Sale Order lines.
+
+        New Jobs and direct Sales use this generator as before. Repeat Jobs
+        use it only when the exact source design has no reusable Job Code.
+        """
         SaleLine = self.env['sale.order.line'].sudo()
         for order in self:
-            # Repeat Jobs only reuse the previous design's Job Code.
-            if order.requirement_form_id.repeat_job:
-                continue
             lines = order.order_line.filtered(lambda line: not line.display_type and not line.job_code)
             if not lines:
                 continue

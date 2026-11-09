@@ -21,6 +21,20 @@ class SaleOrder(models.Model):
         for order in self:
             order.artwork_task_count = len(order.artwork_task_ids)
 
+    artwork_pending_count = fields.Integer(
+        string='Pending Artwork Job Codes',
+        compute='_compute_artwork_pending_count',
+    )
+
+    @api.depends('order_line.job_code', 'artwork_task_ids.artwork_sale_order_line_id')
+    def _compute_artwork_pending_count(self):
+        for order in self:
+            existing_ids = set(order.artwork_task_ids.mapped('artwork_sale_order_line_id').ids)
+            order.artwork_pending_count = len(order.order_line.filtered(
+                lambda line: not line.display_type and line.job_code
+                and line.id not in existing_ids
+            ))
+
     can_create_artwork = fields.Boolean(
         string='Can Create Artwork',
         compute='_compute_can_create_artwork',
@@ -50,8 +64,10 @@ class SaleOrder(models.Model):
                 _('No Sales Order line with a Job Code was found.')
             )
 
-        if self.artwork_task_ids:
-            return self.action_open_artwork()
+        if not self.artwork_pending_count:
+            raise ValidationError(
+                _('Artwork has already been created for all Job Codes on this Sales Order.')
+            )
 
         return {
             'type': 'ir.actions.act_window',

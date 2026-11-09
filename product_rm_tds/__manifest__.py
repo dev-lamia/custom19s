@@ -5,7 +5,7 @@
     'category': 'Customizations',
     'author': 'Softeko_HUMAYRA',
     'license': 'LGPL-3',
-    'depends': ['stock', 'project_plate_tds'],
+    'depends': ['stock', 'project_plate_tds', 'product'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
