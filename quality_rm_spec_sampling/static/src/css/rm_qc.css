@@ -1,100 +1,120 @@
-/* RM Quality - light touch styling. Uses Bootstrap variables so dark mode works. */
+/* RM Quality - refined professional green theme */
 
-/* "What to do next" guide shown at the top of forms */
-.o_rm_qc_guide {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem .75rem;
-    margin: 0 0 1.25rem;
-    padding: 0;
+:root {
+    --rm-qc-green: #2f7d61;
+    --rm-qc-green-soft: #eaf6f0;
+    --rm-qc-green-border: #c9e5d8;
+    --rm-qc-text-soft: #5f6b67;
 }
-.o_rm_qc_guide .o_rm_qc_step {
-    flex: 1 1 200px;
-    display: flex;
-    align-items: center;
-    gap: .65rem;
-    padding: .55rem .85rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: .6rem;
-    background: var(--bs-tertiary-bg);
-    color: var(--bs-body-color);
-    font-size: .9rem;
-    line-height: 1.25;
+
+/* general sheet refinement */
+.o_rm_qc_sheet {
+    border-radius: 10px;
 }
-.o_rm_qc_guide .o_rm_qc_step b {
-    display: block;
-    font-weight: 600;
+.o_rm_qc_green_form .oe_title {
+    margin-bottom: 1rem;
+    padding-bottom: .65rem;
+    border-bottom: 1px solid var(--rm-qc-green-border);
 }
-.o_rm_qc_guide .o_rm_qc_step span.o_rm_qc_hint {
-    color: var(--bs-secondary-color);
-    font-size: .82rem;
-}
-.o_rm_qc_guide .o_rm_qc_num {
-    flex: 0 0 1.9rem;
-    height: 1.9rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.o_rm_qc_title h1 {
     font-weight: 700;
-    color: #fff;
-    background: var(--bs-primary);
+    letter-spacing: -.02em;
+}
+.o_rm_qc_title .o_rm_qc_sub {
+    color: var(--rm-qc-text-soft);
+    font-size: .95rem;
 }
 
-/* Soft helper line under a section title */
+/* old guide/help blocks intentionally hidden for clean UI */
+.o_rm_qc_guide,
 .o_rm_qc_help {
-    color: var(--bs-secondary-color);
-    margin: -.25rem 0 .75rem;
-    font-size: .9rem;
+    display: none !important;
 }
 
-/* Title block on forms */
-.o_rm_qc_title h1 { font-weight: 600; }
-.o_rm_qc_title .o_rm_qc_sub { color: var(--bs-secondary-color); }
+/* read-only status alert */
+.o_rm_qc_green_form .alert-warning {
+    background: #f8fffb;
+    border: 1px solid var(--rm-qc-green-border);
+    color: #315c49;
+    border-radius: 10px;
+}
 
-/* Allowed-range card on the measurement popup */
+/* section headings */
+.o_rm_qc_section {
+    margin: 1.35rem 0 .75rem;
+    padding: .55rem .8rem;
+    border: 1px solid var(--rm-qc-green-border);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #f5fcf8 0%, #edf8f2 100%);
+    color: var(--rm-qc-green);
+    font-weight: 700;
+    font-size: 1.02rem;
+}
+
+/* allowed range card */
 .o_rm_qc_range {
     display: flex;
     flex-wrap: wrap;
-    gap: .5rem 1.5rem;
-    align-items: baseline;
-    padding: .65rem 1rem;
-    margin-bottom: 1rem;
-    border-left: 4px solid var(--bs-primary);
-    border-radius: .4rem;
-    background: var(--bs-tertiary-bg);
+    gap: .65rem 1.5rem;
+    align-items: center;
+    padding: .8rem 1rem;
+    margin: .1rem 0 1rem;
+    border-left: 4px solid var(--rm-qc-green);
+    border-radius: 10px;
+    background: var(--rm-qc-green-soft);
+    border: 1px solid var(--rm-qc-green-border);
 }
 .o_rm_qc_range .o_field_widget { width: auto; }
-.o_rm_qc_range label { margin: 0 .35rem 0 0; color: var(--bs-secondary-color); }
-
-/* Kanban cards */
-.o_rm_qc_card .o_rm_qc_card_title { font-weight: 600; }
-.o_rm_qc_card .o_rm_qc_card_meta { color: var(--bs-secondary-color); font-size: .85rem; }
-
-@media (max-width: 767.98px) {
-    .o_rm_qc_guide .o_rm_qc_step { flex-basis: 100%; }
-}
-
-/* Clean section headings on the QC test form */
-.o_rm_qc_section {
-    margin: 1.25rem 0 .5rem;
-    padding-bottom: .3rem;
-    border-bottom: 1px solid var(--bs-border-color);
-    font-weight: 600;
-    font-size: 1.05rem;
-    color: var(--bs-emphasis-color);
-}
 .o_rm_qc_range .o_rm_qc_range_label {
-    color: var(--bs-secondary-color);
-    font-size: .9rem;
+    color: var(--rm-qc-text-soft);
+    font-size: .92rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
 }
 .o_rm_qc_range .o_rm_qc_range_value {
-    font-size: 1.35rem;
+    color: #173d2f;
+    font-size: 1.45rem;
     font-weight: 700;
 }
+
+/* tds note */
 .o_rm_qc_tds {
-    color: var(--bs-secondary-color);
-    font-size: .85rem;
-    margin: -.4rem 0 .5rem;
+    color: var(--rm-qc-text-soft);
+    font-size: .88rem;
+    margin: -.35rem 0 .7rem;
+    padding-left: .1rem;
 }
 .o_rm_qc_tds .o_field_widget { width: auto; }
+
+/* kanban cards */
+.o_rm_qc_card .o_kanban_record {
+    border-radius: 10px;
+}
+.o_rm_qc_card .o_rm_qc_card_title { font-weight: 600; }
+.o_rm_qc_card .o_rm_qc_card_meta { color: var(--rm-qc-text-soft); font-size: .85rem; }
+
+/* list view polish */
+.o_rm_qc_green_form .o_list_view table thead,
+.o_form_view .o_list_view table thead {
+    background: #f4fbf7;
+}
+.o_form_view .o_list_view table thead th {
+    color: #2d5a48;
+    font-weight: 700;
+}
+
+/* tags */
+.o_form_view .o_field_many2many_tags .badge {
+    border-radius: 999px;
+}
+
+/* mobile */
+@media (max-width: 767.98px) {
+    .o_rm_qc_section {
+        font-size: .96rem;
+        padding: .5rem .7rem;
+    }
+    .o_rm_qc_range .o_rm_qc_range_value {
+        font-size: 1.15rem;
+    }
+}

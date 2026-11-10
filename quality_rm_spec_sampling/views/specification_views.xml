@@ -56,7 +56,7 @@
     <field name="model">rm.qc.parameter.template</field>
     <field name="arch" type="xml">
       <form string="Test Template">
-        <sheet>
+        <sheet class="o_rm_qc_sheet">
           <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                   invisible="active"/>
           <field name="active" invisible="1"/>
@@ -233,7 +233,7 @@
     <field name="name">rm.qc.specification.form</field>
     <field name="model">rm.qc.specification</field>
     <field name="arch" type="xml">
-      <form string="RM QC Specification">
+      <form string="RM QC Specification" class="o_rm_qc_green_form">
         <header>
           <button name="action_approve" type="object" string="Activate Standard"
                   class="btn-primary" invisible="state not in ('draft', 'submitted')"
@@ -253,20 +253,6 @@
           <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                   invisible="state != 'archived'"/>
 
-          <div class="o_rm_qc_guide" invisible="state != 'draft'">
-            <div class="o_rm_qc_step">
-              <span class="o_rm_qc_num">1</span>
-              <div><b>Choose the product</b><span class="d-block o_rm_qc_hint">Tests fill in by themselves</span></div>
-            </div>
-            <div class="o_rm_qc_step">
-              <span class="o_rm_qc_num">2</span>
-              <div><b>Type the Target</b><span class="d-block o_rm_qc_hint">Red rows need a Target; Min / Max fill in by themselves</span></div>
-            </div>
-            <div class="o_rm_qc_step">
-              <span class="o_rm_qc_num">3</span>
-              <div><b>Activate Standard</b><span class="d-block o_rm_qc_hint">Then it is locked and ready</span></div>
-            </div>
-          </div>
           <div class="alert alert-warning py-2" role="status" invisible="state not in ('approved', 'archived')">
             This standard is locked. Click <b>Create New Version</b> to make changes.
           </div>
@@ -295,10 +281,6 @@
 
           <notebook>
             <page string="Tests &amp; Sampling" name="tests">
-              <div class="o_rm_qc_help" invisible="state != 'draft'">
-                <b>± % / ± Fixed amount:</b> type the Target, Min and Max are calculated.
-                <b>Fixed Min / Max:</b> type Min and Max. <b>Visual / Manual</b> (orange) is judged Pass / Fail by the inspector.
-              </div>
               <field name="line_ids" nolabel="1" readonly="state != 'draft'">
                 <list editable="bottom" open_form_view="True"
                       decoration-warning="limit_type == 'reference'"
@@ -354,8 +336,8 @@
     <field name="model">rm.qc.specification.line</field>
     <field name="priority">10</field>
     <field name="arch" type="xml">
-      <form string="QC Test">
-        <sheet>
+      <form string="QC Test" class="o_rm_qc_green_form">
+        <sheet class="o_rm_qc_sheet">
           <widget name="web_ribbon" title="Locked" bg_color="text-bg-secondary"
                   invisible="spec_state == 'draft'"/>
           <field name="spec_state" invisible="1"/>

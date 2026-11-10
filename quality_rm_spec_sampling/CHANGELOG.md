@@ -1,3 +1,4 @@
+- 19.0.1.0.21: Removed helper banners from QC specification forms and refreshed UI with a clean light-green professional theme.
 ## [19.0.1.0.20] - 2026-11-10
 
 ### Changed
