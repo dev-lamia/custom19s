@@ -1,3 +1,8 @@
+## [19.0.1.0.21] - 2026-11-10
+
+### Changed
+- Receipt form: the **QC Inspection** button is hidden once RM QC is Passed (open the passed inspection from the Quality Checks smart button). Nothing else changed.
+
 ## [19.0.1.0.20] - 2026-11-10
 
 ### Changed

@@ -81,7 +81,7 @@
     <field name="arch" type="xml">
       <xpath expr="//header" position="inside">
         <button name="action_rm_qc_create_checks" type="object" string="QC Inspection" class="btn-primary" invisible="picking_type_code != 'incoming' or rm_qc_state not in ('no_lot', 'pending')" groups="base.group_user"/>
-        <button name="action_rm_qc_create_checks" type="object" string="QC Inspection" class="btn-secondary" invisible="picking_type_code != 'incoming' or rm_qc_state in ('no_lot', 'pending')" groups="base.group_user"/>
+        <button name="action_rm_qc_create_checks" type="object" string="QC Inspection" class="btn-secondary" invisible="picking_type_code != 'incoming' or rm_qc_state in ('no_lot', 'pending', 'pass')" groups="base.group_user"/>
       </xpath>
       <xpath expr="//field[@name='origin']" position="after">
         <field name="rm_qc_state" string="RM QC" widget="badge" readonly="1"
