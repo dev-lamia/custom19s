@@ -2,7 +2,14 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-11-06
+## [Unreleased] — Documentation Updated: 2026-11-10
+
+### [Changed] — Source REQ Form column in Product Specifications (2026-11-10)
+- [2026-11-10] Display the existing `crm.requirement.specification.previous_req_form` field as a read-only **Source REQ Form** column immediately after Design Name in the Requirement Form Product Specifications One2many list (`views/requirement_form_views.xml`). Preserve `force_save="1"`; the existing hidden popup field remains unchanged.
+- [2026-11-10] Source values already come from each copied source design; no new fields, model logic, database migrations, Job Code/GDN generation, Sale Order logic, or manifest changes. Manual/new-job rows without a source remain blank.
+
+### [Docs] — Source REQ Form traceability (2026-11-10)
+- [2026-11-10] Updated README feature location, existing source field mapping, and proposed manual QA; static XML/ZIP checks only (live Odoo test not run).
 
 ### [Fixed] — Repeat Job confirmation with missing source Job Code (2026-11-06)
 - [2026-11-06] `sale.order._sync_repeat_job_codes_from_source()` now reuses an existing source design's Job Code, without blocking confirmation when the source has no Job Code.

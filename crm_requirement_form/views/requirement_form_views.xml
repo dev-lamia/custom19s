@@ -160,9 +160,10 @@
                                         <control>
                                             <create string="Add a line"/>
                                         </control>
-                                        <field name="is_duplicate_copy" column_invisible="1" force_save="1"/><field name="source_specification_id" column_invisible="1" force_save="1"/><field name="source_specification_token" column_invisible="1" force_save="1"/><field name="previous_req_form" column_invisible="1" force_save="1"/><field name="sequence" widget="handle" readonly="is_duplicate_copy"/>
+                                        <field name="is_duplicate_copy" column_invisible="1" force_save="1"/><field name="source_specification_id" column_invisible="1" force_save="1"/><field name="source_specification_token" column_invisible="1" force_save="1"/><field name="sequence" widget="handle" readonly="is_duplicate_copy"/>
                                         <field name="no_designs" string="Design" readonly="1"/>
                                         <field name="design_name" string="Design Name" readonly="is_duplicate_copy"/>
+                                        <field name="previous_req_form" string="Source REQ Form" readonly="1" force_save="1" optional="show"/>
                                         <field name="job_code_link" string="Job Code" widget="html" readonly="1" optional="show"/>
                                         <field name="gdn_number_link" string="GDN Number" widget="html" readonly="1" optional="show"/>
                                         <field name="fg_type" string="FG Type" readonly="is_duplicate_copy"/>
