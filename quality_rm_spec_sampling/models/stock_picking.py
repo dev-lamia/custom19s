@@ -15,11 +15,10 @@ class StockPicking(models.Model):
         if not test_type:
             raise UserError(_('The standard Pass - Fail Quality test type is missing.'))
         Specification = self.env['rm.qc.specification']
-        created = QualityCheck.browse()
         for picking in self:
             if picking.picking_type_id.code != 'incoming':
                 raise UserError(_('RM QC checks can only be generated from incoming receipts.'))
-            # get move lines with assigned batches, plus non-lot products
+            # Get move lines with assigned batches, plus non-lot products.
             rows = []
             for move in picking.move_ids.filtered(lambda m: m.product_id.rm_qc_required):
                 lines = move.move_line_ids.filtered(lambda m: m.lot_id)
@@ -37,15 +36,45 @@ class StockPicking(models.Model):
                 if not spec:
                     raise UserError(_('Active QC Standard missing for %s.')
                                     % product.display_name)
-                existing = QualityCheck.search([
-                    ('picking_id', '=', picking.id), ('product_id', '=', product.id),
+
+                # A receipt/product/lot is one inspection, even when its active
+                # specification was revised after an earlier check was created.
+                # Include native Odoo checks so our button cannot create a second
+                # inspection for a product already checked by a Quality Point.
+                existing_checks = QualityCheck.search([
+                    ('picking_id', '=', picking.id),
+                    ('product_id', '=', product.id),
                     (('lot_ids', 'in', [lot.id]) if lot else ('lot_ids', '=', False)),
-                    # Any RM inspection counts, even if a newer standard version was
-                    # activated later, so a second click never creates a duplicate.
-                    ('rm_qc_specification_id', '!=', False),
-                ], limit=1)
-                if existing:
+                ], order='id asc')
+                if existing_checks:
+                    # Prefer an RM QC inspection over a native/unconfigured check.
+                    # Never replace recorded results or a historical specification.
+                    rm_checks = existing_checks.filtered('rm_qc_specification_id')
+                    if rm_checks:
+                        continue
+                    editable = existing_checks.filtered(
+                        lambda check: check.quality_state not in ('pass', 'fail')
+                        and not check.rm_qc_parameter_line_ids)
+                    if editable:
+                        check = editable[0]
+                        check.write({
+                            'rm_qc_scope': 'incoming',
+                            'rm_qc_specification_id': spec.id,
+                        })
+                        check.action_rm_qc_load_specification()
+                    else:
+                        # Completed native checks cannot safely be retrofitted
+                        # with measurements (and must not be silently replaced).
+                        raise UserError(_(
+                            'A completed Quality Check already exists for %(product)s '
+                            'on receipt %(receipt)s. A second QC was not created. '
+                            'Review the existing check before entering RM samples.'
+                        ) % {
+                            'product': product.display_name,
+                            'receipt': picking.name,
+                        })
                     continue
+
                 vals = {
                     'title': _('RM Incoming QC: %s') % product.display_name,
                     'product_id': product.id, 'picking_id': picking.id,
@@ -58,7 +87,6 @@ class StockPicking(models.Model):
                 }
                 check = QualityCheck.create(vals)
                 check.action_rm_qc_load_specification()
-                created |= check
         return {
             'type': 'ir.actions.act_window',
             'name': _('Incoming RM Quality Checks'),
@@ -68,8 +96,6 @@ class StockPicking(models.Model):
                 (self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_list').id, 'list'),
                 (self.env.ref('quality_rm_spec_sampling.view_rm_qc_quality_check_form').id, 'form'),
             ],
-            # Only RM inspections; Odoo's own generic quality checks are not shown here.
-            'domain': [('picking_id', 'in', self.ids),
-                       ('rm_qc_specification_id', '!=', False)],
+            'domain': [('picking_id', 'in', self.ids)],
             'context': {'default_rm_qc_scope': 'incoming'},
         }
