@@ -129,9 +129,11 @@ class IrUiMenu(models.Model):
 
         items = (
             ('menu_rm_qc_spec', control, 40),
+            ('menu_rm_qc_pending', control, 42),
             ('menu_rm_qc_quality_checks', control, 45),
             ('menu_rm_qc_parameters', config, 80),
             ('menu_rm_qc_defects', config, 81),
+            ('menu_rm_qc_uom', config, 84),
             ('menu_rm_qc_identification', config, 82),
             ('menu_rm_qc_consumables', config, 83),
         )

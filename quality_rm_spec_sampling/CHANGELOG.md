@@ -1,3 +1,24 @@
+## [19.0.1.0.17] - 2026-11-10
+
+### Added
+- **Limit Type per TDS line:** `± % of Target` (0.5 / 1 / 2 / 3 / 4 / 5 / 10 %), `± Fixed amount`, `Fixed Min / Max`, `Minimum only`, `Maximum only`, `Visual / Manual`. Typing the Target fills Min/Max automatically; no checkbox or Calculate button. Workbook text is translated on load (57 of 66 master rows become numeric; compound/visual rows stay manual). Activation requires a Target on ± lines.
+- **Catalog errors per test:** chosen on the TDS line (pre-filled from the master test, e.g. Thickness → RM001, Dyne → RM005). The inspector's dropdown shows only those errors (whole catalog when none chosen). An out-of-spec or failed reading cannot be saved without a Catalog Error.
+- **Pending RM QC list** (Quality → Quality Control → Pending RM QC): receipts with QC-required material, with status Pending / In Progress / Failed / Passed and an *Inspect* button. Status badge also on the receipt form.
+- **Automatic Pass:** when every required reading is entered and within range, the inspection passes by itself. Fail stays a manual decision.
+- **Unit dropdown:** new `QC Units` master (Quality → Configuration → QC Units), created from the workbook units; new units can be typed in the dropdown.
+- **Receipt validation gate:** a failed RM inspection (or an out-of-spec reading) blocks *Validate*. Unfinished RM QC also blocks *Validate*; the inspections are created automatically and opened. Set system parameter `quality_rm_spec_sampling.validate_requires_qc_pass` = `0` to allow validating before QC is finished (failed QC still blocks).
+- Adding sample count in *Enter Results* adds the extra rows immediately.
+
+### Fixed
+- Batch numbers typed on a not-yet-validated receipt (`lot_name`) now create/reuse the lot and give one inspection per batch. An inspection created before the batch was typed is attached to the batch instead of duplicated.
+
+### Upgrade
+- Pre-migration keeps every existing numeric line numeric (as Fixed Min / Max with its stored limits); reference lines stay manual. Active standards and recorded results are not changed. Draft standards get automatic limit types and catalog errors.
+- Native Quality menus and the approval behaviour are unchanged. Only the two new RM menus (Pending RM QC, QC Units) are added to the existing RM menu placement.
+
+### Validation
+- Python compile, XML parse and limit parsing against all 66 workbook rows checked offline. New runtime tests in `tests/test_limits_and_receipt_gate.py` must be run on an Odoo 19 staging database.
+
 ## [19.0.1.0.16] - 2026-11-09
 
 ### [Fixed]

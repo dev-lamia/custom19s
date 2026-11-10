@@ -27,3 +27,4 @@ access_rm_qc_internal_read_rm_qc_defect,Internal read: QC defect catalog on insp
 access_rm_qc_internal_full_consumable_allocation,Internal full access: rm qc consumable allocation,model_rm_qc_consumable_allocation,base.group_user,1,1,1,1
 access_rm_qc_pr_legacy_admin,Hidden PR legacy read for admins,model_rm_qc_purchase_request,base.group_system,1,0,0,0
 access_rm_qc_prline_legacy_admin,Hidden PR legacy line read for admins,model_rm_qc_purchase_request_line,base.group_system,1,0,0,0
+access_rm_qc_uom_internal,Internal full access: QC units,model_rm_qc_uom,base.group_user,1,1,1,1

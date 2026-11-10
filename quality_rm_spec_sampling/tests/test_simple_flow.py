@@ -26,6 +26,8 @@ class TestRmQcSimpleSpecification(TransactionCase):
         })
         self.assertEqual(spec.state, 'draft')
         self.assertTrue(spec.line_ids)
+        spec.line_ids.filtered(
+            lambda l: l.limit_type in ('pct', 'abs')).write({'target_numeric': 12.0})
         spec.action_approve()  # UI label: Activate Standard; no internal approval.
         self.assertEqual(spec.state, 'approved')
         self.assertEqual(spec.approved_by, self.env.user)
@@ -46,5 +48,7 @@ class TestRmQcSimpleSpecification(TransactionCase):
         })
         self.assertTrue(spec.line_ids)
         spec.write({'state': 'submitted'})
+        spec.line_ids.filtered(
+            lambda l: l.limit_type in ('pct', 'abs')).write({'target_numeric': 12.0})
         spec.action_approve()
         self.assertEqual(spec.state, 'approved')

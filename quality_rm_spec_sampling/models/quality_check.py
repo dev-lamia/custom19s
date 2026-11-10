@@ -1,6 +1,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
+from .limits import LIMIT_TYPES, NUMERIC_TYPES, evaluate, limit_display
+
 
 class QualityCheck(models.Model):
     _inherit = 'quality.check'
@@ -112,6 +114,8 @@ class QualityCheck(models.Model):
                 'target_text': line.target_text,
                 'usl_text': line.usl_text,
                 'limit_mode': line.limit_mode,
+                'limit_type': line.limit_type,
+                'defect_ids': [fields.Command.set(line.defect_ids.ids)],
                 'lsl_numeric': line.lsl_numeric,
                 'usl_numeric': line.usl_numeric,
                 'inspection_method': line.inspection_method,
@@ -139,13 +143,39 @@ class QualityCheck(models.Model):
                                       'Investigate and use Fail; AQL lot disposition is manual.')
                                     % parameter.name)
 
+    def _rm_qc_ready_to_pass(self):
+        """All required readings entered and none out of spec / failed."""
+        self.ensure_one()
+        params = self.rm_qc_parameter_line_ids
+        if not self.rm_qc_specification_id or not params:
+            return False
+        for parameter in params:
+            if not parameter.expected_count or parameter.entered_count < parameter.expected_count:
+                return False
+            if parameter.failed_count:
+                return False
+        return True
+
+    def _rm_qc_try_auto_pass(self):
+        """Workbook: when every reading is within limits the check passes by itself."""
+        for check in self:
+            if check.quality_state == 'none' and check._rm_qc_ready_to_pass():
+                check.do_pass()
+        return True
+
     def write(self, vals):
         if vals.get('quality_state') == 'pass':
             self._rm_qc_verify_before_pass()
         if {'rm_qc_specification_id', 'rm_qc_parameter_line_ids'}.intersection(vals):
             if any(check.quality_state in ('pass', 'fail') for check in self):
                 raise UserError(_('Completed QC check specifications are locked.'))
-        return super().write(vals)
+        if 'rm_qc_parameter_line_ids' not in vals:
+            return super().write(vals)
+        # Save every changed result first, then decide on the automatic Pass.
+        result = super(QualityCheck, self.with_context(rm_qc_defer_autopass=True)).write(vals)
+        if not self.env.context.get('rm_qc_defer_autopass'):
+            self._rm_qc_try_auto_pass()
+        return result
 
     def do_pass(self):
         self._rm_qc_verify_before_pass()
@@ -173,6 +203,12 @@ class RmQcInspectionParameter(models.Model):
     usl_text = fields.Char(string='USL', readonly=True)
     limit_mode = fields.Selection([('numeric', 'Numeric'), ('reference', 'Reference / Manual')],
                                    string='Assessment', default='reference', readonly=True)
+    limit_type = fields.Selection(LIMIT_TYPES, string='Limit Type', default='reference',
+                                  readonly=True)
+    limit_display = fields.Char(string='Allowed Range', compute='_compute_limit_display')
+    defect_ids = fields.Many2many('rm.qc.defect', 'rm_qc_insp_param_defect_rel',
+                                  'parameter_id', 'defect_id', string='Catalog Errors',
+                                  readonly=True)
     lsl_numeric = fields.Float(string='Numeric LSL', digits=(16, 5), readonly=True)
     usl_numeric = fields.Float(string='Numeric USL', digits=(16, 5), readonly=True)
     inspection_method = fields.Char(string='Inspection Method', readonly=True)
@@ -208,6 +244,28 @@ class RmQcInspectionParameter(models.Model):
             rec.failed_count = len(rec.log_ids.filtered(
                 lambda log: log.result in ('fail', 'out_of_spec')))
             rec.progress = min(100.0, len(done) * 100.0 / expected) if expected else 0.0
+
+    @api.depends('limit_type', 'lsl_numeric', 'usl_numeric', 'uom_text',
+                 'lsl_text', 'usl_text', 'target_text')
+    def _compute_limit_display(self):
+        for rec in self:
+            rec.limit_display = limit_display(rec.limit_type, rec.lsl_numeric, rec.usl_numeric,
+                                              rec.uom_text, rec.lsl_text, rec.usl_text,
+                                              rec.target_text)
+
+    @api.onchange('samples_to_test')
+    def _onchange_samples_to_test(self):
+        """Show the extra sample rows immediately; no extra button needed."""
+        for rec in self:
+            if not (1 <= (rec.samples_to_test or 0) <= 1000):
+                continue
+            existing = {(log.sample_no, log.measure_no) for log in rec.log_ids}
+            commands = [fields.Command.create({'sample_no': sample_no, 'measure_no': measure_no})
+                        for sample_no in range(1, rec.samples_to_test + 1)
+                        for measure_no in range(1, (rec.measurements_per_sample or 1) + 1)
+                        if (sample_no, measure_no) not in existing]
+            if commands:
+                rec.log_ids = commands
 
     @api.constrains('samples_to_test')
     def _check_samples(self):
@@ -265,7 +323,11 @@ class RmQcInspectionParameter(models.Model):
     def write(self, vals):
         if any(rec.quality_check_id.quality_state in ('pass', 'fail') for rec in self):
             raise UserError(_('Completed inspection lines are locked.'))
-        return super().write(vals)
+        result = super(RmQcInspectionParameter,
+                       self.with_context(rm_qc_defer_autopass=True)).write(vals)
+        if not self.env.context.get('rm_qc_defer_autopass'):
+            self.mapped('quality_check_id')._rm_qc_try_auto_pass()
+        return result
 
     def unlink(self):
         if any(rec.quality_check_id.quality_state in ('pass', 'fail') for rec in self):
@@ -286,30 +348,66 @@ class RmQcInspectionLog(models.Model):
     manual_result = fields.Selection([('pass', 'Pass'), ('fail', 'Fail')],
                                      string='Manual Evaluation',
                                      help='Only used for text/formula/complex TDS limits.')
-    defect_id = fields.Many2one('rm.qc.defect', string='Catalog Error')
+    defect_id = fields.Many2one('rm.qc.defect', string='Catalog Error',
+                                domain="[('id', 'in', allowed_defect_ids)]")
+    allowed_defect_ids = fields.Many2many('rm.qc.defect', string='Allowed Errors',
+                                          compute='_compute_allowed_defect_ids')
     observation = fields.Char(string='Observation')
     result = fields.Selection([
         ('pending', 'Pending'), ('pass', 'Within Spec'),
         ('out_of_spec', 'Out of Spec'), ('fail', 'Failed')],
         string='Evaluation', compute='_compute_result', store=True)
 
+    @api.depends('parameter_id', 'parameter_id.defect_ids')
+    def _compute_allowed_defect_ids(self):
+        catalog = self.env['rm.qc.defect'].search([])
+        for rec in self:
+            rec.allowed_defect_ids = rec.parameter_id.defect_ids or catalog
+
     @api.depends('value_text', 'manual_result', 'parameter_id.limit_mode',
+                 'parameter_id.limit_type',
                  'parameter_id.lsl_numeric', 'parameter_id.usl_numeric')
     def _compute_result(self):
         for rec in self:
             if not rec.value_text or not rec.value_text.strip():
                 rec.result = 'pending'
                 continue
-            if rec.parameter_id.limit_mode == 'numeric':
+            parameter = rec.parameter_id
+            limit_type = parameter.limit_type
+            if limit_type not in NUMERIC_TYPES and parameter.limit_mode == 'numeric':
+                limit_type = 'minmax'  # snapshot taken before limit types existed
+            if limit_type in NUMERIC_TYPES:
                 try:
-                    number = float(rec.value_text.strip())
+                    number = float(rec.value_text.strip().replace(',', '.'))
                 except ValueError:
                     rec.result = 'pending'
                     continue
-                rec.result = ('pass' if rec.parameter_id.lsl_numeric <= number
-                              <= rec.parameter_id.usl_numeric else 'out_of_spec')
+                within = evaluate(limit_type, number, parameter.lsl_numeric,
+                                  parameter.usl_numeric)
+                rec.result = 'pass' if within else 'out_of_spec'
             else:
                 rec.result = rec.manual_result or 'pending'
+
+    @api.constrains('defect_id', 'value_text', 'manual_result')
+    def _check_defect_on_failure(self):
+        for rec in self:
+            if rec.result in ('out_of_spec', 'fail') and not rec.defect_id:
+                raise ValidationError(_(
+                    '%(test)s, sample %(sample)s / test %(measure)s is out of spec: '
+                    'select the Catalog Error.'
+                ) % {'test': rec.parameter_id.name, 'sample': rec.sample_no,
+                     'measure': rec.measure_no})
+            if (rec.defect_id and rec.parameter_id.defect_ids and
+                    rec.defect_id not in rec.parameter_id.defect_ids):
+                raise ValidationError(_('%(error)s is not a catalog error for %(test)s.') % {
+                    'error': rec.defect_id.display_name, 'test': rec.parameter_id.name})
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        if not self.env.context.get('rm_qc_defer_autopass'):
+            records.mapped('parameter_id.quality_check_id')._rm_qc_try_auto_pass()
+        return records
 
     @api.constrains('sample_no', 'measure_no')
     def _check_index(self):
@@ -320,7 +418,10 @@ class RmQcInspectionLog(models.Model):
     def write(self, vals):
         if any(rec.parameter_id.quality_check_id.quality_state in ('pass', 'fail') for rec in self):
             raise UserError(_('Completed inspection logs are locked.'))
-        return super().write(vals)
+        result = super().write(vals)
+        if not self.env.context.get('rm_qc_defer_autopass'):
+            self.mapped('parameter_id.quality_check_id')._rm_qc_try_auto_pass()
+        return result
 
     def unlink(self):
         if any(rec.parameter_id.quality_check_id.quality_state in ('pass', 'fail') for rec in self):

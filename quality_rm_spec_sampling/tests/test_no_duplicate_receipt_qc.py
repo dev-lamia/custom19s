@@ -48,6 +48,8 @@ class TestNoDuplicateReceiptQC(TransactionCase):
             'scope': 'incoming',
         })
         self.assertTrue(spec.line_ids)
+        spec.line_ids.filtered(
+            lambda l: l.limit_type in ('pct', 'abs')).write({'target_numeric': 12.0})
         spec.action_approve()
         return spec
 

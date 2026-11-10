@@ -21,7 +21,10 @@
                      decoration-success="result == 'pass'"
                      decoration-danger="result in ('out_of_spec', 'fail')"
                      decoration-muted="result == 'pending'"/>
-              <field name="defect_id" string="Defect (if any)"/>
+              <field name="allowed_defect_ids" invisible="1"/>
+              <field name="defect_id" string="Catalog Error"
+                     required="result in ('out_of_spec', 'fail')"
+                     options="{'no_create': True, 'no_open': True}"/>
               <field name="observation" string="Notes"/>
             </group>
           </group>
@@ -53,27 +56,30 @@
 
           <group>
             <group string="Allowed range (from TDS)">
-              <field name="lsl_text" string="Minimum"/>
-              <field name="target_text" string="Target"/>
-              <field name="usl_text" string="Maximum"/>
-              <field name="uom_text" string="Unit"/>
-              <field name="lsl_numeric" invisible="limit_mode != 'numeric'" string="Minimum (number)"/>
-              <field name="usl_numeric" invisible="limit_mode != 'numeric'" string="Maximum (number)"/>
+              <field name="limit_display" string="Allowed" class="fw-bold"/>
+              <field name="limit_type" string="Limit type"/>
+              <field name="target_text" string="TDS Target"/>
+              <field name="lsl_numeric" invisible="1"/>
+              <field name="usl_numeric" invisible="1"/>
+              <field name="uom_text" invisible="1"/>
+              <field name="lsl_text" invisible="1"/>
+              <field name="usl_text" invisible="1"/>
             </group>
             <group string="How many to check">
               <field name="samples_to_test" string="Samples to check"/>
               <field name="measurements_per_sample" string="Tests per sample"/>
               <field name="sample_size" string="Sampling rule"/>
-              <field name="limit_mode" string="Result is judged"/>
+              <field name="limit_mode" invisible="1"/>
             </group>
           </group>
 
           <div class="alert alert-info py-2" role="status" invisible="limit_mode != 'numeric'">
-            Type the measured number. The result is checked automatically against the range above.
+            Type the measured number. It turns red when outside the range; then choose the Catalog Error.
+            When every reading is within range the inspection passes automatically.
           </div>
           <div class="alert alert-warning py-2" role="status" invisible="limit_mode == 'numeric'">
             This test is judged by eye. Type what you saw, then choose <b>Pass</b> or <b>Fail</b>.
-            Pick a Defect only when you found a real problem.
+            A <b>Fail</b> needs a Catalog Error.
           </div>
 
           <field name="expected_count" invisible="1"/>
@@ -92,7 +98,10 @@
                      decoration-success="result == 'pass'"
                      decoration-danger="result in ('out_of_spec', 'fail')"
                      decoration-muted="result == 'pending'"/>
-              <field name="defect_id" string="Defect (if any)" optional="show"/>
+              <field name="allowed_defect_ids" column_invisible="1"/>
+              <field name="defect_id" string="Catalog Error"
+                     required="result in ('out_of_spec', 'fail')"
+                     options="{'no_create': True, 'no_open': True}"/>
               <field name="observation" string="Notes" optional="hide"/>
             </list>
           </field>
@@ -124,10 +133,7 @@
     <field name="arch" type="xml">
       <list string="Tests">
         <field name="name" string="Test"/>
-        <field name="uom_text" string="Unit"/>
-        <field name="lsl_text" string="Minimum"/>
-        <field name="target_text" string="Target"/>
-        <field name="usl_text" string="Maximum"/>
+        <field name="limit_display" string="Allowed"/>
         <field name="samples_to_test" string="Samples"/>
         <field name="measurements_per_sample" string="Tests / Sample"/>
         <field name="progress" widget="progressbar"/>
@@ -248,7 +254,7 @@
             </div>
             <div class="o_rm_qc_step">
               <span class="o_rm_qc_num">3</span>
-              <div><b>Pass or Fail</b><span class="d-block o_rm_qc_hint">When all tests are done</span></div>
+              <div><b>Automatic Pass</b><span class="d-block o_rm_qc_hint">All readings in range = Passed. Otherwise click Fail</span></div>
             </div>
           </div>
 
@@ -279,7 +285,7 @@
           <div class="alert alert-danger py-2" role="alert"
                invisible="rm_qc_failed_count == 0 or quality_state in ('pass', 'fail')">
             <field name="rm_qc_failed_count" class="oe_inline fw-bold"/>
-            reading(s) are outside the allowed range. Please review before passing.
+            reading(s) are outside the allowed range. Re-check, or click <b>Fail</b>. A failed inspection blocks receipt validation.
           </div>
 
           <div class="o_rm_qc_help" invisible="quality_state in ('pass', 'fail')">
@@ -291,10 +297,8 @@
                   decoration-success="progress &gt;= 100 and failed_count == 0"
                   decoration-muted="samples_to_test &lt;= 0">
               <field name="name" string="Test"/>
-              <field name="uom_text" string="Unit"/>
-              <field name="lsl_text" string="Minimum"/>
-              <field name="target_text" string="Target" optional="hide"/>
-              <field name="usl_text" string="Maximum"/>
+              <field name="limit_display" string="Allowed"/>
+              <field name="target_text" string="TDS Target" optional="hide"/>
               <field name="samples_to_test" string="Samples"/>
               <field name="measurements_per_sample" string="Tests / Sample" optional="hide"/>
               <field name="progress" widget="progressbar"/>

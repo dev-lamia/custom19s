@@ -3,6 +3,7 @@ from . import models
 
 def post_init_hook(env):
     """Keep the addon inside the installed Quality app from first install."""
+    env['rm.qc.uom']._rm_qc_sync_master_data()
     env['ir.ui.menu']._rm_qc_place_quality_menus()
 
 

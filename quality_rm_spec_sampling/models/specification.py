@@ -2,6 +2,9 @@ import re
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
+from .limits import (LIMIT_TYPES, NUMERIC_TYPES, TOLERANCE_PCT, compute_limits,
+                     guess_limits, limit_display, _plain_number)
+
 
 def _safe_number(text):
     """Recognize only explicit numerals; formulae/grades remain review-required."""
@@ -135,27 +138,29 @@ class RmQcSpecification(models.Model):
         return templates
 
     def _parameter_commands(self, templates):
-        return [fields.Command.create({
-            'template_id': t.id,
-            'name': t.name,
-            'uom_text': t.uom_text,
-            'lsl_text': t.lsl_text,
-            'target_text': t.target_text,
-            'usl_text': t.usl_text,
-            'inspection_method': t.inspection_method,
-            'lot_size': t.lot_size,
-            'sample_size': t.sample_size,
-            'measurements_per_sample': t.measurements_per_sample,
-            'sample_method': t.sample_method,
-            'inspection_level': t.inspection_level,
-            'inspection_frequency': t.inspection_frequency,
-            'sample_count': _sample_count(t.sample_size),
-            'limit_mode': ('numeric' if _safe_number(t.lsl_text) is not None
-                           and _safe_number(t.target_text) is not None
-                           and _safe_number(t.usl_text) is not None else 'reference'),
-            'lsl_numeric': _safe_number(t.lsl_text) or 0,
-            'usl_numeric': _safe_number(t.usl_text) or 0,
-        }) for t in templates]
+        commands = []
+        for t in templates:
+            limits = guess_limits(t.lsl_text, t.target_text, t.usl_text)
+            commands.append(fields.Command.create({
+                'template_id': t.id,
+                'name': t.name,
+                'uom_id': t.uom_id.id,
+                'uom_text': t.uom_text,
+                'lsl_text': t.lsl_text,
+                'target_text': t.target_text,
+                'usl_text': t.usl_text,
+                'inspection_method': t.inspection_method,
+                'lot_size': t.lot_size,
+                'sample_size': t.sample_size,
+                'measurements_per_sample': t.measurements_per_sample,
+                'sample_method': t.sample_method,
+                'inspection_level': t.inspection_level,
+                'inspection_frequency': t.inspection_frequency,
+                'sample_count': _sample_count(t.sample_size),
+                'defect_ids': [fields.Command.set(t.defect_ids.ids)],
+                **limits,
+            }))
+        return commands
 
     def write(self, vals):
         if vals.get('state') == 'approved':
@@ -208,8 +213,12 @@ class RmQcSpecification(models.Model):
                 raise UserError(_('Only draft QC standards can be activated.'))
             if not rec.line_ids:
                 raise UserError(_('Add at least one QC test before activation.'))
+            missing = rec.line_ids.filtered(lambda l: l._rm_qc_target_missing())
+            if missing:
+                raise UserError(_('Enter the Target value before activation for: %s')
+                                % ', '.join(missing.mapped('name')))
             for line in rec.line_ids:
-                if line.limit_mode == 'numeric' and line.lsl_numeric > line.usl_numeric:
+                if line.limit_type in ('pct', 'abs', 'minmax') and line.lsl_numeric > line.usl_numeric:
                     raise ValidationError(_('Incorrect numeric limits for %s.') % line.name)
         self.write({'state': 'approved', 'approved_by': self.env.user.id,
                     'approved_on': fields.Datetime.now()})
@@ -250,19 +259,35 @@ class RmQcSpecificationLine(models.Model):
     sequence = fields.Integer(string='Sequence', default=10)
     template_id = fields.Many2one('rm.qc.parameter.template', string='Master MIC')
     name = fields.Char(string='Test Parameter / MIC', required=True)
-    uom_text = fields.Char(string='UOM')
-    lsl_text = fields.Char(string='LSL (TDS)')
-    target_text = fields.Char(string='Target (TDS)')
-    usl_text = fields.Char(string='USL (TDS)')
+    uom_id = fields.Many2one('rm.qc.uom', string='Unit')
+    uom_text = fields.Char(string='UOM', compute='_compute_uom_text', store=True,
+                           readonly=False)
+    lsl_text = fields.Char(string='LSL (TDS text)')
+    target_text = fields.Char(string='Target (TDS text)')
+    usl_text = fields.Char(string='USL (TDS text)')
+    limit_type = fields.Selection(LIMIT_TYPES, string='Limit Type', required=True,
+                                  default='minmax',
+                                  help='± % / ± amount: type the Target and Min/Max are calculated. '
+                                       'Fixed Min/Max: type Min and Max. '
+                                       'Visual/Manual: the inspector chooses Pass or Fail.')
+    target_numeric = fields.Float(string='Target', digits=(16, 5))
+    tolerance_pct = fields.Selection(TOLERANCE_PCT, string='± %')
+    tolerance_abs = fields.Float(string='± Amount', digits=(16, 5))
     limit_mode = fields.Selection([
         ('numeric', 'Numeric: compare to verified limits'),
         ('reference', 'TDS Reference: manual assessment')],
-        string='Assessment Mode', default='reference', required=True)
-    nominal_set = fields.Boolean(string='Nominal Value Entered', default=False)
-    nominal_numeric = fields.Float(string='Nominal Value', digits=(16, 5),
-                                   help='Enter numeric nominal value used for Nominal +/- tolerance formulae.')
-    lsl_numeric = fields.Float(string='Approved Numeric LSL', digits=(16, 5))
-    usl_numeric = fields.Float(string='Approved Numeric USL', digits=(16, 5))
+        string='Assessment Mode', compute='_compute_limit_mode', store=True)
+    nominal_set = fields.Boolean(string='Nominal Value Entered (legacy)', default=False)
+    nominal_numeric = fields.Float(string='Nominal Value (legacy)', digits=(16, 5))
+    lsl_numeric = fields.Float(string='Min (LSL)', digits=(16, 5),
+                               compute='_compute_numeric_limits', store=True, readonly=False)
+    usl_numeric = fields.Float(string='Max (USL)', digits=(16, 5),
+                               compute='_compute_numeric_limits', store=True, readonly=False)
+    limit_display = fields.Char(string='Allowed Range', compute='_compute_limit_display')
+    defect_ids = fields.Many2many('rm.qc.defect', 'rm_qc_spec_line_defect_rel',
+                                  'line_id', 'defect_id', string='Catalog Errors',
+                                  help='Only these errors are offered to the inspector for this test. '
+                                       'Leave empty to offer the full catalog.')
     inspection_method = fields.Char(string='Inspection Method')
     lot_size = fields.Char(string='Base Inspection Lot Size')
     sample_size = fields.Char(string='Sample Size Rule')
@@ -273,39 +298,63 @@ class RmQcSpecificationLine(models.Model):
     inspection_level = fields.Char(string='Inspection Level / AQL')
     inspection_frequency = fields.Char(string='Inspection Frequency')
 
-    def action_resolve_nominal_limits(self):
+    @api.depends('uom_id')
+    def _compute_uom_text(self):
+        for rec in self:
+            rec.uom_text = rec.uom_id.name if rec.uom_id else rec.uom_text
+
+    @api.depends('limit_type')
+    def _compute_limit_mode(self):
+        for rec in self:
+            rec.limit_mode = 'numeric' if rec.limit_type in NUMERIC_TYPES else 'reference'
+
+    @api.depends('limit_type', 'target_numeric', 'tolerance_pct', 'tolerance_abs')
+    def _compute_numeric_limits(self):
+        for rec in self:
+            limits = compute_limits(rec.limit_type, rec.target_numeric,
+                                    rec.tolerance_pct, rec.tolerance_abs)
+            if limits:
+                rec.lsl_numeric, rec.usl_numeric = limits
+            else:
+                # Fixed / one-sided / visual: keep what the controller typed.
+                rec.lsl_numeric = rec.lsl_numeric
+                rec.usl_numeric = rec.usl_numeric
+
+    @api.depends('limit_type', 'lsl_numeric', 'usl_numeric', 'uom_text',
+                 'lsl_text', 'usl_text', 'target_text')
+    def _compute_limit_display(self):
+        for rec in self:
+            rec.limit_display = limit_display(rec.limit_type, rec.lsl_numeric, rec.usl_numeric,
+                                              rec.uom_text, rec.lsl_text, rec.usl_text,
+                                              rec.target_text)
+
+    def _rm_qc_target_missing(self):
+        """± types need a real Target; 0 is accepted only when the TDS says 0."""
         self.ensure_one()
-        if self.specification_id.state != 'draft':
-            raise UserError(_('Only draft specification formulas may be resolved.'))
-        if not self.nominal_set:
-            raise UserError(_('Enter the Nominal Value and tick Nominal Value Entered.'))
-        nominal = self.nominal_numeric
-        def resolve(raw):
-            match = re.fullmatch(r'Nominal\s*([+-])\s*(\d+(?:\.\d+)?)\s*(%)?',
-                                 (raw or '').strip(), re.I)
-            if not match:
-                return None
-            operand = float(match.group(2))
-            diff = nominal * operand / 100 if match.group(3) else operand
-            return nominal + (diff if match.group(1) == '+' else -diff)
-        lower = resolve(self.lsl_text)
-        upper = resolve(self.usl_text)
-        if lower is None or upper is None:
-            raise UserError(_('Only explicit Nominal +/- amount or percentage formulas can be resolved. '
-                              'Other TDS expressions require approved numeric limits or manual evaluation.'))
-        self.write({'limit_mode': 'numeric', 'lsl_numeric': lower, 'usl_numeric': upper})
+        if self.limit_type == 'pct':
+            return not self.target_numeric
+        if self.limit_type == 'abs':
+            return not self.target_numeric and _plain_number(self.target_text) is None
+        return False
+
+    def action_resolve_nominal_limits(self):
+        """Legacy button (no longer shown): limits now calculate automatically."""
         return True
 
-    @api.constrains('sample_count', 'measurements_per_sample', 'lsl_numeric', 'usl_numeric', 'limit_mode')
+    @api.constrains('sample_count', 'measurements_per_sample', 'lsl_numeric', 'usl_numeric',
+                    'limit_type', 'tolerance_pct')
     def _check_validity(self):
         for rec in self:
             if rec.sample_count < 1 or rec.measurements_per_sample < 1:
                 raise ValidationError(_('Sample count and measurement count must be positive.'))
-            if rec.limit_mode == 'numeric' and rec.lsl_numeric > rec.usl_numeric:
-                raise ValidationError(_('Numeric LSL must be <= numeric USL.'))
+            if rec.limit_type == 'minmax' and rec.lsl_numeric > rec.usl_numeric:
+                raise ValidationError(_('%s: Min must be less than or equal to Max.') % rec.name)
+            if rec.limit_type == 'pct' and not rec.tolerance_pct:
+                raise ValidationError(_('%s: choose the ± %% value.') % rec.name)
 
     def write(self, vals):
-        if any(rec.specification_id.state in ('approved', 'archived') for rec in self):
+        if (not self.env.context.get('rm_qc_system_update') and
+                any(rec.specification_id.state in ('approved', 'archived') for rec in self)):
             raise UserError(_('Active QC Standard lines are locked. Duplicate the master.'))
         return super().write(vals)
 

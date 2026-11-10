@@ -16,7 +16,8 @@
         <field name="category_text" string="Category"/>
         <field name="item_text" string="Material" optional="show"/>
         <field name="name" string="Test"/>
-        <field name="uom_text" optional="show"/>
+        <field name="uom_id" optional="show"/>
+        <field name="defect_ids" widget="many2many_tags" optional="show"/>
         <field name="sample_size" string="Sampling Rule"/>
         <field name="measurements_per_sample" string="Tests / Sample"/>
         <field name="inspection_frequency" optional="hide"/>
@@ -72,7 +73,7 @@
               <field name="item_text" string="Material"/>
             </group>
             <group string="Limits (from TDS)">
-              <field name="uom_text" string="Unit"/>
+              <field name="uom_id" string="Unit"/>
               <field name="lsl_text" string="Minimum (LSL)"/>
               <field name="target_text" string="Target"/>
               <field name="usl_text" string="Maximum (USL)"/>
@@ -90,6 +91,11 @@
               <field name="inspection_level"/>
               <field name="inspection_frequency"/>
             </group>
+          </group>
+          <group string="Catalog errors offered to the inspector">
+            <field name="defect_ids" widget="many2many_tags" nolabel="1" colspan="2"
+                   options="{'no_create': True}"
+                   placeholder="Empty = whole catalog"/>
           </group>
           <group string="Source (read only)" col="2">
             <group>
@@ -254,7 +260,7 @@
             </div>
             <div class="o_rm_qc_step">
               <span class="o_rm_qc_num">2</span>
-              <div><b>Check the limits</b><span class="d-block o_rm_qc_hint">Edit min / max if needed</span></div>
+              <div><b>Type the Target</b><span class="d-block o_rm_qc_hint">Red rows need a Target; Min / Max fill in by themselves</span></div>
             </div>
             <div class="o_rm_qc_step">
               <span class="o_rm_qc_num">3</span>
@@ -290,18 +296,41 @@
           <notebook>
             <page string="Tests &amp; Sampling" name="tests">
               <div class="o_rm_qc_help" invisible="state != 'draft'">
-                Open a row to see all sampling details. Orange rows are checked by hand (Pass / Fail).
+                <b>± % / ± Fixed amount:</b> type the Target, Min and Max are calculated.
+                <b>Fixed Min / Max:</b> type Min and Max. <b>Visual / Manual</b> (orange) is judged Pass / Fail by the inspector.
               </div>
               <field name="line_ids" nolabel="1" readonly="state != 'draft'">
-                <list decoration-warning="limit_mode == 'reference'">
+                <list editable="bottom" open_form_view="True"
+                      decoration-warning="limit_type == 'reference'"
+                      decoration-danger="(limit_type == 'pct' and not target_numeric) or (limit_type == 'pct' and not tolerance_pct)">
                   <field name="sequence" widget="handle"/>
                   <field name="name" string="Test"/>
-                  <field name="uom_text" string="Unit"/>
-                  <field name="lsl_text" string="Minimum"/>
-                  <field name="target_text" string="Target"/>
-                  <field name="usl_text" string="Maximum"/>
-                  <field name="sample_size" string="Sampling Rule"/>
+                  <field name="uom_id" string="Unit" options="{'no_open': True}"/>
+                  <field name="limit_type" string="Limit Type"/>
+                  <field name="target_numeric" string="Target"
+                         readonly="limit_type not in ('pct', 'abs')"
+                         required="limit_type == 'pct'"/>
+                  <field name="tolerance_pct" string="± %"
+                         readonly="limit_type != 'pct'" required="limit_type == 'pct'"/>
+                  <field name="tolerance_abs" string="± Amount"
+                         readonly="limit_type != 'abs'"/>
+                  <field name="lsl_numeric" string="Min"
+                         readonly="limit_type not in ('minmax', 'min')"/>
+                  <field name="usl_numeric" string="Max"
+                         readonly="limit_type not in ('minmax', 'max')"/>
+                  <field name="defect_ids" string="Catalog Errors" widget="many2many_tags"
+                         options="{'no_create': True}"/>
+                  <field name="sample_size" string="Sampling Rule" optional="show"/>
+                  <field name="sample_count" string="Default Samples" optional="hide"/>
                   <field name="measurements_per_sample" string="Tests / Sample"/>
+                  <field name="lsl_text" string="TDS Min (text)" optional="hide"/>
+                  <field name="target_text" string="TDS Target (text)" optional="hide"/>
+                  <field name="usl_text" string="TDS Max (text)" optional="hide"/>
+                  <field name="inspection_method" optional="hide"/>
+                  <field name="sample_method" optional="hide"/>
+                  <field name="lot_size" optional="hide"/>
+                  <field name="inspection_level" optional="hide"/>
+                  <field name="inspection_frequency" optional="hide"/>
                   <field name="limit_mode" column_invisible="1"/>
                 </list>
                 <form string="Test &amp; Sampling Rule">
@@ -309,21 +338,32 @@
                     <group string="Test and limits" col="2">
                       <group>
                         <field name="name"/>
-                        <field name="uom_text" string="Unit"/>
-                        <field name="lsl_text" string="Minimum (LSL)"/>
-                        <field name="target_text"/>
-                        <field name="usl_text" string="Maximum (USL)"/>
+                        <field name="uom_id" string="Unit"/>
+                        <field name="limit_type"/>
+                        <field name="target_numeric" string="Target"
+                               invisible="limit_type not in ('pct', 'abs')"
+                               required="limit_type == 'pct'"/>
+                        <field name="tolerance_pct" invisible="limit_type != 'pct'"
+                               required="limit_type == 'pct'"/>
+                        <field name="tolerance_abs" invisible="limit_type != 'abs'"/>
+                        <field name="lsl_numeric" string="Min (LSL)"
+                               invisible="limit_type in ('reference', 'max')"
+                               readonly="limit_type not in ('minmax', 'min')"/>
+                        <field name="usl_numeric" string="Max (USL)"
+                               invisible="limit_type in ('reference', 'min')"
+                               readonly="limit_type not in ('minmax', 'max')"/>
+                        <field name="limit_display"/>
                       </group>
-                      <group>
-                        <field name="limit_mode" string="How is the result judged?"/>
-                        <field name="nominal_set"/>
-                        <field name="nominal_numeric" invisible="not nominal_set"/>
-                        <button name="action_resolve_nominal_limits" type="object"
-                                string="Calculate Limits" class="btn-secondary"
-                                invisible="not nominal_set"/>
-                        <field name="lsl_numeric" invisible="limit_mode != 'numeric'"/>
-                        <field name="usl_numeric" invisible="limit_mode != 'numeric'"/>
+                      <group string="As written in the TDS / workbook">
+                        <field name="lsl_text" string="Min (text)"/>
+                        <field name="target_text" string="Target (text)"/>
+                        <field name="usl_text" string="Max (text)"/>
+                        <field name="limit_mode" invisible="1"/>
                       </group>
+                    </group>
+                    <group string="Catalog errors offered to the inspector">
+                      <field name="defect_ids" widget="many2many_tags" nolabel="1" colspan="2"
+                             options="{'no_create': True}" placeholder="Empty = whole catalog"/>
                     </group>
                     <group string="Sampling" col="2">
                       <group>
@@ -382,6 +422,23 @@
     <field name="view_mode">list,form</field>
     <field name="search_view_id" ref="view_rm_qc_template_search"/>
     <field name="context">{'search_default_group_scope': 1}</field>
+  </record>
+
+  <record id="view_rm_qc_uom_list" model="ir.ui.view">
+    <field name="name">rm.qc.uom.list</field>
+    <field name="model">rm.qc.uom</field>
+    <field name="arch" type="xml">
+      <list string="QC Units" editable="bottom">
+        <field name="name"/>
+        <field name="active" widget="boolean_toggle" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_rm_qc_uom" model="ir.actions.act_window">
+    <field name="name">QC Units</field>
+    <field name="res_model">rm.qc.uom</field>
+    <field name="view_mode">list</field>
   </record>
 
   <record id="action_rm_qc_defects" model="ir.actions.act_window">

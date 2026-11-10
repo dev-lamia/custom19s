@@ -8,3 +8,5 @@ from . import test_property_configuration
 from . import test_no_duplicate_receipt_qc
 
 from . import test_quality_menu_integration
+
+from . import test_limits_and_receipt_gate

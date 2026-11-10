@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <!-- Pending RM QC: receipts with QC-required material that are not passed yet -->
+  <record id="view_rm_qc_pending_picking_list" model="ir.ui.view">
+    <field name="name">stock.picking.rm.qc.pending.list</field>
+    <field name="model">stock.picking</field>
+    <field name="priority">90</field>
+    <field name="arch" type="xml">
+      <list string="Pending RM QC" create="false" sample="1"
+            decoration-danger="rm_qc_state == 'fail'"
+            decoration-success="rm_qc_state == 'pass'">
+        <field name="name" string="Receipt"/>
+        <field name="partner_id" string="Vendor" optional="show"/>
+        <field name="origin" string="PO Number"/>
+        <field name="scheduled_date" optional="show"/>
+        <field name="state" string="Receipt Status" widget="badge" optional="show"/>
+        <field name="rm_qc_state" string="RM QC" widget="badge"
+               decoration-warning="rm_qc_state in ('pending', 'in_progress')"
+               decoration-danger="rm_qc_state == 'fail'"
+               decoration-success="rm_qc_state == 'pass'"/>
+        <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+        <button name="action_rm_qc_create_checks" type="object" string="Inspect"
+                icon="fa-flask" class="btn-primary"
+                invisible="rm_qc_state not in ('pending', 'in_progress')"/>
+        <button name="action_rm_qc_create_checks" type="object" string="View QC"
+                icon="fa-eye" class="btn-link"
+                invisible="rm_qc_state in ('pending', 'in_progress')"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_pending_picking_search" model="ir.ui.view">
+    <field name="name">stock.picking.rm.qc.pending.search</field>
+    <field name="model">stock.picking</field>
+    <field name="priority">90</field>
+    <field name="arch" type="xml">
+      <search string="Search Receipts for RM QC">
+        <field name="name" string="Receipt"/>
+        <field name="origin" string="PO Number"/>
+        <field name="partner_id" string="Vendor"/>
+        <field name="product_id"/>
+        <filter name="rm_qc_todo" string="To Inspect"
+                domain="[('rm_qc_state', 'in', ('pending', 'in_progress'))]"/>
+        <filter name="rm_qc_fail" string="QC Failed" domain="[('rm_qc_state', '=', 'fail')]"/>
+        <filter name="rm_qc_pass" string="QC Passed" domain="[('rm_qc_state', '=', 'pass')]"/>
+        <separator/>
+        <filter name="not_validated" string="Not Validated"
+                domain="[('state', 'not in', ('done', 'cancel'))]"/>
+        <group>
+          <filter name="group_rm_qc_state" string="RM QC Status" context="{'group_by': 'rm_qc_state'}"/>
+          <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_rm_qc_pending_receipts" model="ir.actions.act_window">
+    <field name="name">Pending RM QC</field>
+    <field name="res_model">stock.picking</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('rm_qc_state', '!=', 'none')]</field>
+    <field name="context">{'search_default_rm_qc_todo': 1, 'search_default_rm_qc_fail': 1, 'create': False}</field>
+    <field name="search_view_id" ref="view_rm_qc_pending_picking_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No receipt is waiting for RM QC</p>
+      <p>Receipts containing QC-required raw material appear here until their inspection passes.</p>
+    </field>
+  </record>
+  <record id="action_rm_qc_pending_receipts_list" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_pending_receipts"/>
+    <field name="view_mode">list</field>
+    <field name="view_id" ref="view_rm_qc_pending_picking_list"/>
+    <field name="sequence">1</field>
+  </record>
+</odoo>
