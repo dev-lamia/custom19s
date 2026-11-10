@@ -1,3 +1,8 @@
+## [19.0.1.0.20] - 2026-11-10
+
+### Changed
+- Quality Inspection form: removed the 3-step guide bar and the readings summary badges. Nothing else changed (per-test Pass / Out of Spec / Fail / Pending columns, list columns and RM QC Analysis remain).
+
 ## [19.0.1.0.19] - 2026-11-10
 
 ### Changed

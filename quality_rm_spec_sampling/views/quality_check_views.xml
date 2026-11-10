@@ -259,21 +259,6 @@
           <widget name="web_ribbon" title="Failed" bg_color="text-bg-danger"
                   invisible="quality_state != 'fail'"/>
 
-          <div class="o_rm_qc_guide" invisible="quality_state in ('pass', 'fail')">
-            <div class="o_rm_qc_step">
-              <span class="o_rm_qc_num">1</span>
-              <div><b>Check the details</b><span class="d-block o_rm_qc_hint">Product, lot and standard</span></div>
-            </div>
-            <div class="o_rm_qc_step">
-              <span class="o_rm_qc_num">2</span>
-              <div><b>Enter Results</b><span class="d-block o_rm_qc_hint">Open each test below</span></div>
-            </div>
-            <div class="o_rm_qc_step">
-              <span class="o_rm_qc_num">3</span>
-              <div><b>Automatic Pass</b><span class="d-block o_rm_qc_hint">All readings in range = Passed. Otherwise click Fail</span></div>
-            </div>
-          </div>
-
           <div class="oe_title o_rm_qc_title">
             <h1><field name="product_id" placeholder="Product" options="{'no_create': True}"/></h1>
             <div class="o_rm_qc_sub"><field name="name" readonly="1"/></div>
@@ -297,23 +282,6 @@
               <field name="rm_qc_progress" widget="progressbar" string="Results entered"/>
             </group>
           </group>
-
-          <div class="o_rm_qc_summary d-flex flex-wrap gap-2 mb-3" invisible="not rm_qc_reading_total">
-            <span class="badge rounded-pill text-bg-light border fs-6 fw-normal">
-              Readings <b><field name="rm_qc_reading_total" class="oe_inline"/></b></span>
-            <span class="badge rounded-pill text-bg-success fs-6 fw-normal">
-              Pass <b><field name="rm_qc_pass_count" class="oe_inline"/></b></span>
-            <span class="badge rounded-pill text-bg-danger fs-6 fw-normal">
-              Out of Spec <b><field name="rm_qc_oos_count" class="oe_inline"/></b></span>
-            <span class="badge rounded-pill text-bg-danger fs-6 fw-normal">
-              Fail <b><field name="rm_qc_fail_count" class="oe_inline"/></b></span>
-            <span class="badge rounded-pill text-bg-secondary fs-6 fw-normal">
-              Pending <b><field name="rm_qc_pending_count" class="oe_inline"/></b></span>
-            <span class="badge rounded-pill text-bg-light border fs-6 fw-normal">
-              Tests OK <b><field name="rm_qc_test_pass_count" class="oe_inline"/></b>
-              / Not OK <b><field name="rm_qc_test_fail_count" class="oe_inline"/></b>
-              of <field name="rm_qc_test_total" class="oe_inline"/></span>
-          </div>
 
           <div class="alert alert-danger py-2" role="alert"
                invisible="rm_qc_failed_count == 0 or quality_state in ('pass', 'fail')">
