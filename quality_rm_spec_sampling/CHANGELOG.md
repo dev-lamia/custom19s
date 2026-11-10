@@ -1,3 +1,17 @@
+## [19.0.1.0.18] - 2026-11-10
+
+### Added
+- **Lot number is mandatory for RM QC.** Ticking *QC Required* on a product sets Tracking = By Lots (and storable); a QC-required product cannot be set back to no tracking. RM QC (and therefore receipt validation) is refused while any QC-required line has no lot number. New receipt status **Lot No. Missing** in Pending RM QC.
+- **Result counts are tracked and stored:**
+  - per test: Readings, Pass, Out of Spec, Fail (manual/visual), Pending and Test Result (OK / Not OK / Pending);
+  - per inspection: the same totals plus Tests OK / Not OK of total, shown as a summary bar on the inspection form and as list columns;
+  - per receipt: Pass / Out of Spec / Fail / Pending columns in Pending RM QC.
+- **RM QC Analysis** (Quality → Reporting, or Quality Control when Reporting is absent): one row per reading with pivot / graph / list. Group by Test, Result, Catalog Error, Product, Lot / Batch, Vendor, Receipt or Month. Default: tests × result counts.
+
+### Notes
+- Existing QC-required products that are not lot-tracked are not changed automatically; RM QC on them asks to set Tracking = By Lots.
+- Pending RM QC opens with *Not Validated* by default so old done receipts do not crowd the list.
+
 ## [19.0.1.0.17] - 2026-11-10
 
 ### Added

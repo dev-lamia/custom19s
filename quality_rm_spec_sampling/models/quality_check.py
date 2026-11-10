@@ -23,12 +23,30 @@ class QualityCheck(models.Model):
                                         default=lambda s: s.env.user)
     rm_qc_review_notes = fields.Text(string='QC Review / Observations')
     rm_qc_po_reference = fields.Char(string='PO Number', compute='_compute_rm_qc_po')
-    rm_qc_batch_reference = fields.Char(string='Batch Number', compute='_compute_rm_qc_batch')
+    rm_qc_batch_reference = fields.Char(string='Batch Number', compute='_compute_rm_qc_batch',
+                                        store=True)
     rm_qc_progress = fields.Float(string='Results Entered (%)',
                                   compute='_compute_rm_qc_progress',
                                   help='Display only: share of required readings already recorded.')
     rm_qc_failed_count = fields.Integer(string='Out-of-Spec Readings',
                                         compute='_compute_rm_qc_progress')
+    # Stored result summary (searchable / groupable / reportable)
+    rm_qc_reading_total = fields.Integer(string='Readings Required',
+                                         compute='_compute_rm_qc_summary', store=True)
+    rm_qc_pass_count = fields.Integer(string='Readings Passed',
+                                      compute='_compute_rm_qc_summary', store=True)
+    rm_qc_oos_count = fields.Integer(string='Readings Out of Spec',
+                                     compute='_compute_rm_qc_summary', store=True)
+    rm_qc_fail_count = fields.Integer(string='Readings Failed (manual)',
+                                      compute='_compute_rm_qc_summary', store=True)
+    rm_qc_pending_count = fields.Integer(string='Readings Pending',
+                                         compute='_compute_rm_qc_summary', store=True)
+    rm_qc_test_total = fields.Integer(string='Tests',
+                                      compute='_compute_rm_qc_summary', store=True)
+    rm_qc_test_pass_count = fields.Integer(string='Tests Passed',
+                                           compute='_compute_rm_qc_summary', store=True)
+    rm_qc_test_fail_count = fields.Integer(string='Tests Not OK',
+                                           compute='_compute_rm_qc_summary', store=True)
 
     @api.constrains('picking_id', 'product_id', 'lot_ids',
                     'rm_qc_specification_id', 'rm_qc_scope')
@@ -75,6 +93,24 @@ class QualityCheck(models.Model):
             entered = sum(params.mapped('entered_count'))
             rec.rm_qc_progress = min(100.0, entered * 100.0 / expected) if expected else 0.0
             rec.rm_qc_failed_count = sum(params.mapped('failed_count'))
+
+    @api.depends('rm_qc_parameter_line_ids.reading_total',
+                 'rm_qc_parameter_line_ids.pass_count',
+                 'rm_qc_parameter_line_ids.oos_count',
+                 'rm_qc_parameter_line_ids.fail_count',
+                 'rm_qc_parameter_line_ids.pending_count',
+                 'rm_qc_parameter_line_ids.test_result')
+    def _compute_rm_qc_summary(self):
+        for rec in self:
+            params = rec.rm_qc_parameter_line_ids
+            rec.rm_qc_reading_total = sum(params.mapped('reading_total'))
+            rec.rm_qc_pass_count = sum(params.mapped('pass_count'))
+            rec.rm_qc_oos_count = sum(params.mapped('oos_count'))
+            rec.rm_qc_fail_count = sum(params.mapped('fail_count'))
+            rec.rm_qc_pending_count = sum(params.mapped('pending_count'))
+            rec.rm_qc_test_total = len(params)
+            rec.rm_qc_test_pass_count = len(params.filtered(lambda p: p.test_result == 'pass'))
+            rec.rm_qc_test_fail_count = len(params.filtered(lambda p: p.test_result == 'fail'))
 
     @api.depends('picking_id', 'picking_id.origin')
     def _compute_rm_qc_po(self):
@@ -227,6 +263,18 @@ class RmQcInspectionParameter(models.Model):
     failed_count = fields.Integer(string='Out-of-Spec Readings', compute='_compute_rm_qc_progress')
     progress = fields.Float(string='Progress', compute='_compute_rm_qc_progress',
                             help='Display only: percentage of required readings recorded.')
+    reading_total = fields.Integer(string='Readings', compute='_compute_reading_summary',
+                                   store=True)
+    pass_count = fields.Integer(string='Pass', compute='_compute_reading_summary', store=True)
+    oos_count = fields.Integer(string='Out of Spec', compute='_compute_reading_summary',
+                               store=True)
+    fail_count = fields.Integer(string='Fail', compute='_compute_reading_summary', store=True,
+                                help='Visual / manual readings marked Fail.')
+    pending_count = fields.Integer(string='Pending', compute='_compute_reading_summary',
+                                   store=True)
+    test_result = fields.Selection([('pending', 'Pending'), ('pass', 'OK'),
+                                    ('fail', 'Not OK')], string='Test Result',
+                                   compute='_compute_reading_summary', store=True)
 
     @api.depends('samples_to_test', 'measurements_per_sample',
                  'log_ids.result', 'log_ids.sample_no', 'log_ids.measure_no')
@@ -244,6 +292,30 @@ class RmQcInspectionParameter(models.Model):
             rec.failed_count = len(rec.log_ids.filtered(
                 lambda log: log.result in ('fail', 'out_of_spec')))
             rec.progress = min(100.0, len(done) * 100.0 / expected) if expected else 0.0
+
+    @api.depends('samples_to_test', 'measurements_per_sample',
+                 'log_ids.result', 'log_ids.sample_no', 'log_ids.measure_no')
+    def _compute_reading_summary(self):
+        for rec in self:
+            samples = max(rec.samples_to_test or 0, 0)
+            per_sample = max(rec.measurements_per_sample or 0, 0)
+            latest = {}
+            for log in rec.log_ids:
+                if 1 <= log.sample_no <= samples and 1 <= log.measure_no <= per_sample:
+                    latest[(log.sample_no, log.measure_no)] = log.result
+            results = list(latest.values())
+            rec.reading_total = samples * per_sample
+            rec.pass_count = results.count('pass')
+            rec.oos_count = results.count('out_of_spec')
+            rec.fail_count = results.count('fail')
+            rec.pending_count = max(rec.reading_total - rec.pass_count
+                                    - rec.oos_count - rec.fail_count, 0)
+            if rec.oos_count or rec.fail_count:
+                rec.test_result = 'fail'
+            elif rec.pending_count or not rec.reading_total:
+                rec.test_result = 'pending'
+            else:
+                rec.test_result = 'pass'
 
     @api.depends('limit_type', 'lsl_numeric', 'usl_numeric', 'uom_text',
                  'lsl_text', 'usl_text', 'target_text')
@@ -357,6 +429,27 @@ class RmQcInspectionLog(models.Model):
         ('pending', 'Pending'), ('pass', 'Within Spec'),
         ('out_of_spec', 'Out of Spec'), ('fail', 'Failed')],
         string='Evaluation', compute='_compute_result', store=True)
+    # Stored context for analysis (pivot / graph by vendor, product, batch, test)
+    check_id = fields.Many2one(related='parameter_id.quality_check_id', store=True,
+                               index=True, string='Inspection')
+    test_name = fields.Char(related='parameter_id.name', store=True, string='Test')
+    product_id = fields.Many2one(related='parameter_id.quality_check_id.product_id',
+                                 store=True, string='Product')
+    picking_id = fields.Many2one(related='parameter_id.quality_check_id.picking_id',
+                                 store=True, string='Receipt')
+    partner_id = fields.Many2one(related='parameter_id.quality_check_id.picking_id.partner_id',
+                                 store=True, string='Vendor')
+    batch_reference = fields.Char(
+        related='parameter_id.quality_check_id.rm_qc_batch_reference',
+        store=True, string='Lot / Batch')
+    inspection_date = fields.Datetime(related='parameter_id.quality_check_id.rm_qc_date',
+                                      store=True, string='Inspection Date')
+    inspector_id = fields.Many2one(related='parameter_id.quality_check_id.rm_qc_inspector_id',
+                                   store=True, string='Inspector')
+    check_state = fields.Selection(related='parameter_id.quality_check_id.quality_state',
+                                   store=True, string='Inspection Status')
+    scope = fields.Selection(related='parameter_id.quality_check_id.rm_qc_scope',
+                             store=True, string='QC Scope')
 
     @api.depends('parameter_id', 'parameter_id.defect_ids')
     def _compute_allowed_defect_ids(self):

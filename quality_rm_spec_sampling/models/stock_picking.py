@@ -12,12 +12,28 @@ class StockPicking(models.Model):
     rm_qc_check_ids = fields.One2many('quality.check', 'picking_id', string='Quality Checks')
     rm_qc_state = fields.Selection([
         ('none', 'No RM QC'),
+        ('no_lot', 'Lot No. Missing'),
         ('pending', 'QC Pending'),
         ('in_progress', 'QC In Progress'),
         ('fail', 'QC Failed'),
         ('pass', 'QC Passed'),
     ], string='RM QC Status', compute='_compute_rm_qc_state', store=True, index=True,
         default='none')
+
+    rm_qc_pass_count = fields.Integer(string='QC Pass', compute='_compute_rm_qc_counts')
+    rm_qc_oos_count = fields.Integer(string='QC Out of Spec', compute='_compute_rm_qc_counts')
+    rm_qc_fail_count = fields.Integer(string='QC Fail', compute='_compute_rm_qc_counts')
+    rm_qc_pending_count = fields.Integer(string='QC Pending', compute='_compute_rm_qc_counts')
+
+    @api.depends('rm_qc_check_ids.rm_qc_pass_count', 'rm_qc_check_ids.rm_qc_oos_count',
+                 'rm_qc_check_ids.rm_qc_fail_count', 'rm_qc_check_ids.rm_qc_pending_count')
+    def _compute_rm_qc_counts(self):
+        for picking in self:
+            checks = picking.rm_qc_check_ids.filtered('rm_qc_specification_id')
+            picking.rm_qc_pass_count = sum(checks.mapped('rm_qc_pass_count'))
+            picking.rm_qc_oos_count = sum(checks.mapped('rm_qc_oos_count'))
+            picking.rm_qc_fail_count = sum(checks.mapped('rm_qc_fail_count'))
+            picking.rm_qc_pending_count = sum(checks.mapped('rm_qc_pending_count'))
 
     # ------------------------------------------------------------------
     # What needs inspecting on this receipt
@@ -88,6 +104,8 @@ class StockPicking(models.Model):
             checks = [by_key.get((product.id, lot_name)) for product, lot_name in rows]
             if any(check and check.quality_state == 'fail' for check in checks):
                 picking.rm_qc_state = 'fail'
+            elif any(not lot_name for _product, lot_name in rows):
+                picking.rm_qc_state = 'no_lot'
             elif not all(checks):
                 picking.rm_qc_state = 'pending'
             elif all(check.quality_state == 'pass' for check in checks):
@@ -141,14 +159,25 @@ class StockPicking(models.Model):
             if picking.picking_type_id.code != 'incoming':
                 raise UserError(_('RM QC checks can only be generated from incoming receipts.'))
             picking._rm_qc_assign_typed_lots()
-            rows = []
+            rows, missing = [], []
+            untracked = picking.move_ids.filtered(
+                lambda m: m.state != 'cancel' and m.product_id.rm_qc_required
+                and m.product_id.tracking == 'none').product_id
+            if untracked:
+                raise UserError(_(
+                    'Set Tracking = "By Lots" on %s. QC-required raw material is received '
+                    'and inspected batch-wise.') % ', '.join(untracked.mapped('display_name')))
             for move in picking.move_ids.filtered(
                     lambda m: m.state != 'cancel' and m.product_id.rm_qc_required):
-                lines = move.move_line_ids.filtered(lambda m: m.lot_id)
-                if lines:
-                    rows.extend([(move.product_id, ml.lot_id) for ml in lines])
-                else:
-                    rows.append((move.product_id, False))
+                lines = move.move_line_ids.filtered(lambda ml: ml.quantity > 0) or move.move_line_ids
+                if not lines or any(not ml.lot_id for ml in lines):
+                    missing.append(move.product_id.display_name)
+                rows.extend((move.product_id, ml.lot_id) for ml in lines if ml.lot_id)
+            if missing:
+                raise UserError(_(
+                    'Receipt %(receipt)s: enter the Lot / Batch number for %(products)s '
+                    'first. RM QC is done batch-wise.'
+                ) % {'receipt': picking.name, 'products': ', '.join(sorted(set(missing)))})
             seen = set()
             for product, lot in rows:
                 key = (product.id, lot.id if lot else False)

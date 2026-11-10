@@ -1,4 +1,4 @@
-"""19.0.1.0.17: limit types, catalog errors per test, auto pass, lot_name
+"""19.0.1.0.17-18: limit types, catalog errors per test, auto pass, mandatory lot
 batches and the receipt validation gate (Odoo 19 runtime tests)."""
 
 from odoo.exceptions import UserError, ValidationError
@@ -48,7 +48,7 @@ class TestRmQcReceiptFlow(TransactionCase):
             lambda l: l.limit_type in ('pct', 'abs')).write({'target_numeric': 12.0})
         self.spec.action_approve()
 
-    def _receipt(self, product=None):
+    def _receipt(self, product=None, lot_name='PET-B001'):
         product = product or self.product
         picking = self.env['stock.picking'].create({
             'picking_type_id': self.picking_type.id,
@@ -66,6 +66,17 @@ class TestRmQcReceiptFlow(TransactionCase):
             'location_id': picking.location_id.id,
             'location_dest_id': picking.location_dest_id.id,
         })
+        if lot_name:
+            picking.action_confirm()
+            move = picking.move_ids
+            move.move_line_ids.unlink()
+            self.env['stock.move.line'].create({
+                'move_id': move.id, 'picking_id': picking.id,
+                'product_id': product.id, 'product_uom_id': product.uom_id.id,
+                'location_id': move.location_id.id,
+                'location_dest_id': move.location_dest_id.id,
+                'lot_name': lot_name, 'quantity': 1.0,
+            })
         return picking
 
     @staticmethod
@@ -140,7 +151,6 @@ class TestRmQcReceiptFlow(TransactionCase):
     def test_unfinished_qc_blocks_validation_and_creates_check(self):
         self._activate()
         picking = self._receipt()
-        picking.action_confirm()
         result = picking.button_validate()
         self.assertIsInstance(result, dict)
         self.assertEqual(result.get('tag'), 'display_notification')
@@ -150,7 +160,6 @@ class TestRmQcReceiptFlow(TransactionCase):
     def test_failed_qc_blocks_validation(self):
         self._activate()
         picking = self._receipt()
-        picking.action_confirm()
         picking.action_rm_qc_create_checks()
         check = picking.rm_qc_check_ids.filtered('rm_qc_specification_id')
         check.do_fail()
@@ -158,33 +167,51 @@ class TestRmQcReceiptFlow(TransactionCase):
         with self.assertRaises(UserError):
             picking.button_validate()
 
-    def test_typed_lot_number_becomes_batch_inspection(self):
-        template = self.product.product_tmpl_id
-        values = {'tracking': 'lot'}
-        if 'is_storable' in template._fields:
-            values['is_storable'] = True
-        template.write(values)
+    def test_qc_required_product_is_lot_tracked(self):
+        self.assertEqual(self.product.tracking, 'lot')
+        with self.assertRaises(ValidationError):
+            self.product.product_tmpl_id.tracking = 'none'
+
+    def test_missing_lot_number_blocks_qc(self):
         self._activate()
-        picking = self._receipt()
-        picking.action_confirm()
-        move = picking.move_ids
-        move.move_line_ids.unlink()
-        self.env['stock.move.line'].create({
-            'move_id': move.id,
-            'picking_id': picking.id,
-            'product_id': self.product.id,
-            'product_uom_id': self.product.uom_id.id,
-            'location_id': move.location_id.id,
-            'location_dest_id': move.location_dest_id.id,
-            'lot_name': 'PET-B001',
-            'quantity': 1.0,
-        })
+        picking = self._receipt(lot_name=False)
+        self.assertEqual(picking.rm_qc_state, 'no_lot')
+        with self.assertRaises(UserError):
+            picking.action_rm_qc_create_checks()
+
+    def test_typed_lot_number_becomes_batch_inspection(self):
+        self._activate()
+        picking = self._receipt(lot_name='PET-B001')
         self.assertEqual(picking.rm_qc_state, 'pending')
         picking.action_rm_qc_create_checks()
         check = picking.rm_qc_check_ids.filtered('rm_qc_specification_id')
         self.assertEqual(len(check), 1)
         self.assertEqual(check.lot_ids.mapped('name'), ['PET-B001'])
-        self.assertEqual(move.move_line_ids.lot_id, check.lot_ids)
+        self.assertEqual(picking.move_ids.move_line_ids.lot_id, check.lot_ids)
         # Running it again does not create a second inspection.
         picking.action_rm_qc_create_checks()
         self.assertEqual(len(picking.rm_qc_check_ids.filtered('rm_qc_specification_id')), 1)
+
+    def test_counts_pass_out_of_spec_fail(self):
+        self._activate()
+        picking = self._receipt()
+        picking.action_rm_qc_create_checks()
+        check = picking.rm_qc_check_ids.filtered('rm_qc_specification_id')
+        thickness = check.rm_qc_parameter_line_ids.filtered(
+            lambda p: p.name == 'Film Thickness / Caliper')
+        rm001 = self.env['rm.qc.defect'].search([('code', '=', 'RM001')])
+        logs = thickness.log_ids
+        logs[0].write({'value_text': '12.0'})
+        logs[1].write({'value_text': '13.5', 'defect_id': rm001.id})
+        self.assertEqual(thickness.pass_count, 1)
+        self.assertEqual(thickness.oos_count, 1)
+        self.assertEqual(thickness.pending_count, thickness.reading_total - 2)
+        self.assertEqual(thickness.test_result, 'fail')
+        self.assertEqual(check.rm_qc_pass_count, 1)
+        self.assertEqual(check.rm_qc_oos_count, 1)
+        self.assertEqual(check.rm_qc_test_fail_count, 1)
+        self.assertEqual(picking.rm_qc_oos_count, 1)
+        analysis = self.env['rm.qc.inspection.log'].search([
+            ('picking_id', '=', picking.id), ('result', '=', 'out_of_spec')])
+        self.assertEqual(analysis.batch_reference, 'PET-B001')
+        self.assertEqual(analysis.test_name, 'Film Thickness / Caliper')

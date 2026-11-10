@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from .master import MATERIAL_TYPES
 
 
@@ -131,8 +131,24 @@ class ProductTemplate(models.Model):
             if stale:
                 stale.write({'active': False})
 
+    # Incoming RM always arrives with a lot / batch number, and QC is batch-wise.
+    def _rm_qc_lot_tracking_values(self):
+        values = {'tracking': 'lot'}
+        if 'is_storable' in self._fields:
+            values['is_storable'] = True
+        return values
+
+    @api.onchange('rm_qc_required')
+    def _onchange_rm_qc_required_tracking(self):
+        for product in self:
+            if product.rm_qc_required and product.tracking == 'none':
+                product.update(product._rm_qc_lot_tracking_values())
+
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('rm_qc_required') and vals.get('tracking', 'none') == 'none':
+                vals.update(self._rm_qc_lot_tracking_values())
         products = super().create(vals_list)
         products._sync_rm_qc_property_lines()
         return products
@@ -141,7 +157,19 @@ class ProductTemplate(models.Model):
         result = super().write(vals)
         if 'rm_qc_material_type' in vals:
             self._sync_rm_qc_property_lines()
+        if vals.get('rm_qc_required') and 'tracking' not in vals:
+            untracked = self.filtered(lambda p: p.tracking == 'none')
+            if untracked:
+                super(ProductTemplate, untracked).write(self._rm_qc_lot_tracking_values())
         return result
+
+    @api.constrains('rm_qc_required', 'tracking')
+    def _check_rm_qc_lot_tracking(self):
+        for product in self:
+            if product.rm_qc_required and product.tracking == 'none':
+                raise ValidationError(_(
+                    '%s: QC-required raw material must be tracked by Lot, because '
+                    'it is received and inspected batch-wise.') % product.display_name)
 
     @api.onchange('rm_qc_material_type')
     def _onchange_rm_qc_material_type_properties(self):

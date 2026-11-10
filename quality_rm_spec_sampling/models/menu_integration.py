@@ -110,6 +110,7 @@ class IrUiMenu(models.Model):
         submenus = menus.search([('parent_id', '=', quality_root.id)])
         control = submenus.filtered(lambda m: m.name == 'Quality Control')[:1] or quality_root
         config = submenus.filtered(lambda m: m.name == 'Configuration')[:1] or quality_root
+        reporting = submenus.filtered(lambda m: m.name == 'Reporting')[:1] or control
 
         def move(short_id, new_parent, position):
             menu = self._rm_qc_menu(short_id)
@@ -131,6 +132,7 @@ class IrUiMenu(models.Model):
             ('menu_rm_qc_spec', control, 40),
             ('menu_rm_qc_pending', control, 42),
             ('menu_rm_qc_quality_checks', control, 45),
+            ('menu_rm_qc_analysis', reporting, 50),
             ('menu_rm_qc_parameters', config, 80),
             ('menu_rm_qc_defects', config, 81),
             ('menu_rm_qc_uom', config, 84),

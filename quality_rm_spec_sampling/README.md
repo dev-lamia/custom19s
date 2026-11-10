@@ -1,3 +1,9 @@
+**19.0.1.0.18 (2026-11-10) — mandatory lot number and result counts**
+
+- Material for QC-required products is received only with a lot number; QC is per lot.
+- Every inspection shows **Readings / Pass / Out of Spec / Fail / Pending** and **Tests OK / Not OK**. *Out of Spec* = number outside the TDS range (automatic); *Fail* = visual test marked Fail by the inspector.
+- **Quality → Reporting → RM QC Analysis** counts readings by test, lot, product, vendor, receipt, catalog error or month.
+
 **19.0.1.0.17 (2026-11-10) — easier limits, catalog errors, pending list, validation gate**
 
 - **QC Controller (TDS):** each test has a *Limit Type*. For `± %` choose the % and type the Target; for `± Fixed amount` type the amount and Target; for `Fixed Min / Max` type Min and Max. Min/Max are calculated instantly. Red rows still need a Target. Choose the *Catalog Errors* that apply to each test.

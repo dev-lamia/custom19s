@@ -41,6 +41,21 @@ class TestNoDuplicateReceiptQC(TransactionCase):
             'location_id': self.picking.location_id.id,
             'location_dest_id': self.picking.location_dest_id.id,
         })
+        # Incoming RM always arrives with a lot number (QC is batch-wise).
+        self.assertEqual(self.product.tracking, 'lot')
+        self.lot = self.env['stock.lot'].create({
+            'name': 'DEDUP-L1', 'product_id': self.product.id,
+            'company_id': self.env.company.id,
+        })
+        self.picking.action_confirm()
+        move = self.picking.move_ids
+        move.move_line_ids.unlink()
+        self.env['stock.move.line'].create({
+            'move_id': move.id, 'picking_id': self.picking.id,
+            'product_id': self.product.id, 'product_uom_id': self.product.uom_id.id,
+            'location_id': move.location_id.id, 'location_dest_id': move.location_dest_id.id,
+            'lot_id': self.lot.id, 'quantity': 1.0,
+        })
 
     def _make_active_specification(self):
         spec = self.env['rm.qc.specification'].create({
@@ -57,7 +72,7 @@ class TestNoDuplicateReceiptQC(TransactionCase):
         return self.env['quality.check'].search([
             ('picking_id', '=', self.picking.id),
             ('product_id', '=', self.product.id),
-            ('lot_ids', '=', False),
+            ('lot_ids', 'in', [self.lot.id]),
         ])
 
     def test_repeat_button_reuses_existing_check(self):
@@ -88,6 +103,7 @@ class TestNoDuplicateReceiptQC(TransactionCase):
                 'measure_on': 'product',
                 'rm_qc_scope': 'incoming',
                 'rm_qc_specification_id': self.spec.id,
+                'lot_ids': [(6, 0, [self.lot.id])],
                 'company_id': self.env.company.id,
             })
         self.assertEqual(len(self._matching_checks()), 1)
@@ -99,6 +115,7 @@ class TestNoDuplicateReceiptQC(TransactionCase):
             'picking_id': self.picking.id,
             'test_type_id': self.test_type.id,
             'measure_on': 'product',
+            'lot_ids': [(6, 0, [self.lot.id])],
             'company_id': self.env.company.id,
         })
         self.picking.action_rm_qc_create_checks()

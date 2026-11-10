@@ -52,6 +52,12 @@
             <div class="o_rm_qc_sub" style="max-width: 24rem;">
               <field name="progress" widget="progressbar"/>
             </div>
+            <div class="d-flex flex-wrap gap-2 mt-1">
+              <span class="badge rounded-pill text-bg-success fw-normal">Pass <b><field name="pass_count" class="oe_inline"/></b></span>
+              <span class="badge rounded-pill text-bg-danger fw-normal">Out of Spec <b><field name="oos_count" class="oe_inline"/></b></span>
+              <span class="badge rounded-pill text-bg-danger fw-normal">Fail <b><field name="fail_count" class="oe_inline"/></b></span>
+              <span class="badge rounded-pill text-bg-secondary fw-normal">Pending <b><field name="pending_count" class="oe_inline"/></b></span>
+            </div>
           </div>
 
           <group>
@@ -156,6 +162,16 @@
         <field name="rm_qc_specification_id" string="QC Standard" optional="hide"/>
         <field name="rm_qc_inspector_id" widget="many2one_avatar_user" optional="show"/>
         <field name="rm_qc_progress" widget="progressbar" string="Progress"/>
+        <field name="rm_qc_reading_total" string="Readings" optional="show"/>
+        <field name="rm_qc_pass_count" string="Pass" optional="show"
+               decoration-success="rm_qc_pass_count &gt; 0"/>
+        <field name="rm_qc_oos_count" string="Out of Spec" optional="show"
+               decoration-danger="rm_qc_oos_count &gt; 0"/>
+        <field name="rm_qc_fail_count" string="Fail" optional="show"
+               decoration-danger="rm_qc_fail_count &gt; 0"/>
+        <field name="rm_qc_pending_count" string="Pending" optional="show"
+               decoration-muted="rm_qc_pending_count &gt; 0"/>
+        <field name="rm_qc_test_fail_count" string="Tests Not OK" optional="hide"/>
         <field name="quality_state" widget="badge" string="Status"
                decoration-info="quality_state == 'none'"
                decoration-success="quality_state == 'pass'"
@@ -282,6 +298,23 @@
             </group>
           </group>
 
+          <div class="o_rm_qc_summary d-flex flex-wrap gap-2 mb-3" invisible="not rm_qc_reading_total">
+            <span class="badge rounded-pill text-bg-light border fs-6 fw-normal">
+              Readings <b><field name="rm_qc_reading_total" class="oe_inline"/></b></span>
+            <span class="badge rounded-pill text-bg-success fs-6 fw-normal">
+              Pass <b><field name="rm_qc_pass_count" class="oe_inline"/></b></span>
+            <span class="badge rounded-pill text-bg-danger fs-6 fw-normal">
+              Out of Spec <b><field name="rm_qc_oos_count" class="oe_inline"/></b></span>
+            <span class="badge rounded-pill text-bg-danger fs-6 fw-normal">
+              Fail <b><field name="rm_qc_fail_count" class="oe_inline"/></b></span>
+            <span class="badge rounded-pill text-bg-secondary fs-6 fw-normal">
+              Pending <b><field name="rm_qc_pending_count" class="oe_inline"/></b></span>
+            <span class="badge rounded-pill text-bg-light border fs-6 fw-normal">
+              Tests OK <b><field name="rm_qc_test_pass_count" class="oe_inline"/></b>
+              / Not OK <b><field name="rm_qc_test_fail_count" class="oe_inline"/></b>
+              of <field name="rm_qc_test_total" class="oe_inline"/></span>
+          </div>
+
           <div class="alert alert-danger py-2" role="alert"
                invisible="rm_qc_failed_count == 0 or quality_state in ('pass', 'fail')">
             <field name="rm_qc_failed_count" class="oe_inline fw-bold"/>
@@ -302,6 +335,14 @@
               <field name="samples_to_test" string="Samples"/>
               <field name="measurements_per_sample" string="Tests / Sample" optional="hide"/>
               <field name="progress" widget="progressbar"/>
+              <field name="pass_count" string="Pass" decoration-success="pass_count &gt; 0"/>
+              <field name="oos_count" string="Out of Spec" decoration-danger="oos_count &gt; 0"/>
+              <field name="fail_count" string="Fail" decoration-danger="fail_count &gt; 0"/>
+              <field name="pending_count" string="Pending" optional="show"/>
+              <field name="test_result" string="Result" widget="badge"
+                     decoration-success="test_result == 'pass'"
+                     decoration-danger="test_result == 'fail'"
+                     decoration-muted="test_result == 'pending'"/>
               <field name="failed_count" column_invisible="1"/>
               <button name="action_open_measurement_logs" type="object" string="Enter Results"
                       icon="fa-pencil-square-o" class="btn-primary"
@@ -335,6 +376,121 @@
         </sheet>
       </form>
     </field>
+  </record>
+
+  <!-- ================================================================
+       RM QC ANALYSIS (one row per reading)
+       ================================================================ -->
+  <record id="view_rm_qc_log_analysis_list" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.log.analysis.list</field>
+    <field name="model">rm.qc.inspection.log</field>
+    <field name="arch" type="xml">
+      <list string="RM QC Readings" create="false" edit="false" delete="false"
+            decoration-danger="result in ('out_of_spec', 'fail')"
+            decoration-success="result == 'pass'">
+        <field name="inspection_date"/>
+        <field name="picking_id"/>
+        <field name="partner_id" optional="show"/>
+        <field name="product_id"/>
+        <field name="batch_reference"/>
+        <field name="test_name"/>
+        <field name="sample_no" string="Sample"/>
+        <field name="measure_no" string="Test #"/>
+        <field name="value_text" string="Value"/>
+        <field name="result" widget="badge"
+               decoration-success="result == 'pass'"
+               decoration-danger="result in ('out_of_spec', 'fail')"
+               decoration-muted="result == 'pending'"/>
+        <field name="defect_id"/>
+        <field name="check_state" optional="hide"/>
+        <field name="inspector_id" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_log_analysis_pivot" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.log.analysis.pivot</field>
+    <field name="model">rm.qc.inspection.log</field>
+    <field name="arch" type="xml">
+      <pivot string="RM QC Readings" sample="1">
+        <field name="test_name" type="row"/>
+        <field name="result" type="col"/>
+      </pivot>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_log_analysis_graph" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.log.analysis.graph</field>
+    <field name="model">rm.qc.inspection.log</field>
+    <field name="arch" type="xml">
+      <graph string="RM QC Readings" type="bar" stacked="1" sample="1">
+        <field name="test_name"/>
+        <field name="result"/>
+      </graph>
+    </field>
+  </record>
+
+  <record id="view_rm_qc_log_analysis_search" model="ir.ui.view">
+    <field name="name">rm.qc.inspection.log.analysis.search</field>
+    <field name="model">rm.qc.inspection.log</field>
+    <field name="arch" type="xml">
+      <search string="Search RM QC Readings">
+        <field name="product_id"/>
+        <field name="batch_reference"/>
+        <field name="partner_id"/>
+        <field name="picking_id"/>
+        <field name="test_name"/>
+        <field name="defect_id"/>
+        <filter name="entered" string="Entered" domain="[('result', '!=', 'pending')]"/>
+        <separator/>
+        <filter name="res_pass" string="Pass" domain="[('result', '=', 'pass')]"/>
+        <filter name="res_oos" string="Out of Spec" domain="[('result', '=', 'out_of_spec')]"/>
+        <filter name="res_fail" string="Fail" domain="[('result', '=', 'fail')]"/>
+        <filter name="res_bad" string="Not OK (Out of Spec + Fail)"
+                domain="[('result', 'in', ('out_of_spec', 'fail'))]"/>
+        <separator/>
+        <filter name="incoming" string="Incoming RM" domain="[('scope', '=', 'incoming')]"/>
+        <filter name="inspection_date" string="Inspection Date" date="inspection_date"/>
+        <group>
+          <filter name="by_test" string="Test" context="{'group_by': 'test_name'}"/>
+          <filter name="by_result" string="Result" context="{'group_by': 'result'}"/>
+          <filter name="by_defect" string="Catalog Error" context="{'group_by': 'defect_id'}"/>
+          <filter name="by_product" string="Product" context="{'group_by': 'product_id'}"/>
+          <filter name="by_batch" string="Lot / Batch" context="{'group_by': 'batch_reference'}"/>
+          <filter name="by_vendor" string="Vendor" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_receipt" string="Receipt" context="{'group_by': 'picking_id'}"/>
+          <filter name="by_month" string="Month" context="{'group_by': 'inspection_date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_rm_qc_analysis" model="ir.actions.act_window">
+    <field name="name">RM QC Analysis</field>
+    <field name="res_model">rm.qc.inspection.log</field>
+    <field name="view_mode">pivot,graph,list</field>
+    <field name="search_view_id" ref="view_rm_qc_log_analysis_search"/>
+    <field name="context">{'search_default_entered': 1, 'search_default_incoming': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No readings yet</p>
+      <p>Every reading entered in an RM inspection appears here: count Pass, Out of Spec and
+         Fail by test, product, lot, vendor or catalog error.</p>
+    </field>
+  </record>
+  <record id="action_rm_qc_analysis_pivot" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_analysis"/>
+    <field name="view_mode">pivot</field><field name="view_id" ref="view_rm_qc_log_analysis_pivot"/>
+    <field name="sequence">1</field>
+  </record>
+  <record id="action_rm_qc_analysis_graph" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_analysis"/>
+    <field name="view_mode">graph</field><field name="view_id" ref="view_rm_qc_log_analysis_graph"/>
+    <field name="sequence">2</field>
+  </record>
+  <record id="action_rm_qc_analysis_list" model="ir.actions.act_window.view">
+    <field name="act_window_id" ref="action_rm_qc_analysis"/>
+    <field name="view_mode">list</field><field name="view_id" ref="view_rm_qc_log_analysis_list"/>
+    <field name="sequence">3</field>
   </record>
 
   <!-- ================================================================
