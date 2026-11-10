@@ -1,3 +1,15 @@
+## [19.0.1.0.22] - 2026-11-10
+
+### Fixed
+- Incoming RM inspection samples now follow the actual unique Lot/Serial numbers (one sample per lot). The number of tests/readings per sample remains unchanged from the active QC Standard.
+- Each receipt-generated inspection is already tied to a single lot, so it requires one sample, not the master template's per-pallet default. Checks covering several lots use their selected Lot/Serial count; lotless native checks consult the receipt's numbered move lines.
+- Opening a pending measurement form updates the sample count and discards only surplus **empty** generated rows; previously recorded readings are never removed or rewritten. Completed inspections remain untouched.
+- Incoming sample count is now read-only for inspectors; production sample count remains editable.
+
+### Compatibility
+- The Excel sampling description is retained as reference, but the **number of samples** for incoming RM is overridden by actual Lot/Serial count, as explicitly requested. This may differ from the workbook's sample-size/AQL rules; the QC manager should verify the sampling policy before production use.
+- Python syntax and XML structure validated offline; not tested in a running Odoo 19 database.
+
 - 19.0.1.0.21: Removed helper banners from QC specification forms and refreshed UI with a clean light-green professional theme.
 ## [19.0.1.0.20] - 2026-11-10
 

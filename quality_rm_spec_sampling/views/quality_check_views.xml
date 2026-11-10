@@ -44,6 +44,7 @@
         <header>
           <button name="action_generate_measurements" type="object"
                   string="Add Missing Rows" class="btn-secondary"
+                  invisible="inspection_scope == 'incoming'"
                   help="Use this after changing the number of samples."/>
         </header>
         <sheet>
@@ -60,6 +61,10 @@
             </div>
           </div>
 
+          <div class="o_rm_qc_lot_hint" invisible="inspection_scope != 'incoming'">
+            Samples follow the actual Lot/Serial numbers on this receipt.
+            Tests per sample are kept from the configured QC Standard.
+          </div>
           <group>
             <group string="Allowed range (from TDS)">
               <field name="limit_display" string="Allowed" class="fw-bold"/>
@@ -72,7 +77,12 @@
               <field name="usl_text" invisible="1"/>
             </group>
             <group string="How many to check">
-              <field name="samples_to_test" string="Samples to check"/>
+              <field name="inspection_scope" invisible="1"/>
+              <field name="samples_to_test" string="Lot / Serial samples"
+                     readonly="inspection_scope == 'incoming'"
+                     invisible="inspection_scope != 'incoming'"/>
+              <field name="samples_to_test" string="Samples to check"
+                     invisible="inspection_scope == 'incoming'"/>
               <field name="measurements_per_sample" string="Tests per sample"/>
               <field name="sample_size" string="Sampling rule"/>
               <field name="limit_mode" invisible="1"/>

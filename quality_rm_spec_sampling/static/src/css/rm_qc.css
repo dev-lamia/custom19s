@@ -118,3 +118,14 @@
         font-size: 1.15rem;
     }
 }
+
+/* Lot-based incoming inspection hint */
+.o_rm_qc_lot_hint {
+    padding: .6rem .8rem;
+    margin: .35rem 0 .85rem;
+    border-left: 3px solid #3c9572;
+    background: #f0faf4;
+    color: #285940;
+    border-radius: 6px;
+    font-size: .91rem;
+}

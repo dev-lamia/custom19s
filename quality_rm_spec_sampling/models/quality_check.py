@@ -122,6 +122,44 @@ class QualityCheck(models.Model):
         for rec in self:
             rec.rm_qc_batch_reference = ', '.join(rec.lot_ids.mapped('name'))
 
+    def _rm_qc_actual_lot_count(self):
+        """Actual unique receipt Lot/Serial count for this check's product.
+
+        Receipt-generated checks normally contain exactly one lot. A manual
+        check covering several lots uses its selected ``lot_ids``. If the
+        native check was created without lots, look at the receipt move lines
+        instead of using the master template's unrelated default sample count.
+        """
+        self.ensure_one()
+        if self.rm_qc_scope != 'incoming' or not self.picking_id:
+            return None
+        if self.lot_ids:
+            return len(self.lot_ids)
+
+        moves = self.picking_id.move_ids.filtered(
+            lambda m: m.state != 'cancel' and m.product_id == self.product_id)
+        lines = moves.mapped('move_line_ids')
+        qty_lines = lines.filtered(lambda line: line.quantity > 0)
+        if qty_lines:
+            lines = qty_lines
+        if not lines:
+            raise UserError(_(
+                'Enter the received Lot/Serial numbers for %(product)s on '
+                '%(receipt)s before starting QC.'
+            ) % {'product': self.product_id.display_name,
+                 'receipt': self.picking_id.name})
+        missing = lines.filtered(lambda line: not (line.lot_id or line.lot_name))
+        if missing:
+            raise UserError(_(
+                'Some received lines for %(product)s on %(receipt)s have no '
+                'Lot/Serial number. Enter them first.'
+            ) % {'product': self.product_id.display_name,
+                 'receipt': self.picking_id.name})
+        unique_lots = {
+            line.lot_id.name or line.lot_name for line in lines
+        }
+        return len(unique_lots)
+
     def action_rm_qc_load_specification(self):
         """Populate snapshots only; never overwrite recorded test results."""
         for rec in self:
@@ -142,6 +180,8 @@ class QualityCheck(models.Model):
                 raise UserError(_('Selected specification does not match this product/scope.'))
             if rec.rm_qc_parameter_line_ids:
                 raise UserError(_('Inspection parameters already exist; measurements will not be overwritten.'))
+            # One sample per actual Lot/Serial; production keeps its standard plan.
+            lot_count = rec._rm_qc_actual_lot_count()
             commands = [fields.Command.create({
                 'spec_line_id': line.id,
                 'name': line.name,
@@ -157,7 +197,7 @@ class QualityCheck(models.Model):
                 'inspection_method': line.inspection_method,
                 'lot_size': line.lot_size,
                 'sample_size': line.sample_size,
-                'samples_to_test': line.sample_count,
+                'samples_to_test': lot_count if lot_count is not None else line.sample_count,
                 'measurements_per_sample': line.measurements_per_sample,
                 'sample_method': line.sample_method,
                 'inspection_level': line.inspection_level,
@@ -250,8 +290,11 @@ class RmQcInspectionParameter(models.Model):
     inspection_method = fields.Char(string='Inspection Method', readonly=True)
     lot_size = fields.Char(string='Base Inspection Lot Size', readonly=True)
     sample_size = fields.Char(string='Sampling Rule', readonly=True)
+    inspection_scope = fields.Selection(related='quality_check_id.rm_qc_scope',
+                                        readonly=True, string='Inspection Scope')
     samples_to_test = fields.Integer(string='Actual Samples to Test', default=1,
-                                     help='Set this using actual pallets/rolls/batch size.')
+                                     help='Incoming QC: counted from receipt Lot/Serial numbers; '
+                                          'production: configured sample count.')
     measurements_per_sample = fields.Integer(string='Measurements per Sample', default=1,
                                              readonly=True)
     sample_method = fields.Char(string='Sample Method', readonly=True)
@@ -345,9 +388,40 @@ class RmQcInspectionParameter(models.Model):
             if rec.samples_to_test < 1 or rec.samples_to_test > 1000:
                 raise ValidationError(_('Samples to Test must be 1–1000.'))
 
+    def _rm_qc_sync_received_lot_samples(self):
+        """Update pending incoming inspections to use real lot counts.
+
+        Preserve recorded measurements. Only blank, automatically generated
+        rows outside the corrected sample count can be removed safely. Do not
+        change production inspection plans or passed/failed inspections.
+        """
+        for rec in self:
+            check = rec.quality_check_id
+            if (not check or check.rm_qc_scope != 'incoming' or
+                    not check.picking_id or check.quality_state in ('pass', 'fail')):
+                continue
+            count = check._rm_qc_actual_lot_count()
+            if count == rec.samples_to_test:
+                # Also repair old pending checks that have missing blank rows.
+                rec.action_generate_measurements()
+                continue
+            # Never discard actual QC observations on old rows. An inspector
+            # can review them manually when the receipt's lot plan changes.
+            surplus = rec.log_ids.filtered(lambda log: log.sample_no > count)
+            blank = surplus.filtered(
+                lambda log: not (log.value_text or log.manual_result or
+                                 log.defect_id or log.observation))
+            if blank:
+                blank.with_context(rm_qc_defer_autopass=True).unlink()
+            rec.with_context(rm_qc_defer_autopass=True).write({
+                'samples_to_test': count,
+            })
+            rec.action_generate_measurements()
+
     def action_open_measurement_logs(self):
-        """Open the relevant TDS property directly from the QC summary list."""
+        """Open readings with the current receipt's Lot/Serial sample count."""
         self.ensure_one()
+        self._rm_qc_sync_received_lot_samples()
         return {
             'type': 'ir.actions.act_window',
             'name': _('Sample Measurements - %s') % self.name,
