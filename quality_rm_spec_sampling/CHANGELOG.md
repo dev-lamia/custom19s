@@ -1,3 +1,13 @@
+## [19.0.1.0.19] - 2026-11-10
+
+### Changed
+- **QC test form redesigned** (opened from a QC Standard's Tests list). Previously Odoo generated a default form showing every technical and legacy field. The new form has four sections:
+  1. *Limit*: how it is judged, unit, and only the inputs that limit type needs (Target and ± % / ± amount, or Min / Max), a large **Allowed range** box, and the original TDS text in one muted line.
+  2. *Catalog errors for this test*: tags.
+  3. *Sampling*: samples per lot, readings per sample, **total readings per lot**, sampling rule, where to sample, inspection lot.
+  4. *Inspection*: method, level / AQL, frequency, source master test.
+- Legacy Nominal fields, Assessment Mode and Sequence are no longer shown. A *Locked* ribbon appears and every field is read-only once the standard is active.
+
 ## [19.0.1.0.18] - 2026-11-10
 
 ### Added

@@ -333,61 +333,6 @@
                   <field name="inspection_frequency" optional="hide"/>
                   <field name="limit_mode" column_invisible="1"/>
                 </list>
-                <form string="Test &amp; Sampling Rule">
-                  <sheet>
-                    <group string="Test and limits" col="2">
-                      <group>
-                        <field name="name"/>
-                        <field name="uom_id" string="Unit"/>
-                        <field name="limit_type"/>
-                        <field name="target_numeric" string="Target"
-                               invisible="limit_type not in ('pct', 'abs')"
-                               required="limit_type == 'pct'"/>
-                        <field name="tolerance_pct" invisible="limit_type != 'pct'"
-                               required="limit_type == 'pct'"/>
-                        <field name="tolerance_abs" invisible="limit_type != 'abs'"/>
-                        <field name="lsl_numeric" string="Min (LSL)"
-                               invisible="limit_type in ('reference', 'max')"
-                               readonly="limit_type not in ('minmax', 'min')"/>
-                        <field name="usl_numeric" string="Max (USL)"
-                               invisible="limit_type in ('reference', 'min')"
-                               readonly="limit_type not in ('minmax', 'max')"/>
-                        <field name="limit_display"/>
-                      </group>
-                      <group string="As written in the TDS / workbook">
-                        <field name="lsl_text" string="Min (text)"/>
-                        <field name="target_text" string="Target (text)"/>
-                        <field name="usl_text" string="Max (text)"/>
-                        <field name="limit_mode" invisible="1"/>
-                      </group>
-                    </group>
-                    <group string="Catalog errors offered to the inspector">
-                      <field name="defect_ids" widget="many2many_tags" nolabel="1" colspan="2"
-                             options="{'no_create': True}" placeholder="Empty = whole catalog"/>
-                    </group>
-                    <group string="Sampling" col="2">
-                      <group>
-                        <field name="sample_size" string="Sampling Rule"/>
-                        <field name="sample_count" string="Default Samples"/>
-                        <field name="measurements_per_sample" string="Tests per Sample"/>
-                      </group>
-                      <group>
-                        <field name="inspection_method"/>
-                        <field name="sample_method"/>
-                        <field name="lot_size"/>
-                      </group>
-                    </group>
-                    <group string="More details" col="2">
-                      <group>
-                        <field name="inspection_frequency"/>
-                        <field name="inspection_level"/>
-                      </group>
-                      <group>
-                        <field name="template_id" readonly="1"/>
-                      </group>
-                    </group>
-                  </sheet>
-                </form>
               </field>
             </page>
             <page string="Notes" name="notes">
@@ -397,6 +342,126 @@
           </notebook>
         </sheet>
         <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- ================================================================
+       ONE TEST OF A QC STANDARD (opened from the Tests list)
+       ================================================================ -->
+  <record id="view_rm_qc_spec_line_form" model="ir.ui.view">
+    <field name="name">rm.qc.specification.line.form</field>
+    <field name="model">rm.qc.specification.line</field>
+    <field name="priority">10</field>
+    <field name="arch" type="xml">
+      <form string="QC Test">
+        <sheet>
+          <widget name="web_ribbon" title="Locked" bg_color="text-bg-secondary"
+                  invisible="spec_state == 'draft'"/>
+          <field name="spec_state" invisible="1"/>
+          <field name="limit_mode" invisible="1"/>
+
+          <div class="oe_title o_rm_qc_title">
+            <label for="name" string="Test"/>
+            <h1><field name="name" placeholder="e.g. Film Thickness"
+                       readonly="spec_state != 'draft'"/></h1>
+            <div class="o_rm_qc_sub">
+              <field name="specification_id" class="oe_inline" readonly="1"
+                     options="{'no_open': True}"/>
+              <span> · </span>
+              <field name="spec_product_id" class="oe_inline" readonly="1"
+                     options="{'no_open': True}"/>
+            </div>
+          </div>
+
+          <!-- 1. LIMIT -->
+          <div class="o_rm_qc_section">1. Limit</div>
+          <group>
+            <group>
+              <field name="limit_type" string="How is it judged?"
+                     readonly="spec_state != 'draft'"/>
+              <field name="uom_id" string="Unit" readonly="spec_state != 'draft'"
+                     options="{'no_open': True}"/>
+            </group>
+            <group>
+              <field name="target_numeric" string="Target"
+                     invisible="limit_type not in ('pct', 'abs')"
+                     required="limit_type == 'pct'"
+                     readonly="spec_state != 'draft'"/>
+              <field name="tolerance_pct" string="± %"
+                     invisible="limit_type != 'pct'" required="limit_type == 'pct'"
+                     readonly="spec_state != 'draft'"/>
+              <field name="tolerance_abs" string="± Amount"
+                     invisible="limit_type != 'abs'"
+                     readonly="spec_state != 'draft'"/>
+              <field name="lsl_numeric" string="Min"
+                     invisible="limit_type not in ('minmax', 'min')"
+                     readonly="spec_state != 'draft'"/>
+              <field name="usl_numeric" string="Max"
+                     invisible="limit_type not in ('minmax', 'max')"
+                     readonly="spec_state != 'draft'"/>
+            </group>
+          </group>
+
+          <div class="o_rm_qc_range" invisible="limit_type == 'reference'">
+            <span class="o_rm_qc_range_label">Allowed range</span>
+            <field name="limit_display" class="o_rm_qc_range_value" readonly="1"/>
+          </div>
+          <div class="alert alert-warning py-2" role="status" invisible="limit_type != 'reference'">
+            Visual / manual test: the inspector writes what was seen and chooses <b>Pass</b> or <b>Fail</b>.
+          </div>
+          <div class="o_rm_qc_tds" invisible="not lsl_text and not target_text and not usl_text">
+            TDS says:
+            Min <field name="lsl_text" class="oe_inline" readonly="1"/> ·
+            Target <field name="target_text" class="oe_inline" readonly="1"/> ·
+            Max <field name="usl_text" class="oe_inline" readonly="1"/>
+          </div>
+
+          <!-- 2. CATALOG ERRORS -->
+          <div class="o_rm_qc_section">2. Catalog errors for this test</div>
+          <field name="defect_ids" widget="many2many_tags" nolabel="1"
+                 options="{'no_create': True}"
+                 placeholder="Choose the errors the inspector may select (empty = whole catalog)"
+                 readonly="spec_state != 'draft'"/>
+
+          <!-- 3. SAMPLING -->
+          <div class="o_rm_qc_section">3. Sampling</div>
+          <group>
+            <group>
+              <field name="sample_count" string="Samples per lot"
+                     readonly="spec_state != 'draft'"/>
+              <field name="measurements_per_sample" string="Readings per sample"
+                     readonly="spec_state != 'draft'"/>
+              <field name="readings_per_lot" string="Total readings per lot"
+                     class="fw-bold" readonly="1"/>
+            </group>
+            <group>
+              <field name="sample_size" string="Sampling rule" placeholder="e.g. 3 Rolls / Pallet"
+                     readonly="spec_state != 'draft'"/>
+              <field name="sample_method" string="Where to sample" placeholder="e.g. Across web width"
+                     readonly="spec_state != 'draft'"/>
+              <field name="lot_size" string="Inspection lot" placeholder="e.g. Inbound lot / shipment"
+                     readonly="spec_state != 'draft'"/>
+            </group>
+          </group>
+
+          <!-- 4. INSPECTION -->
+          <div class="o_rm_qc_section">4. Inspection</div>
+          <group>
+            <group>
+              <field name="inspection_method" string="Method / instrument"
+                     placeholder="e.g. Digital micrometer" readonly="spec_state != 'draft'"/>
+              <field name="inspection_level" string="Level / AQL"
+                     placeholder="e.g. Normal (AQL 1.0)" readonly="spec_state != 'draft'"/>
+            </group>
+            <group>
+              <field name="inspection_frequency" string="Frequency"
+                     placeholder="e.g. Every received batch" readonly="spec_state != 'draft'"/>
+              <field name="template_id" string="From master test" readonly="1"
+                     invisible="not template_id" options="{'no_open': True}"/>
+            </group>
+          </group>
+        </sheet>
       </form>
     </field>
   </record>

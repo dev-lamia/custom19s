@@ -256,6 +256,11 @@ class RmQcSpecificationLine(models.Model):
 
     specification_id = fields.Many2one('rm.qc.specification', string='Specification',
                                        required=True, ondelete='cascade', index=True)
+    spec_state = fields.Selection(related='specification_id.state', string='Standard Status')
+    spec_product_id = fields.Many2one(related='specification_id.product_tmpl_id',
+                                      string='Product')
+    readings_per_lot = fields.Integer(string='Readings per Lot',
+                                      compute='_compute_readings_per_lot')
     sequence = fields.Integer(string='Sequence', default=10)
     template_id = fields.Many2one('rm.qc.parameter.template', string='Master MIC')
     name = fields.Char(string='Test Parameter / MIC', required=True)
@@ -302,6 +307,11 @@ class RmQcSpecificationLine(models.Model):
     def _compute_uom_text(self):
         for rec in self:
             rec.uom_text = rec.uom_id.name if rec.uom_id else rec.uom_text
+
+    @api.depends('sample_count', 'measurements_per_sample')
+    def _compute_readings_per_lot(self):
+        for rec in self:
+            rec.readings_per_lot = (rec.sample_count or 0) * (rec.measurements_per_sample or 0)
 
     @api.depends('limit_type')
     def _compute_limit_mode(self):
