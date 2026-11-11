@@ -84,6 +84,73 @@ class TestNoDuplicateReceiptQC(TransactionCase):
         self.picking.action_rm_qc_create_checks()
         self.assertEqual(self._matching_checks(), check)
 
+
+    def test_standard_dropdown_material_mismatch_rejected_server_side(self):
+        """Wrong product/standard pairs must fail even over RPC/import."""
+        other_product = self.env['product.template'].create({
+            'name': 'Different QC Material',
+            'rm_qc_material_type': 'ink',
+        }).product_variant_id
+        with self.assertRaises(ValidationError):
+            self.env['quality.check'].create({
+                'title': 'Invalid material standard',
+                'product_id': other_product.id,
+                'test_type_id': self.test_type.id,
+                'measure_on': 'product',
+                'rm_qc_scope': 'incoming',
+                'rm_qc_specification_id': self.spec.id,
+                'company_id': self.env.company.id,
+            })
+
+    def test_standard_scope_and_stage_mismatch_rejected(self):
+        """A production check cannot select an incoming or wrong-stage TDS."""
+        with self.assertRaises(ValidationError):
+            self.env['quality.check'].create({
+                'title': 'Invalid standard scope',
+                'product_id': self.product.id,
+                'test_type_id': self.test_type.id,
+                'measure_on': 'product',
+                'rm_qc_scope': 'production',
+                'rm_qc_stage': 'Printing',
+                'rm_qc_specification_id': self.spec.id,
+                'company_id': self.env.company.id,
+            })
+        production_spec = self.env['rm.qc.specification'].create({
+            'product_tmpl_id': self.product.product_tmpl_id.id,
+            'scope': 'production',
+            'process': 'Printing',
+        })
+        with self.assertRaises(ValidationError):
+            self.env['quality.check'].create({
+                'title': 'Invalid standard stage',
+                'product_id': self.product.id,
+                'test_type_id': self.test_type.id,
+                'measure_on': 'product',
+                'rm_qc_scope': 'production',
+                'rm_qc_stage': 'Lamination',
+                'rm_qc_specification_id': production_spec.id,
+                'company_id': self.env.company.id,
+            })
+
+    def test_changing_material_clears_wrong_standard_on_form(self):
+        other_product = self.env['product.template'].create({
+            'name': 'Another QC Material',
+            'rm_qc_material_type': 'solvent',
+        }).product_variant_id
+        check = self.env['quality.check'].new({
+            'title': 'Draft inspection',
+            'product_id': self.product.id,
+            'test_type_id': self.test_type.id,
+            'measure_on': 'product',
+            'rm_qc_scope': 'incoming',
+            'rm_qc_specification_id': self.spec.id,
+            'company_id': self.env.company.id,
+        })
+        self.assertTrue(check._rm_qc_standard_matches_material(self.spec))
+        check.product_id = other_product
+        check._onchange_rm_qc_standard_for_material()
+        self.assertFalse(check.rm_qc_specification_id)
+
     def test_new_standard_keeps_original_inspection(self):
         self.picking.action_rm_qc_create_checks()
         check = self._matching_checks()

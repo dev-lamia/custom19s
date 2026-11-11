@@ -269,8 +269,11 @@
           <widget name="web_ribbon" title="Failed" bg_color="text-bg-danger"
                   invisible="quality_state != 'fail'"/>
 
+          <field name="rm_qc_product_tmpl_id" invisible="1"/>
+          <field name="rm_qc_scope" invisible="1"/>
+          <field name="company_id" invisible="1"/>
           <div class="oe_title o_rm_qc_title">
-            <h1><field name="product_id" placeholder="Product" options="{'no_create': True}"/></h1>
+            <h1><field name="product_id" placeholder="Material / Product" options="{'no_create': True}"/></h1>
             <div class="o_rm_qc_sub"><field name="name" readonly="1"/></div>
           </div>
 
@@ -287,7 +290,15 @@
                      invisible="rm_qc_scope != 'production'"/>
             </group>
             <group>
-              <field name="rm_qc_specification_id" string="QC Standard"/>
+              <field name="rm_qc_specification_id" string="QC Standard"
+                     domain="[('state', '=', 'approved'),
+                              ('product_tmpl_id', '=', rm_qc_product_tmpl_id),
+                              ('scope', '=', rm_qc_scope),
+                              ('company_id', '=', company_id)] +
+                              ([('process', '=', rm_qc_stage)]
+                               if rm_qc_scope == 'production' else [])"
+                     options="{'no_create': True, 'no_create_edit': True}"
+                     placeholder="Select a standard for the chosen material"/>
               <field name="rm_qc_inspector_id" string="Inspector"/>
               <field name="rm_qc_progress" widget="progressbar" string="Results entered"/>
             </group>

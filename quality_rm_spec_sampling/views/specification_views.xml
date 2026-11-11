@@ -14,7 +14,8 @@
                decoration-warning="scope == 'production'"/>
         <field name="process" optional="show"/>
         <field name="category_text" string="Category"/>
-        <field name="item_text" string="Material" optional="show"/>
+        <field name="material_type" string="Material" optional="show"/>
+        <field name="item_text" string="Source Item (Workbook)" optional="hide"/>
         <field name="name" string="Test"/>
         <field name="uom_id" optional="show"/>
         <field name="defect_ids" widget="many2many_tags" optional="show"/>
@@ -31,7 +32,8 @@
     <field name="arch" type="xml">
       <search string="Search Test Templates">
         <field name="name" string="Test"/>
-        <field name="item_text" string="Material"/>
+        <field name="material_type" string="Material"/>
+        <field name="item_text" string="Source Item (Workbook)"/>
         <field name="category_text" string="Category"/>
         <field name="process" string="Production Stage"/>
         <filter name="filter_incoming" string="Incoming Material"
@@ -67,10 +69,11 @@
           <group>
             <group string="Where it applies">
               <field name="scope"/>
-              <field name="material_type" invisible="scope != 'incoming'"/>
+              <field name="material_type" string="Material" invisible="scope != 'incoming'"/>
               <field name="process" invisible="scope != 'production'"/>
               <field name="category_text" string="Category"/>
-              <field name="item_text" string="Material"/>
+              <field name="item_text" string="Source Item (Workbook)"
+                     help="Original workbook description; the Material dropdown controls which incoming tests apply."/>
             </group>
             <group string="Limits (from TDS)">
               <field name="uom_id" string="Unit"/>

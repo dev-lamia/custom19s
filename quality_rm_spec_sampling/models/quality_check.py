@@ -10,6 +10,9 @@ class QualityCheck(models.Model):
     rm_qc_specification_id = fields.Many2one(
         'rm.qc.specification', string='Active QC Standard', index=True,
         domain="[('state','=','approved')]")
+    rm_qc_product_tmpl_id = fields.Many2one(
+        'product.template', string='QC Material',
+        related='product_id.product_tmpl_id', readonly=True)
     rm_qc_scope = fields.Selection([('incoming', 'Incoming RM'), ('production', 'Production')],
                                    string='QC Scope', default='incoming')
     rm_qc_parameter_line_ids = fields.One2many(
@@ -47,6 +50,43 @@ class QualityCheck(models.Model):
                                            compute='_compute_rm_qc_summary', store=True)
     rm_qc_test_fail_count = fields.Integer(string='Tests Not OK',
                                            compute='_compute_rm_qc_summary', store=True)
+
+    def _rm_qc_standard_matches_material(self, standard):
+        """Check the selected product, scope, stage and company, not status.
+
+        Status is excluded so old inspections can keep their archived TDS as
+        a historical reference. New test loading still requires an active TDS.
+        """
+        self.ensure_one()
+        return bool(
+            standard and self.product_id and self.company_id
+            and standard.product_tmpl_id == self.product_id.product_tmpl_id
+            and standard.scope == (self.rm_qc_scope or 'incoming')
+            and standard.company_id == self.company_id
+            and (standard.scope != 'production'
+                 or standard.process == self.rm_qc_stage)
+        )
+
+    @api.onchange('product_id', 'rm_qc_scope', 'rm_qc_stage', 'company_id')
+    def _onchange_rm_qc_standard_for_material(self):
+        """Never leave a standard for a different material on the form."""
+        for check in self:
+            if (check.rm_qc_specification_id
+                    and not check._rm_qc_standard_matches_material(
+                        check.rm_qc_specification_id)):
+                check.rm_qc_specification_id = False
+
+    @api.constrains('product_id', 'rm_qc_specification_id', 'rm_qc_scope',
+                    'rm_qc_stage', 'company_id')
+    def _check_rm_qc_standard_for_material(self):
+        """Enforce matching on RPC/import too, not only in the dropdown."""
+        for check in self.filtered('rm_qc_specification_id'):
+            if not check._rm_qc_standard_matches_material(
+                    check.rm_qc_specification_id):
+                raise ValidationError(_(
+                    'The selected QC Standard does not match the material, '
+                    'inspection scope, production stage or company. '
+                    'Choose an applicable QC Standard for this product.'))
 
     @api.constrains('picking_id', 'product_id', 'lot_ids',
                     'rm_qc_specification_id', 'rm_qc_scope')
@@ -170,14 +210,16 @@ class QualityCheck(models.Model):
             scope = rec.rm_qc_scope or 'incoming'
             spec = rec.rm_qc_specification_id
             if not spec:
-                spec = self.env['rm.qc.specification']._find_approved(
-                    rec.product_id, scope, rec.rm_qc_stage)
+                spec = self.env['rm.qc.specification'].with_company(
+                    rec.company_id)._find_approved(
+                        rec.product_id, scope, rec.rm_qc_stage)
             if not spec:
                 raise UserError(_('No active QC Standard found for this product/stage.'))
             if (spec.state != 'approved' or
-                    spec.product_tmpl_id != rec.product_id.product_tmpl_id or
-                    spec.scope != scope):
-                raise UserError(_('Selected specification does not match this product/scope.'))
+                    not rec._rm_qc_standard_matches_material(spec)):
+                raise UserError(_(
+                    'Select an active QC Standard for this material, scope, '
+                    'production stage and company.'))
             if rec.rm_qc_parameter_line_ids:
                 raise UserError(_('Inspection parameters already exist; measurements will not be overwritten.'))
             # One sample per actual Lot/Serial; production keeps its standard plan.

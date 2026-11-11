@@ -1,3 +1,17 @@
+## [19.0.1.0.23] - 2026-11-11
+
+### Changed
+- Quality Inspection: Material/Product remains an Odoo product dropdown; the QC Standard dropdown is now filtered dynamically by the selected product, incoming/production scope, company and (for production) stage. Only active standards can be selected.
+- Test Templates: display the actual RM Material Type dropdown as **Material**, while retaining the original workbook item description separately as **Source Item (Workbook)**. Source template values and historical references remain unchanged.
+- Changing the material, scope, stage or company clears an incompatible standard on the inspection form.
+
+### Fixed
+- Server-side validation rejects QC Standards belonging to a different material, scope, company or production stage, even when inserted outside the form. Historical checks retain their archived standards.
+- Loading QC tests also verifies the standard's stage/company and resolves automatic standards in the inspection company.
+
+### Validation
+- Python compilation and XML parsing checked offline; automated Odoo tests are provided but require execution on an Odoo 19 instance.
+
 ## [19.0.1.0.22] - 2026-11-10
 
 ### Fixed

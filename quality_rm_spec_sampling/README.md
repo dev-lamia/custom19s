@@ -309,3 +309,9 @@ after all third-party references are reviewed.
 Do **not uninstall** the RM Quality module to remove its PR screen: uninstall
 removes the entire module and its view dependencies. Replace the addon and
 choose **Upgrade** instead.
+
+### Material-dependent QC Standard selection (19.0.1.0.23)
+
+On **Quality Inspection**, select the **Material / Product** first. The **QC Standard** Many2one dropdown offers only *active* standards that match that product, the inspection scope, the company, and for production inspections, the exact production stage. Changing a matching dimension clears an incompatible draft form choice. A Python constraint also prevents saving mismatches via imports/RPC. Archived standards already referenced by historical inspections are preserved. The **Load QC Tests** action validates the same conditions.
+
+Under **Configuration → Test Templates**, **Material** now displays the structured `material_type` selection. **Source Item (Workbook)** retains the original `item_text` column for workbook traceability and film matching. It is not a separate product master.
