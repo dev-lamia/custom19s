@@ -11,8 +11,23 @@ const STATIC_OPERATION_BY_KEY = {
     delete: "unlink",
 };
 
+const RECONCILE_MODELS = new Set([
+    "account.move.line",
+    "account.bank.statement.line",
+    "account.bank.statement",
+]);
+
 patch(ActionMenus.prototype, {
     async _pmGetHiddenBindings(props) {
+        if (!props?.resModel || RECONCILE_MODELS.has(props.resModel)) {
+            return {
+                reports: [],
+                actions: [],
+                hide_action_menu: false,
+                blocked_operations: [],
+                block_spreadsheet: false,
+            };
+        }
         const activeIds = props.getActiveIds ? props.getActiveIds() : [];
         return this.orm.call(
             "permission.manager.model.permission.line",
@@ -22,6 +37,9 @@ patch(ActionMenus.prototype, {
     },
 
     async getActionItems(props) {
+        if (RECONCILE_MODELS.has(props?.resModel)) {
+            return super.getActionItems(...arguments);
+        }
         const items = await super.getActionItems(...arguments);
         const hidden = await this._pmGetHiddenBindings(props);
         if (hidden.hide_action_menu) {
@@ -64,6 +82,9 @@ patch(ActionMenus.prototype, {
     },
 
     async loadAvailablePrintItems() {
+        if (RECONCILE_MODELS.has(this.props?.resModel)) {
+            return super.loadAvailablePrintItems(...arguments);
+        }
         const items = await super.loadAvailablePrintItems(...arguments);
         const hidden = await this._pmGetHiddenBindings(this.props);
         const hiddenReportIds = new Set(hidden.reports || []);

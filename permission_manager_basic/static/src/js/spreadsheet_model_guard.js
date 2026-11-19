@@ -8,6 +8,12 @@ import {
 import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 
+const RECONCILE_MODELS = new Set([
+    "account.move.line",
+    "account.bank.statement.line",
+    "account.bank.statement",
+]);
+
 const HIDDEN_MARKER = "data-pm-spreadsheet-hidden";
 
 function normalize(value) {
@@ -129,7 +135,7 @@ patch(ControlPanel.prototype, {
 
     async _pmIsSpreadsheetBlockedForCurrentModel() {
         const modelName = this._pmSpreadsheetModelName();
-        if (!modelName) {
+        if (!modelName || RECONCILE_MODELS.has(modelName)) {
             return false;
         }
         try {

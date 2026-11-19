@@ -4,9 +4,18 @@ from lxml import etree
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessDenied, AccessError, UserError
-from odoo.osv import expression
 from odoo.tools import sql
 from odoo.tools.safe_eval import safe_eval
+
+
+def _domain_and(domains):
+    """Combine domains with the Odoo 19 Domain API and return legacy list form."""
+    return list(fields.Domain.AND(domains))
+
+
+def _domain_or(domains):
+    """Combine domains with the Odoo 19 Domain API and return legacy list form."""
+    return list(fields.Domain.OR(domains))
 
 
 class PermissionManagerPolicy(models.Model):
@@ -293,7 +302,7 @@ class PermissionManagerPolicy(models.Model):
             (_field("apply_by_user_groups"), "=", True),
             (_field("group_ids"), "in", group_ids),
         ]
-        return expression.OR([direct_user_domain, group_domain])
+        return _domain_or([direct_user_domain, group_domain])
 
     @api.model
     def _company_domain(self, company_ids, field_prefix=None):
@@ -301,7 +310,7 @@ class PermissionManagerPolicy(models.Model):
         def _field(name):
             return f"{field_prefix}.{name}" if field_prefix else name
 
-        return expression.OR(
+        return _domain_or(
             [
                 [(_field("apply_all_companies"), "=", True)],
                 [(_field("company_ids"), "in", list(company_ids or []))],
@@ -313,7 +322,7 @@ class PermissionManagerPolicy(models.Model):
         self, user, company_ids, field_prefix=None
     ):
         """Return assignment + company scope domain for the given user."""
-        return expression.AND(
+        return _domain_and(
             [
                 self._assignment_domain_for_user(user, field_prefix=field_prefix),
                 self._company_domain(company_ids, field_prefix=field_prefix),
@@ -328,7 +337,7 @@ class PermissionManagerPolicy(models.Model):
             return False
 
         company_ids = user.company_ids.ids or user.company_id.ids
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -348,7 +357,7 @@ class PermissionManagerPolicy(models.Model):
             return False
 
         company_ids = user.company_ids.ids or user.company_id.ids
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -365,7 +374,7 @@ class PermissionManagerPolicy(models.Model):
         """Return True when an active policy forces current user read-only."""
         user = self.env.user
         company = self.env.company
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -387,7 +396,7 @@ class PermissionManagerPolicy(models.Model):
         """Return whether the current user's export field browser is hidden."""
         user = self.env.user
         company = self.env.company
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -651,7 +660,7 @@ class PermissionManagerHiddenMenuLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -924,7 +933,7 @@ class PermissionManagerModelPermissionLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        return expression.AND(
+        return _domain_and(
             [
                 [
                     ("model", "=", model_name),
@@ -1049,7 +1058,7 @@ class PermissionManagerModelPermissionLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("hide_model", "=", True),
@@ -1341,7 +1350,7 @@ class PermissionManagerSearchPanelLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        return expression.AND(
+        return _domain_and(
             [
                 [
                     ("model", "=", model_name),
@@ -1435,11 +1444,6 @@ class PermissionManagerFieldPermissionLine(models.Model):
         store=False,
         readonly=True,
     )
-    field_type = fields.Selection(
-        related="field_id.ttype",
-        string="Field Type",
-        readonly=True,
-    )
     active = fields.Boolean(string="Active", default=True)
     enable_attribute_rule = fields.Boolean(
         string="Enable Attribute Rule",
@@ -1496,32 +1500,6 @@ class PermissionManagerFieldPermissionLine(models.Model):
         default="[]",
         help="Optional domain for the selected relational field.",
     )
-    enable_selection_filter = fields.Boolean(
-        string="Filter Field Values",
-        default=False,
-        help=(
-            "For Selection fields, restrict options; for Many2one fields, "
-            "restrict related records. Other models and fields are unaffected."
-        ),
-    )
-    allowed_selection_value_ids = fields.Many2many(
-        comodel_name="ir.model.fields.selection",
-        relation="permission_manager_field_allowed_selection_rel",
-        column1="rule_id",
-        column2="selection_id",
-        string="Allowed Selection Values",
-        help="Choose the Selection field's options that these users may select.",
-    )
-    related_model = fields.Char(
-        related="field_id.relation", string="Related Model", readonly=True,
-    )
-    allowed_related_record_line_ids = fields.One2many(
-        comodel_name="permission.manager.allowed.related.record",
-        inverse_name="rule_id",
-        string="Allowed Related Records",
-        copy=True,
-        help="For a Many2one field, choose which related records may be selected.",
-    )
 
     _sql_constraints = [
         (
@@ -1536,23 +1514,11 @@ class PermissionManagerFieldPermissionLine(models.Model):
         for line in self:
             if line.field_id and line.field_id.model_id != line.model_id:
                 line.field_id = False
-                line.enable_selection_filter = False
-                line.allowed_selection_value_ids = [fields.Command.clear()]
-                line.allowed_related_record_line_ids = [fields.Command.clear()]
             if (
                 line.relational_field_id
                 and line.relational_field_id.model_id != line.model_id
             ):
                 line.relational_field_id = False
-
-    @api.onchange("field_id")
-    def _onchange_selection_field_id(self):
-        for line in self:
-            # Never reuse the previous field's option IDs for another field.
-            line.allowed_selection_value_ids = [fields.Command.clear()]
-            line.allowed_related_record_line_ids = [fields.Command.clear()]
-            if line.field_id and line.field_id.ttype not in {"selection", "many2one"}:
-                line.enable_selection_filter = False
 
     @api.onchange("enable_attribute_rule")
     def _onchange_enable_attribute_rule(self):
@@ -1569,45 +1535,6 @@ class PermissionManagerFieldPermissionLine(models.Model):
             if not line.enable_domain_rule:
                 line.relational_field_id = False
                 line.selection_domain = "[]"
-
-    @api.constrains(
-        "field_id", "enable_selection_filter", "allowed_selection_value_ids",
-        "allowed_related_record_line_ids",
-    )
-    def _check_selection_filter(self):
-        for line in self:
-            if not line.enable_selection_filter:
-                continue
-            field = line.field_id
-            if not field or field.ttype not in {"selection", "many2one"}:
-                raise UserError(
-                    _("Value Filter requires a Selection or Many2one field.")
-                )
-            if field.ttype == "selection":
-                if not line.allowed_selection_value_ids:
-                    raise UserError(_("Choose at least one Allowed Selection Value."))
-                if any(
-                    option.field_id != field
-                    for option in line.allowed_selection_value_ids
-                ):
-                    raise UserError(
-                        _("Allowed Selection Values must belong to the selected field.")
-                    )
-            else:
-                if not line.allowed_related_record_line_ids:
-                    raise UserError(_("Choose at least one Allowed Related Record."))
-                relation = field.relation
-                if not relation or relation not in self.env.registry:
-                    raise UserError(_("The selected Many2one field has no valid model."))
-                for option in line.allowed_related_record_line_ids:
-                    if option.relation_model != relation or not option.record_id:
-                        raise UserError(
-                            _("Each Allowed Related Record must belong to the selected field's related model.")
-                        )
-                    if not self.env[relation].sudo().browse(option.record_id).exists():
-                        raise UserError(
-                            _("An Allowed Related Record no longer exists.")
-                        )
 
     @api.constrains("field_id", "relational_field_id")
     def _check_field_id(self):
@@ -1694,9 +1621,6 @@ class PermissionManagerFieldPermissionLine(models.Model):
             "condition_expression",
             "relational_field_id",
             "selection_domain",
-            "enable_selection_filter",
-            "allowed_selection_value_ids",
-            "allowed_related_record_line_ids",
         }
         if watched_fields.intersection(vals):
             self._clear_permission_manager_view_cache()
@@ -1730,7 +1654,7 @@ class PermissionManagerFieldPermissionLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -1753,29 +1677,11 @@ class PermissionManagerFieldPermissionLine(models.Model):
             "no_import": set(),
             "no_export": set(),
             "apply": {},
-            "allowed_selection": {},
-            "allowed_related": {},
         }
         for rule in rules:
             field_name = rule.field_name
             if not field_name:
                 continue
-            if rule.enable_selection_filter and rule.field_id.ttype == "selection":
-                allowed = set(rule.allowed_selection_value_ids.mapped("value"))
-                # If several applicable policies restrict the same field,
-                # satisfy every policy rather than bypassing one of them.
-                filters = result["allowed_selection"]
-                if field_name in filters:
-                    filters[field_name].intersection_update(allowed)
-                else:
-                    filters[field_name] = allowed
-            if rule.enable_selection_filter and rule.field_id.ttype == "many2one":
-                allowed = set(rule.allowed_related_record_line_ids.mapped("record_id"))
-                filters = result["allowed_related"]
-                if field_name in filters:
-                    filters[field_name].intersection_update(allowed)
-                else:
-                    filters[field_name] = allowed
             apply_views = set()
             if rule.apply_form:
                 apply_views.add("form")
@@ -2028,7 +1934,7 @@ class PermissionManagerFieldStateRuleLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2244,7 +2150,7 @@ class PermissionManagerRecordDomainRuleLine(models.Model):
             raise UserError(_("Filter Expression must evaluate to a domain list."))
         domain = list(domain)
         if self.current_user_field_id:
-            domain = expression.AND(
+            domain = _domain_and(
                 [
                     domain,
                     [(self.current_user_field_id.name, "=", eval_user.id)],
@@ -2270,7 +2176,7 @@ class PermissionManagerRecordDomainRuleLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2296,7 +2202,7 @@ class PermissionManagerRecordDomainRuleLine(models.Model):
         domains = []
         for rule in rules:
             domains.append(rule._evaluate_filter_domain(user=self.env.user))
-        return expression.AND(domains) if domains else []
+        return _domain_and(domains) if domains else []
 
 
 class PermissionManagerHideItem(models.Model):
@@ -2474,7 +2380,7 @@ class PermissionManagerHideButtonTabLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2685,7 +2591,7 @@ class PermissionManagerChatterVisibilityLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2718,6 +2624,21 @@ class PermissionManagerChatterVisibilityLine(models.Model):
 
 class Base(models.AbstractModel):
     _inherit = "base"
+
+    def _permission_manager_is_reconciliation_compat_model(self):
+        """Keep Odoo's Bank Matching/Reconcile UI metadata untouched.
+
+        The Enterprise reconciliation client depends on technical fields and
+        stock view/search metadata from these accounting models. Generic
+        field/view/search rewriting can make the OWL client continuously reload
+        account.move.line groups and leave the action blank. Operation checks
+        (create/write/unlink/read) remain enforced server-side.
+        """
+        return self._name in {
+            "account.move.line",
+            "account.bank.statement.line",
+            "account.bank.statement",
+        }
 
     def _permission_manager_is_internal_model(self):
         """Keep framework/bootstrap models outside dynamic record controls.
@@ -2797,8 +2718,6 @@ class Base(models.AbstractModel):
                 "no_import": set(),
                 "no_export": set(),
                 "apply": {},
-                "allowed_selection": {},
-                "allowed_related": {},
             }
         return self.env[
             "permission.manager.field.permission.line"
@@ -2840,6 +2759,7 @@ class Base(models.AbstractModel):
         if (
             self.env.context.get("permission_manager_skip_record_domain")
             or self._permission_manager_is_internal_model()
+            or self._permission_manager_is_reconciliation_compat_model()
         ):
             return super().web_search_read(domain, *args, **kwargs)
 
@@ -2848,7 +2768,7 @@ class Base(models.AbstractModel):
             include_soft=True,
         )
         if record_domain:
-            domain = expression.AND([domain or [], record_domain])
+            domain = _domain_and([domain or [], record_domain])
 
         safe_self = self.with_context(permission_manager_skip_record_domain=True)
         return super(Base, safe_self).web_search_read(domain, *args, **kwargs)
@@ -2874,35 +2794,6 @@ class Base(models.AbstractModel):
                 % ", ".join(labels)
             )
 
-        for field_name, allowed in field_rules.get("allowed_selection", {}).items():
-            if field_name not in vals:
-                continue
-            value = vals[field_name]
-            # Clearing an optional field remains allowed; existing records
-            # are not rewritten merely because their old option is hidden.
-            if value is False or value is None or value == "":
-                continue
-            if str(value) not in allowed:
-                field = self._fields.get(field_name)
-                raise UserError(
-                    _("Access Management does not allow value %(value)s for %(field)s.")
-                    % {
-                        "value": str(value),
-                        "field": field.string if field else field_name,
-                    }
-                )
-
-        for field_name, allowed in field_rules.get("allowed_related", {}).items():
-            if field_name not in vals or vals[field_name] in (False, None, ""):
-                continue
-            value = vals[field_name]
-            if not isinstance(value, int) or isinstance(value, bool) or value not in allowed:
-                field = self._fields.get(field_name)
-                raise UserError(
-                    _("Access Management does not allow this value for %s.")
-                    % (field.string if field else field_name)
-                )
-
         required_fields = field_rules.get("required", set())
         if create_mode:
             missing_fields = []
@@ -2917,7 +2808,10 @@ class Base(models.AbstractModel):
                     missing_fields.append(field.string if field else field_name)
             if missing_fields:
                 raise UserError(
-                    _("Access Management requires these fields: %s")
+                    _("%s is required. Please fill it in before saving.")
+                    % missing_fields[0]
+                    if len(missing_fields) == 1
+                    else _("These fields are required. Please fill them in: %s")
                     % ", ".join(missing_fields)
                 )
         else:
@@ -2928,7 +2822,10 @@ class Base(models.AbstractModel):
                     empty_required_fields.append(field.string if field else field_name)
             if empty_required_fields:
                 raise UserError(
-                    _("Access Management requires these fields: %s")
+                    _("%s is required. Please fill it in before saving.")
+                    % empty_required_fields[0]
+                    if len(empty_required_fields) == 1
+                    else _("These fields are required. Please fill them in: %s")
                     % ", ".join(empty_required_fields)
                 )
         return True
@@ -3018,7 +2915,10 @@ class Base(models.AbstractModel):
     @api.model
     def fields_get(self, allfields=None, attributes=None):
         result = super().fields_get(allfields=allfields, attributes=attributes)
-        if self.env.context.get("permission_manager_skip_view_hide"):
+        if (
+            self.env.context.get("permission_manager_skip_view_hide")
+            or self._permission_manager_is_reconciliation_compat_model()
+        ):
             return result
 
         field_rules = self._permission_manager_field_rules()
@@ -3051,16 +2951,6 @@ class Base(models.AbstractModel):
         for field_name in field_rules.get("no_import", set()):
             if field_name in result:
                 result[field_name]["importable"] = False
-
-        # The Odoo 19 web client obtains Selection dropdown choices from
-        # fields_get (including the metadata returned by get_views).
-        for field_name, allowed in field_rules.get("allowed_selection", {}).items():
-            description = result.get(field_name)
-            if description and "selection" in description:
-                description["selection"] = [
-                    item for item in description["selection"]
-                    if str(item[0]) in allowed
-                ]
         return result
 
     # Model-level view-type controls intentionally do not rewrite view arches.
@@ -3069,7 +2959,10 @@ class Base(models.AbstractModel):
 
     def get_view(self, view_id=None, view_type="form", **options):
         result = super().get_view(view_id=view_id, view_type=view_type, **options)
-        if self.env.context.get("permission_manager_skip_view_hide"):
+        if (
+            self.env.context.get("permission_manager_skip_view_hide")
+            or self._permission_manager_is_reconciliation_compat_model()
+        ):
             return result
 
         arch = result.get("arch")
@@ -3119,7 +3012,6 @@ class Base(models.AbstractModel):
                 for key in ("hide", "readonly", "required")
             )
             and not field_state_rules
-            and not field_rules.get("allowed_related")
             and not hidden_view_ids
             and not should_process_buttons_tabs
             and not any(chatter_flags.values())
@@ -3132,45 +3024,6 @@ class Base(models.AbstractModel):
             return result
 
         changed = False
-        # Combine the allowed-record filter with existing field domains rather
-        # than replacing the view's own domain. Nested one2many forms/lists
-        # belong to a different model and must be evaluated independently.
-        nested_rule_cache = {self._name: field_rules.get("allowed_related", {})}
-
-        def _apply_related_domains(node, model_name):
-            nonlocal changed
-            if model_name not in self.env.registry:
-                return
-            model = self.env[model_name]
-            if model_name not in nested_rule_cache:
-                nested_rule_cache[model_name] = model._permission_manager_field_rules().get(
-                    "allowed_related", {}
-                )
-            rules = nested_rule_cache[model_name]
-            for child in node:
-                if child.tag != "field" or not child.get("name"):
-                    _apply_related_domains(child, model_name)
-                    continue
-                name = child.get("name")
-                field = model._fields.get(name)
-                if field and field.type == "many2one" and name in rules:
-                    allowed_ids = sorted(rules[name])
-                    restriction = "[('id', 'in', %s)]" % repr(allowed_ids)
-                    old_domain = child.get("domain")
-                    child.set(
-                        "domain",
-                        "(%s) + (%s)" % (restriction, old_domain)
-                        if old_domain else restriction,
-                    )
-                    changed = True
-                if field and field.type in {"one2many", "many2many"}:
-                    for embedded in child:
-                        if embedded.tag in {"form", "list", "tree", "kanban"}:
-                            _apply_related_domains(embedded, field.comodel_name)
-                else:
-                    _apply_related_domains(child, model_name)
-
-        _apply_related_domains(root, self._name)
         if blocked_ops:
             attr_map = {
                 "create": "create",
@@ -3230,6 +3083,9 @@ class Base(models.AbstractModel):
                     changed = True
                 if field_name in field_rules.get("required", set()):
                     field_node.set("required", "1")
+                    if view_key == "form":
+                        # FormController displays the field-specific save popup.
+                        field_node.set("data-pm-required-popup", "1")
                     changed = True
 
             if view_key == "search" and globally_hidden_fields:
@@ -3280,6 +3136,10 @@ class Base(models.AbstractModel):
                     if current and current not in {"0", "False", "false"}:
                         expression = "(%s) or (%s)" % (current, expression)
                     field_node.set(attribute, expression)
+                    if attribute == "required" and view_key == "form":
+                        # Reuse Odoo's evaluated required modifier, including
+                        # the configured condition, in the save-time popup.
+                        field_node.set("data-pm-required-popup", "1")
                     changed = True
 
                     # A readonly x2many field can still contain object/action buttons
@@ -3448,52 +3308,6 @@ class Base(models.AbstractModel):
         if changed:
             result["arch"] = etree.tostring(root, encoding="unicode")
         return result
-
-
-class PermissionManagerAllowedRelatedRecord(models.Model):
-    _name = "permission.manager.allowed.related.record"
-    _description = "Allowed Related Record for Field Value Filter"
-    _order = "id"
-
-    rule_id = fields.Many2one(
-        "permission.manager.field.permission.line",
-        string="Field Control", required=True, ondelete="cascade", index=True,
-    )
-    relation_model = fields.Char(
-        string="Related Model", required=True, readonly=True,
-    )
-    record_id = fields.Many2oneReference(
-        string="Allowed Record", model_field="relation_model", required=True,
-    )
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        values = []
-        for vals in vals_list:
-            vals = dict(vals)
-            if vals.get("rule_id"):
-                rule = self.env["permission.manager.field.permission.line"].browse(
-                    vals["rule_id"]
-                )
-                vals["relation_model"] = rule.field_id.relation
-            values.append(vals)
-        return super().create(values)
-
-    @api.constrains("rule_id", "relation_model", "record_id")
-    def _check_allowed_record(self):
-        for item in self:
-            field = item.rule_id.field_id
-            if (
-                not field or field.ttype != "many2one"
-                or item.relation_model != field.relation
-                or not item.record_id
-            ):
-                raise UserError(
-                    _("Allowed Record must match the Field Control's Many2one model.")
-                )
-            if not self.env[item.relation_model].sudo().browse(item.record_id).exists():
-                raise UserError(_("The selected Allowed Record does not exist."))
-
 
 
 class IrActionsActions(models.Model):
