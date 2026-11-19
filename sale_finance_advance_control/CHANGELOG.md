@@ -3,6 +3,15 @@
 ## [Unreleased] - 2026-11-19
 
 ### [Docs]
+- [2026-11-19] Added installation-recovery note for XPath view ParseError.
+
+## [19.0.1.0.1] - 2026-11-19
+
+### [Fixed]
+- [2026-11-19] Replaced unsupported `@string` XPath selector in `views/sale_order_views.xml` list view with `//list/header/button[@type='action']` to restore Odoo 19 view installation compatibility.
+
+
+### [Docs]
 - [2026-11-19] Created installation, business flow, security, limitations, and proposed QA documentation.
 
 ## [19.0.1.0.0] - 2026-11-19

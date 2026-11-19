@@ -63,7 +63,7 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.sale_order_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//list/header/button[@string='Create Invoices']" position="attributes">
+            <xpath expr="//list/header/button[@type='action']" position="attributes">
                 <attribute name="groups">sale_finance_advance_control.group_finance_approver</attribute>
             </xpath>
             <xpath expr="//field[@name='invoice_status']" position="after">

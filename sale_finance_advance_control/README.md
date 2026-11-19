@@ -3,7 +3,7 @@
 | Property | Value |
 |---|---|
 | Technical name | `sale_finance_advance_control` |
-| Version | `19.0.1.0.0` |
+| Version | `19.0.1.0.1` |
 | Author | Softeko_Lamia |
 | Documentation updated | 2026-11-19 |
 | Dependencies | `sale_management`, `account`, `mail` |
@@ -31,6 +31,9 @@ flowchart TD
 ```
 
 ## Installation
+
+**2026-11-19 view fix:** Replaces an unsupported XPath selector using `@string` in the Sales Order list view with a stable action-button selector. The selector is valid against the stock Odoo 19 Sales list view (which has one header action for creating invoices). If you received an installation ParseError from the old package, replace the directory with this corrected version, restart Odoo, refresh the Apps list, and retry installation. For an installed module, use **Upgrade** instead.
+
 
 1. Place the `sale_finance_advance_control` directory in your Odoo 19 custom-addons path.
 2. Update the Apps list; install **Sale Finance Advance Approval**.

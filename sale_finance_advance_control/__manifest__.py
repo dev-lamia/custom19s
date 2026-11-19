@@ -1,7 +1,7 @@
 {
     "name": "Sale Finance Advance Approval",
     "summary": "Finance-controlled quotation approval and advance payment workflow",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Sales/Sales",
     "author": "Softeko_Lamia",
     "license": "LGPL-3",
