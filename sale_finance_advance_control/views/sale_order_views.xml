@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_finance_approval_form" model="ir.ui.view">
+        <field name="name">sale.order.finance.approval.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
+                <attribute name="groups">sale_finance_advance_control.group_finance_approver</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_confirm' and not(@id)]" position="attributes">
+                <attribute name="groups">sale_finance_advance_control.group_finance_approver</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='create_invoice']" position="attributes">
+                <attribute name="groups">sale_finance_advance_control.group_finance_approver</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="groups">sale_finance_advance_control.group_finance_approver</attribute>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button name="action_open_payment_proof_wizard" type="object"
+                        string="Submit Payment Proof" class="btn-secondary"
+                        invisible="state not in ('draft', 'sent') or payment_verification_state == 'verified'"
+                        groups="sales_team.group_sale_salesman"/>
+                <button name="action_verify_advance_payment" type="object"
+                        string="Verify Payment" class="btn-secondary"
+                        invisible="state not in ('draft', 'sent') or payment_verification_state != 'pending'"
+                        groups="sale_finance_advance_control.group_finance_approver"/>
+                <button name="action_reject_advance_payment" type="object"
+                        string="Reject Proof" class="btn-secondary"
+                        invisible="state not in ('draft', 'sent') or payment_verification_state not in ('pending', 'verified')"
+                        groups="sale_finance_advance_control.group_finance_approver"/>
+                <button name="action_release_production" type="object"
+                        string="Release Production" class="btn-secondary"
+                        invisible="state != 'sale' or production_release_state == 'released'"
+                        groups="sale_finance_advance_control.group_finance_approver"/>
+            </xpath>
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Finance Clearance" name="finance_clearance">
+                    <group>
+                        <group string="Sales Submission">
+                            <field name="payment_verification_state" widget="statusbar"
+                                   statusbar_visible="not_submitted,pending,verified,rejected" readonly="1"/>
+                            <field name="advance_payment_amount" readonly="1"/>
+                            <field name="advance_payment_reference" readonly="1"/>
+                            <field name="payment_proof_attachment_id" readonly="1"/>
+                        </group>
+                        <group string="Finance Review">
+                            <field name="payment_verified_by" readonly="1"/>
+                            <field name="payment_verified_on" readonly="1"/>
+                            <field name="production_release_state" readonly="1"/>
+                            <field name="production_released_by" readonly="1"/>
+                            <field name="production_released_on" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sale_order_finance_approval_list" model="ir.ui.view">
+        <field name="name">sale.order.finance.approval.list</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/header/button[@string='Create Invoices']" position="attributes">
+                <attribute name="groups">sale_finance_advance_control.group_finance_approver</attribute>
+            </xpath>
+            <xpath expr="//field[@name='invoice_status']" position="after">
+                <field name="payment_verification_state" optional="show" widget="badge"/>
+                <field name="production_release_state" optional="hide" widget="badge"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
