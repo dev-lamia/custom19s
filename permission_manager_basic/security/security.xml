@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- One explicit user checkbox controls app visibility and all module ACLs. -->
+    <!--
+        Odoo 19 community build can raise Invalid field 'category_id'
+        on res.groups, so groups are created without category_id.
+    -->
     <record id="group_permission_manager_user" model="res.groups">
-        <field name="name">Access Management</field>
+        <field name="name">Access Management User</field>
     </record>
 
-    <!--
-        Upgrade compatibility: the previous Administrator group is recreated
-        only so that its old external ID can be safely retired on both fresh
-        installs and upgrades. It is deleted before loading menus/views.
-    -->
     <record id="group_permission_manager_admin" model="res.groups">
         <field name="name">Access Management Administrator</field>
+        <field name="implied_ids" eval="[(4, ref('group_permission_manager_user'))]"/>
     </record>
 
-    <!-- Neither Settings Administrator nor any other role grants app access. -->
+    <!-- Settings administrators can see the app and manage policies immediately. -->
     <record id="base.group_system" model="res.groups">
-        <field name="implied_ids" eval="[(3, ref('group_permission_manager_admin')), (3, ref('group_permission_manager_user'))]"/>
+        <field name="implied_ids" eval="[(4, ref('group_permission_manager_admin'))]"/>
     </record>
-
-    <!-- Retire old Administrator-specific grants before deleting the group. -->
-    <delete model="ir.model.access"
-            search="[('group_id', '=', ref('group_permission_manager_admin'))]"/>
-    <delete id="group_permission_manager_admin" model="res.groups"/>
 </odoo>

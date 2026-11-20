@@ -6,12 +6,6 @@ import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 import { CogMenu } from "@web/search/cog_menu/cog_menu";
 
-const RECONCILE_MODELS = new Set([
-    "account.move.line",
-    "account.bank.statement.line",
-    "account.bank.statement",
-]);
-
 const cogMenuRegistry = registry.category("cogMenu");
 const SPREADSHEET_LABELS = [
     _t("Spreadsheet"),
@@ -142,7 +136,7 @@ patch(CogMenu.prototype, {
 
     async _pmSpreadsheetIsBlocked() {
         const modelName = this._pmCurrentModelName();
-        if (!modelName || RECONCILE_MODELS.has(modelName)) {
+        if (!modelName) {
             return false;
         }
         try {
@@ -184,10 +178,6 @@ patch(CogMenu.prototype, {
 
     async _registryItems() {
         const items = await super._registryItems(...arguments);
-        if (RECONCILE_MODELS.has(this._pmCurrentModelName())) {
-            this.pmBlockSpreadsheet = false;
-            return items;
-        }
         this.pmBlockSpreadsheet = await this._pmSpreadsheetIsBlocked();
         if (!this.pmBlockSpreadsheet) {
             return items;

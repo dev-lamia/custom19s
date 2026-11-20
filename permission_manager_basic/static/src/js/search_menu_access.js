@@ -17,16 +17,6 @@ const DEFAULT_SEARCH_ACCESS = {
     hideSaveCurrentSearch: false,
 };
 
-const RECONCILE_MODELS = new Set([
-    "account.move.line",
-    "account.bank.statement.line",
-    "account.bank.statement",
-]);
-
-function isReconcileModel(modelName) {
-    return RECONCILE_MODELS.has(modelName);
-}
-
 function setupPermissionManagerSearchAccess(component) {
     const orm = useService("orm");
     component.pmSearchAccess = useState({ ...DEFAULT_SEARCH_ACCESS });
@@ -34,7 +24,7 @@ function setupPermissionManagerSearchAccess(component) {
 
     onWillStart(async () => {
         const modelName = component.env.searchModel.resModel;
-        if (!modelName || isReconcileModel(modelName)) {
+        if (!modelName) {
             return;
         }
         try {
@@ -68,9 +58,6 @@ function setupPermissionManagerSearchAccess(component) {
 
 patch(SearchModel.prototype, {
     async spawnCustomFilterDialog() {
-        if (isReconcileModel(this.resModel)) {
-            return super.spawnCustomFilterDialog(...arguments);
-        }
         if (this.pmHideCustomFilter) {
             return;
         }
