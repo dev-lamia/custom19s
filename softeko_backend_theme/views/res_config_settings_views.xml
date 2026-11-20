@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_softeko_res_config_settings" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.softeko.theme</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="priority" eval="60"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app name="softeko_theme" string="Softeko Theme" logo="/softeko_backend_theme/static/description/icon.png" groups="base.group_system">
+                    <block title="Appearance and Color" name="softeko_colors">
+                        <setting id="softeko_theme_preset_setting" string="Color Preset" help="Select a color scheme for the selected company.">
+                            <field name="softeko_theme_preset"/>
+                        </setting>
+                        <setting id="softeko_custom_palette_setting" string="Custom Theme Palette" help="Use valid six-digit HEX colors such as #5465D9." invisible="softeko_theme_preset != 'custom'">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="softeko_primary_color" class="col-lg-4 o_light_label"/>
+                                    <field name="softeko_primary_color" class="col-lg-5" placeholder="#5465D9"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="softeko_navbar_color" class="col-lg-4 o_light_label"/>
+                                    <field name="softeko_navbar_color" class="col-lg-5" placeholder="#192B46"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="softeko_page_color" class="col-lg-4 o_light_label"/>
+                                    <field name="softeko_page_color" class="col-lg-5" placeholder="#F4F7FC"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Navigation and Density" name="softeko_navigation">
+                        <setting id="softeko_sidebar_setting" string="Desktop App Sidebar" help="Show all installed root apps in a fixed, scrollable left sidebar on desktop.">
+                            <field name="softeko_show_sidebar"/>
+                        </setting>
+                        <setting id="softeko_compact_setting" string="Compact Mode" help="Reduce spacing in list views, kanban cards and controls.">
+                            <field name="softeko_compact_mode"/>
+                        </setting>
+                    </block>
+                    <block title="Company Branding" name="softeko_branding">
+                        <setting id="softeko_nav_logo_setting" string="Navbar Logo" help="Show your uploaded logo beside the current app title. It falls back to the company logo.">
+                            <field name="softeko_show_nav_logo"/>
+                            <div class="content-group mt16" invisible="not softeko_show_nav_logo">
+                                <field name="softeko_nav_logo" widget="image" class="oe_avatar" options="{'size': [300, 120]}"/>
+                            </div>
+                        </setting>
+                        <setting id="softeko_company_logo_setting" string="Company and Login Logo" help="Update the native Odoo company logo shown on the login page and company screens.">
+                            <field name="softeko_company_logo" widget="image" class="oe_avatar" options="{'size': [300, 120]}"/>
+                        </setting>
+                        <setting id="softeko_favicon_setting" string="Browser Tab Favicon" help="Upload PNG, JPG, GIF, WebP, or ICO under 2 MB. A 64x64 PNG is recommended.">
+                            <field name="softeko_favicon_filename" invisible="1"/>
+                            <field name="softeko_favicon" filename="softeko_favicon_filename" widget="binary"/>
+                        </setting>
+                        <setting id="softeko_credits_setting" string="Developed by Softeko" help="Odoo 19 company branding and backend theme.">
+                            <div class="text-muted">Design &amp; development: <strong>Lamia Akter</strong> | <strong>Softeko</strong></div>
+                            <div class="text-muted mt8">Save changes, then refresh the Odoo web client to apply the new appearance.</div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

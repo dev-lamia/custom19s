@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="softeko_backend_theme.Sidebar">
+        <aside t-if="enabled &amp;&amp; !ui.isSmall" class="softeko_sidebar" aria-label="App navigation">
+            <div class="softeko_sidebar_title">
+                <span class="softeko_sidebar_dot"/>
+                <span>SOFTEKO</span>
+            </div>
+            <nav class="softeko_sidebar_apps" aria-label="Installed applications">
+                <t t-foreach="apps" t-as="app" t-key="app.id">
+                    <button type="button" class="softeko_app_button"
+                        t-att-class="{'is-active': app.id === activeAppId}"
+                        t-att-title="app.name"
+                        t-on-click="() => openApp(app)">
+                        <img t-if="app.webIconData" class="softeko_app_icon" t-att-src="app.webIconData" t-att-alt="app.name"/>
+                        <span t-else="" class="softeko_app_icon softeko_app_placeholder">&#9679;</span>
+                        <span class="softeko_app_name" t-esc="app.name"/>
+                    </button>
+                </t>
+            </nav>
+            <div class="softeko_sidebar_footer">Designed by Lamia Akter</div>
+        </aside>
+    </t>
+</templates>

@@ -1,0 +1,164 @@
+/* Scoped to the backend only; theme variables are served per active company. */
+:root {
+    --softeko-primary: #5465d9;
+    --softeko-primary-hover: #4554b5;
+    --softeko-nav-bg: #192b46;
+    --softeko-page-bg: #f4f7fc;
+    --softeko-logo-display: inline-block;
+    --softeko-compact-space: 9px;
+}
+body.o_web_client {
+    --softeko-sidebar-width: 216px;
+}
+
+body.o_web_client .o_main_navbar {
+    background: var(--softeko-nav-bg) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: 0 3px 20px rgba(14, 27, 48, .14);
+}
+body.o_web_client .o_main_navbar .o_menu_brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+body.o_web_client .o_main_navbar .o_menu_brand::before {
+    content: "";
+    display: var(--softeko-logo-display);
+    flex: 0 0 70px;
+    width: 70px;
+    height: 28px;
+    background: url('/softeko_theme/logo') center / contain no-repeat;
+    border-radius: 6px;
+}
+body.o_web_client .o_main_navbar .o_menu_brand,
+body.o_web_client .o_main_navbar .o_menu_sections,
+body.o_web_client .o_main_navbar .o_navbar_apps_menu {
+    color: #fff;
+}
+body.o_web_client .o_action_manager {
+    background: var(--softeko-page-bg);
+}
+body.o_web_client .btn-primary {
+    --btn-primary-softeko: var(--softeko-primary);
+    background-color: var(--btn-primary-softeko);
+    border-color: var(--btn-primary-softeko);
+}
+body.o_web_client .btn-primary:hover,
+body.o_web_client .btn-primary:focus-visible {
+    background-color: var(--softeko-primary-hover);
+    border-color: var(--softeko-primary-hover);
+}
+body.o_web_client .o_control_panel {
+    border-bottom-color: rgba(52, 72, 106, .10);
+}
+body.o_web_client .o_kanban_record,
+body.o_web_client .o_form_sheet_bg .o_form_sheet {
+    border-radius: 9px;
+}
+body.o_web_client .o_kanban_record {
+    box-shadow: 0 2px 8px rgba(25, 43, 70, .04);
+}
+body.o_web_client .o_list_renderer .o_data_row > .o_data_cell {
+    padding-top: var(--softeko-compact-space);
+    padding-bottom: var(--softeko-compact-space);
+}
+
+/* Optional MuK-inspired desktop navigation, without altering Odoo's core templates. */
+body.o_web_client.softeko-sidebar-enabled .o_action_manager {
+    margin-left: var(--softeko-sidebar-width);
+    width: calc(100% - var(--softeko-sidebar-width));
+}
+.softeko_sidebar {
+    position: fixed;
+    top: 46px;
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    display: flex;
+    flex-direction: column;
+    width: 216px;
+    background: #101b2b;
+    color: #dce5f6;
+    box-shadow: 3px 0 22px rgba(19, 31, 51, .12);
+    overflow: hidden;
+}
+.softeko_sidebar_title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 19px 17px 15px;
+    font-size: 11px;
+    letter-spacing: .18em;
+    font-weight: 800;
+    color: #a5b6cc;
+}
+.softeko_sidebar_dot {
+    height: 9px;
+    width: 9px;
+    background: var(--softeko-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, .045);
+}
+.softeko_sidebar_apps {
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 5px 10px 15px;
+}
+.softeko_app_button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 13px;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 9px;
+    color: #c8d3e5;
+    background: transparent;
+    text-align: left;
+    transition: background .15s ease, color .15s ease;
+    cursor: pointer;
+}
+.softeko_app_button:hover,
+.softeko_app_button:focus-visible {
+    background: rgba(255, 255, 255, .09);
+    color: #fff;
+    outline-offset: -2px;
+}
+.softeko_app_button.is-active {
+    background: var(--softeko-primary);
+    color: #fff;
+    font-weight: 600;
+}
+.softeko_app_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 23px;
+    width: 23px;
+    height: 23px;
+    object-fit: contain;
+    border-radius: 5px;
+}
+.softeko_app_placeholder { color: #91a4ce; font-size: 18px; }
+.softeko_app_name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+}
+.softeko_sidebar_footer {
+    padding: 16px 14px;
+    color: #8297b0;
+    text-align: center;
+    font-size: 10px;
+    border-top: 1px solid rgba(255, 255, 255, .07);
+}
+@media (max-width: 991.98px) {
+    .softeko_sidebar { display: none !important; }
+    body.o_web_client.softeko-sidebar-enabled .o_action_manager {
+        margin-left: 0;
+        width: 100%;
+    }
+}

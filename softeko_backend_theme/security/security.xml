@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The module adds fields to existing models, not a new business model.
+         The Settings UI is limited to administrators; underlying field access also
+         follows Odoo's normal res.company access rules. -->
+</odoo>
