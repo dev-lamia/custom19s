@@ -2,17 +2,7 @@
 
 This changelog follows a *Keep a Changelog*-inspired structure and distinguishes a verified **source-code baseline** from verified **dated changes**. The manifest version is **19.0.1.0.14** and is not incremented by this documentation update.
 
-## [Unreleased] — 2026-11-19
-
-### [Changed] — 2026-11-19
-- **[2026-11-19]** Moved the existing **Access Management** access group into an Odoo 19 privilege selector: **Settings → Users → Access Rights → Access Management → App Access**. The new `ir.module.category` (`module_category_permission_manager`) and `res.groups.privilege` (`privilege_permission_manager_app_access`) records are defined in `security/security.xml`; the existing `group_permission_manager_user` now references the privilege through `privilege_id`.
-- **[2026-11-19]** The selector shows **`No`** (app hidden; no module-specific CRUD ACL through this group) or **`Access Management`** (app visible; full CRUD through the existing group). There is still only one active app access group and no Settings Administrator dependency. Existing group memberships, ACLs, menus, policy controls, and business logic are unchanged.
-
-### [Docs] — 2026-11-19
-- **[2026-11-19]** Updated `README.md` and `CHANGELOG.md` for the App Access selector, Odoo 19 category/privilege model, upgrade guidance, and proposed tests.
-- **[2026-11-19]** Changed only `security/security.xml`, `README.md`, and `CHANGELOG.md` relative to the supplied ZIP. The manifest remains `19.0.1.0.14`; no live Odoo runtime tests have been executed.
-
-## [Prior unversioned changes] — 2026-11-09
+## [Unreleased] — 2026-11-09
 
 ### [Changed / Security] — 2026-11-09, source-verified against the preceding uploaded ZIP
 - **[2026-11-09]** Consolidated **Access Management User** and **Access Management Administrator** into one active, user-selectable **Access Management** checkbox (`permission_manager_basic.group_permission_manager_user`). This replaces the previous read-only user / full CRUD administrator split.
@@ -21,7 +11,7 @@ This changelog follows a *Keep a Changelog*-inspired structure and distinguishes
 - **[2026-11-09]** Replaced old Settings Administrator restrictions on the Access Management root and Policies menus with the single group's restriction, explicitly removing the prior group grant in `views/menu_views.xml` for upgrades.
 - **[2026-11-09]** Changed Activate/Deactivate Policy button visibility to the single group in `views/permission_manager_views.xml`. No other business logic was changed by this previously delivered access-control update.
 
-### [Docs] — 2026-11-09, previous documentation-only package
+### [Docs] — 2026-11-09, this ZIP only
 - **[2026-11-09]** Updated `README.md` to explain the single checkbox, group-independent app eligibility, effective ACL matrix, upgrade assignment steps, migration caveats, troubleshooting, and additional proposed security tests.
 - **[2026-11-09]** Updated `CHANGELOG.md` to record the earlier security/code changes verifiable by ZIP comparison and separate them from the present **documentation-only** package revision. All other archive entries, including existing security/XML/CSV changes, are preserved byte-for-byte.
 
@@ -58,7 +48,7 @@ The following capabilities exist in the supplied ZIP and are documented as a **c
 - **[Existing; date not verified]** Discovery and UI hiding of selected buttons/notebook tabs (`PermissionManagerHideItem`, `PermissionManagerHideButtonTabLine`, `Base.get_view()`).
 - **[Existing; date not verified]** Chatter visibility options (`PermissionManagerChatterVisibilityLine`, chatter CSS).
 - **[Existing; date not verified]** Force Read-Only, Block Login, Block Debug Mode, and Hide Export Available Fields global policy flags (`PermissionManagerPolicy`, `ResUsers`, backend JS/XML).
-- **[Current behavior; 2026-11-19 UI placement]** Single **Access Management** app group presented through **Access Management → App Access** (`No` / `Access Management`), ten full CRUD ACL rows, no Settings Administrator implication, and root/Policies/button restrictions tied to the same group (`security/*`, `views/menu_views.xml`, `views/permission_manager_views.xml`).
+- **[Current behavior; changed 2026-11-09]** Single **Access Management** app group and explicit checkbox, ten full CRUD ACL rows, no Settings Administrator implication, and root/Policies/button groups tied to the single group (`security/*`, `views/menu_views.xml`, `views/permission_manager_views.xml`).
 - **[Existing; date not verified]** Cache invalidation on many policy/rule changes and selected user attribute changes; module UI assets and stale-asset cleanup.
 
 ### Historical changes
@@ -73,7 +63,7 @@ The following capabilities exist in the supplied ZIP and are documented as a **c
 
 ---
 
-**Documentation Updated:** 2026-11-19  
+**Documentation Updated:** 2026-11-09  
 **Current Manifest Version:** `19.0.1.0.14`  
 **Latest Verified Release Date:** Not verified  
-**Change Scope of this ZIP vs. the supplied 2026-11-19 ZIP:** `security/security.xml`, `README.md` and `CHANGELOG.md` only. Earlier 2026-11-09 security and view changes remain intact.
+**Change Scope of this ZIP vs. the previous single-checkbox ZIP:** `README.md` and `CHANGELOG.md` only. (The earlier 2026-11-09 access-control ZIP already modified security and views.)

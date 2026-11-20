@@ -13,14 +13,14 @@ A policy-based access management module that configures user-, group-, company-,
 | Category | Administration/Access Rights |
 | License | LGPL-3 |
 | Dependencies | `base`, `mail`, `web` |
-| Documentation updated | **2026-11-19** |
+| Documentation updated | **2026-11-09** |
 | Latest verified release date | **Not verified**; the manifest supplies a version but no release date |
 | Documentation status | Source-code reviewed; Odoo runtime / browser end-to-end testing **not performed** for this documentation update |
 
 ## Table of contents
 
 - [Overview](#overview)
-- [App Access dropdown](#app-access-dropdown)
+- [Single-checkbox app access](#single-checkbox-app-access)
 - [Feature inventory](#feature-inventory)
 - [Business workflow](#business-workflow)
 - [Required field save popup](#required-field-save-popup)
@@ -46,28 +46,27 @@ The module provides a centralized **Access Management → Policies** application
 
 **Primary sources:** `__manifest__.py`, `models/permission_manager.py`, `views/permission_manager_views.xml`, `views/menu_views.xml`, `security/*`, `static/src/js/*`, `static/src/css/*`, `static/src/xml/*`.
 
-## App Access dropdown
+## Single-checkbox app access
 
-**Current behavior (2026-11-19 dropdown placement update):** In **Settings → Users & Companies → Users → Access Rights**, Odoo 19 presents **Access Management → App Access** as a single selection control. It is backed by the existing `permission_manager_basic.group_permission_manager_user` group; the older separate Administrator group is not selectable.
+**Current behavior in the supplied ZIP (2026-11-09 access-control revision):** Each user is assigned access to the application using **one group membership**, exposed in the user's Access Rights as **Access Management**. There is no separate live **Access Management Administrator** permission to assign.
 
-| App Access value | App icon and Policies menu | Permissions granted by this module to its ten policy/rule models | Activate / Deactivate Policy buttons |
+| User's Access Management checkbox | App icon and Policies menu | Permissions on the module's ten policy/rule models | Activate / Deactivate Policy buttons |
 |---|---|---|---|
-| `No` | Hidden from that user | No CRUD ACL is granted through this module's Access Management group | Not available through the app |
-| `Access Management` | Visible to that user | Read, Create, Write, Delete (full CRUD) | Available when policy state permits |
+| Checked | Eligible to see/open | Read, Create, Write, Delete | Visible when the corresponding state permits |
+| Unchecked | Hidden by the module's menu group restriction | No ACL is granted by this module's Access Management group | Not available through the restricted app |
 
-To grant access: open **Settings → Users & Companies → Users**, select the user, open **Access Rights → Access Management → App Access**, choose **Access Management**, then **Save**. To revoke it, choose **No** and save. Have the user sign out and back in / reload menus after group changes. The user-form layout may differ across installed apps.
+To grant access: open **Settings → Users & Companies → Users**, select the user, find **Access Management** under the user's Access Rights, enable the checkbox, then **Save**. To revoke it, clear the same checkbox and save. Have the user sign out and back in / reload menus after group changes. The location/presentation of group controls can vary with installed Odoo apps and user-form layout.
 
-**Implementation:** `security/security.xml` creates `ir.module.category` **Access Management**, creates `res.groups.privilege` **App Access** (`placeholder=No`), and assigns the existing `group_permission_manager_user` to that privilege via Odoo 19's `res.groups.privilege_id`. This changes the user-form presentation but preserves the existing group XML ID, menu/group restrictions, and ten full-CRUD ACL records. It does not introduce a second app role.
+**Independence from administrator status:** `security/security.xml` removes the previous implied Access Management groups from `base.group_system`, removes the former separate administrator group's ACLs, and retires that group. `views/menu_views.xml` explicitly removes the earlier `base.group_system` menu assignment and adds only `group_permission_manager_user`; `views/permission_manager_views.xml` uses the same group for the Activate/Deactivate actions. In `security/ir.model.access.csv`, all ten custom models now have a single group-owned CRUD row with flags `1,1,1,1`.
 
-**Independence from administrator status:** `security/security.xml` removes the previous implied Access Management groups from `base.group_system`, removes the former separate administrator group's ACLs, and retires that group. `views/menu_views.xml` removes the old `base.group_system` menu assignment and adds only `group_permission_manager_user`; `views/permission_manager_views.xml` uses the same group for Activate/Deactivate actions. The ten custom-model ACL rows grant `1,1,1,1` only to this single group.
+**Security boundary:** This grant controls the management app's menus and the module's own ACL contributions. Odoo superuser mode, other installed modules' ACLs, `sudo()` calls, and native Odoo rights can affect what an account can access; a hidden app is not a universal guarantee against access through custom integrations. **Policy application to target business models is separate from permission to manage policies.** Changes were source-reviewed, not runtime-tested in a live Odoo instance.
 
-**Security boundary:** This selection controls the management app's menus and the module's own ACL contributions. Odoo superuser mode, other installed modules' ACLs, `sudo()` calls, and native Odoo rights can affect what an account can access; a hidden app is not a universal guarantee against access through custom integrations. **Policy application to target business models is separate from permission to manage policies.** Changes were source-reviewed, not runtime-tested in a live Odoo instance.
 
 ## Feature inventory
 
 | Feature | Configuration / action | Code path and trigger | Expected behavior |
 |---|---|---|---|
-| Single App Access dropdown | User → Access Rights → Access Management → App Access | `security/security.xml`, `security/ir.model.access.csv`, `views/menu_views.xml` | `No`: hidden/no module ACL; `Access Management`: visible/full CRUD, independently of Settings Administrator |
+| Single-checkbox app eligibility | User → Access Rights → Access Management | `security/security.xml`, `security/ir.model.access.csv`, `views/menu_views.xml` | Controls management app visibility and full CRUD permission for the ten module policy/rule models independently of Settings Administrator |
 | User and group assignment | Policy → Users; Apply by User Groups + User Groups | `PermissionManagerPolicy._assignment_domain_for_user()` | Direct users and optionally matching group members receive policy restrictions |
 | Company scope | Apply regardless Company / Companies | `_company_domain()`, `_applicability_domain_for_user()` | Restricts matching to selected company when all-company scope is disabled |
 | Policy activation | Activate / Deactivate | `action_activate_policy()` / `action_deactivate_policy()` | Enables/disables the policy state and active flag |
@@ -104,7 +103,7 @@ To grant access: open **Settings → Users & Companies → Users**, select the u
 
 ```mermaid
 flowchart TD
-    A[Select Access Management in App Access for chosen user] --> B[User opens Access Management and creates or edits policy]
+    A[Enable Access Management checkbox on chosen user] --> B[User opens Access Management and creates or edits policy]
     B --> C[Assign users and optional groups]
     C --> D[Choose company scope]
     D --> E[Configure policy rule tabs]
@@ -122,7 +121,7 @@ flowchart TD
 
 ## Required field save popup
 
-This feature is **present in the supplied ZIP** and is not changed by the 2026-11-19 App Access selector update.
+This feature is **present in the supplied ZIP**, not newly implemented by this documentation-only update.
 
 **Configuration:** Open **Access Management → Policies → Field Controls**. Select a Model and Field, enable the Attribute Rule as appropriate, select **Required**, choose the intended Apply On view(s), and save the policy. For regular form popup behavior, the configured rule must apply to **Form**. An optional condition can make Required conditional on the current form record.
 
@@ -340,18 +339,15 @@ permission_manager_basic/
 
 ## Security and access control
 
-`security/security.xml` defines **one active access group** and exposes it through Odoo 19's category/privilege selection:
+`security/security.xml` defines **one active group for the Access Management app**:
 
-- `permission_manager_basic.module_category_permission_manager` (`ir.module.category`): **Access Management** heading on the user's Access Rights page.
-- `permission_manager_basic.privilege_permission_manager_app_access` (`res.groups.privilege`): **App Access** selector with `No` placeholder.
-
-- `permission_manager_basic.group_permission_manager_user`: user-facing choice **Access Management**, attached to the **App Access** privilege with `privilege_id`. Assign this choice explicitly to users who may manage policies.
+- `permission_manager_basic.group_permission_manager_user`: user-facing name **Access Management**. Assign it explicitly to every user who may manage Access Management policies.
 - The old `permission_manager_basic.group_permission_manager_admin` is referenced as a short-lived migration record, its legacy ACLs are deleted, and the group is then deleted during data loading. It is **not** an independently selectable role in the final installed configuration.
 - `base.group_system` (Settings Administrator) has the previous Access Management implications removed; Settings Administrator alone must **not** grant access to this app.
 
 **ACL matrix:** `security/ir.model.access.csv` contains **one row per custom model**, assigned to the same `group_permission_manager_user`. Every row gives full **Read / Write / Create / Delete** (1/1/1/1). There is no remaining Administrator-specific row in the current file.
 
-| Module model | App Access = `Access Management` | App Access = `No` — rights granted by this module |
+| Module model | Access Management checked | Access Management unchecked — rights granted by this module |
 |---|---|---|
 | `permission.manager.policy` | Full CRUD | None |
 | `permission.manager.hidden.menu.line` | Full CRUD | None |
@@ -366,7 +362,7 @@ permission_manager_basic/
 
 Both the root **Access Management** app menu and its **Policies** submenu use the `groups="-base.group_system,permission_manager_basic.group_permission_manager_user"` update in `views/menu_views.xml`. The leading `-base.group_system` removes the old Settings Administrator menu grant when upgrading the existing menu records. The policy form's **Activate Policy** and **Deactivate Policy** buttons use `groups="permission_manager_basic.group_permission_manager_user"`.
 
-**Upgrade significance:** Existing members of `group_permission_manager_user` keep the same group/XML ID; their checkbox is now represented by **App Access = Access Management**. Users who previously relied solely on Settings Administrator / the retired Administrator group must be explicitly assigned that choice. The separate old Administrator group is not recreated as an assignable role.
+**Upgrade significance:** Users who previously relied solely on an implied Settings Administrator / Access Management Administrator role **must be explicitly granted the Access Management checkbox** after the new version is loaded. The separate old Administrator group is retired; the single surviving group can now edit policies rather than being read-only.
 
 No custom `ir.rule` records are declared in `security/security.xml`; the module uses its own runtime model/domain machinery, in addition to Odoo's native permissions. Code deliberately bypasses generic policy checks for internal framework models (`permission.manager.*`, `ir.*`, `mail.*`, `web.*`, `bus.*`, `base.*` and explicitly listed bootstrap `res.*` models). It also preserves special view/field/search behavior for certain accounting reconciliation models while keeping operation checks.
 
@@ -378,10 +374,10 @@ No custom `ir.rule` records are declared in `security/security.xml`; the module 
 2. Back up the database and any customized module copy before upgrading.
 3. Place/extract the `permission_manager_basic` folder in an Odoo configured add-ons directory, or deploy it through the supported module deployment workflow.
 4. Restart Odoo (if using filesystem add-ons) and update the Apps list when necessary.
-5. Install **Access Management**, or **Upgrade** the installed module so Odoo loads the new category and privilege association. The manifest version stays `19.0.1.0.14`; an explicit upgrade is required for existing databases.
-6. From an account authorized to manage Odoo user access rights, open **Settings → Users & Companies → Users → Access Rights → Access Management → App Access** and choose **Access Management** on each intended policy manager account; otherwise choose **No**. Settings Administrator alone does not grant access. Retain a recoverable account with the choice enabled.
-7. Have the user sign out/back in or reload menus. Verify the app appears only when **App Access = Access Management**, then test create/edit/delete/activate in a test database. Refresh browser assets if older JS bundles are cached; backend JS remains registered in `web.assets_backend`.
-8. Open **Access Management → Policies** as a user with **App Access = Access Management**. Start with a test user and a low-risk test model before deploying restrictive policies to production.
+5. Install **Access Management**, or **Upgrade** the installed module. This documentation-only ZIP keeps the manifest version at `19.0.1.0.14`; **explicitly upgrade** an already-installed module to apply the previous ZIP's access-group/ACL/menu changes.
+6. From a user account authorized to manage Odoo user access rights, navigate to **Settings → Users & Companies → Users** and explicitly enable the **Access Management** checkbox on each account intended to manage the app. **Settings Administrator alone no longer auto-grants access.** Ensure a recoverable account has the checkbox before relying on policy screens.
+7. Have the newly granted user sign out/back in or reload menus. Confirm the app appears only when the box is checked; test its create/edit/delete/activate controls with a dedicated test database. Refresh backend browser assets (hard refresh if old JS bundles remain cached) and confirm backend JS is registered in `web.assets_backend`.
+8. Open **Access Management → Policies** as a checked user. Start with a test user and a low-risk test model before deploying restrictive policies to production.
 
 **Illustrative command-line upgrade** (adapt database, config file, executable, deployment paths):
 
@@ -389,7 +385,7 @@ No custom `ir.rule` records are declared in `security/security.xml`; the module 
 ./odoo-bin -c /path/to/odoo.conf -d YOUR_DB -u permission_manager_basic --stop-after-init
 ```
 
-This ZIP changes only `security/security.xml` and the two documentation files relative to the uploaded ZIP. Existing ACLs, menus, views, Python/JS/CSS, assets, and business logic are unchanged. An explicit module upgrade is needed to load the new `res.groups.privilege` association. The manifest version is not incremented. Production install/upgrade testing has not been performed here.
+This update of `README.md`/`CHANGELOG.md` introduces no additional executable change. The **underlying previously updated ZIP** already contains a security migration in `security/security.xml` (old admin group/ACL retirement), the new full CRUD CSV grants, and menu/button group changes. It is important to run a normal module upgrade to load that previous functional change. The manifest version is not incremented. Production install/upgrade testing has not been performed here.
 
 ## Proposed QA test cases
 
@@ -397,13 +393,13 @@ These tests are **proposed**; they have **not** been executed during this docume
 
 | ID | Preconditions | Steps | Expected result | Relevant implementation |
 |---|---|---|---|---|
-| AM-001 | User has App Access = `Access Management` | Open Access Management; create a named policy | Policy saved and visible | policy model, menu and ACLs |
-| AM-024 | User has App Access = `No` | Sign in; inspect app launcher and menus | App root and Policies menu absent for that user | `views/menu_views.xml`, `security/security.xml` |
-| AM-025 | User has App Access = `Access Management` | Create, read, edit, and delete a test policy/rule record | All four operations permitted by module ACLs, subject to other Odoo restrictions | `security/ir.model.access.csv` |
-| AM-026 | Settings Administrator with App Access = `No` | Sign in as Settings Administrator; inspect menus | App not automatically exposed through `base.group_system` | `security/security.xml`, `views/menu_views.xml` |
-| AM-027 | Same account as AM-024 | Select `Access Management` then `No`, saving and reloading after each change | App menu shows only on `Access Management`; no separate Administrator option | `security/security.xml`, `views/menu_views.xml` |
-| AM-028 | Existing installation with old Administrator group/ACL grants | Back up DB, upgrade module, verify groups/ACLs, explicitly set App Access choice for intended managers | Old admin group/grants retired, single surviving Access Management group controls access, policy records preserved | `security/security.xml`, `security/ir.model.access.csv` |
-| AM-029 | App Access = `Access Management`, active/inactive policy | Open policy and test Activate/Deactivate by state | Both state-appropriate buttons available to group member | `views/permission_manager_views.xml` |
+| AM-001 | User explicitly has Access Management checkbox | Open Access Management; create a named policy | Policy saved and visible | policy model, menu and ACLs |
+| AM-024 | User without Access Management checkbox | Sign in; inspect app launcher and menus | App root and Policies menu absent for that user | `views/menu_views.xml`, `security/security.xml` |
+| AM-025 | User with Access Management checkbox | Create, read, edit, and delete a test policy/rule record | All four operations permitted by module ACLs, subject to other Odoo restrictions | `security/ir.model.access.csv` |
+| AM-026 | Settings Administrator **without** Access Management checkbox | Sign in as Settings Administrator; inspect menus | App not automatically exposed through `base.group_system` | `security/security.xml`, `views/menu_views.xml` |
+| AM-027 | Same account as AM-024 | Check the group and reload/login, then uncheck and reload/login | Menu shows only while checkbox is selected; no separate app Administrator checkbox | `security/security.xml`, `views/menu_views.xml` |
+| AM-028 | Existing installation with old Administrator group/ACL grants | Back up DB, upgrade module, verify groups/ACLs, explicitly set checkbox for intended managers | Old admin group/grants retired, single surviving Access Management group controls access, policy records preserved | `security/security.xml`, `security/ir.model.access.csv` |
+| AM-029 | Checked user, active/inactive policy | Open policy and test Activate/Deactivate by state | Both state-appropriate buttons available to group member | `views/permission_manager_views.xml` |
 | AM-002 | Test user assigned directly | Activate applicable policy; open target model | Matching restrictions applied | `_assignment_domain_for_user()` |
 | AM-003 | Group-assigned policy | Enable group assignment; add user to selected group | Group member receives restrictions | `_group_assignment_schema_ready()`, `_assignment_domain_for_user()` |
 | AM-004 | Multi-company user | Set Apply regardless Company off; select company | Rules only when company matches | `_company_domain()` |
@@ -423,7 +419,7 @@ These tests are **proposed**; they have **not** been executed during this docume
 | AM-018 | No Export on field | Attempt export with restricted field | `UserError` / field unavailable | `Base.export_data()`, `fields_get()` |
 | AM-019 | Block Login on test account | Sign out and attempt new login | Login denied | `ResUsers._check_credentials()` |
 | AM-020 | Policy inactive | Deactivate; reload test account session/form | Rule no longer applies | policy state and applicability |
-| AM-021 | Existing upgraded instance | Upgrade module; explicitly select App Access = Access Management; hard refresh | Existing configuration retained; new menu/ACL setup and backend JS present | manifest assets / module data |
+| AM-021 | Existing upgraded instance | Upgrade module; explicitly grant checkbox; hard refresh | Existing configuration retained; new menu/ACL setup and backend JS present | manifest assets / module data |
 | AM-022 | Domain Rule configured | Set relational selection domain and test selector | **Verify behavior separately; not confirmed by present source** | `selection_domain` storage only |
 | AM-023 | Record Domain Write/Create/Delete scoped | Attempt out-of-domain mutations | **Verify separately; no enforcement hook established in current source** | `scope_*` fields, Base hooks |
 
@@ -433,8 +429,8 @@ Include negative cases for duplicate rule lines, protected technical fields, inv
 
 | Symptom | Check | Safe next step |
 |---|---|---|
-| Access Management app missing after upgrade | App Access = `No`, old Settings Administrator implication removed, session menu cache | Choose **Access Management** in App Access; Save, sign in again, and verify `views/menu_views.xml` group assignment |
-| App appears with App Access = `No` | User group inheritance/custom groups, another module altering menu groups, stale session, or Odoo superuser mode | Verify effective groups and native/menu security, repeat in ordinary test account; inspect any custom menu/ACL grants |
+| Access Management app missing after upgrade | Access Management checkbox absent, old Settings Administrator implication removed, session menu cache | Explicitly assign the **Access Management** group on the user; Save, sign in again, and verify `views/menu_views.xml` group assignment |
+| App appears without checkbox | User group inheritance/custom groups, another module altering menu groups, stale session, or Odoo superuser mode | Verify effective groups and native/menu security, repeat in ordinary test account; inspect any custom menu/ACL grants |
 | User sees app but cannot edit policies | Group not saved/effective, restrictive third-party record rule, or stale ACL registry | Verify single Access Management group and full CRUD rows, upgrade module, use a normal test account |
 | Required popup does not appear | Active policy, matching user/company, Field Controls → Required, Form Apply On, loaded `required_field_save_popup.js` | Inspect generated form XML for `data-pm-required-popup`; upgrade module and hard-refresh browser |
 | Popup names unexpected field | Actual `string` on form field or `ir.model.fields.field_description` | Check selected `field_id` and translated form label; reproduce in test record |
@@ -458,8 +454,8 @@ Useful diagnostic entry points: `PermissionManagerPolicy._applicability_domain_f
 5. For model operations check `_get_blocked_operations_for_current_user()` and `_permission_manager_check_operation()`; for search controls inspect `get_search_panel_access()` and `search_menu_access.js`.
 6. For screens review `views/permission_manager_views.xml`, for menus `views/menu_views.xml`, for permissions `security/security.xml` and `security/ir.model.access.csv`.
 7. For legacy/compatibility pathways inspect `PermissionManagerFieldStateRuleLine`, Model Permissions legacy Custom Filter handling, and reconciliation compatibility exemptions.
-8. For app eligibility trace `module_category_permission_manager` → `privilege_permission_manager_app_access` → surviving `group_permission_manager_user` in `security/security.xml`; the same group is used by `security/ir.model.access.csv`, menus, and policy buttons. Do not confuse app permission with policy assignment to affected users.
-9. Before changing any code, add tests for the App Access `No` / `Access Management` selection, Settings Administrator independence, upgrade cleanup of the retired group, direct vs group policy assignment, multiple companies, native rights, and refresh/cache behavior.
+8. For app eligibility trace the surviving `group_permission_manager_user` through `security/security.xml`, `security/ir.model.access.csv`, `views/menu_views.xml`, and the policy form button `groups` attributes. Do not confuse app permission with policy assignment to affected users.
+9. Before changing any code, add tests for explicit checkbox on/off, Settings Administrator independence, upgrade cleanup of the retired group, direct vs group policy assignment, multiple companies, native rights, and refresh/cache behavior.
 
 ## Known limitations and verification status
 
@@ -469,10 +465,10 @@ Useful diagnostic entry points: `PermissionManagerPolicy._applicability_domain_f
 - Record-domain `scope_write`, `scope_create`, and `scope_delete` settings are stored, but the supplied `Base` code shows an explicit integration for **Read scope in `web_search_read()`** only.
 - UI hiding for view choices, chatter, buttons/tabs, debug tools, search controls, and spreadsheet entry points should not be misrepresented as a standalone blanket API restriction.
 - Framework and certain reconciliation models receive explicit compatibility exceptions.
-- Source review confirms one app Access Management group, its App Access privilege/category association, and ten full CRUD ACL rows; the actual Odoo 19 user-form dropdown presentation, database migration effects, and runtime enforcement are **not independently tested**.
+- Source review confirms one surviving app Access Management group and ten full CRUD ACL rows in the supplied ZIP; the actual Odoo 19 user-form checkbox presentation, database migration effects, and runtime enforcement are **not independently tested**.
 - No dated release history, git log, upgrade notes or historical `CHANGELOG.md` were present in the source used for the existing docs. The **2026-11-02 Required popup correction** was previously documented against earlier ZIP revisions; the manifest release date remains **Not verified**. The **2026-11-09 single-checkbox access-control revision** is verified against the immediately preceding original ZIP supplied in this conversation.
-- This ZIP revision modifies only `security/security.xml`, `README.md`, and `CHANGELOG.md` relative to the supplied 2026-11-19 ZIP. It does not modify Python, JS, CSS, views, CSV, manifest, images, or business logic.
+- This particular ZIP revision modifies only `README.md` and `CHANGELOG.md` relative to the already-updated single-checkbox ZIP. It does not modify Python, JS, CSS, XML, CSV, manifest, images, or business logic.
 
 ## Changelog
 
-See [`CHANGELOG.md`](CHANGELOG.md) for the source-verified feature inventory, the earlier **2026-11-09 one-group security revision**, the **2026-11-19 App Access dropdown placement update**, and the previous 2026-11-02 documentation entries. The release date of version `19.0.1.0.14` is **not verified**.
+See [`CHANGELOG.md`](CHANGELOG.md) for the source-verified feature inventory, the **2026-11-09 single-checkbox security/access-control revision** already present in the input ZIP, the previous 2026-11-02 entries, and the **2026-11-09 documentation-only update**. The release date of version `19.0.1.0.14` is **not verified**.
