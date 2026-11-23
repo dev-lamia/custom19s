@@ -4,6 +4,12 @@ This changelog follows a *Keep a Changelog*-inspired structure and distinguishes
 
 ## [Unreleased] — 2026-11-23
 
+### [Contacts / Support] — 2026-11-23
+- **[2026-11-23]** Linked developer **Lamia** to the profile URL already documented in the original manifest, `https://lamia-akter.odoo.com/`, in the sky-blue store description. The profile URL's live availability was not independently verified.
+- **[2026-11-23]** Included the official Softeko website `https://www.softeko.co/` and support/contact page `https://www.softeko.co/contact/` in the developer/support cards. External website links may be invalidated by the Odoo Apps Store HTML sanitizer.
+- **[2026-11-23]** Added `support: contact@softeko.co` to `__manifest__.py` (Odoo Apps support metadata) and an allowed `mailto:` contact link in the store description. The previously configured `website` field, app version, animation, and functionality remain unchanged.
+- **[2026-11-23]** Updated `README.md` with the contact URLs, their source, and Odoo Apps link-sanitization limitations.
+
 ### [Style / Storefront] — 2026-11-23
 - **[2026-11-23]** Redesigned `static/description/index.html` in a consistent sky-blue Softeko visual identity with a responsive feature showcase and original Odoo module screenshots.
 - **[2026-11-23]** Replaced the store icon and created `images/main_screenshot.png` and `images/feature_model_permissions.png`, using actual supplied policy/model screenshots in the visual compositions.

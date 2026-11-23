@@ -467,7 +467,7 @@ Useful diagnostic entry points: `PermissionManagerPolicy._applicability_domain_f
 - Framework and certain reconciliation models receive explicit compatibility exceptions.
 - Source review confirms one surviving app Access Management group and ten full CRUD ACL rows in the supplied ZIP; the actual Odoo 19 user-form checkbox presentation, database migration effects, and runtime enforcement are **not independently tested**.
 - No dated release history, git log, upgrade notes or historical `CHANGELOG.md` were present in the source used for the existing docs. The **2026-11-02 Required popup correction** was previously documented against earlier ZIP revisions; the manifest release date remains **Not verified**. The **2026-11-09 single-checkbox access-control revision** is verified against the immediately preceding original ZIP supplied in this conversation.
-- This particular ZIP revision modifies only `README.md` and `CHANGELOG.md` relative to the already-updated single-checkbox ZIP. It does not modify Python, JS, CSS, XML, CSV, manifest, images, or business logic.
+- The 2026-11-09 documentation-only revision modified only `README.md` and `CHANGELOG.md` relative to the already-updated single-checkbox ZIP. The later 2026-11-23 storefront revisions are documented below; they change visual store assets and manifest metadata, not executable business logic.
 
 ## Changelog
 
@@ -491,3 +491,28 @@ HTML sanitization and has **not been verified in a live Odoo Apps listing**.
 
 No Python model, view, security, backend JS/CSS or module workflow was changed by
 this storefront-design update. The declared module version remains unchanged.
+
+
+### Developer, website and support links — 2026-11-23
+
+The branded footer in `static/description/index.html` identifies the developer and
+company and includes these contact links:
+
+| Contact | Address | Basis |
+|---|---|---|
+| Developer: Lamia | https://lamia-akter.odoo.com/ | Existing `description` value in `__manifest__.py`; current profile availability not independently verified |
+| Company website | https://www.softeko.co/ | Existing manifest `website` value and public company site |
+| Company support/contact | https://www.softeko.co/contact/ | Softeko contact page |
+| Support email | contact@softeko.co | Public Softeko company contact address; newly assigned to manifest `support` metadata |
+
+The `website` manifest value remains unchanged; `support` is an Odoo Apps metadata
+field and expects an **email address**, not an HTTPS contact-page URL. The plain-text
+URLs remain visible in the description markup even if the Odoo Apps Store removes
+their clickable anchors. Odoo Apps vendor guidelines permit `mailto:` links but
+may invalidate external website/profile links in descriptions. Thus, **clickable
+external links are not guaranteed to remain functional on the live store**.
+The interactive storefront appearance has not been tested after Odoo sanitization.
+
+This update changes only store description markup, manifest support metadata,
+README and CHANGELOG; the existing sky-blue design, animated GIF, screenshots,
+security rules, Python models, backend JS/CSS, XML views, and module version are retained.

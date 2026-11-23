@@ -67,4 +67,5 @@
                 'Developer Profile: https://lamia-akter.odoo.com/\n'
                 'Company Website: https://www.softeko.co/\n'
                 'Compatibility: Odoo 19\n',
- 'website': 'https://www.softeko.co/'}
+ 'website': 'https://www.softeko.co/',
+ 'support': 'contact@softeko.co'}
