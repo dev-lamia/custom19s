@@ -4,6 +4,12 @@ This changelog follows a *Keep a Changelog*-inspired structure and distinguishes
 
 ## [Unreleased] — 2026-11-23
 
+### [Store UI Previews / Animation Preservation] — 2026-11-23
+- **[2026-11-23]** Added a visual overview image and eight individually matched illustrative setup UI preview images beside the corresponding policy-tab explanations in `static/description/index.html`.
+- **[2026-11-23]** Kept the existing detailed configuration guidance, real Odoo product screenshots, sky-blue Softeko branding, developer links and support details. The previews are labeled illustrative to distinguish them from the real Odoo screenshots elsewhere on the page.
+- **[2026-11-23]** Retained and verified the animated promotional banner at `static/description/images/security_animated.gif` without adding JavaScript or custom animation runtime.
+- **[2026-11-23]** Updated `README.md`; no changes were made to executable Python, JS, CSS, XML, security data or manifest and the module version is unchanged.
+
 ### [Store Description / Tab Guide] — 2026-11-23
 - **[2026-11-23]** Added a sky-blue policy-tab reference to `static/description/index.html`, documenting each of the eight main policy tabs, three Field Controls sub-tabs, configuration choices, use-case examples and differences between navigation, model, record and field rules.
 - **[2026-11-23]** Added anchor-based quick navigation and plain HTML explanation cards; no JavaScript, custom animation libraries or executable module files were changed.

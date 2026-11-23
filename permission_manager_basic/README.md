@@ -13,7 +13,7 @@ A policy-based access management module that configures user-, group-, company-,
 | Category | Administration/Access Rights |
 | License | LGPL-3 |
 | Dependencies | `base`, `mail`, `web` |
-| Documentation updated | **2026-11-09** |
+| Documentation updated | **2026-11-23** |
 | Latest verified release date | **Not verified**; the manifest supplies a version but no release date |
 | Documentation status | Source-code reviewed; Odoo runtime / browser end-to-end testing **not performed** for this documentation update |
 
@@ -35,6 +35,13 @@ A policy-based access management module that configures user-, group-, company-,
 - [New developer quick start](#new-developer-quick-start)
 - [Known limitations and verification status](#known-limitations-and-verification-status)
 - [Changelog](#changelog)
+
+
+### Illustrated setup UI previews in the Odoo Apps Store page (2026-11-23)
+
+The product description at `static/description/index.html` now pairs **each of the eight main policy-tab explanations** with a dedicated setup UI preview image. A full-height visual overview is available at `static/description/images/all_tabs_setup_overview.png`; individual previews are `static/description/images/setup_preview_{menus,models,search,fields,records,chatter,buttons,global}.png`. These assets are **illustrative UI examples** derived from a promotional composite, **not verified live screenshots**. Existing authentic policy dashboard, permissions and search screenshots remain in the product page for reference.
+
+The introductory promotional animation stays at `static/description/images/security_animated.gif` (animated GIF, no JavaScript). This release changes only documentation/store-description assets and does not alter executable application logic, the module version, access rights, or policy behavior. Verify store rendering after publication, because third-party storefront sanitization is outside this review.
 
 ## Overview
 
