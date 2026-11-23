@@ -1,394 +1,480 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Access Management for Odoo 19 | Softeko</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Access Management for Odoo 19 | Softeko</title>
 </head>
 <body style="margin:0;background:#f7fcff;color:#173e60;font-family:Arial,Helvetica,sans-serif;line-height:1.6;">
+<!--
+    Store-safe page: no <script>, no <style>, no external assets.
+    Tabs use Bootstrap's built-in data API (data-bs-toggle="pill"), which Odoo
+    loads in the backend and on the Apps Store. Animations come from animated
+    GIFs and Bootstrap's own classes (fade, spinner-grow, progress-bar-animated).
+-->
 <div style="max-width:1200px;margin:0 auto;padding:20px 12px 48px;">
-<!-- Store-safe, image-based animation: no JavaScript, style tags, or external assets. -->
-<section style="overflow:hidden;border:1px solid #c6eafb;border-radius:24px;background:linear-gradient(120deg,#f7fdff 0%,#eaf9ff 52%,#b9e7ff 100%);box-shadow:0 18px 45px rgba(27,117,171,.11);">
-<div class="row" style="margin:0;align-items:center;">
-<div class="col-lg-6 col-md-6 col-12" style="padding:42px 30px 42px 38px;">
-<div style="display:inline-block;padding:8px 15px;border:1px solid #9fddf8;background:#ffffff;border-radius:30px;color:#097fb6;font-size:12px;font-weight:800;letter-spacing:1.5px;">
-                    ✦ SOFTEKO   /   ODOO 19
+
+    <!-- ===================== BRAND BAR ===================== -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:12px 20px;margin-bottom:16px;background:#ffffff;border:1px solid #d3ecf9;border-radius:18px;box-shadow:0 8px 24px rgba(27,117,171,.07);">
+        <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;">
+            <img src="images/softeko_logo.png" alt="Softeko" style="display:block;height:44px;width:auto;"/>
+        </a>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+            <span style="display:inline-block;padding:6px 12px;border-radius:20px;background:#149bd6;color:#ffffff;font-size:12px;font-weight:800;letter-spacing:.4px;">Odoo 19</span>
+            <span style="display:inline-block;padding:6px 12px;border-radius:20px;background:#eaf8ff;color:#1277a9;border:1px solid #bfe6f8;font-size:12px;font-weight:700;">v19.0.1.0.14</span>
+            <span style="display:inline-block;padding:6px 12px;border-radius:20px;background:#eaf8ff;color:#1277a9;border:1px solid #bfe6f8;font-size:12px;font-weight:700;">LGPL-3</span>
+            <span style="display:inline-block;padding:6px 12px;border-radius:20px;background:#eaf8ff;color:#1277a9;border:1px solid #bfe6f8;font-size:12px;font-weight:700;">Administration / Access Rights</span>
+        </div>
+    </div>
+
+    <!-- ===================== HERO ===================== -->
+    <section style="overflow:hidden;border:1px solid #c6eafb;border-radius:24px;background:linear-gradient(120deg,#f7fdff 0%,#eaf9ff 52%,#b9e7ff 100%);box-shadow:0 18px 45px rgba(27,117,171,.11);">
+        <div class="row" style="margin:0;align-items:center;">
+            <div class="col-lg-6 col-md-6 col-12" style="padding:40px 30px 40px 38px;">
+                <div style="display:inline-block;padding:8px 15px;border:1px solid #9fddf8;background:#ffffff;border-radius:30px;color:#097fb6;font-size:12px;font-weight:800;letter-spacing:1.5px;">
+                    <span class="spinner-grow" role="status" style="width:9px;height:9px;color:#20c997;vertical-align:middle;margin:-2px 7px 0 0;"></span>SOFTEKO &nbsp; / &nbsp; ODOO 19
                 </div>
-<h1 style="margin:18px 0 14px;color:#123a5c;font-size:43px;line-height:1.13;font-weight:800;">
-                    Access<br/><span style="color:#119ddc;">Management</span>
-</h1>
-<p style="margin:0;color:#29678d;font-size:21px;line-height:1.4;font-weight:700;">Every user. The right access.</p>
-<p style="margin:15px 0 0;max-width:560px;color:#56788e;font-size:15px;line-height:1.8;">
+                <div style="display:flex;align-items:center;gap:16px;margin:20px 0 14px;">
+                    <img src="icon.png" alt="Access Management module icon" style="width:76px;height:76px;border-radius:20px;box-shadow:0 10px 24px rgba(20,120,190,.28);flex:0 0 76px;"/>
+                    <h1 style="margin:0;min-width:0;color:#123a5c;font-size:clamp(28px,5.2vw,42px);line-height:1.1;font-weight:800;overflow-wrap:anywhere;">
+                        Access<br/><span style="color:#119ddc;">Management</span>
+                    </h1>
+                </div>
+                <p style="margin:0;color:#29678d;font-size:21px;line-height:1.4;font-weight:700;">Every user. The right access.</p>
+                <p style="margin:14px 0 0;max-width:560px;color:#56788e;font-size:15px;line-height:1.8;">
                     Create clear, reusable access policies and manage who can see or use
                     menus, models, fields, records and daily actions—right from Odoo.
                     Designed for practical administration, by Softeko.
                 </p>
-<div style="margin-top:22px;">
-<span style="display:inline-block;margin:3px 5px 3px 0;padding:8px 12px;border-radius:22px;background:#ffffff;color:#167eb2;border:1px solid #b5e6fa;font-size:12px;font-weight:700;">✓ User &amp; Group Policies</span>
-<span style="display:inline-block;margin:3px 5px 3px 0;padding:8px 12px;border-radius:22px;background:#ffffff;color:#167eb2;border:1px solid #b5e6fa;font-size:12px;font-weight:700;">✓ Multi-Company Scope</span>
-<span style="display:inline-block;margin:3px 5px 3px 0;padding:8px 12px;border-radius:22px;background:#ffffff;color:#167eb2;border:1px solid #b5e6fa;font-size:12px;font-weight:700;">✓ Granular Controls</span>
-</div>
-<div style="margin-top:20px;color:#247ca9;font-size:12px;font-weight:700;letter-spacing:.6px;">BUILT FOR ODOO 19   •   NO ODOO CORE MODIFICATIONS</div>
-</div>
-<div class="col-lg-6 col-md-6 col-12" style="padding:18px 18px 18px 8px;">
-<div style="padding:8px;background:#ffffff;border:1px solid #c5e6fa;border-radius:22px;box-shadow:0 16px 35px rgba(26,129,184,.17);">
-<img alt="Animated sky-blue access security illustration showing a shield and permission controls" src="images/security_animated.gif" style="display:block;width:100%;height:auto;border-radius:16px;"/>
-</div>
-<p style="margin:9px 5px 0;color:#5387a2;font-size:11px;text-align:center;">Animated conceptual illustration • Actual Odoo screens are shown below</p>
-</div>
-</div>
-</section>
-<!-- Compact benefits ribbon -->
-<section style="margin-top:18px;">
-<div class="row" style="margin:0 -5px;">
-<div class="col-lg-3 col-md-6 col-12" style="padding:5px;"><div style="height:100%;padding:16px;border:1px solid #d8edf9;border-radius:15px;background:#ffffff;text-align:center;"><strong style="display:block;color:#148ec6;font-size:14px;">👥 Users &amp; Groups</strong><span style="font-size:12px;color:#66849b;">Reusable policy assignments</span></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:5px;"><div style="height:100%;padding:16px;border:1px solid #d8edf9;border-radius:15px;background:#ffffff;text-align:center;"><strong style="display:block;color:#148ec6;font-size:14px;">🏢 Multi-Company</strong><span style="font-size:12px;color:#66849b;">Company-specific policy scope</span></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:5px;"><div style="height:100%;padding:16px;border:1px solid #d8edf9;border-radius:15px;background:#ffffff;text-align:center;"><strong style="display:block;color:#148ec6;font-size:14px;">🛡 Access Rules</strong><span style="font-size:12px;color:#66849b;">Menu, model, field &amp; record</span></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:5px;"><div style="height:100%;padding:16px;border:1px solid #d8edf9;border-radius:15px;background:#ffffff;text-align:center;"><strong style="display:block;color:#148ec6;font-size:14px;">⚙ One Workspace</strong><span style="font-size:12px;color:#66849b;">Centralized policy configuration</span></div></div>
-</div>
-</section>
-<!-- Cover and authentic product visuals -->
-<section style="margin-top:43px;">
-<div style="text-align:center;">
-<div style="display:inline-block;color:#109bd3;font-weight:800;font-size:12px;letter-spacing:1.7px;">DISCOVER THE APP</div>
-<h2 style="margin:6px 0 9px;color:#123d5f;font-size:31px;font-weight:800;">A clearer way to manage Odoo access</h2>
-<p style="margin:0 0 22px;color:#61869d;font-size:14px;">Beautiful policy configuration built around real administration workflows.</p>
-</div>
-<div style="padding:8px;background:#ffffff;border:1px solid #c9e7f7;border-radius:20px;box-shadow:0 12px 32px rgba(26,102,144,.07);">
-<img alt="Softeko Access Management cover featuring a real Odoo 19 policy configuration screenshot" src="images/main_screenshot.png" style="width:100%;display:block;height:auto;border-radius:14px;"/>
-</div>
-</section>
-<!-- Feature summary -->
-<section style="margin-top:46px;">
-<div style="text-align:center;margin-bottom:18px;">
-<div style="display:inline-block;color:#109bd3;font-size:12px;font-weight:800;letter-spacing:1.6px;">FEATURE HIGHLIGHTS</div>
-<h2 style="margin:5px 0 8px;color:#123d5f;font-size:31px;font-weight:800;">Fine-grained access, organized simply</h2>
-<p style="margin:0;color:#65849b;font-size:14px;">Configure policies across the most important parts of your Odoo interface.</p>
-</div>
-<div class="row" style="margin:0 -7px;">
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">👤</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">User &amp; Group Policies</h3><p style="font-size:13px;color:#6b8597;margin:0;">Assign policies to selected users, groups or both.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">☰</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Menu Visibility</h3><p style="font-size:13px;color:#6b8597;margin:0;">Hide chosen menus and submenus for policy members.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">🔐</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Model Permissions</h3><p style="font-size:13px;color:#6b8597;margin:0;">Configure read, create, write, delete and other model actions.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">🧩</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Field Controls</h3><p style="font-size:13px;color:#6b8597;margin:0;">Hide fields or configure read-only, required and import/export rules.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">🌐</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Company Scope</h3><p style="font-size:13px;color:#6b8597;margin:0;">Apply rules for all companies or a selected company scope.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">🔎</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Record &amp; Search</h3><p style="font-size:13px;color:#6b8597;margin:0;">Configure record visibility domains and search menu options.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">💬</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Chatter &amp; Views</h3><p style="font-size:13px;color:#6b8597;margin:0;">Control chatter elements, buttons, tabs, reports and views.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;box-shadow:0 8px 23px rgba(38,125,167,.045);"><div style="font-size:25px;">🛡</div><h3 style="font-size:16px;color:#167ba9;margin:10px 0 7px;font-weight:800;">Global Settings</h3><p style="font-size:13px;color:#6b8597;margin:0;">Configure force read-only, login, debug and export-related controls.</p></div></div>
-</div>
-</section>
-<!-- Source-verified policy tab reference; works without JavaScript or remote CSS. -->
-<section id="policy-tabs-guide" style="margin-top:46px;">
-<div style="border:1px solid #b4e4fa;border-radius:23px;background:linear-gradient(125deg,#e3f5ff,#f7fdff 65%,#cceeff);padding:26px 22px 22px;">
-<div style="display:inline-block;font-size:11px;letter-spacing:1.6px;color:#0987c1;font-weight:800;">COMPLETE POLICY TAB GUIDE</div>
-<h2 style="margin:7px 0 8px;font-size:31px;line-height:1.25;color:#123d5f;">What does every tab do?</h2>
-<p style="font-size:14px;color:#507d97;line-height:1.75;margin:0 0 14px;max-width:900px;">The Access Management policy form includes <strong>8 main configuration tabs</strong>. Select a section below to understand its purpose, available settings and an everyday example. <strong>Field Controls</strong> also includes <strong>3 sub-tabs</strong>, explained separately.</p>
-<div style="margin:0 -4px;"><a href="#guide-menus" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">01 · Hide Menus/Submenu</a><a href="#guide-models" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">02 · Model Permissions</a><a href="#guide-search" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">03 · Search Panel</a><a href="#guide-fields" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">04 · Field Controls</a><a href="#guide-records" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">05 · Record Domain Rules</a><a href="#guide-chatter" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">06 · Chatter Visibility</a><a href="#guide-buttons" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">07 · Hide Buttons/Tabs</a><a href="#guide-global" style="display:inline-block;margin:4px;padding:8px 11px;border:1px solid #9fdff8;border-radius:20px;background:#fff;color:#1277a9;text-decoration:none;font-size:12px;font-weight:700;">08 · Global Controls</a></div>
-<div style="margin-top:15px;padding:11px 13px;border:1px solid #b6e3f7;border-radius:12px;background:#ffffff;color:#3a7595;font-size:12px;line-height:1.65;">💡 <strong>Start here:</strong> Create a policy, select users or groups, choose its company scope, then add only the restrictions you need. The details below follow the labels in the supplied Odoo 19 view XML.</div>
-</div><div style="margin:22px auto 8px;max-width:1055px;text-align:center;">
-<div style="padding:7px;border-radius:19px;border:1px solid #bde6fa;background:#fff;box-shadow:0 10px 24px rgba(16,135,198,.08);">
-<img alt="Softeko Access Management eight-tab setup overview with illustrative Odoo configuration UI examples for menus, models, search, fields, record domains, chatter, buttons and global controls" height="1491" src="images/all_tabs_setup_overview.png" style="width:100%;height:auto;display:block;border-radius:14px;" width="1055"/>
-</div>
-<p style="font-size:12px;line-height:1.65;color:#54829e;margin:9px 0 0;">Visual setup map with <strong>illustrative UI previews</strong>. Real screenshots from the supplied Odoo module are featured elsewhere on this page. Exact screen labels or layout may vary by configuration.</p>
-</div>
-<div class="row" style="margin:18px -8px 0;"><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-menus" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">01</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">NAVIGATION CONTROL</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Hide Menus/Submenu</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Hide Menus / Submenu policy tab" src="images/setup_preview_menus.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Choose the menus and submenus that should disappear for members of a policy.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Select the exact Menu Entry; its display label and parent menu are shown for clarity.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Set an optional Condition Domain for rule-specific applicability.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Switch a line on or off using its Active setting.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Keep selected configuration or accounting menus out of a trainee user's navigation.</div>
-<div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> Menu hiding changes navigation visibility; use Model Permissions for operation-level restrictions.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-models" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">02</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">OPERATIONS &amp; VIEWS</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Model Permissions</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Model Permissions policy tab" src="images/setup_preview_models.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Manage what members may do on an Odoo model and which model-level options appear.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Block Read, Create, Edit, Delete, Archive, Unarchive and Duplicate for a selected model.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Control Import Data, Export Data and spreadsheet operations.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide the model, Action menu, selected reports/actions, specific views, or view-switcher types such as List, Form, Kanban, Calendar, Pivot, Graph, Activity and Map.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Optional Condition Domain provides condition-aware model rules.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Allow team members to review sales records, but block deletion and duplication.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-search" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">03</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">SEARCH EXPERIENCE</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Search Panel</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Search Panel policy tab" src="images/setup_preview_search.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Simplify the search controls available on the selected model.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide the full Search Menu, or configure Filters, Group By and Favorites separately.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Control Custom Filter, Custom Group By and Save Current Search options.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Configure a different set of search choices for each selected model.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Keep a simple search interface for new employees without advanced custom filters.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-fields" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">04</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">FIELD-LEVEL RULES</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Field Controls</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Field Controls policy tab" src="images/setup_preview_fields.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Configure what a particular field looks like and how users can interact with it.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Choose a Model and Field, then set Hide, Read Only or Required as needed.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Use the Condition Domain for conditional attribute rules.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Choose applicable form, list, kanban and search view contexts.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Configure no-import / no-export settings and relational domain values in the field-rule form.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Make a sensitive price field read-only for selected staff, or require a field on a form.</div>
-<div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> See the three Field Controls sub-tabs directly below for the individual configuration areas.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-records" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">05</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">RECORD VISIBILITY</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Record Domain Rules</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Record Domain Rules policy tab" src="images/setup_preview_records.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Filter which records policy members can see when viewing an Odoo model.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Select the Model and define a Filter Expression using an Odoo domain.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Optionally choose a Current User Field to restrict matching records to the signed-in user.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Read, Write, Create and Delete scope switches are present in the configuration.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Use a Read filter to display only opportunities assigned to the current salesperson.</div>
-<div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> Read-scope filtering is verified in the module source. The other scope switches should be tested before relying on them as backend enforcement.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-chatter" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">06</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">COMMUNICATION UI</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Chatter Visibility</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Chatter Visibility policy tab" src="images/setup_preview_chatter.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Choose which Chatter controls appear on forms for each model.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide the entire Chatter section, or just the message composer.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Control Log Note, Schedule Activity and Search Messages.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide attachments, followers and the follow/unfollow button.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Keep an internal model form clean by hiding Chatter actions the team does not need.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-buttons" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">07</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">FORM INTERFACE</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Hide Buttons/Tabs</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Hide Buttons / Tabs policy tab" src="images/setup_preview_buttons.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Hide chosen form buttons and notebook tabs for the applicable users.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Pick a Model and click Refresh Available Items to discover its buttons and tabs.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Choose Hide Buttons and/or Hide Tabs from the available item lists.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Add an optional Condition Domain for more targeted UI visibility rules.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Hide an unnecessary workflow button or a sensitive configuration tab.</div>
-<div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> This hides user-interface elements; it does not itself prevent a corresponding method being invoked by other routes.</div>
-</div>
-</article>
-</div><div class="col-lg-6 col-md-6 col-12" style="padding:8px;">
-<article id="guide-global" style="height:100%;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
-<div style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(100deg,#e7f7ff,#f5fcff);border-bottom:1px solid #d7effb;">
-<span style="min-width:40px;height:40px;line-height:40px;text-align:center;border-radius:12px;background:#149bd6;color:#fff;font-weight:800;font-size:15px;">08</span>
-<div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;color:#278ab3;">POLICY-WIDE SETTINGS</div>
-<h3 style="margin:3px 0 0;font-size:18px;line-height:1.35;color:#134d70;font-weight:800;">Global Controls</h3></div>
-</div><div style="margin:16px 17px 0;padding:8px;background:#f0faff;border:1px solid #bce7fa;border-radius:15px;box-shadow:0 6px 14px rgba(6,122,178,.05);">
-<img alt="Illustrative setup UI preview for Global Controls policy tab" src="images/setup_preview_global.png" style="display:block;width:100%;height:auto;border-radius:9px;"/>
-<p style="font-size:11px;line-height:1.5;color:#467c99;margin:7px 5px 1px;text-align:center;"><strong>SETUP UI PREVIEW</strong>  ·  Illustrated example</p>
-</div>
-<div style="padding:18px 20px 20px;">
-<p style="font-size:14px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 11px;">Set policy-wide restrictions and choose how the company scope is applied.</p>
-<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 7px;">WHAT YOU CAN CONFIGURE</div>
-<ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Apply regardless of company or select specific companies for policy scope.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Force Read-Only for applicable users.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Block Debug Mode or Block Login for applicable users.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide Export Available Fields in the export field browser.</li></ul>
-<div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Apply a read-only review policy within selected companies.</div>
-<div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> Use Block Login and Force Read-Only carefully; these can interrupt users' normal work.</div>
-</div>
-</article>
-</div></div>
-<div id="guide-field-subtabs" style="margin-top:16px;background:linear-gradient(125deg,#e6f8ff,#f4fcff);padding:23px 18px;border:1px solid #bfe6f8;border-radius:19px;">
-<div style="text-align:center;">
-<div style="color:#0b8ec6;font-size:11px;letter-spacing:1.3px;font-weight:800;">INSIDE FIELD CONTROLS</div>
-<h3 style="font-size:23px;color:#174969;margin:6px 0 9px;">The 3 field-rule sub-tabs, explained</h3>
-<p style="font-size:13px;color:#64869b;margin:0 0 12px;">Open a field control line to configure the following areas.</p>
-</div>
-<div class="row" style="margin:0 -7px;"><div class="col-lg-4 col-md-4 col-12" style="padding:7px;">
-<div style="height:100%;padding:18px;background:#ffffff;border:1px solid #cdeaf9;border-radius:16px;">
-<div style="display:inline-block;background:#d9f3ff;color:#137cad;border-radius:20px;padding:5px 11px;font-size:11px;font-weight:800;">Attribute Rule</div>
-<h4 style="font-size:16px;color:#155a7e;margin:11px 0 7px;">Change individual field behavior</h4>
-<p style="font-size:13px;line-height:1.7;color:#577c95;margin:0;">Hide Field, Read Only, Required, an optional Condition Domain, and Apply On choices for Form, List, Kanban and Search.</p>
-<p style="font-size:12px;line-height:1.6;color:#21779e;margin:12px 0 0;">Use when a form field should be hidden or mandatory for a policy member.</p>
-</div>
-</div><div class="col-lg-4 col-md-4 col-12" style="padding:7px;">
-<div style="height:100%;padding:18px;background:#ffffff;border:1px solid #cdeaf9;border-radius:16px;">
-<div style="display:inline-block;background:#d9f3ff;color:#137cad;border-radius:20px;padding:5px 11px;font-size:11px;font-weight:800;">Domain Rule</div>
-<h4 style="font-size:16px;color:#155a7e;margin:11px 0 7px;">Configure relational selection settings</h4>
-<p style="font-size:13px;line-height:1.7;color:#577c95;margin:0;">Select a Many2one/Many2many field and store its Selection Domain in the field rule.</p>
-<p style="font-size:12px;line-height:1.6;color:#21779e;margin:12px 0 0;">Important: a runtime consumer that enforces this stored selection domain was not confirmed in the supplied module source; verify its behavior before relying on it.</p>
-</div>
-</div><div class="col-lg-4 col-md-4 col-12" style="padding:7px;">
-<div style="height:100%;padding:18px;background:#ffffff;border:1px solid #cdeaf9;border-radius:16px;">
-<div style="display:inline-block;background:#d9f3ff;color:#137cad;border-radius:20px;padding:5px 11px;font-size:11px;font-weight:800;">Import / Export</div>
-<h4 style="font-size:16px;color:#155a7e;margin:11px 0 7px;">Protect the selected field in data flows</h4>
-<p style="font-size:13px;line-height:1.7;color:#577c95;margin:0;">Configure No Import and No Export for the selected model field.</p>
-<p style="font-size:12px;line-height:1.6;color:#21779e;margin:12px 0 0;">Use to control field availability in supported import/export operations.</p>
-</div>
-</div></div>
-</div>
-<div style="margin-top:17px;border:1px solid #cfebfa;border-radius:18px;padding:20px;background:#ffffff;">
-<div style="font-size:11px;font-weight:800;letter-spacing:1.2px;color:#168ac0;">UNDERSTAND THE DIFFERENCE</div>
-<h3 style="font-size:20px;color:#164964;margin:6px 0 13px;">Which setting should you choose?</h3>
-<div class="row" style="margin:0 -6px;">
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#f2fbff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">Hide Menus</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Controls where a user can navigate.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#f2fbff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">Model Permissions</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Controls actions on an Odoo model.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#f2fbff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">Record Domains</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Filters which records appear in supported read views.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#f2fbff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">Field Controls</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Controls individual fields and their behavior.</p></div></div>
-</div>
-</div>
-<p style="font-size:12px;color:#6f8fa2;line-height:1.7;margin:14px 2px 0;">Technical note: Form button/tab hiding and some search/chatter controls affect the user interface; do not confuse hiding a control with a universal backend access rule. Verify your policy in a test database with an affected non-administrator user before deploying restrictive settings.</p>
-</section>
-<!-- Screenshot gallery (unedited screenshots from the supplied module) -->
-<section style="margin-top:46px;">
-<div style="text-align:center;margin-bottom:21px;">
-<div style="display:inline-block;color:#109bd3;font-size:12px;font-weight:800;letter-spacing:1.5px;">ACTUAL MODULE SCREENS</div>
-<h2 style="margin:5px 0 8px;color:#123d5f;font-size:31px;font-weight:800;">See Access Management in action</h2>
-<p style="margin:0;color:#65849b;font-size:14px;">Real Odoo screenshots from the supplied module; not generated interface mockups.</p>
-</div>
-<div style="border:1px solid #cce9f8;border-radius:20px;background:#ffffff;overflow:hidden;box-shadow:0 9px 30px rgba(32,115,155,.08);">
-<div style="padding:15px 20px;background:linear-gradient(90deg,#168cca,#41bbef);color:#ffffff;font-size:15px;font-weight:800;">01   •   Policy Dashboard</div>
-<div style="padding:14px;"><img alt="Actual Odoo Access Management policy dashboard" src="images/policy_dashboard.jpg" style="width:100%;height:auto;display:block;border:1px solid #e3f1f8;border-radius:11px;"/></div>
-<div style="padding:0 20px 19px;color:#67849a;font-size:13px;">Manage policy status, scope, assignments and rule tabs from one place.</div>
-</div>
-<div class="row" style="margin:14px -7px 0;">
-<div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
-<div style="height:100%;overflow:hidden;background:#ffffff;border:1px solid #cce9f8;border-radius:18px;box-shadow:0 6px 22px rgba(28,105,150,.05);">
-<div style="padding:13px 17px;background:#eaf8ff;color:#1679a8;font-weight:800;font-size:14px;">02   •   Model Permissions</div>
-<img alt="Actual model permission configuration form" src="images/model_permissions.jpg" style="display:block;width:100%;height:auto;"/>
-<p style="padding:5px 17px 16px;margin:0;font-size:13px;color:#65849a;">Configure model access and model-level operations.</p>
-</div>
-</div>
-<div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
-<div style="height:100%;overflow:hidden;background:#ffffff;border:1px solid #cce9f8;border-radius:18px;box-shadow:0 6px 22px rgba(28,105,150,.05);">
-<div style="padding:13px 17px;background:#eaf8ff;color:#1679a8;font-weight:800;font-size:14px;">03   •   Export Protection</div>
-<img alt="Actual Odoo list view with export-related action control" src="images/export_protection.jpg" style="display:block;width:100%;height:auto;"/>
-<p style="padding:5px 17px 16px;margin:0;font-size:13px;color:#65849a;">Configure export-related restrictions through policy settings.</p>
-</div>
-</div>
-<div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
-<div style="height:100%;overflow:hidden;background:#ffffff;border:1px solid #cce9f8;border-radius:18px;box-shadow:0 6px 22px rgba(28,105,150,.05);">
-<div style="padding:13px 17px;background:#eaf8ff;color:#1679a8;font-weight:800;font-size:14px;">04   •   Organized Policy Tabs</div>
-<img alt="Actual policy form showing separate configuration tabs" src="images/professional_tabs.jpg" style="display:block;width:100%;height:auto;"/>
-<p style="padding:5px 17px 16px;margin:0;font-size:13px;color:#65849a;">Dedicated sections keep permission rules easy to locate.</p>
-</div>
-</div>
-<div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
-<div style="height:100%;overflow:hidden;background:#ffffff;border:1px solid #cce9f8;border-radius:18px;box-shadow:0 6px 22px rgba(28,105,150,.05);">
-<div style="padding:13px 17px;background:#eaf8ff;color:#1679a8;font-weight:800;font-size:14px;">05   •   Policy Search &amp; Filters</div>
-<img alt="Actual policies list showing filters, group by and favorites" src="images/advanced_search.jpg" style="display:block;width:100%;height:auto;"/>
-<p style="padding:5px 17px 16px;margin:0;font-size:13px;color:#65849a;">Search policies with filters, grouping and favorites.</p>
-</div>
-</div>
-</div>
-</section>
-<!-- How it works -->
-<section style="margin-top:46px;padding:28px 23px;border:1px solid #cdebf9;border-radius:22px;background:linear-gradient(120deg,#ebf9ff,#f8fdff);">
-<div style="text-align:center;margin-bottom:18px;">
-<div style="display:inline-block;color:#109bd3;font-size:12px;font-weight:800;letter-spacing:1.4px;">EASY TO CONFIGURE</div>
-<h2 style="margin:6px 0 0;color:#123d5f;font-size:29px;font-weight:800;">Four steps to organized permissions</h2>
-</div>
-<div class="row" style="margin:0 -6px;">
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:19px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">1</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Create a policy</h3><p style="margin:0;color:#68869b;font-size:13px;">Give the policy a clear purpose and name.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:19px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">2</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Assign members</h3><p style="margin:0;color:#68869b;font-size:13px;">Select users, user groups and companies.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:19px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">3</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Configure restrictions</h3><p style="margin:0;color:#68869b;font-size:13px;">Choose the relevant model, field and UI rules.</p></div></div>
-<div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:19px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">4</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Manage policies</h3><p style="margin:0;color:#68869b;font-size:13px;">Update, activate or deactivate as needed.</p></div></div>
-</div>
-</section>
-<!-- Installation & branding -->
-<section style="margin-top:36px;">
-<div class="row" style="margin:0 -7px;">
-<div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
-<div style="height:100%;border:1px solid #d4eefa;border-radius:18px;background:#ffffff;padding:24px;">
-<div style="color:#1494d3;font-size:12px;font-weight:800;letter-spacing:1.5px;">COMPATIBILITY</div>
-<h2 style="color:#153f61;font-size:23px;margin:8px 0 12px;">Made for Odoo 19</h2>
-<p style="color:#68869b;font-size:14px;margin:0;">Designed for Odoo 19. The module declares <strong>base</strong>, <strong>mail</strong> and <strong>web</strong> as dependencies.</p>
-<p style="color:#68869b;font-size:13px;margin:12px 0 0;">Install the module, assign the Access Management group to authorized managers, then configure policies under Access Management.</p>
-</div>
-</div>
-<div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
-<div style="height:100%;border:1px solid #c6e8fa;border-radius:18px;background:linear-gradient(130deg,#e1f5ff,#c9edff);padding:24px;">
-<div style="color:#138bc4;font-size:12px;font-weight:800;letter-spacing:1.5px;">DEVELOPED BY</div>
-<h2 style="color:#153f61;font-size:27px;margin:8px 0 12px;"><a href="https://www.softeko.co/" rel="noopener noreferrer" style="color:#153f61;text-decoration:underline;text-decoration-color:#38b6e9;" target="_blank">SOFTEKO</a></h2>
-<p style="color:#426d8a;font-size:14px;margin:0;">Odoo development, customization and practical business solutions.</p>
-<p style="color:#426d8a;font-size:13px;margin:12px 0 0;">Module: <strong>Access Management</strong><br/>Developer: <strong><a href="https://lamia-akter.odoo.com/" rel="noopener noreferrer" style="color:#087cae;text-decoration:underline;" target="_blank">Lamia</a></strong><br/>Version: <strong>19.0.1.0.14</strong></p>
-</div>
-</div>
-</div>
-</section>
-<!-- Developer, company and support contacts. External URLs may be
-         made non-clickable by the Odoo Apps Store HTML sanitizer. -->
-<section style="margin-top:25px;padding:24px;border:1px solid #bde7fa;border-radius:20px;background:linear-gradient(115deg,#e9f8ff,#ffffff);">
-<div style="text-align:center;margin-bottom:18px;">
-<div style="color:#0d8dc7;font-weight:800;font-size:12px;letter-spacing:1.5px;">SOFTEKO CONTACTS</div>
-<h2 style="color:#133f62;font-size:26px;line-height:1.3;margin:6px 0 5px;">Meet the developer &amp; get support</h2>
-<p style="color:#6488a0;font-size:13px;margin:0;">Developer information, Softeko website and product assistance.</p>
-</div>
-<div class="row" style="margin:0 -6px;">
-<div class="col-lg-4 col-md-4 col-12" style="padding:6px;">
-<div style="height:100%;padding:18px;border:1px solid #d1ebf8;background:#ffffff;border-radius:15px;">
-<div style="font-size:22px;">💻</div>
-<h3 style="font-size:16px;color:#116f9e;margin:8px 0 4px;">Developer: Lamia</h3>
-<p style="font-size:12px;color:#6488a0;margin:0 0 12px;">Odoo module developer profile</p>
-<a href="https://lamia-akter.odoo.com/" rel="noopener noreferrer" style="font-size:13px;font-weight:700;color:#078bc2;text-decoration:underline;overflow-wrap:anywhere;" target="_blank">lamia-akter.odoo.com</a>
-</div>
-</div>
-<div class="col-lg-4 col-md-4 col-12" style="padding:6px;">
-<div style="height:100%;padding:18px;border:1px solid #d1ebf8;background:#ffffff;border-radius:15px;">
-<div style="font-size:22px;">🌐</div>
-<h3 style="font-size:16px;color:#116f9e;margin:8px 0 4px;">Softeko Website</h3>
-<p style="font-size:12px;color:#6488a0;margin:0 0 12px;">Official company website</p>
-<a href="https://www.softeko.co/" rel="noopener noreferrer" style="font-size:13px;font-weight:700;color:#078bc2;text-decoration:underline;overflow-wrap:anywhere;" target="_blank">www.softeko.co</a>
-</div>
-</div>
-<div class="col-lg-4 col-md-4 col-12" style="padding:6px;">
-<div style="height:100%;padding:18px;border:1px solid #d1ebf8;background:#ffffff;border-radius:15px;">
-<div style="font-size:22px;">💬</div>
-<h3 style="font-size:16px;color:#116f9e;margin:8px 0 4px;">Contact Support</h3>
-<p style="font-size:12px;color:#6488a0;margin:0 0 8px;">Questions about setup or permissions?</p>
-<a href="https://www.softeko.co/contact/" rel="noopener noreferrer" style="display:block;font-size:13px;font-weight:700;color:#078bc2;text-decoration:underline;overflow-wrap:anywhere;" target="_blank">www.softeko.co/contact/</a>
-<a href="mailto:contact@softeko.co?subject=Access%20Management%20Odoo%2019%20Support" style="display:block;font-size:12px;font-weight:700;color:#078bc2;text-decoration:underline;margin-top:6px;overflow-wrap:anywhere;">contact@softeko.co</a>
-</div>
-</div>
-</div>
-</section>
-<div style="margin-top:30px;border-top:1px solid #cce9f8;padding-top:19px;text-align:center;color:#6c96ad;font-size:12px;letter-spacing:.6px;">
-        SOFTEKO   •   ACCESS MANAGEMENT   •   ODOO 19
+                <div style="margin-top:20px;">
+                    <span style="display:inline-block;margin:3px 5px 3px 0;padding:8px 12px;border-radius:22px;background:#ffffff;color:#167eb2;border:1px solid #b5e6fa;font-size:12px;font-weight:700;">✓ User &amp; Group Policies</span>
+                    <span style="display:inline-block;margin:3px 5px 3px 0;padding:8px 12px;border-radius:22px;background:#ffffff;color:#167eb2;border:1px solid #b5e6fa;font-size:12px;font-weight:700;">✓ Multi-Company Scope</span>
+                    <span style="display:inline-block;margin:3px 5px 3px 0;padding:8px 12px;border-radius:22px;background:#ffffff;color:#167eb2;border:1px solid #b5e6fa;font-size:12px;font-weight:700;">✓ Granular Controls</span>
+                </div>
+                <div style="margin-top:18px;color:#247ca9;font-size:12px;font-weight:700;letter-spacing:.6px;">BUILT FOR ODOO 19 &nbsp; • &nbsp; NO ODOO CORE MODIFICATIONS</div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12" style="padding:18px 18px 18px 8px;">
+                <div style="padding:8px;background:#ffffff;border:1px solid #c5e6fa;border-radius:22px;box-shadow:0 16px 35px rgba(26,129,184,.17);">
+                    <img src="images/security_animated.gif" alt="Animated sky-blue access security illustration showing a shield and permission controls" style="display:block;width:100%;height:auto;border-radius:16px;"/>
+                </div>
+                <p style="margin:9px 5px 0;color:#5387a2;font-size:11px;text-align:center;">Animated conceptual illustration • Actual Odoo screens are in the Screenshots tab</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== STATS RIBBON ===================== -->
+    <section style="margin-top:16px;">
+        <div class="row" style="margin:0 -6px;">
+            <div class="col-lg-3 col-md-6 col-6" style="padding:6px;"><div style="height:100%;padding:16px 14px;border:1px solid #d8edf9;border-radius:16px;background:#ffffff;text-align:center;box-shadow:0 6px 18px rgba(38,125,167,.05);"><div style="font-size:32px;line-height:1.1;font-weight:800;color:#149bd6;">8</div><div style="margin-top:4px;font-size:13px;font-weight:800;color:#123d5f;">Policy tabs</div><div style="font-size:12px;color:#66849b;">Menus to global controls</div></div></div>
+            <div class="col-lg-3 col-md-6 col-6" style="padding:6px;"><div style="height:100%;padding:16px 14px;border:1px solid #d8edf9;border-radius:16px;background:#ffffff;text-align:center;box-shadow:0 6px 18px rgba(38,125,167,.05);"><div style="font-size:32px;line-height:1.1;font-weight:800;color:#149bd6;">9</div><div style="margin-top:4px;font-size:13px;font-weight:800;color:#123d5f;">Model operations</div><div style="font-size:12px;color:#66849b;">Read to Import / Export</div></div></div>
+            <div class="col-lg-3 col-md-6 col-6" style="padding:6px;"><div style="height:100%;padding:16px 14px;border:1px solid #d8edf9;border-radius:16px;background:#ffffff;text-align:center;box-shadow:0 6px 18px rgba(38,125,167,.05);"><div style="font-size:32px;line-height:1.1;font-weight:800;color:#149bd6;">3</div><div style="margin-top:4px;font-size:13px;font-weight:800;color:#123d5f;">Field-rule sub-tabs</div><div style="font-size:12px;color:#66849b;">Attribute, domain, import/export</div></div></div>
+            <div class="col-lg-3 col-md-6 col-6" style="padding:6px;"><div style="height:100%;padding:16px 14px;border:1px solid #d8edf9;border-radius:16px;background:#ffffff;text-align:center;box-shadow:0 6px 18px rgba(38,125,167,.05);"><div style="font-size:32px;line-height:1.1;font-weight:800;color:#20b486;">0</div><div style="margin-top:4px;font-size:13px;font-weight:800;color:#123d5f;">Core modifications</div><div style="font-size:12px;color:#66849b;">Depends on base, mail, web</div></div></div>
+        </div>
+    </section>
+
+    <!-- ===================== MAIN TABS ===================== -->
+    <section style="margin-top:34px;">
+        <div style="text-align:center;margin-bottom:14px;">
+            <div style="display:inline-block;color:#109bd3;font-weight:800;font-size:12px;letter-spacing:1.7px;">EXPLORE THE APP</div>
+            <h2 style="margin:6px 0 4px;color:#123d5f;font-size:30px;font-weight:800;">Everything in one place</h2>
+            <p style="margin:0;color:#61869d;font-size:14px;">Select a tab to explore features, the policy guide, real screens and support.</p>
+        </div>
+
+        <div class="nav nav-pills" role="tablist" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:10px;background:#ffffff;border:1px solid #c9e7f7;border-radius:22px;box-shadow:0 10px 28px rgba(26,102,144,.08);--bs-nav-pills-link-active-bg:#149bd6;--bs-nav-pills-link-active-color:#ffffff;--bs-nav-link-color:#1f6f99;--bs-nav-link-hover-color:#0a83bd;--bs-nav-pills-border-radius:30px;">
+            <a class="nav-link active" id="am-tab-overview" data-bs-toggle="pill" href="#am-pane-overview" data-bs-target="#am-pane-overview" role="tab" aria-controls="am-pane-overview" aria-selected="true" style="padding:10px 20px;font-size:14px;font-weight:800;border:1px solid #cfeaf8;">✦ Overview</a>
+            <a class="nav-link" id="am-tab-guide" data-bs-toggle="pill" href="#am-pane-guide" data-bs-target="#am-pane-guide" role="tab" aria-controls="am-pane-guide" aria-selected="false" style="padding:10px 20px;font-size:14px;font-weight:800;border:1px solid #cfeaf8;">🗂 Policy Tabs Guide</a>
+            <a class="nav-link" id="am-tab-screens" data-bs-toggle="pill" href="#am-pane-screens" data-bs-target="#am-pane-screens" role="tab" aria-controls="am-pane-screens" aria-selected="false" style="padding:10px 20px;font-size:14px;font-weight:800;border:1px solid #cfeaf8;">🖼 Screenshots</a>
+            <a class="nav-link" id="am-tab-how" data-bs-toggle="pill" href="#am-pane-how" data-bs-target="#am-pane-how" role="tab" aria-controls="am-pane-how" aria-selected="false" style="padding:10px 20px;font-size:14px;font-weight:800;border:1px solid #cfeaf8;">⚙ How It Works</a>
+            <a class="nav-link" id="am-tab-support" data-bs-toggle="pill" href="#am-pane-support" data-bs-target="#am-pane-support" role="tab" aria-controls="am-pane-support" aria-selected="false" style="padding:10px 20px;font-size:14px;font-weight:800;border:1px solid #cfeaf8;">💬 Support</a>
+        </div>
+
+        <div class="tab-content" style="margin-top:22px;">
+
+            <!-- ============ TAB 1: OVERVIEW ============ -->
+            <div class="tab-pane fade show active" id="am-pane-overview" role="tabpanel" aria-labelledby="am-tab-overview">
+                <div style="padding:8px;background:#ffffff;border:1px solid #c9e7f7;border-radius:20px;box-shadow:0 12px 32px rgba(26,102,144,.07);">
+                    <img src="images/main_screenshot.png" alt="Softeko Access Management cover featuring a real Odoo 19 policy configuration screenshot" style="width:100%;display:block;height:auto;border-radius:14px;"/>
+                </div>
+
+                <div style="text-align:center;margin:34px 0 16px;">
+                    <div style="display:inline-block;color:#109bd3;font-size:12px;font-weight:800;letter-spacing:1.6px;">FEATURE HIGHLIGHTS</div>
+                    <h2 style="margin:5px 0 8px;color:#123d5f;font-size:28px;font-weight:800;">Fine-grained access, organized simply</h2>
+                    <p style="margin:0;color:#65849b;font-size:14px;">Configure policies across the most important parts of your Odoo interface.</p>
+                </div>
+                <div class="row" style="margin:0 -7px;">
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #149bd6;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">👤</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">User &amp; Group Policies</h3><p style="font-size:13px;color:#6b8597;margin:0;">Assign policies to selected users, groups or both.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #149bd6;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">☰</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Menu Visibility</h3><p style="font-size:13px;color:#6b8597;margin:0;">Hide chosen menus and submenus for policy members.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #149bd6;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">🔐</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Model Permissions</h3><p style="font-size:13px;color:#6b8597;margin:0;">Configure read, create, write, delete and other model actions.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #149bd6;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">🧩</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Field Controls</h3><p style="font-size:13px;color:#6b8597;margin:0;">Hide fields or configure read-only, required and import/export rules.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #41bbef;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">🌐</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Company Scope</h3><p style="font-size:13px;color:#6b8597;margin:0;">Apply rules for all companies or a selected company scope.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #41bbef;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">🔎</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Record &amp; Search</h3><p style="font-size:13px;color:#6b8597;margin:0;">Configure record visibility domains and search menu options.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #41bbef;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">💬</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Chatter &amp; Views</h3><p style="font-size:13px;color:#6b8597;margin:0;">Control chatter elements, buttons, tabs, reports and views.</p></div></div>
+                    <div class="col-lg-3 col-md-6 col-12" style="padding:7px;"><div style="height:100%;background:#ffffff;padding:20px;border-radius:17px;border:1px solid #d9edf9;border-top:4px solid #41bbef;box-shadow:0 8px 23px rgba(38,125,167,.05);"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background:#e3f5ff;font-size:22px;">🛡</div><h3 style="font-size:16px;color:#167ba9;margin:12px 0 6px;font-weight:800;">Global Settings</h3><p style="font-size:13px;color:#6b8597;margin:0;">Configure force read-only, login, debug and export-related controls.</p></div></div>
+                </div>
+
+                <div style="margin-top:22px;border:1px solid #cfebfa;border-radius:18px;padding:20px;background:linear-gradient(120deg,#ebf9ff,#ffffff);">
+                    <div style="font-size:11px;font-weight:800;letter-spacing:1.2px;color:#168ac0;">UNDERSTAND THE DIFFERENCE</div>
+                    <h3 style="font-size:20px;color:#164964;margin:6px 0 13px;">Which setting should you choose?</h3>
+                    <div class="row" style="margin:0 -6px;">
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">☰ Hide Menus</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Controls where a user can navigate.</p></div></div>
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">🔐 Model Permissions</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Controls actions on an Odoo model.</p></div></div>
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">🔎 Record Domains</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Filters which records appear in supported read views.</p></div></div>
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border:1px solid #d9eff9;border-radius:12px;padding:13px;"><strong style="color:#127bac;font-size:13px;">🧩 Field Controls</strong><p style="color:#567c91;font-size:12px;line-height:1.6;margin:5px 0 0;">Controls individual fields and their behavior.</p></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ TAB 2: POLICY TABS GUIDE ============ -->
+            <div class="tab-pane fade" id="am-pane-guide" role="tabpanel" aria-labelledby="am-tab-guide">
+                <div style="border:1px solid #b4e4fa;border-radius:22px;background:linear-gradient(125deg,#e3f5ff,#f7fdff 65%,#cceeff);padding:22px 22px 18px;">
+                    <div style="display:inline-block;font-size:11px;letter-spacing:1.6px;color:#0987c1;font-weight:800;">COMPLETE POLICY TAB GUIDE</div>
+                    <h2 style="margin:6px 0 8px;font-size:28px;line-height:1.25;color:#123d5f;">What does every tab do?</h2>
+                    <p style="font-size:14px;color:#507d97;line-height:1.75;margin:0;max-width:900px;">The Access Management policy form includes <strong>8 main configuration tabs</strong>. Select a tab on the left to see its purpose, available settings and an everyday example. <strong>Field Controls</strong> also includes <strong>3 sub-tabs</strong>.</p>
+                    <div style="margin-top:13px;padding:11px 13px;border:1px solid #b6e3f7;border-radius:12px;background:#ffffff;color:#3a7595;font-size:12px;line-height:1.65;">💡 <strong>Start here:</strong> Create a policy, select users or groups, choose its company scope, then add only the restrictions you need. The details below follow the labels in the Odoo 19 policy form.</div>
+                </div>
+
+                <div class="row" style="margin:16px -8px 0;">
+                    <div class="col-lg-4 col-md-5 col-12" style="padding:8px;">
+                        <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical" style="gap:7px;padding:10px;background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);--bs-nav-pills-link-active-bg:#149bd6;--bs-nav-pills-link-active-color:#ffffff;--bs-nav-link-color:#1a5f86;--bs-nav-link-hover-color:#0a83bd;--bs-nav-pills-border-radius:14px;">
+                            <a class="nav-link active" id="am-g-tab-menus" data-bs-toggle="pill" href="#am-g-menus" data-bs-target="#am-g-menus" role="tab" aria-controls="am-g-menus" aria-selected="true" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">01</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Hide Menus/Submenu</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">NAVIGATION CONTROL</span></span></a>
+                            <a class="nav-link" id="am-g-tab-models" data-bs-toggle="pill" href="#am-g-models" data-bs-target="#am-g-models" role="tab" aria-controls="am-g-models" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">02</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Model Permissions</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">OPERATIONS &amp; VIEWS</span></span></a>
+                            <a class="nav-link" id="am-g-tab-search" data-bs-toggle="pill" href="#am-g-search" data-bs-target="#am-g-search" role="tab" aria-controls="am-g-search" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">03</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Search Panel</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">SEARCH EXPERIENCE</span></span></a>
+                            <a class="nav-link" id="am-g-tab-fields" data-bs-toggle="pill" href="#am-g-fields" data-bs-target="#am-g-fields" role="tab" aria-controls="am-g-fields" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">04</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Field Controls</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">FIELD-LEVEL RULES • 3 SUB-TABS</span></span></a>
+                            <a class="nav-link" id="am-g-tab-records" data-bs-toggle="pill" href="#am-g-records" data-bs-target="#am-g-records" role="tab" aria-controls="am-g-records" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">05</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Record Domain Rules</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">RECORD VISIBILITY</span></span></a>
+                            <a class="nav-link" id="am-g-tab-chatter" data-bs-toggle="pill" href="#am-g-chatter" data-bs-target="#am-g-chatter" role="tab" aria-controls="am-g-chatter" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">06</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Chatter Visibility</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">COMMUNICATION UI</span></span></a>
+                            <a class="nav-link" id="am-g-tab-buttons" data-bs-toggle="pill" href="#am-g-buttons" data-bs-target="#am-g-buttons" role="tab" aria-controls="am-g-buttons" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">07</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Hide Buttons/Tabs</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">FORM INTERFACE</span></span></a>
+                            <a class="nav-link" id="am-g-tab-global" data-bs-toggle="pill" href="#am-g-global" data-bs-target="#am-g-global" role="tab" aria-controls="am-g-global" aria-selected="false" style="display:flex;align-items:center;gap:11px;padding:10px 12px;text-align:left;border:1px solid #d6eefa;"><span style="flex:0 0 34px;height:34px;line-height:31px;text-align:center;border-radius:10px;border:2px solid currentColor;font-weight:800;font-size:13px;">08</span><span style="display:block;"><span style="display:block;font-size:14px;font-weight:800;line-height:1.3;">Global Controls</span><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.9px;opacity:.75;">POLICY-WIDE SETTINGS</span></span></a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8 col-md-7 col-12" style="padding:8px;">
+                        <div class="tab-content">
+
+                            <!-- 01 Menus -->
+                            <div class="tab-pane fade show active" id="am-g-menus" role="tabpanel" aria-labelledby="am-g-tab-menus">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">01</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">NAVIGATION CONTROL</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Hide Menus/Submenu</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Choose the menus and submenus that should disappear for members of a policy.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Select the exact Menu Entry; its display label and parent menu are shown for clarity.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Set an optional Condition Domain for rule-specific applicability.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Switch a line on or off using its Active setting.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Keep selected configuration or accounting menus out of a trainee user&#x27;s navigation.</div>
+                                        <div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> Menu hiding changes navigation visibility; use Model Permissions for operation-level restrictions.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 02 Models -->
+                            <div class="tab-pane fade" id="am-g-models" role="tabpanel" aria-labelledby="am-g-tab-models">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">02</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">OPERATIONS &amp; VIEWS</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Model Permissions</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Manage what members may do on an Odoo model and which model-level options appear.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Block Read, Create, Edit, Delete, Archive, Unarchive and Duplicate for a selected model.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Control Import Data, Export Data and spreadsheet operations.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide the model, Action menu, selected reports/actions, specific views, or view-switcher types such as List, Form, Kanban, Calendar, Pivot, Graph, Activity and Map.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Optional Condition Domain provides condition-aware model rules.</li></ul>
+                                        <div style="margin-top:10px;">
+                                            <span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Read</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Create</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Edit</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Delete</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Archive</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Unarchive</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Duplicate</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Import</span><span style="display:inline-block;margin:3px 4px 3px 0;padding:5px 10px;border-radius:16px;background:#e3f5ff;color:#137cad;font-size:11px;font-weight:800;">Export</span>
+                                        </div>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Allow team members to review sales records, but block deletion and duplication.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 03 Search -->
+                            <div class="tab-pane fade" id="am-g-search" role="tabpanel" aria-labelledby="am-g-tab-search">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">03</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">SEARCH EXPERIENCE</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Search Panel</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Simplify the search controls available on the selected model.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide the full Search Menu, or configure Filters, Group By and Favorites separately.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Control Custom Filter, Custom Group By and Save Current Search options.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Configure a different set of search choices for each selected model.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Keep a simple search interface for new employees without advanced custom filters.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 04 Fields (with 3 sub-tabs) -->
+                            <div class="tab-pane fade" id="am-g-fields" role="tabpanel" aria-labelledby="am-g-tab-fields">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">04</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">FIELD-LEVEL RULES</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Field Controls</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Configure what a particular field looks like and how users can interact with it.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Choose a Model and Field, then set Hide, Read Only or Required as needed.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Use the Condition Domain for conditional attribute rules.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Choose applicable form, list, kanban and search view contexts.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Configure no-import / no-export settings and relational domain values in the field-rule form.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Make a sensitive price field read-only for selected staff, or require a field on a form.</div>
+
+                                        <div style="margin-top:18px;padding:16px;border:1px solid #bfe6f8;border-radius:16px;background:linear-gradient(125deg,#e6f8ff,#f4fcff);">
+                                            <div style="color:#0b8ec6;font-size:11px;letter-spacing:1.3px;font-weight:800;">INSIDE FIELD CONTROLS • 3 SUB-TABS</div>
+                                            <div class="nav nav-pills" role="tablist" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px;--bs-nav-pills-link-active-bg:#123d5f;--bs-nav-pills-link-active-color:#ffffff;--bs-nav-link-color:#137cad;--bs-nav-link-hover-color:#0a83bd;--bs-nav-pills-border-radius:20px;">
+                                                <a class="nav-link active" id="am-f-tab-attr" data-bs-toggle="pill" href="#am-f-attr" data-bs-target="#am-f-attr" role="tab" aria-controls="am-f-attr" aria-selected="true" style="padding:6px 13px;font-size:12px;font-weight:800;border:1px solid #bfe6f8;">Attribute Rule</a>
+                                                <a class="nav-link" id="am-f-tab-domain" data-bs-toggle="pill" href="#am-f-domain" data-bs-target="#am-f-domain" role="tab" aria-controls="am-f-domain" aria-selected="false" style="padding:6px 13px;font-size:12px;font-weight:800;border:1px solid #bfe6f8;">Domain Rule</a>
+                                                <a class="nav-link" id="am-f-tab-io" data-bs-toggle="pill" href="#am-f-io" data-bs-target="#am-f-io" role="tab" aria-controls="am-f-io" aria-selected="false" style="padding:6px 13px;font-size:12px;font-weight:800;border:1px solid #bfe6f8;">Import / Export</a>
+                                            </div>
+                                            <div class="tab-content">
+                                                <div class="tab-pane fade show active" id="am-f-attr" role="tabpanel" aria-labelledby="am-f-tab-attr">
+                                                    <div style="padding:16px;background:#ffffff;border:1px solid #cdeaf9;border-radius:14px;">
+                                                        <h4 style="font-size:16px;color:#155a7e;margin:0 0 7px;">Change individual field behavior</h4>
+                                                        <p style="font-size:13px;line-height:1.7;color:#577c95;margin:0;">Hide Field, Read Only, Required, an optional Condition Domain, and Apply On choices for Form, List, Kanban and Search.</p>
+                                                        <p style="font-size:12px;line-height:1.6;color:#21779e;margin:10px 0 0;">Use when a form field should be hidden or mandatory for a policy member.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="am-f-domain" role="tabpanel" aria-labelledby="am-f-tab-domain">
+                                                    <div style="padding:16px;background:#ffffff;border:1px solid #cdeaf9;border-radius:14px;">
+                                                        <h4 style="font-size:16px;color:#155a7e;margin:0 0 7px;">Configure relational selection settings</h4>
+                                                        <p style="font-size:13px;line-height:1.7;color:#577c95;margin:0;">Select a Many2one/Many2many field and store its Selection Domain in the field rule.</p>
+                                                        <p style="font-size:12px;line-height:1.6;color:#21779e;margin:10px 0 0;">Important: a runtime consumer that enforces this stored selection domain was not confirmed in the module source; verify its behavior before relying on it.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="am-f-io" role="tabpanel" aria-labelledby="am-f-tab-io">
+                                                    <div style="padding:16px;background:#ffffff;border:1px solid #cdeaf9;border-radius:14px;">
+                                                        <h4 style="font-size:16px;color:#155a7e;margin:0 0 7px;">Protect the selected field in data flows</h4>
+                                                        <p style="font-size:13px;line-height:1.7;color:#577c95;margin:0;">Configure No Import and No Export for the selected model field.</p>
+                                                        <p style="font-size:12px;line-height:1.6;color:#21779e;margin:10px 0 0;">Use to control field availability in supported import/export operations.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 05 Records -->
+                            <div class="tab-pane fade" id="am-g-records" role="tabpanel" aria-labelledby="am-g-tab-records">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">05</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">RECORD VISIBILITY</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Record Domain Rules</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Filter which records policy members can see when viewing an Odoo model.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Select the Model and define a Filter Expression using an Odoo domain.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Optionally choose a Current User Field to restrict matching records to the signed-in user.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Read, Write, Create and Delete scope switches are present in the configuration.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Use a Read filter to display only opportunities assigned to the current salesperson.</div>
+                                        <div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> Read-scope filtering is verified in the module source. The other scope switches should be tested before relying on them as backend enforcement.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 06 Chatter -->
+                            <div class="tab-pane fade" id="am-g-chatter" role="tabpanel" aria-labelledby="am-g-tab-chatter">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">06</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">COMMUNICATION UI</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Chatter Visibility</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Choose which Chatter controls appear on forms for each model.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide the entire Chatter section, or just the message composer.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Control Log Note, Schedule Activity and Search Messages.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide attachments, followers and the follow/unfollow button.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Keep an internal model form clean by hiding Chatter actions the team does not need.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 07 Buttons/Tabs -->
+                            <div class="tab-pane fade" id="am-g-buttons" role="tabpanel" aria-labelledby="am-g-tab-buttons">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">07</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">FORM INTERFACE</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Hide Buttons/Tabs</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Hide chosen form buttons and notebook tabs for the applicable users.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Pick a Model and click Refresh Available Items to discover its buttons and tabs.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Choose Hide Buttons and/or Hide Tabs from the available item lists.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Add an optional Condition Domain for more targeted UI visibility rules.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Hide an unnecessary workflow button or a sensitive configuration tab.</div>
+                                        <div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #32b1e5;background:#f1faff;font-size:12px;line-height:1.6;color:#46738d;"><strong style="color:#106b9e;">Good to know:</strong> This hides user-interface elements; it does not itself prevent a corresponding method being invoked by other routes.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 08 Global -->
+                            <div class="tab-pane fade" id="am-g-global" role="tabpanel" aria-labelledby="am-g-tab-global">
+                                <div style="background:#ffffff;border:1px solid #c9e9f9;border-radius:20px;box-shadow:0 10px 25px rgba(28,113,166,.055);overflow:hidden;">
+                                    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(100deg,#149bd6,#41bbef);color:#ffffff;">
+                                        <span style="min-width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:rgba(255,255,255,.22);font-weight:800;font-size:16px;">08</span>
+                                        <div><div style="font-size:10px;font-weight:800;letter-spacing:1.1px;opacity:.85;">POLICY-WIDE SETTINGS</div><h3 style="margin:2px 0 0;font-size:20px;line-height:1.3;color:#ffffff;font-weight:800;">Global Controls</h3></div>
+                                    </div>
+                                    <div style="padding:20px 22px 22px;">
+                                        <p style="font-size:15px;color:#315f7c;font-weight:700;line-height:1.65;margin:0 0 12px;">Set policy-wide restrictions and choose how the company scope is applied.</p>
+                                        <div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#1183ba;margin:8px 0 8px;">WHAT YOU CAN CONFIGURE</div>
+                                        <ul style="padding-left:18px;margin:0;"><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Apply regardless of company or select specific companies for policy scope.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Force Read-Only for applicable users.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Block Debug Mode or Block Login for applicable users.</li><li style="margin:0 0 7px;color:#476d88;font-size:13px;line-height:1.65;">Hide Export Available Fields in the export field browser.</li></ul>
+                                        <div style="background:#eaf8ff;border-radius:11px;padding:11px 13px;margin-top:12px;color:#26709a;font-size:12px;line-height:1.6;"><strong style="color:#096c9f;">Example use:</strong> Apply a read-only review policy within selected companies.</div>
+                                        <div style="margin:10px 0 0;padding:10px 12px;border-radius:10px;border-left:3px solid #f0a73a;background:#fff8ec;font-size:12px;line-height:1.6;color:#7a5a2a;"><strong style="color:#a0661a;">Use carefully:</strong> Block Login and Force Read-Only can interrupt users&#x27; normal work.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:12px;color:#6f8fa2;line-height:1.7;margin:12px 2px 0;">Technical note: Form button/tab hiding and some search/chatter controls affect the user interface; do not confuse hiding a control with a universal backend access rule. Verify your policy in a test database with an affected non-administrator user before deploying restrictive settings.</p>
+            </div>
+
+            <!-- ============ TAB 3: SCREENSHOTS ============ -->
+            <div class="tab-pane fade" id="am-pane-screens" role="tabpanel" aria-labelledby="am-tab-screens">
+                <div style="text-align:center;margin-bottom:14px;">
+                    <div style="display:inline-block;color:#109bd3;font-size:12px;font-weight:800;letter-spacing:1.5px;">ACTUAL MODULE SCREENS</div>
+                    <h2 style="margin:5px 0 6px;color:#123d5f;font-size:28px;font-weight:800;">See Access Management in action</h2>
+                    <p style="margin:0;color:#65849b;font-size:14px;">Real Odoo screenshots from the module; not generated interface mockups.</p>
+                </div>
+                <div class="nav nav-pills" role="tablist" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:14px;--bs-nav-pills-link-active-bg:#123d5f;--bs-nav-pills-link-active-color:#ffffff;--bs-nav-link-color:#1679a8;--bs-nav-link-hover-color:#0a83bd;--bs-nav-pills-border-radius:20px;">
+                    <a class="nav-link active" id="am-s-tab-1" data-bs-toggle="pill" href="#am-s-1" data-bs-target="#am-s-1" role="tab" aria-controls="am-s-1" aria-selected="true" style="padding:7px 14px;font-size:13px;font-weight:800;border:1px solid #cce9f8;">01 · Policy Dashboard</a>
+                    <a class="nav-link" id="am-s-tab-2" data-bs-toggle="pill" href="#am-s-2" data-bs-target="#am-s-2" role="tab" aria-controls="am-s-2" aria-selected="false" style="padding:7px 14px;font-size:13px;font-weight:800;border:1px solid #cce9f8;">02 · Model Permissions</a>
+                    <a class="nav-link" id="am-s-tab-3" data-bs-toggle="pill" href="#am-s-3" data-bs-target="#am-s-3" role="tab" aria-controls="am-s-3" aria-selected="false" style="padding:7px 14px;font-size:13px;font-weight:800;border:1px solid #cce9f8;">03 · Export Protection</a>
+                    <a class="nav-link" id="am-s-tab-4" data-bs-toggle="pill" href="#am-s-4" data-bs-target="#am-s-4" role="tab" aria-controls="am-s-4" aria-selected="false" style="padding:7px 14px;font-size:13px;font-weight:800;border:1px solid #cce9f8;">04 · Policy Tabs</a>
+                    <a class="nav-link" id="am-s-tab-5" data-bs-toggle="pill" href="#am-s-5" data-bs-target="#am-s-5" role="tab" aria-controls="am-s-5" aria-selected="false" style="padding:7px 14px;font-size:13px;font-weight:800;border:1px solid #cce9f8;">05 · Search &amp; Filters</a>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="am-s-1" role="tabpanel" aria-labelledby="am-s-tab-1">
+                        <div style="border:1px solid #cce9f8;border-radius:20px;background:#ffffff;overflow:hidden;box-shadow:0 9px 30px rgba(32,115,155,.08);">
+                            <div style="padding:13px 20px;background:linear-gradient(90deg,#168cca,#41bbef);color:#ffffff;font-size:15px;font-weight:800;">01 &nbsp; • &nbsp; Policy Dashboard</div>
+                            <div style="padding:14px;"><img src="images/policy_dashboard.jpg" alt="Actual Odoo Access Management policy dashboard" style="width:100%;height:auto;display:block;border:1px solid #e3f1f8;border-radius:11px;"/></div>
+                            <div style="padding:0 20px 18px;color:#67849a;font-size:13px;">Manage policy status, scope, assignments and rule tabs from one place.</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="am-s-2" role="tabpanel" aria-labelledby="am-s-tab-2">
+                        <div style="border:1px solid #cce9f8;border-radius:20px;background:#ffffff;overflow:hidden;box-shadow:0 9px 30px rgba(32,115,155,.08);">
+                            <div style="padding:13px 20px;background:linear-gradient(90deg,#168cca,#41bbef);color:#ffffff;font-size:15px;font-weight:800;">02 &nbsp; • &nbsp; Model Permissions</div>
+                            <div style="padding:14px;text-align:center;"><img src="images/model_permissions.jpg" alt="Actual model permission configuration form" style="max-width:100%;height:auto;display:inline-block;border:1px solid #e3f1f8;border-radius:11px;"/></div>
+                            <div style="padding:0 20px 18px;color:#67849a;font-size:13px;">Configure model access and model-level operations.</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="am-s-3" role="tabpanel" aria-labelledby="am-s-tab-3">
+                        <div style="border:1px solid #cce9f8;border-radius:20px;background:#ffffff;overflow:hidden;box-shadow:0 9px 30px rgba(32,115,155,.08);">
+                            <div style="padding:13px 20px;background:linear-gradient(90deg,#168cca,#41bbef);color:#ffffff;font-size:15px;font-weight:800;">03 &nbsp; • &nbsp; Export Protection</div>
+                            <div style="padding:14px;"><img src="images/export_protection.jpg" alt="Actual Odoo list view with export-related action control" style="width:100%;height:auto;display:block;border:1px solid #e3f1f8;border-radius:11px;"/></div>
+                            <div style="padding:0 20px 18px;color:#67849a;font-size:13px;">Configure export-related restrictions through policy settings.</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="am-s-4" role="tabpanel" aria-labelledby="am-s-tab-4">
+                        <div style="border:1px solid #cce9f8;border-radius:20px;background:#ffffff;overflow:hidden;box-shadow:0 9px 30px rgba(32,115,155,.08);">
+                            <div style="padding:13px 20px;background:linear-gradient(90deg,#168cca,#41bbef);color:#ffffff;font-size:15px;font-weight:800;">04 &nbsp; • &nbsp; Organized Policy Tabs</div>
+                            <div style="padding:14px;"><img src="images/professional_tabs.jpg" alt="Actual policy form showing separate configuration tabs" style="width:100%;height:auto;display:block;border:1px solid #e3f1f8;border-radius:11px;"/></div>
+                            <div style="padding:0 20px 18px;color:#67849a;font-size:13px;">Dedicated sections keep permission rules easy to locate.</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="am-s-5" role="tabpanel" aria-labelledby="am-s-tab-5">
+                        <div style="border:1px solid #cce9f8;border-radius:20px;background:#ffffff;overflow:hidden;box-shadow:0 9px 30px rgba(32,115,155,.08);">
+                            <div style="padding:13px 20px;background:linear-gradient(90deg,#168cca,#41bbef);color:#ffffff;font-size:15px;font-weight:800;">05 &nbsp; • &nbsp; Policy Search &amp; Filters</div>
+                            <div style="padding:14px;"><img src="images/advanced_search.jpg" alt="Actual policies list showing filters, group by and favorites" style="width:100%;height:auto;display:block;border:1px solid #e3f1f8;border-radius:11px;"/></div>
+                            <div style="padding:0 20px 18px;color:#67849a;font-size:13px;">Search policies with filters, grouping and favorites.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ TAB 4: HOW IT WORKS ============ -->
+            <div class="tab-pane fade" id="am-pane-how" role="tabpanel" aria-labelledby="am-tab-how">
+                <div style="padding:26px 22px;border:1px solid #cdebf9;border-radius:22px;background:linear-gradient(120deg,#ebf9ff,#f8fdff);">
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <div style="display:inline-block;color:#109bd3;font-size:12px;font-weight:800;letter-spacing:1.4px;">EASY TO CONFIGURE</div>
+                        <h2 style="margin:6px 0 0;color:#123d5f;font-size:28px;font-weight:800;">Four steps to organized permissions</h2>
+                    </div>
+                    <div style="padding:8px;background:#ffffff;border:1px solid #d5eefa;border-radius:18px;box-shadow:0 10px 26px rgba(26,102,144,.07);">
+                        <img src="images/policy_flow_animated.gif" alt="Animated four-step flow: create policy, assign members, set rules, protected access" style="display:block;width:100%;height:auto;border-radius:12px;"/>
+                    </div>
+                    <div class="row" style="margin:16px -6px 0;">
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:18px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">1</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Create a policy</h3><p style="margin:0;color:#68869b;font-size:13px;">Give the policy a clear purpose and name.</p></div></div>
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:18px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">2</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Assign members</h3><p style="margin:0;color:#68869b;font-size:13px;">Select users, user groups and companies.</p></div></div>
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:18px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#149bda;color:#ffffff;font-weight:800;font-size:18px;">3</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Configure restrictions</h3><p style="margin:0;color:#68869b;font-size:13px;">Choose the relevant model, field and UI rules.</p></div></div>
+                        <div class="col-lg-3 col-md-6 col-12" style="padding:6px;"><div style="height:100%;background:#ffffff;border-radius:15px;border:1px solid #d5eefa;padding:18px;text-align:center;"><div style="display:inline-block;width:44px;height:44px;line-height:44px;border-radius:25px;background:#20c997;color:#ffffff;font-weight:800;font-size:18px;">4</div><h3 style="font-size:15px;color:#186e9d;margin:12px 0 6px;">Manage policies</h3><p style="margin:0;color:#68869b;font-size:13px;">Update, activate or deactivate as needed.</p></div></div>
+                    </div>
+                    <div style="margin-top:14px;padding:14px 16px;background:#ffffff;border:1px solid #d5eefa;border-radius:14px;">
+                        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px;font-size:12px;font-weight:800;color:#1679a8;letter-spacing:.5px;"><span>POLICY → MEMBERS → RULES → ACCESS</span><span style="color:#20a07a;">Ready in minutes</span></div>
+                        <div class="progress" style="height:10px;border-radius:10px;background:#e3f3fb;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;background-color:#149bd6;border-radius:10px;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;padding:11px 13px;border:1px solid #b6e3f7;border-radius:12px;background:#ffffff;color:#3a7595;font-size:12px;line-height:1.65;">✅ <strong>Best practice:</strong> Verify each policy in a test database with an affected non-administrator user before deploying restrictive settings.</div>
+                </div>
+            </div>
+
+            <!-- ============ TAB 5: SUPPORT ============ -->
+            <div class="tab-pane fade" id="am-pane-support" role="tabpanel" aria-labelledby="am-tab-support">
+                <div class="row" style="margin:0 -7px;">
+                    <div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
+                        <div style="height:100%;border:1px solid #d4eefa;border-radius:18px;background:#ffffff;padding:24px;">
+                            <div style="color:#1494d3;font-size:12px;font-weight:800;letter-spacing:1.5px;">COMPATIBILITY</div>
+                            <h2 style="color:#153f61;font-size:23px;margin:8px 0 12px;">Made for Odoo 19</h2>
+                            <p style="color:#68869b;font-size:14px;margin:0;">Designed for Odoo 19. The module declares <strong>base</strong>, <strong>mail</strong> and <strong>web</strong> as dependencies.</p>
+                            <p style="color:#68869b;font-size:13px;margin:12px 0 0;">Install the module, assign the Access Management group to authorized managers, then configure policies under Access Management.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
+                        <div style="height:100%;border:1px solid #c6e8fa;border-radius:18px;background:linear-gradient(130deg,#e1f5ff,#c9edff);padding:24px;">
+                            <div style="color:#138bc4;font-size:12px;font-weight:800;letter-spacing:1.5px;">DEVELOPED BY</div>
+                            <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:10px 0 10px;padding:8px 12px;background:#ffffff;border-radius:12px;text-decoration:none;"><img src="images/softeko_logo.png" alt="Softeko" style="display:block;height:40px;width:auto;"/></a>
+                            <p style="color:#426d8a;font-size:14px;margin:0;">Odoo development, customization and practical business solutions.</p>
+                            <p style="color:#426d8a;font-size:13px;margin:12px 0 0;">Module: <strong>Access Management</strong><br/>Developer: <strong><a href="https://lamia-akter.odoo.com/" target="_blank" rel="noopener noreferrer" style="color:#087cae;text-decoration:underline;">Lamia</a></strong><br/>Version: <strong>19.0.1.0.14</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px;padding:24px;border:1px solid #bde7fa;border-radius:20px;background:linear-gradient(115deg,#e9f8ff,#ffffff);">
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <div style="color:#0d8dc7;font-weight:800;font-size:12px;letter-spacing:1.5px;">SOFTEKO CONTACTS</div>
+                        <h2 style="color:#133f62;font-size:25px;line-height:1.3;margin:6px 0 5px;">Meet the developer &amp; get support</h2>
+                        <p style="color:#6488a0;font-size:13px;margin:0;">Developer information, Softeko website and product assistance.</p>
+                    </div>
+                    <div class="row" style="margin:0 -6px;">
+                        <div class="col-lg-4 col-md-4 col-12" style="padding:6px;">
+                            <div style="height:100%;padding:18px;border:1px solid #d1ebf8;background:#ffffff;border-radius:15px;">
+                                <div style="width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:#e3f5ff;font-size:21px;">&#128187;</div>
+                                <h3 style="font-size:16px;color:#116f9e;margin:10px 0 4px;">Developer: Lamia</h3>
+                                <p style="font-size:12px;color:#6488a0;margin:0 0 12px;">Odoo module developer profile</p>
+                                <a href="https://lamia-akter.odoo.com/" target="_blank" rel="noopener noreferrer" style="font-size:13px;font-weight:700;color:#078bc2;text-decoration:underline;overflow-wrap:anywhere;">lamia-akter.odoo.com</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-12" style="padding:6px;">
+                            <div style="height:100%;padding:18px;border:1px solid #d1ebf8;background:#ffffff;border-radius:15px;">
+                                <div style="width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:#e3f5ff;font-size:21px;">&#127760;</div>
+                                <h3 style="font-size:16px;color:#116f9e;margin:10px 0 4px;">Softeko Website</h3>
+                                <p style="font-size:12px;color:#6488a0;margin:0 0 12px;">Official company website</p>
+                                <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="font-size:13px;font-weight:700;color:#078bc2;text-decoration:underline;overflow-wrap:anywhere;">www.softeko.co</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-12" style="padding:6px;">
+                            <div style="height:100%;padding:18px;border:1px solid #d1ebf8;background:#ffffff;border-radius:15px;">
+                                <div style="width:44px;height:44px;line-height:44px;text-align:center;border-radius:13px;background:#e3f5ff;font-size:21px;">&#128172;</div>
+                                <h3 style="font-size:16px;color:#116f9e;margin:10px 0 4px;">Contact Support</h3>
+                                <p style="font-size:12px;color:#6488a0;margin:0 0 8px;">Questions about setup or permissions?</p>
+                                <a href="https://www.softeko.co/contact/" target="_blank" rel="noopener noreferrer" style="display:block;font-size:13px;font-weight:700;color:#078bc2;text-decoration:underline;overflow-wrap:anywhere;">www.softeko.co/contact/</a>
+                                <a href="mailto:contact@softeko.co?subject=Access%20Management%20Odoo%2019%20Support" style="display:block;font-size:12px;font-weight:700;color:#078bc2;text-decoration:underline;margin-top:6px;overflow-wrap:anywhere;">contact@softeko.co</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px;padding:20px 22px;border:1px solid #d4eefa;border-radius:18px;background:#ffffff;">
+                    <div style="color:#1494d3;font-size:12px;font-weight:800;letter-spacing:1.5px;">QUICK ANSWERS</div>
+                    <h3 style="color:#153f61;font-size:20px;margin:6px 0 10px;">Frequently asked questions</h3>
+                    <details open="open" style="border:1px solid #d9eff9;border-radius:12px;padding:11px 14px;margin-bottom:8px;background:#f7fcff;"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#155a7e;">Does it modify Odoo core?</summary><p style="margin:8px 0 0;color:#567c91;font-size:13px;line-height:1.7;">No. It is a regular Odoo 19 module that declares base, mail and web as dependencies.</p></details>
+                    <details style="border:1px solid #d9eff9;border-radius:12px;padding:11px 14px;margin-bottom:8px;background:#f7fcff;"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#155a7e;">Who can configure policies?</summary><p style="margin:8px 0 0;color:#567c91;font-size:13px;line-height:1.7;">Assign the Access Management group to authorized managers; they configure policies under the Access Management menu.</p></details>
+                    <details style="border:1px solid #d9eff9;border-radius:12px;padding:11px 14px;margin-bottom:8px;background:#f7fcff;"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#155a7e;">Can a policy apply to only some companies?</summary><p style="margin:8px 0 0;color:#567c91;font-size:13px;line-height:1.7;">Yes. In Global Controls, apply a policy regardless of company or select specific companies for its scope.</p></details>
+                    <details style="border:1px solid #d9eff9;border-radius:12px;padding:11px 14px;background:#f7fcff;"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#155a7e;">Is hiding a button the same as blocking access?</summary><p style="margin:8px 0 0;color:#567c91;font-size:13px;line-height:1.7;">No. Button/tab hiding and some search/chatter controls affect the user interface. Use Model Permissions and Record Domain Rules for operation and record restrictions.</p></details>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <div style="margin-top:34px;padding:22px 16px;border-top:1px solid #cce9f8;text-align:center;">
+        <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;"><img src="images/softeko_logo.png" alt="Softeko" style="display:block;height:38px;width:auto;margin:0 auto;"/></a>
+        <div style="margin-top:10px;color:#6c96ad;font-size:12px;letter-spacing:.6px;">ACCESS MANAGEMENT &nbsp; • &nbsp; ODOO 19 &nbsp; • &nbsp; <a href="mailto:contact@softeko.co" style="color:#078bc2;text-decoration:none;">contact@softeko.co</a></div>
     </div>
 </div>
 </body>

@@ -4,11 +4,11 @@ This changelog follows a *Keep a Changelog*-inspired structure and distinguishes
 
 ## [Unreleased] — 2026-11-23
 
-### [Store UI Previews / Animation Preservation] — 2026-11-23
-- **[2026-11-23]** Added a visual overview image and eight individually matched illustrative setup UI preview images beside the corresponding policy-tab explanations in `static/description/index.html`.
-- **[2026-11-23]** Kept the existing detailed configuration guidance, real Odoo product screenshots, sky-blue Softeko branding, developer links and support details. The previews are labeled illustrative to distinguish them from the real Odoo screenshots elsewhere on the page.
-- **[2026-11-23]** Retained and verified the animated promotional banner at `static/description/images/security_animated.gif` without adding JavaScript or custom animation runtime.
-- **[2026-11-23]** Updated `README.md`; no changes were made to executable Python, JS, CSS, XML, security data or manifest and the module version is unchanged.
+### [Store Description Cleanup / Animation Preservation] — 2026-11-23
+- **[2026-11-23]** Removed the full-page illustrated setup overview and the eight mock per-tab UI preview images from the Odoo Apps Store description. These nine images are no longer included in the ZIP.
+- **[2026-11-23]** Restored the clean, text-rich sky-blue guide explaining all eight policy tabs, three Field Controls sub-tabs, setting choices, configuration tips and examples. Retained genuine Odoo UI screenshots.
+- **[2026-11-23]** Preserved and verified the animated GIF at `static/description/images/security_animated.gif`, branded icon, Softeko website, developer profile, and support details.
+- **[2026-11-23]** Updated `README.md` and `CHANGELOG.md`. Existing Python, XML, JS, CSS, security data, and `__manifest__.py` were not changed.
 
 ### [Store Description / Tab Guide] — 2026-11-23
 - **[2026-11-23]** Added a sky-blue policy-tab reference to `static/description/index.html`, documenting each of the eight main policy tabs, three Field Controls sub-tabs, configuration choices, use-case examples and differences between navigation, model, record and field rules.

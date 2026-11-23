@@ -37,11 +37,11 @@ A policy-based access management module that configures user-, group-, company-,
 - [Changelog](#changelog)
 
 
-### Illustrated setup UI previews in the Odoo Apps Store page (2026-11-23)
+### Odoo Apps Store page — clean detailed layout (2026-11-23)
 
-The product description at `static/description/index.html` now pairs **each of the eight main policy-tab explanations** with a dedicated setup UI preview image. A full-height visual overview is available at `static/description/images/all_tabs_setup_overview.png`; individual previews are `static/description/images/setup_preview_{menus,models,search,fields,records,chatter,buttons,global}.png`. These assets are **illustrative UI examples** derived from a promotional composite, **not verified live screenshots**. Existing authentic policy dashboard, permissions and search screenshots remain in the product page for reference.
+The Odoo Apps product description at `static/description/index.html` presents eight main policy-tab explanations, three Field Controls sub-tabs, actual Odoo UI screenshots, configuration tips, and the Softeko website/support details. The previously included illustrative full-page setup infographic and eight mock setup UI preview images have been removed at the author's request. No image of this type is embedded in the listing now. Genuine Odoo interface screenshots remain in the product page.
 
-The introductory promotional animation stays at `static/description/images/security_animated.gif` (animated GIF, no JavaScript). This release changes only documentation/store-description assets and does not alter executable application logic, the module version, access rights, or policy behavior. Verify store rendering after publication, because third-party storefront sanitization is outside this review.
+The sky-blue promotional animation remains at `static/description/images/security_animated.gif` as a looping animated GIF, without JavaScript. This is a storefront-only visual/documentation update; no executable application logic, manifest metadata or policy behavior was changed. Live Odoo Apps Store rendering was not tested.
 
 ## Overview
 
