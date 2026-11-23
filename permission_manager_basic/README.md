@@ -472,3 +472,22 @@ Useful diagnostic entry points: `PermissionManagerPolicy._applicability_domain_f
 ## Changelog
 
 See [`CHANGELOG.md`](CHANGELOG.md) for the source-verified feature inventory, the **2026-11-09 single-checkbox security/access-control revision** already present in the input ZIP, the previous 2026-11-02 entries, and the **2026-11-09 documentation-only update**. The release date of version `19.0.1.0.14` is **not verified**.
+
+
+## Odoo Apps Store presentation — 2026-11-23
+
+The module includes a refreshed sky-blue Softeko-branded Apps Store description in
+`static/description/index.html`, a new icon, a promotional cover based on the real
+policy dashboard screenshot, and an animated illustration at
+`static/description/images/security_animated.gif`.
+
+The description uses bundled image assets and inline presentation styles only. It
+contains **no JavaScript**, external style sheets, or remote assets, as the Odoo Apps
+Store restricts those. The GIF provides a self-contained animation that does not
+require CSS keyframes. The animation is conceptual; the screenshot gallery uses real
+screens from the supplied Odoo module. The `images` manifest key lists the cover
+and real screenshots for store metadata. Listing appearance may vary with Odoo's
+HTML sanitization and has **not been verified in a live Odoo Apps listing**.
+
+No Python model, view, security, backend JS/CSS or module workflow was changed by
+this storefront-design update. The declared module version remains unchanged.

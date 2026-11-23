@@ -2,6 +2,18 @@
 
 This changelog follows a *Keep a Changelog*-inspired structure and distinguishes a verified **source-code baseline** from verified **dated changes**. The manifest version is **19.0.1.0.14** and is not incremented by this documentation update.
 
+## [Unreleased] — 2026-11-23
+
+### [Style / Storefront] — 2026-11-23
+- **[2026-11-23]** Redesigned `static/description/index.html` in a consistent sky-blue Softeko visual identity with a responsive feature showcase and original Odoo module screenshots.
+- **[2026-11-23]** Replaced the store icon and created `images/main_screenshot.png` and `images/feature_model_permissions.png`, using actual supplied policy/model screenshots in the visual compositions.
+- **[2026-11-23]** Added the self-contained `images/security_animated.gif` promotional animation. No JavaScript or CSS animation is used in the store description.
+- **[2026-11-23]** Added the manifest `images` metadata for the cover and original screenshots and fixed a typo in the manifest summary. The manifest module version remains `19.0.1.0.14`.
+- **[2026-11-23]** Removed off-platform navigation links from the store description to align with Odoo Apps vendor guidelines; Softeko attribution remains present.
+
+### [Docs] — 2026-11-23
+- **[2026-11-23]** Documented store presentation assets and compatibility expectations in the README. No executable business logic, security rules, views, or backend assets were modified.
+
 ## [Unreleased] — 2026-11-09
 
 ### [Changed / Security] — 2026-11-09, source-verified against the preceding uploaded ZIP
