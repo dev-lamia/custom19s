@@ -4,14 +4,6 @@ This changelog follows a *Keep a Changelog*-inspired structure and distinguishes
 
 ## [Unreleased] — 2026-11-09
 
-### [Changed / UI Configuration] — 2026-11-09, grouped access-rights display
-- **[2026-11-09]** Moved the one surviving **Access Management** group from Odoo 19's **Extra Rights** area into a dedicated **Access Management** access-rights category, with a single **App Access** privilege and values **No** / **Access Management** (`security/security.xml`). Odoo 19 displays this as **one dropdown**, not a checkbox; group membership still controls the same full CRUD and app menus.
-- **[2026-11-09]** Kept the original `permission_manager_basic.group_permission_manager_user` XML ID, old administrator-group retirement, Settings Administrator independence, all ACLs, all views, and all business functionality unchanged.
-
-### [Docs] — 2026-11-09, grouped access-rights update
-- **[2026-11-09]** Updated the README access-rights instructions and current UI behavior and added a grouped-control verification test.
-- **[2026-11-09]** Updated the changelog to distinguish the original single-group access revision and this later presentation/grouping change.
-
 ### [Changed / Security] — 2026-11-09, source-verified against the preceding uploaded ZIP
 - **[2026-11-09]** Consolidated **Access Management User** and **Access Management Administrator** into one active, user-selectable **Access Management** checkbox (`permission_manager_basic.group_permission_manager_user`). This replaces the previous read-only user / full CRUD administrator split.
 - **[2026-11-09]** Gave this single group Read, Write, Create and Delete permissions on all ten custom `permission.manager.*` models (1/1/1/1) in `security/ir.model.access.csv`; removed the old administrator-specific ACL rows.
@@ -74,4 +66,4 @@ The following capabilities exist in the supplied ZIP and are documented as a **c
 **Documentation Updated:** 2026-11-09  
 **Current Manifest Version:** `19.0.1.0.14`  
 **Latest Verified Release Date:** Not verified  
-**Change Scope of this ZIP vs. the preceding documented ZIP:** `security/security.xml`, `README.md`, and `CHANGELOG.md` only. Grouping only; no ACL, view, Python, JavaScript or other business-logic changes.
+**Change Scope of this ZIP vs. the previous single-checkbox ZIP:** `README.md` and `CHANGELOG.md` only. (The earlier 2026-11-09 access-control ZIP already modified security and views.)
