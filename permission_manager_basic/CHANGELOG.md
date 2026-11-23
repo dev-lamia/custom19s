@@ -4,6 +4,12 @@ This changelog follows a *Keep a Changelog*-inspired structure and distinguishes
 
 ## [Unreleased] — 2026-11-23
 
+### [Store Description / Tab Guide] — 2026-11-23
+- **[2026-11-23]** Added a sky-blue policy-tab reference to `static/description/index.html`, documenting each of the eight main policy tabs, three Field Controls sub-tabs, configuration choices, use-case examples and differences between navigation, model, record and field rules.
+- **[2026-11-23]** Added anchor-based quick navigation and plain HTML explanation cards; no JavaScript, custom animation libraries or executable module files were changed.
+- **[2026-11-23]** Preserved the existing Softeko animation, illustrations, screenshots, developer attribution, website and support links. The guidance explicitly notes pre-existing source-verification limitations; it is not a runtime certification.
+- **[2026-11-23]** Updated `README.md` with a summary of the new Apps Store policy-tab guide.
+
 ### [Contacts / Support] — 2026-11-23
 - **[2026-11-23]** Linked developer **Lamia** to the profile URL already documented in the original manifest, `https://lamia-akter.odoo.com/`, in the sky-blue store description. The profile URL's live availability was not independently verified.
 - **[2026-11-23]** Included the official Softeko website `https://www.softeko.co/` and support/contact page `https://www.softeko.co/contact/` in the developer/support cards. External website links may be invalidated by the Odoo Apps Store HTML sanitizer.

@@ -474,6 +474,13 @@ Useful diagnostic entry points: `PermissionManagerPolicy._applicability_domain_f
 See [`CHANGELOG.md`](CHANGELOG.md) for the source-verified feature inventory, the **2026-11-09 single-checkbox security/access-control revision** already present in the input ZIP, the previous 2026-11-02 entries, and the **2026-11-09 documentation-only update**. The release date of version `19.0.1.0.14` is **not verified**.
 
 
+
+### Apps Store policy tab guide — 2026-11-23
+
+The sky-blue `static/description/index.html` includes a source-verified **What does every tab do?** section with direct section navigation and concrete usage examples for the eight primary policy configuration pages: **Hide Menus/Submenu**, **Model Permissions**, **Search Panel**, **Field Controls**, **Record Domain Rules**, **Chatter Visibility**, **Hide Buttons/Tabs** and **Global Controls**. It also explains the field-line sub-tabs **Attribute Rule**, **Domain Rule** and **Import / Export**. The guide is accessible without JavaScript, and all previous contact URLs, GIF promotion and screenshots remain in place.
+
+The store copy distinguishes UI visibility features from server-side operation restrictions and repeats existing limitations for `selection_domain`, record-domain non-read scopes and button hiding; no runtime test was performed as part of this presentation update.
+
 ## Odoo Apps Store presentation — 2026-11-23
 
 The module includes a refreshed sky-blue Softeko-branded Apps Store description in
