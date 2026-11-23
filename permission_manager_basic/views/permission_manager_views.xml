@@ -275,13 +275,13 @@
                             type="object"
                             class="btn-secondary"
                             invisible="state != 'active'"
-                            groups="permission_manager_basic.group_permission_manager_admin"/>
+                            groups="permission_manager_basic.group_permission_manager_user"/>
                     <button name="action_activate_policy"
                             string="Activate Policy"
                             type="object"
                             class="btn-primary"
                             invisible="state != 'inactive'"
-                            groups="permission_manager_basic.group_permission_manager_admin"/>
+                            groups="permission_manager_basic.group_permission_manager_user"/>
                     <field name="state" widget="statusbar" statusbar_visible="active,inactive"/>
                 </header>
                 <sheet class="pm_policy_sheet">

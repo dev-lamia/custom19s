@@ -4,8 +4,18 @@ import { onWillStart } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 
+const RECONCILE_MODELS = new Set([
+    "account.move.line",
+    "account.bank.statement.line",
+    "account.bank.statement",
+]);
+
 function normalizeViewType(viewType) {
     return viewType === "tree" ? "list" : viewType;
+}
+
+function isReconcileModel(modelName) {
+    return RECONCILE_MODELS.has(modelName);
 }
 
 /**
@@ -24,7 +34,7 @@ patch(ControlPanel.prototype, {
 
         onWillStart(async () => {
             const modelName = this.env.searchModel?.resModel;
-            if (!modelName) {
+            if (!modelName || isReconcileModel(modelName)) {
                 return;
             }
 

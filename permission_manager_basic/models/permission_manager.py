@@ -4,9 +4,18 @@ from lxml import etree
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessDenied, AccessError, UserError
-from odoo.osv import expression
 from odoo.tools import sql
 from odoo.tools.safe_eval import safe_eval
+
+
+def _domain_and(domains):
+    """Combine domains with the Odoo 19 Domain API and return legacy list form."""
+    return list(fields.Domain.AND(domains))
+
+
+def _domain_or(domains):
+    """Combine domains with the Odoo 19 Domain API and return legacy list form."""
+    return list(fields.Domain.OR(domains))
 
 
 class PermissionManagerPolicy(models.Model):
@@ -293,7 +302,7 @@ class PermissionManagerPolicy(models.Model):
             (_field("apply_by_user_groups"), "=", True),
             (_field("group_ids"), "in", group_ids),
         ]
-        return expression.OR([direct_user_domain, group_domain])
+        return _domain_or([direct_user_domain, group_domain])
 
     @api.model
     def _company_domain(self, company_ids, field_prefix=None):
@@ -301,7 +310,7 @@ class PermissionManagerPolicy(models.Model):
         def _field(name):
             return f"{field_prefix}.{name}" if field_prefix else name
 
-        return expression.OR(
+        return _domain_or(
             [
                 [(_field("apply_all_companies"), "=", True)],
                 [(_field("company_ids"), "in", list(company_ids or []))],
@@ -313,7 +322,7 @@ class PermissionManagerPolicy(models.Model):
         self, user, company_ids, field_prefix=None
     ):
         """Return assignment + company scope domain for the given user."""
-        return expression.AND(
+        return _domain_and(
             [
                 self._assignment_domain_for_user(user, field_prefix=field_prefix),
                 self._company_domain(company_ids, field_prefix=field_prefix),
@@ -328,7 +337,7 @@ class PermissionManagerPolicy(models.Model):
             return False
 
         company_ids = user.company_ids.ids or user.company_id.ids
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -348,7 +357,7 @@ class PermissionManagerPolicy(models.Model):
             return False
 
         company_ids = user.company_ids.ids or user.company_id.ids
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -365,7 +374,7 @@ class PermissionManagerPolicy(models.Model):
         """Return True when an active policy forces current user read-only."""
         user = self.env.user
         company = self.env.company
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -387,7 +396,7 @@ class PermissionManagerPolicy(models.Model):
         """Return whether the current user's export field browser is hidden."""
         user = self.env.user
         company = self.env.company
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -651,7 +660,7 @@ class PermissionManagerHiddenMenuLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -924,7 +933,7 @@ class PermissionManagerModelPermissionLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        return expression.AND(
+        return _domain_and(
             [
                 [
                     ("model", "=", model_name),
@@ -1049,7 +1058,7 @@ class PermissionManagerModelPermissionLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("hide_model", "=", True),
@@ -1341,7 +1350,7 @@ class PermissionManagerSearchPanelLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        return expression.AND(
+        return _domain_and(
             [
                 [
                     ("model", "=", model_name),
@@ -1645,7 +1654,7 @@ class PermissionManagerFieldPermissionLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -1925,7 +1934,7 @@ class PermissionManagerFieldStateRuleLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2141,7 +2150,7 @@ class PermissionManagerRecordDomainRuleLine(models.Model):
             raise UserError(_("Filter Expression must evaluate to a domain list."))
         domain = list(domain)
         if self.current_user_field_id:
-            domain = expression.AND(
+            domain = _domain_and(
                 [
                     domain,
                     [(self.current_user_field_id.name, "=", eval_user.id)],
@@ -2167,7 +2176,7 @@ class PermissionManagerRecordDomainRuleLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2193,7 +2202,7 @@ class PermissionManagerRecordDomainRuleLine(models.Model):
         domains = []
         for rule in rules:
             domains.append(rule._evaluate_filter_domain(user=self.env.user))
-        return expression.AND(domains) if domains else []
+        return _domain_and(domains) if domains else []
 
 
 class PermissionManagerHideItem(models.Model):
@@ -2371,7 +2380,7 @@ class PermissionManagerHideButtonTabLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2582,7 +2591,7 @@ class PermissionManagerChatterVisibilityLine(models.Model):
         ]._applicability_domain_for_user(
             user, [company.id], field_prefix="policy_id"
         )
-        domain = expression.AND(
+        domain = _domain_and(
             [
                 [
                     ("active", "=", True),
@@ -2615,6 +2624,21 @@ class PermissionManagerChatterVisibilityLine(models.Model):
 
 class Base(models.AbstractModel):
     _inherit = "base"
+
+    def _permission_manager_is_reconciliation_compat_model(self):
+        """Keep Odoo's Bank Matching/Reconcile UI metadata untouched.
+
+        The Enterprise reconciliation client depends on technical fields and
+        stock view/search metadata from these accounting models. Generic
+        field/view/search rewriting can make the OWL client continuously reload
+        account.move.line groups and leave the action blank. Operation checks
+        (create/write/unlink/read) remain enforced server-side.
+        """
+        return self._name in {
+            "account.move.line",
+            "account.bank.statement.line",
+            "account.bank.statement",
+        }
 
     def _permission_manager_is_internal_model(self):
         """Keep framework/bootstrap models outside dynamic record controls.
@@ -2735,6 +2759,7 @@ class Base(models.AbstractModel):
         if (
             self.env.context.get("permission_manager_skip_record_domain")
             or self._permission_manager_is_internal_model()
+            or self._permission_manager_is_reconciliation_compat_model()
         ):
             return super().web_search_read(domain, *args, **kwargs)
 
@@ -2743,7 +2768,7 @@ class Base(models.AbstractModel):
             include_soft=True,
         )
         if record_domain:
-            domain = expression.AND([domain or [], record_domain])
+            domain = _domain_and([domain or [], record_domain])
 
         safe_self = self.with_context(permission_manager_skip_record_domain=True)
         return super(Base, safe_self).web_search_read(domain, *args, **kwargs)
@@ -2783,7 +2808,10 @@ class Base(models.AbstractModel):
                     missing_fields.append(field.string if field else field_name)
             if missing_fields:
                 raise UserError(
-                    _("Access Management requires these fields: %s")
+                    _("%s is required. Please fill it in before saving.")
+                    % missing_fields[0]
+                    if len(missing_fields) == 1
+                    else _("These fields are required. Please fill them in: %s")
                     % ", ".join(missing_fields)
                 )
         else:
@@ -2794,7 +2822,10 @@ class Base(models.AbstractModel):
                     empty_required_fields.append(field.string if field else field_name)
             if empty_required_fields:
                 raise UserError(
-                    _("Access Management requires these fields: %s")
+                    _("%s is required. Please fill it in before saving.")
+                    % empty_required_fields[0]
+                    if len(empty_required_fields) == 1
+                    else _("These fields are required. Please fill them in: %s")
                     % ", ".join(empty_required_fields)
                 )
         return True
@@ -2884,7 +2915,10 @@ class Base(models.AbstractModel):
     @api.model
     def fields_get(self, allfields=None, attributes=None):
         result = super().fields_get(allfields=allfields, attributes=attributes)
-        if self.env.context.get("permission_manager_skip_view_hide"):
+        if (
+            self.env.context.get("permission_manager_skip_view_hide")
+            or self._permission_manager_is_reconciliation_compat_model()
+        ):
             return result
 
         field_rules = self._permission_manager_field_rules()
@@ -2925,7 +2959,10 @@ class Base(models.AbstractModel):
 
     def get_view(self, view_id=None, view_type="form", **options):
         result = super().get_view(view_id=view_id, view_type=view_type, **options)
-        if self.env.context.get("permission_manager_skip_view_hide"):
+        if (
+            self.env.context.get("permission_manager_skip_view_hide")
+            or self._permission_manager_is_reconciliation_compat_model()
+        ):
             return result
 
         arch = result.get("arch")
@@ -3046,6 +3083,9 @@ class Base(models.AbstractModel):
                     changed = True
                 if field_name in field_rules.get("required", set()):
                     field_node.set("required", "1")
+                    if view_key == "form":
+                        # FormController displays the field-specific save popup.
+                        field_node.set("data-pm-required-popup", "1")
                     changed = True
 
             if view_key == "search" and globally_hidden_fields:
@@ -3096,6 +3136,10 @@ class Base(models.AbstractModel):
                     if current and current not in {"0", "False", "false"}:
                         expression = "(%s) or (%s)" % (current, expression)
                     field_node.set(attribute, expression)
+                    if attribute == "required" and view_key == "form":
+                        # Reuse Odoo's evaluated required modifier, including
+                        # the configured condition, in the save-time popup.
+                        field_node.set("data-pm-required-popup", "1")
                     changed = True
 
                     # A readonly x2many field can still contain object/action buttons
