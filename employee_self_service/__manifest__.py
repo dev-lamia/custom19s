@@ -13,6 +13,7 @@
         - Time Off Requests
     """,
     'author': 'Softeko_Lamia',
+    'maintainer': 'Softeko',
     'depends': [
         'portal',
         'hr',
