@@ -1,57 +1,57 @@
 # Employee Self-Service Portal — Odoo 19 Custom Module
 
-## ফিচার সমূহ
+## Features
 
-- **My Account পেজে** "My Payslips" টাইল যোগ হবে
-- Employee তার সকল **validated/paid payslip** দেখতে পাবে
-- প্রতিটি payslip এর **বিস্তারিত বেতন বিবরণ** দেখা যাবে (Allowance, Deduction, Net Pay)
-- **PDF Download** করা যাবে সরাসরি পোর্টাল থেকে
-- Security: প্রতিটি employee শুধু **নিজের** payslip দেখতে পাবে
+- A "My Payslips" tile will be added to the **My Account page**
+- Employees can view all their **validated/paid payslips**
+- Employees can view the **detailed salary breakdown** of each payslip (Allowance, Deduction, Net Pay)
+- **PDF downloads** are available directly from the portal
+- Security: Each employee can only view **their own** payslips
 
 ---
 
-## ইনস্টলেশন
+## Installation
 
-### ধাপ ১: Module কপি করুন
+### Step 1: Copy the Module
 ```bash
 cp -r employee_self_service /path/to/odoo/custom_addons/
 ```
 
-### ধাপ ২: odoo.conf আপডেট করুন
+### Step 2: Update odoo.conf
 ```ini
 addons_path = /path/to/odoo/addons,/path/to/odoo/custom_addons
 ```
 
-### ধাপ ৩: Odoo রিস্টার্ট করুন
+### Step 3: Restart Odoo
 ```bash
 sudo systemctl restart odoo
 ```
 
-### ধাপ ৪: Module ইনস্টল করুন
-1. **Settings > Technical > Update Apps List** করুন
-2. Apps-এ গিয়ে `Employee Self-Service Portal` খুঁজুন
-3. **Install** বাটনে ক্লিক করুন
+### Step 4: Install the Module
+1. Go to **Settings > Technical > Update Apps List**
+2. Go to Apps and search for `Employee Self-Service Portal`
+3. Click the **Install** button
 
 ---
 
-## Employee এর Portal User সেটআপ
+## Employee Portal User Setup
 
-Employee কে portal access দিতে:
+To grant portal access to an employee:
 
-1. **Employees** অ্যাপে যান
-2. Employee খুলুন → **Action** → **Grant Portal Access**
-3. Employee এর `user_id` ফিল্ডে portal user সেট করুন
+1. Go to the **Employees** app
+2. Open the employee record → **Action** → **Grant Portal Access**
+3. Set the portal user in the employee's `user_id` field
 
-**অথবা**
+**Alternatively**
 
-Employee এর Work Email দিয়ে portal user তৈরি করুন — module স্বয়ংক্রিয়ভাবে match করবে।
+Create a portal user using the employee's Work Email — the module will automatically match the user.
 
 ---
 
 ## Dependencies
 
-| Module | কারণ |
-|--------|-------|
+| Module | Purpose |
+|--------|---------|
 | `portal` | Portal framework |
 | `hr` | Employee model |
 | `hr_payroll` | Payslip model |
@@ -61,21 +61,21 @@ Employee এর Work Email দিয়ে portal user তৈরি করুন
 
 ## URL Routes
 
-| URL | বিবরণ |
-|-----|--------|
-| `/my/home` | My Account (payslip tile যোগ হবে) |
-| `/my/payslips` | Payslip তালিকা |
-| `/my/payslips/<id>` | একটি payslip এর বিস্তারিত |
-| `/my/payslips/<id>/download` | PDF ডাউনলোড |
+| URL | Description |
+|-----|-------------|
+| `/my/home` | My Account (payslip tile will be added) |
+| `/my/payslips` | Payslip list |
+| `/my/payslips/<id>` | Details of an individual payslip |
+| `/my/payslips/<id>/download` | PDF download |
 
 ---
 
-## সমস্যা হলে
+## Troubleshooting
 
-**Payslip দেখা যাচ্ছে না?**
-- Employee record এ `user_id` সেট আছে কিনা চেক করুন
-- Payslip এর state `done` বা `paid` আছে কিনা দেখুন
+**Payslips are not visible?**
+- Check whether `user_id` is set on the employee record
+- Check whether the payslip state is `done` or `paid`
 
-**PDF কাজ করছে না?**
-- `hr_payroll` module এ payslip report template আছে কিনা দেখুন
-- wkhtmltopdf ইনস্টল করা আছে কিনা চেক করুন
+**PDF download is not working?**
+- Check whether the payslip report template exists in the `hr_payroll` module
+- Check whether wkhtmltopdf is installed
