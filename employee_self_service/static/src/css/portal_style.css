@@ -1,0 +1,200 @@
+/* ================================================================
+   Employee Self-Service Portal — Custom Styles
+   ================================================================ */
+
+/* Payslip card on list page */
+.employee-payslip-card {
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.employee-payslip-card .card-header {
+    background: linear-gradient(135deg, #1a4b8c 0%, #2f7fe8 100%) !important;
+    padding: 1rem 1.5rem;
+}
+
+/* Table improvements */
+.employee-payslip-card .table th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: #5a6a7e;
+}
+
+.employee-payslip-card .table td {
+    vertical-align: middle;
+}
+
+/* Payslip detail lines table */
+.payslip-lines-table thead th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Download button */
+.btn-outline-success:hover {
+    background-color: #198754;
+    color: white;
+}
+
+/* Status badges */
+.badge.bg-success {
+    font-size: 0.75rem;
+    padding: 0.4em 0.75em;
+}
+
+.badge.bg-primary {
+    font-size: 0.75rem;
+    padding: 0.4em 0.75em;
+}
+
+/* Portal record layout card */
+.o_portal_record_layout .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+/* ================================================================
+   Employee Portal Landing Page — card buttons
+   ================================================================ */
+
+.employee-portal-card {
+    border-radius: 14px !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    cursor: pointer;
+}
+
+.employee-portal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.emp-portal-icon {
+    min-width: 60px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* My Account card style aligned with Odoo portal cards */
+.employee_portal_my_account_link {
+    display: block;
+    height: 100%;
+}
+
+.employee_portal_my_account_card {
+    display: flex;
+    align-items: center;
+    min-height: 96px;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.375rem;
+    background: #f8f9fa;
+    border: 1px solid #edf0f2;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.employee_portal_my_account_link:hover .employee_portal_my_account_card {
+    background: #f8f9fa;
+    border-color: #e3e7eb;
+    box-shadow: none;
+}
+
+.employee_portal_my_account_icon {
+    width: 54px;
+    min-width: 54px;
+    height: 54px;
+    margin-right: 1.25rem;
+    border-radius: 0.75rem;
+    background: rgba(111, 66, 193, 0.12);
+    color: #6f42c1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.85rem;
+}
+
+.employee_portal_my_account_content h5 {
+    margin: 0 0 0.2rem 0;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #212529;
+}
+
+.employee_portal_my_account_content p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: #6c757d;
+}
+
+/* ================================================================
+   Back to Employee Portal Button — purple outline style
+   ================================================================ */
+
+.ess-back-btn {
+    border: 2px solid #7B2D8B !important;
+    color: #7B2D8B !important;
+    background-color: transparent !important;
+    font-weight: 500;
+    padding: 0.45rem 1.1rem;
+    border-radius: 6px;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.ess-back-btn:hover {
+    background-color: #7B2D8B !important;
+    color: #fff !important;
+}
+
+/* ================================================================
+   Attendance Table — system style matching Odoo backend
+   ================================================================ */
+
+.ess-attendance-card {
+    border-radius: 0 !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: none !important;
+}
+
+.ess-attendance-table thead tr {
+    border-bottom: 2px solid #7B2D8B;
+}
+
+.ess-attendance-table thead th {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #212529;
+    background-color: #fff;
+    padding: 0.75rem 0.75rem;
+    border-bottom: 2px solid #7B2D8B !important;
+    white-space: nowrap;
+}
+
+.ess-attendance-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ess-attendance-table tbody td {
+    font-size: 0.875rem;
+    color: #212529;
+    padding: 0.65rem 0.75rem;
+    vertical-align: middle;
+}
+
+.ess-attendance-table tbody tr:hover {
+    background-color: #fdf6ff;
+}
+
+.ess-emp-avatar {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+}

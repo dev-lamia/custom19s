@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_payslip" name="Portal: Employee Portal Entry"
+              inherit_id="portal.portal_my_home"
+              customize_show="True"
+              priority="90">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <div class="o_portal_doc_item col-12 col-md-6 mb-3 employee_portal_my_account_item">
+                <a href="/my/employee-portal" class="text-decoration-none employee_portal_my_account_link">
+                    <div class="employee_portal_my_account_card h-100">
+                        <div class="employee_portal_my_account_icon">
+                            <i class="fa fa-id-badge"/>
+                        </div>
+                        <div class="employee_portal_my_account_content">
+                            <h5>Employee Portal</h5>
+                            <p>View personal details, time off, payslips and attendance</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="no_employee_found" name="No Employee Record Found">
+        <t t-call="website.layout">
+            <div class="container mt-5 text-center">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        No Employee Record Found
+                    </h4>
+                    <p>Your portal account is not linked to any employee profile yet.</p>
+                    <p>Please contact your HR department to link your account.</p>
+                    <hr/>
+                    <a href="/my/home" class="btn btn-primary">
+                        <i class="fa fa-home me-1"/> Back to My Account
+                    </a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="employee_portal_home" name="Employee Portal Home">
+        <t t-call="portal.portal_layout">
+            <div class="container py-4">
+                <h4 class="mb-4 fw-bold">
+                    <i class="fa fa-id-badge me-2 text-primary"/>
+                    Employee Portal
+                </h4>
+                <div class="row g-4">
+
+                    <div class="col-lg-6 col-md-6">
+                        <a href="/my/personal-details" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm employee-portal-card">
+                                <div class="card-body d-flex align-items-center gap-4 p-4">
+                                    <div class="emp-portal-icon rounded-3 p-2 d-flex align-items-center justify-content-center bg-white">
+                                        <img src="/hr/static/description/icon.png" alt="Personal Details" style="width:56px;height:56px;object-fit:contain;"/>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-dark">My Personal Details</h5>
+                                        <p class="mb-0 text-muted small">View your personal employee information</p>
+                                    </div>
+                                    <i class="fa fa-chevron-right text-muted ms-auto"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <a href="/my/time-off" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm employee-portal-card">
+                                <div class="card-body d-flex align-items-center gap-4 p-4">
+                                    <div class="emp-portal-icon rounded-3 p-2 d-flex align-items-center justify-content-center bg-white">
+                                        <img src="/hr_holidays/static/description/icon.png" alt="Time Off" style="width:56px;height:56px;object-fit:contain;"/>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-dark">My Time Off</h5>
+                                        <p class="mb-0 text-muted small">View and create your time off requests</p>
+                                        <span class="badge bg-warning text-dark mt-2"><t t-esc="timeoff_count"/> Requests</span>
+                                    </div>
+                                    <i class="fa fa-chevron-right text-muted ms-auto"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <a href="/my/payslips" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm employee-portal-card">
+                                <div class="card-body d-flex align-items-center gap-4 p-4">
+                                    <div class="emp-portal-icon rounded-3 p-2 d-flex align-items-center justify-content-center bg-white">
+                                        <img src="/hr_payroll/static/description/icon.png" alt="Payslips" style="width:56px;height:56px;object-fit:contain;"/>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-dark">My Payslips</h5>
+                                        <p class="mb-0 text-muted small">View and download your salary slips</p>
+                                        <span class="badge bg-primary mt-2"><t t-esc="payslip_count"/> Payslips</span>
+                                    </div>
+                                    <i class="fa fa-chevron-right text-muted ms-auto"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <a href="/my/attendances" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm employee-portal-card">
+                                <div class="card-body d-flex align-items-center gap-4 p-4">
+                                    <div class="emp-portal-icon rounded-3 p-2 d-flex align-items-center justify-content-center bg-white">
+                                        <img src="/hr_attendance/static/description/icon.png" alt="Attendance" style="width:56px;height:56px;object-fit:contain;"/>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-dark">My Attendance</h5>
+                                        <p class="mb-0 text-muted small">View your check-in and check-out records</p>
+                                        <span class="badge bg-success mt-2"><t t-esc="attendance_count"/> Records</span>
+                                    </div>
+                                    <i class="fa fa-chevron-right text-muted ms-auto"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

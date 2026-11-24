@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_timeoff" name="My Time Off">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                <div>
+                    <h4 class="fw-bold mb-1">
+                        <i class="fa fa-calendar-times-o me-2 text-info"/>
+                        My Time Off
+                    </h4>
+                    <p class="text-muted mb-0">View and create your time off requests</p>
+                </div>
+                <a href="/my/employee-portal" class="btn ess-back-btn">
+                    <i class="fa fa-arrow-left me-1"/> Back to Employee Portal
+                </a>
+            </div>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Time Off</t>
+            </t>
+
+            <div class="ess-timeoff-dashboard mt-3 mb-4">
+                <div class="row g-0 ess-timeoff-dashboard-row border rounded overflow-hidden bg-white">
+                    <t t-set="dashboard_cards" t-value="timeoff_balance_cards or []"/>
+                    <t t-foreach="dashboard_cards" t-as="card">
+                        <div class="col-lg col-md-6 col-12 ess-timeoff-summary-col">
+                            <div class="p-4 text-center h-100 d-flex flex-column justify-content-center ess-timeoff-summary-box">
+                                <div class="fw-semibold fs-5 mb-2">
+                                    <t t-esc="card['name']"/>
+                                </div>
+                                <div class="ess-summary-number text-primary fw-bold mb-2">
+                                    <t t-if="card.get('unit') == 'hours'">
+                                        <i class="fa fa-clock-o me-2"/>
+                                    </t>
+                                    <t t-else="">
+                                        <i class="fa fa-umbrella me-2"/>
+                                    </t>
+                                    <t t-esc="card['days_available']"/>
+                                </div>
+                                <div class="text-uppercase small fw-semibold text-muted">
+                                    <t t-esc="'Hours Available' if card.get('unit') == 'hours' else 'Days Available'"/>
+                                </div>
+                                <div class="small text-muted" t-if="card.get('valid_until')">
+                                    (Valid Until <t t-esc="card['valid_until']"/>)
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <div class="col-lg col-md-6 col-12 ess-timeoff-summary-col">
+                        <div class="p-4 text-center h-100 d-flex flex-column justify-content-center ess-timeoff-summary-box">
+                            <div class="fw-semibold fs-5 mb-2">Pending Requests</div>
+                            <div class="ess-summary-number text-dark fw-bold mb-2">
+                                <t t-esc="timeoff_dashboard['to_approve']"/>
+                            </div>
+                            <div class="small text-info text-uppercase fw-semibold">Time Off Requests</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-1">
+                <div class="col-lg-5">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fa fa-plus-circle me-2"/>New Time Off Request</h5>
+                        </div>
+                        <div class="card-body">
+                            <t t-if="success">
+                                <div class="alert alert-success">Time Off request submitted successfully.</div>
+                            </t>
+                            <t t-if="error == 'missing'">
+                                <div class="alert alert-danger">Please fill in all required fields.</div>
+                            </t>
+                            <t t-if="error == 'range'">
+                                <div class="alert alert-danger">End date must be on or after start date.</div>
+                            </t>
+                            <t t-if="error == 'type'">
+                                <div class="alert alert-danger">Selected Time Off type was not found.</div>
+                            </t>
+
+                            <form action="/my/time-off/create" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Time Off Type</label>
+                                    <select name="leave_type_id" class="form-select" required="required">
+                                        <option value="">Select a type</option>
+                                        <t t-foreach="leave_types" t-as="leave_type">
+                                            <option t-att-value="leave_type.id"><t t-esc="leave_type.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">From</label>
+                                        <input type="date" name="date_from" class="form-control" required="required"/>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">To</label>
+                                        <input type="date" name="date_to" class="form-control" required="required"/>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Description</label>
+                                    <textarea name="description" class="form-control" rows="3" placeholder="Reason / note"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Attachment</label>
+                                    <input type="file" name="attachment" class="form-control"/>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-paper-plane me-1"/> Submit Request
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fa fa-calendar me-2 text-success"/>My Time Off Requests</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <t t-if="not leaves">
+                                <div class="p-4 text-center text-muted">No time off requests found.</div>
+                            </t>
+                            <t t-if="leaves">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0 align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th class="text-center">Days</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="leaves" t-as="leave">
+                                                <tr>
+                                                    <td class="fw-semibold"><t t-esc="leave.holiday_status_id.name"/></td>
+                                                    <td><span t-field="leave.request_date_from"/></td>
+                                                    <td><span t-field="leave.request_date_to"/></td>
+                                                    <td class="text-center"><t t-esc="leave.number_of_days or leave.number_of_days_display or 0"/></td>
+                                                    <td class="text-center">
+                                                        <t t-if="leave.state in ('confirm', 'validate1')">
+                                                            <span class="badge bg-warning text-dark">To Approve</span>
+                                                        </t>
+                                                        <t t-elif="leave.state == 'validate'">
+                                                            <span class="badge bg-success">Approved</span>
+                                                        </t>
+                                                        <t t-elif="leave.state == 'refuse'">
+                                                            <span class="badge bg-danger">Refused</span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="badge bg-secondary"><t t-esc="leave.state"/></span>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="o_portal_pager text-center mt-3">
+                        <t t-if="pager['page_count'] > 1">
+                            <t t-call="portal.pager"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .ess-timeoff-dashboard-row {
+                    border: 3px solid #7b1fa2 !important;
+                    background: #fff;
+                }
+                .ess-timeoff-summary-col {
+                    min-height: 145px;
+                    border-right: 1px solid #dee2e6;
+                }
+                .ess-timeoff-summary-col:last-child {
+                    border-right: 0;
+                }
+                .ess-timeoff-summary-box {
+                    background: #fff;
+                }
+                .ess-summary-number {
+                    font-size: 2rem;
+                    line-height: 1;
+                }
+                @media (max-width: 991.98px) {
+                    .ess-timeoff-summary-col {
+                        border-right: 0 !important;
+                        border-bottom: 1px solid #dee2e6;
+                    }
+                    .ess-timeoff-summary-col:last-child {
+                        border-bottom: 0;
+                    }
+                }
+            </style>
+
+        </t>
+    </template>
+
+</odoo>
