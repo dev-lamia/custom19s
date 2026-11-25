@@ -1,5 +1,5 @@
 {
-    'name': 'Shopify Connector',
+    'name': '.',
     'version': '1.0.2',
     'author': 'Odoo Mates',
     'category': 'Sales',
