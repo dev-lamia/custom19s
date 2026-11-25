@@ -12,7 +12,7 @@
         - Personal Details
         - Time Off Requests
     """,
-    'author': 'Softeko_Lamia',
+    'author': 'Softeko',
     'maintainer': 'Softeko',
     'depends': [
         'portal',
@@ -40,7 +40,7 @@
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
-    'images': ['static/description/banner.png'],
+    'images': ['static/description/images/main_screenshot.png'],
     'website': 'https://www.softeko.co/',
     'support': 'contact@softeko.co',
 }
