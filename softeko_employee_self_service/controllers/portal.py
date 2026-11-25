@@ -200,7 +200,7 @@ class EmployeePortal(CustomerPortal):
             'searchbar_filters': searchbar_filters,
             'default_url': '/my/payslips',
         }
-        return request.render('employee_self_service.portal_my_payslips', values)
+        return request.render('softeko_employee_self_service.portal_my_payslips', values)
 
     @http.route(['/my/payslips/<int:payslip_id>'], type='http', auth='user', website=True)
     def portal_payslip_detail(self, payslip_id, **kw):
@@ -222,7 +222,7 @@ class EmployeePortal(CustomerPortal):
             'page_name': 'payslip',
             'lines': payslip.line_ids.filtered(lambda l: l.appears_on_payslip),
         }
-        return request.render('employee_self_service.portal_payslip_detail', values)
+        return request.render('softeko_employee_self_service.portal_payslip_detail', values)
 
     @http.route(['/my/payslips/<int:payslip_id>/preview'], type='http', auth='user', website=True)
     def portal_payslip_preview(self, payslip_id, **kw):
@@ -276,7 +276,7 @@ class EmployeePortal(CustomerPortal):
         timeoff_count = request.env['hr.leave'].sudo().search_count([
             ('employee_id', '=', employee.id),
         ]) if employee else 0
-        return request.render('employee_self_service.employee_portal_home', {
+        return request.render('softeko_employee_self_service.employee_portal_home', {
             'employee': employee,
             'payslip_count': payslip_count,
             'attendance_count': attendance_count,
@@ -324,7 +324,7 @@ class EmployeePortal(CustomerPortal):
             'searchbar_filters': searchbar_filters,
             'default_url': '/my/attendances',
         }
-        return request.render('employee_self_service.portal_my_attendances', values)
+        return request.render('softeko_employee_self_service.portal_my_attendances', values)
 
     @http.route(['/my/personal-details'], type='http', auth='user', website=True)
     def portal_my_personal_details(self, **kw):
@@ -395,7 +395,7 @@ class EmployeePortal(CustomerPortal):
             'visa_items': visa_items,
             'location_items': location_items,
         }
-        return request.render('employee_self_service.portal_my_personal_details', values)
+        return request.render('softeko_employee_self_service.portal_my_personal_details', values)
 
     @http.route(['/my/time-off', '/my/time-off/page/<int:page>'], type='http', auth='user', website=True)
     def portal_my_timeoff(self, page=1, sortby=None, filterby=None, **kw):
@@ -518,7 +518,7 @@ class EmployeePortal(CustomerPortal):
             'success': kw.get('success'),
             'error': kw.get('error'),
         }
-        return request.render('employee_self_service.portal_my_timeoff', values)
+        return request.render('softeko_employee_self_service.portal_my_timeoff', values)
 
     @http.route(['/my/time-off/create'], type='http', auth='user', website=True, methods=['POST'], csrf=True)
     def portal_create_timeoff(self, **post):

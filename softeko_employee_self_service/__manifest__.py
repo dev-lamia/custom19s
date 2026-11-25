@@ -33,7 +33,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'employee_self_service/static/src/css/portal_style.css',
+            'softeko_employee_self_service/static/src/css/portal_style.css',
         ],
     },
     'installable': True,

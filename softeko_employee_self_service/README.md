@@ -14,7 +14,7 @@
 
 ### Step 1: Copy the Module
 ```bash
-cp -r employee_self_service /path/to/odoo/custom_addons/
+cp -r softeko_employee_self_service /path/to/odoo/custom_addons/
 ```
 
 ### Step 2: Update odoo.conf
