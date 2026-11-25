@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="payment_provider_bkash" model="payment.provider">
+    <field name="name">BKash</field>
+    <field name="code">bkash</field>
+    <field name="state">disabled</field>
+    <field name="company_id" ref="base.main_company"/>
+    <field name="payment_method_ids"
+            eval="[(6, 0, [
+            ref('payment_method_bkash'),
+        ])]" />
+        <field name="image_128" type="base64"
+            file="bkash/static/description/icon.png" />
+  </record>
+</odoo>

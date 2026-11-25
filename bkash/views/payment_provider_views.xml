@@ -1,0 +1,36 @@
+<!-- views/payment_provider_views.xml -->
+<odoo>
+  <record id="view_payment_provider_form_bkash" model="ir.ui.view">
+    <field name="name">payment.provider.form.bkash.credentials</field>
+    <field name="model">payment.provider</field>
+    <field name="inherit_id" ref="payment.payment_provider_form"/>
+    <field name="arch" type="xml">
+            <group name="provider_credentials" position='inside'>
+                <group invisible="code != 'bkash'">
+                    <field
+                        name="bkash_app_key"
+                        string="App Key"
+                        required="code == 'bkash' and state != 'disabled'"
+                    />
+                    <field
+                        name="bkash_app_secret"
+                        string="App Secret"
+                        required="code == 'bkash' and state != 'disabled'"
+                        password="True"
+                    />
+                    <field
+                        name="bkash_username"
+                        string="Username"
+                        required="code == 'bkash' and state != 'disabled'"
+                    />
+                    <field
+                        name="bkash_password"
+                        string="Password"
+                        required="code == 'bkash' and state != 'disabled'"
+                        password="True"
+                    />
+                </group>
+            </group>
+        </field>
+  </record>
+</odoo>
