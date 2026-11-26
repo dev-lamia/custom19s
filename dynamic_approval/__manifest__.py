@@ -2,7 +2,7 @@
     'name': 'Dynamic Approval',
     'version': '19.0.1.0.12',
     'category': 'Customizations',
-    'summary': 'Standallone approval workflow for any Odoo object button',
+    'summary': 'Standalone approval workflow for any Odoo object button',
     'description': '''
 Professional standalone dynamic approval system.
 Configure approvers separately from Odoo built-in Approvals and protect any
@@ -39,4 +39,5 @@ object button on selected business models.
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
+    'images': ['static/description/images/cover.png'],
 }
