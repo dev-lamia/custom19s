@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee Self-Service Portal',
-    'version': '19.0.0.0.0',
+    'version': '19.0.1.2.0',
     'category': 'Customizations',
     'summary': 'Employee Portal with Payroll, Attendance, Personal Details and Time Off',
     'description': """
@@ -40,7 +40,7 @@
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
-    'images': ['static/description/images/main_screenshot.png'],
+    'images': ['static/description/images/store_cover.png'],
     'website': 'https://www.softeko.co/',
     'support': 'contact@softeko.co',
 }
