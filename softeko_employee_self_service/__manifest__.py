@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee Self-Service Portal',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.2.5',
     'category': 'Customizations',
     'summary': 'Employee Portal with Payroll, Attendance, Personal Details and Time Off',
     'description': """
