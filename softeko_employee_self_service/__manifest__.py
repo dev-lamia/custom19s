@@ -40,7 +40,7 @@
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
-    'images': ['static/description/images/store_cover.png'],
+    'images': ['static/description/images/cover_animation.gif'],
     'website': 'https://www.softeko.co/',
     'support': 'contact@softeko.co',
 }
