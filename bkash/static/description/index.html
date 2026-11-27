@@ -1,407 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>bKash Payment Gateway for Odoo – Softeko</title>
-
-  <!-- Same dependency pattern as the working app index -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
-
-  <style>
-
-    body {
-      font-family: "Montserrat", sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    img,
-    video {
-      max-width: 100%;
-      display: block;
-    }
-
-    h1,
-    h2,
-    h3,
-    p {
-      margin-top: 0;
-    }
-
-    .bk-btn-hover {
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-
-    .bk-btn-hover:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 35px rgba(31, 41, 55, .22) !important;
-    }
-  </style>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>bKash Payment Gateway for Odoo – Softeko</title>
 </head>
+<body style="margin:0;background-color:#F5F8FD;color:#00176A;font-family:Arial,Helvetica,sans-serif;line-height:1.6;">
+<!--
+    Softeko store page for the bKash Payment Gateway. Single page, store-safe inline CSS.
+    Sticky nav: Odoo "Table of Content" navbar (md+) and Bootstrap sticky-top (small screens).
+    Palette: #00176A navy, #3067FF blue, #FFFFFF, #DFEBF6 light, #39D9FE cyan.
+-->
+<div style="max-width:1200px;margin:0 auto;padding:20px 12px 48px;">
+<div id="bk-top" data-anchor="true" style="display:block;height:0;margin:0;padding:0;"></div>
 
-<body style="margin:0; font-family:Montserrat, sans-serif; color:#121212; background:#ffffff; line-height:1.6;">
-
-<div class="bkash-landing" style="width:100%; overflow:hidden; background: radial-gradient(circle at 10% 0%, rgba(226,19,110,.12), transparent 30%), radial-gradient(circle at 95% 8%, rgba(113,75,103,.14), transparent 34%), #ffffff;">
-
-  <!-- ═══════════════ HEADER ═══════════════ -->
-  <div class="container" style="max-width:1240px;">
-    <header class="d-flex flex-wrap align-items-center justify-content-between gap-3" style="padding:18px 0;" aria-label="Product header">
-      <div class="d-flex align-items-center gap-3" style="font-weight:800; letter-spacing:-.02em;">
-       <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer">
-         <img src="images/Softeko-Logo.png" alt="Softeko logo" style="width:132px; height:auto;" />
-       </a>
-      </div>
-      <div class="d-inline-flex align-items-center gap-2" style="padding:8px 13px; border-radius:999px; background:rgba(226,19,110,.08); color:#7b0b3b; font-weight:700; font-size:13px; border:1px solid rgba(226,19,110,.16); white-space:nowrap;">
-        Built for Odoo merchants in Bangladesh
-      </div>
-    </header>
-
-    <!-- ═══════════════ HERO ═══════════════ -->
-    <section aria-label="bKash payment gateway for Odoo" style="padding:42px 0 72px;">
-      <div class="row g-4 align-items-center">
-
-        <!-- Left copy -->
-        <div class="col-12 col-lg-5">
-          <div class="d-inline-flex align-items-center" style="padding:8px 14px; border-radius:999px; background:#fff5fa; border:1px solid #ead7e2; color:#7b0b3b; font-size:14px; font-weight:800; margin-bottom:16px;">
-            bKash Payment Gateway for Odoo
-          </div>
-
-          <h1 class="fw-bold lh-sm" style="font-size:clamp(34px,4.7vw,56px); letter-spacing:-.055em; margin-bottom:18px; color:#121212;">
-            Accept <span style="color:#e2136e;">bKash payments</span> in your Odoo store.
-          </h1>
-
-          <p style="font-size:clamp(16px,1.55vw,19px); color:#64728f; max-width:470px; margin-bottom:22px;">
-            Let customers pay with bKash while Odoo keeps orders and payment status organized.
-            Built by Softeko for faster checkout and easier payment confirmation.
-          </p>
-
-          <div class="d-flex flex-wrap gap-3 align-items-center" style="margin-bottom:24px;">
-            <a href="mailto:contact@softeko.co" class="bk-btn-hover d-inline-flex align-items-center justify-content-center text-decoration-none fw-bold"
-               style="min-height:48px; padding:13px 22px; border-radius:999px; background:linear-gradient(135deg,#e2136e,#7b0b3b); color:#ffffff; box-shadow:0 14px 28px rgba(226,19,110,.24); border:none;">
-              Contact Softeko Support
-            </a>
-          </div>
-
-          <!-- Proof cards -->
-          <div class="row g-2" aria-label="Key trust highlights">
-            <div class="col-4">
-              <div style="background:rgba(255,255,255,.76); border:1px solid rgba(234,215,226,.78); border-radius:16px; padding:13px; font-size:13px; color:#64728f; height:100%;">
-                <strong style="display:block; color:#121212; font-size:16px; line-height:1.2; margin-bottom:3px;">Secure checkout</strong>
-                bKash-supported payment flow.
-              </div>
-            </div>
-            <div class="col-4">
-              <div style="background:rgba(255,255,255,.76); border:1px solid rgba(234,215,226,.78); border-radius:16px; padding:13px; font-size:13px; color:#64728f; height:100%;">
-                <strong style="display:block; color:#121212; font-size:16px; line-height:1.2; margin-bottom:3px;">Odoo native</strong>
-                Works with Odoo eCommerce.
-              </div>
-            </div>
-            <div class="col-4">
-              <div style="background:rgba(255,255,255,.76); border:1px solid rgba(234,215,226,.78); border-radius:16px; padding:13px; font-size:13px; color:#64728f; height:100%;">
-                <strong style="display:block; color:#121212; font-size:16px; line-height:1.2; margin-bottom:3px;">Merchant-ready</strong>
-                Uses live merchant credentials.
-              </div>
-            </div>
-          </div>
-        </div><!-- /left -->
-
-        <!-- Right video card -->
-        <div class="col-12 col-lg-7">
-          <div class="bk-hero-card" style="position:relative; border-radius:28px; padding:18px; background:#ffffff; border:1px solid #ead7e2; box-shadow:0 18px 45px rgba(31,41,55,.12); overflow:hidden; height:auto; min-height:0;">
-            <video controls preload="metadata"
-                   aria-label="bKash payment module tutorial video"
-                   style="width:100%; height:auto; min-height:0; max-height:none; margin:0; padding:0; border-radius:22px; border:1px solid #f0e0e8; background:#ffffff; object-fit:contain; display:block; vertical-align:top;">
-              <source src="images/Bkash_tutorial.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-        </div>
-
-      </div><!-- /row -->
-    </section>
-  </div><!-- /container -->
-
-
-  <!-- ═══════════════ FEATURES ═══════════════ -->
-  <section aria-label="Features and benefits" style="padding:76px 0; background-color:#fff7fb; border-top:1px solid #f3e4ec; border-bottom:1px solid #f3e4ec;">
-    <div class="container" style="max-width:1240px;">
-
-      <div class="text-center mx-auto" style="max-width:760px; margin-bottom:42px;">
-        <h2 class="fw-bold" style="font-size:clamp(30px,4vw,46px); line-height:1.08; letter-spacing:-.04em; margin-bottom:14px; color:#121212;">
-          Everything your store needs to collect local digital payments.
-        </h2>
-        <p style="color:#64728f; font-size:18px; margin-bottom:0;">
-          Make checkout easier for customers and reduce manual payment confirmation work for your sales and finance teams.
-        </p>
-      </div>
-
-      <div class="row g-4">
-        <!-- card 1 -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <article style="padding:26px; border-radius:18px; background:#ffffff; border:1px solid #f0e1ea; box-shadow:0 10px 28px rgba(31,41,55,.06); height:100%;">
-            <div class="d-flex align-items-center justify-content-center" style="width:54px; height:54px; border-radius:16px; background:#fff3f8; border:1px solid #f7d4e5; margin-bottom:18px;">
-              <img src="images/icon-checkout.svg" alt="Checkout icon" style="width:30px; height:30px;" />
-            </div>
-            <h3 style="font-size:20px; margin-bottom:8px; letter-spacing:-.02em;">Smoother checkout</h3>
-            <p style="color:#64728f; margin-bottom:0;">Let shoppers choose bKash at checkout and complete payment using a familiar payment method.</p>
-          </article>
-        </div>
-        <!-- card 2 -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <article style="padding:26px; border-radius:18px; background:#ffffff; border:1px solid #f0e1ea; box-shadow:0 10px 28px rgba(31,41,55,.06); height:100%;">
-            <div class="d-flex align-items-center justify-content-center" style="width:54px; height:54px; border-radius:16px; background:#fff3f8; border:1px solid #f7d4e5; margin-bottom:18px;">
-              <img src="images/icon-status.svg" alt="Payment status icon" style="width:30px; height:30px;" />
-            </div>
-            <h3 style="font-size:20px; margin-bottom:8px; letter-spacing:-.02em;">Payment status tracking</h3>
-            <p style="color:#64728f; margin-bottom:0;">Help your team identify successful, pending, or failed transactions from the order workflow.</p>
-          </article>
-        </div>
-        <!-- card 3 -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <article style="padding:26px; border-radius:18px; background:#ffffff; border:1px solid #f0e1ea; box-shadow:0 10px 28px rgba(31,41,55,.06); height:100%;">
-            <div class="d-flex align-items-center justify-content-center" style="width:54px; height:54px; border-radius:16px; background:#fff3f8; border:1px solid #f7d4e5; margin-bottom:18px;">
-              <img src="images/icon-security.svg" alt="Security shield icon" style="width:30px; height:30px;" />
-            </div>
-            <h3 style="font-size:20px; margin-bottom:8px; letter-spacing:-.02em;">Security-focused flow</h3>
-            <p style="color:#64728f; margin-bottom:0;">Use your official merchant credentials and avoid collecting sensitive wallet information inside Odoo.</p>
-          </article>
-        </div>
-        <!-- card 4 -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <article style="padding:26px; border-radius:18px; background:#ffffff; border:1px solid #f0e1ea; box-shadow:0 10px 28px rgba(31,41,55,.06); height:100%;">
-            <div class="d-flex align-items-center justify-content-center" style="width:54px; height:54px; border-radius:16px; background:#fff3f8; border:1px solid #f7d4e5; margin-bottom:18px;">
-              <img src="images/icon-setup.svg" alt="Easy setup icon" style="width:30px; height:30px;" />
-            </div>
-            <h3 style="font-size:20px; margin-bottom:8px; letter-spacing:-.02em;">Simple configuration</h3>
-            <p style="color:#64728f; margin-bottom:0;">Configure the provider from Odoo settings and connect it with your website checkout flow.</p>
-          </article>
-        </div>
-        <!-- card 5 -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <article style="padding:26px; border-radius:18px; background:#ffffff; border:1px solid #f0e1ea; box-shadow:0 10px 28px rgba(31,41,55,.06); height:100%;">
-            <div class="d-flex align-items-center justify-content-center" style="width:54px; height:54px; border-radius:16px; background:#fff3f8; border:1px solid #f7d4e5; margin-bottom:18px;">
-              <img src="images/icon-reconcile.svg" alt="Reconciliation icon" style="width:30px; height:30px;" />
-            </div>
-            <h3 style="font-size:20px; margin-bottom:8px; letter-spacing:-.02em;">Cleaner operations</h3>
-            <p style="color:#64728f; margin-bottom:0;">Reduce manual follow-up by keeping payment confirmation aligned with sales orders.</p>
-          </article>
-        </div>
-        <!-- card 6 -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <article style="padding:26px; border-radius:18px; background:#ffffff; border:1px solid #f0e1ea; box-shadow:0 10px 28px rgba(31,41,55,.06); height:100%;">
-            <div class="d-flex align-items-center justify-content-center" style="width:54px; height:54px; border-radius:16px; background:#fff3f8; border:1px solid #f7d4e5; margin-bottom:18px;">
-              <img src="images/icon-support.svg" alt="Support headset icon" style="width:30px; height:30px;" />
-            </div>
-            <h3 style="font-size:20px; margin-bottom:8px; letter-spacing:-.02em;">Softeko support</h3>
-            <p style="color:#64728f; margin-bottom:0;">Get implementation guidance from a team experienced with Odoo deployment and customization.</p>
-          </article>
-        </div>
-      </div><!-- /row -->
-
+    <!-- ===================== BRAND BAR ===================== -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap" style="display:flex;padding:12px 20px;margin-bottom:16px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:18px;">
+        <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;"><img src="images/Softeko-Logo.png" alt="Softeko" style="display:block;height:40px;width:auto;"/></a>
+        <span style="display:inline-block;padding:6px 14px;border-radius:20px;background-color:#3067FF;color:#FFFFFF;font-size:12px;font-weight:800;letter-spacing:.6px;">Built for Odoo merchants in Bangladesh</span>
     </div>
-  </section>
 
-
-  <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
-  <section aria-label="How it works" style="padding:76px 0;">
-    <div class="container" style="max-width:1240px;">
-      <div class="row g-4 align-items-center">
-
-        <!-- Mockup image -->
-        <div class="col-12 col-lg-5">
-          <div style="padding:18px; border-radius:30px; background:#ffffff; border:1px solid #efdeea; box-shadow:0 18px 45px rgba(31,41,55,.12);">
-            <img src="images/how-it-works.svg" alt="Three-step bKash payment journey" class="w-100" />
-          </div>
-        </div>
-
-        <!-- Steps -->
-        <div class="col-12 col-lg-7">
-          <div style="margin-bottom:28px;">
-            <h2 class="fw-bold" style="font-size:clamp(30px,4vw,46px); line-height:1.08; letter-spacing:-.04em; margin-bottom:14px; color:#121212;">How it works</h2>
-            <p style="color:#64728f; font-size:18px; margin-bottom:0;">A simple payment journey for customers, with a clear operational flow for your team.</p>
-          </div>
-
-          <div class="d-grid gap-3">
-            <!-- step 1 -->
-            <div class="d-flex align-items-start gap-3" style="padding:20px; background:#ffffff; border:1px solid #f0e1ea; border-radius:18px;">
-              <div class="flex-shrink-0 d-flex align-items-center justify-content-center" style="width:48px; height:48px; border-radius:15px; background:#e2136e; color:#fff; font-weight:900; font-size:1.1rem;">1</div>
-              <div>
-                <h3 style="margin-bottom:4px; font-size:19px;">Customer selects bKash</h3>
-                <p style="color:#64728f; margin-bottom:0;">At Odoo checkout, the customer chooses bKash as the payment method.</p>
-              </div>
+    <!-- ===================== HERO ===================== -->
+    <section style="border-radius:24px;background-color:#00176A;">
+        <div class="row align-items-center" style="margin:0;">
+            <div class="col-lg-5 col-12" style="padding:38px 26px 34px 36px;">
+                <div style="display:inline-block;padding:7px 15px;border:1px solid #2F8FC9;border-radius:30px;color:#39D9FE;font-size:12px;font-weight:800;letter-spacing:1.5px;">
+                    <span class="spinner-grow" role="status" style="width:9px;height:9px;color:#39D9FE;vertical-align:middle;margin:-2px 7px 0 0;"></span>SOFTEKO &nbsp; / &nbsp; PAYMENT GATEWAY
+                </div>
+                <table role="presentation" style="margin:20px 0 14px;border-collapse:collapse;"><tr>
+                    <td style="padding:0 16px 0 0;vertical-align:middle;width:84px;"><div style="width:80px;height:80px;border-radius:20px;background-color:#FFFFFF;text-align:center;padding:12px 0 0;"><img src="icon.png" alt="bKash" style="display:inline-block;width:58px;height:auto;"/></div></td>
+                    <td style="padding:0;vertical-align:middle;"><h1 style="margin:0;color:#FFFFFF;font-size:38px;line-height:1.1;font-weight:800;">bKash<br/><span style="color:#39D9FE;">Payment Gateway</span></h1></td>
+                </tr></table>
+                <p style="margin:0;color:#FFFFFF;font-size:21px;line-height:1.4;font-weight:700;">Accept bKash payments in your Odoo store.</p>
+                <p style="margin:12px 0 0;color:#C9D6FF;font-size:15px;line-height:1.8;">
+                    Let customers pay with bKash while Odoo keeps orders and payment status organized.
+                    Built by Softeko for faster checkout and easier payment confirmation.
+                </p>
+                <div style="margin-top:18px;"><a href="mailto:contact@softeko.co" style="display:inline-block;padding:12px 22px;border-radius:12px;background-color:#3067FF;color:#FFFFFF;font-size:15px;font-weight:800;text-decoration:none;">Contact Softeko Support</a></div>
+                <div class="row" style="margin:18px -5px 0;"><div class="col-4" style="padding:5px;"><div style="height:100%;padding:12px;border-radius:14px;background-color:#FFFFFF;"><img src="images/icons/shield-check.png" alt="" style="display:block;width:24px;height:24px;margin:0 0 6px;"/><strong style="display:block;color:#00176A;font-size:14px;line-height:1.25;">Secure checkout</strong><span style="display:block;color:#5E6B8C;font-size:12px;line-height:1.45;margin-top:2px;">bKash-supported payment flow.</span></div></div><div class="col-4" style="padding:5px;"><div style="height:100%;padding:12px;border-radius:14px;background-color:#FFFFFF;"><img src="images/icons/package-check.png" alt="" style="display:block;width:24px;height:24px;margin:0 0 6px;"/><strong style="display:block;color:#00176A;font-size:14px;line-height:1.25;">Odoo native</strong><span style="display:block;color:#5E6B8C;font-size:12px;line-height:1.45;margin-top:2px;">Works with Odoo eCommerce.</span></div></div><div class="col-4" style="padding:5px;"><div style="height:100%;padding:12px;border-radius:14px;background-color:#FFFFFF;"><img src="images/icons/badge-check.png" alt="" style="display:block;width:24px;height:24px;margin:0 0 6px;"/><strong style="display:block;color:#00176A;font-size:14px;line-height:1.25;">Merchant-ready</strong><span style="display:block;color:#5E6B8C;font-size:12px;line-height:1.45;margin-top:2px;">Uses live merchant credentials.</span></div></div></div>
             </div>
-            <!-- step 2 -->
-            <div class="d-flex align-items-start gap-3" style="padding:20px; background:#ffffff; border:1px solid #f0e1ea; border-radius:18px;">
-              <div class="flex-shrink-0 d-flex align-items-center justify-content-center" style="width:48px; height:48px; border-radius:15px; background:#e2136e; color:#fff; font-weight:900; font-size:1.1rem;">2</div>
-              <div>
-                <h3 style="margin-bottom:4px; font-size:19px;">Payment is completed</h3>
-                <p style="color:#64728f; margin-bottom:0;">The customer follows the bKash payment flow using the merchant configuration you provide.</p>
-              </div>
+            <div class="col-lg-7 col-12" style="padding:18px 18px 18px 8px;">
+                <div style="padding:8px;background-color:#FFFFFF;border-radius:22px;">
+                    <video controls="controls" preload="metadata" aria-label="bKash payment module tutorial video" style="display:block;width:100%;height:auto;border-radius:16px;background-color:#FFFFFF;">
+                        <source src="images/Bkash_tutorial.mp4" type="video/mp4"/>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <p style="margin:10px 0 0;text-align:center;color:#C9D6FF;font-size:12px;">Tutorial: install, add credentials and enable bKash</p>
             </div>
-            <!-- step 3 -->
-            <div class="d-flex align-items-start gap-3" style="padding:20px; background:#ffffff; border:1px solid #f0e1ea; border-radius:18px;">
-              <div class="flex-shrink-0 d-flex align-items-center justify-content-center" style="width:48px; height:48px; border-radius:15px; background:#e2136e; color:#fff; font-weight:900; font-size:1.1rem;">3</div>
-              <div>
-                <h3 style="margin-bottom:4px; font-size:19px;">Order status is updated</h3>
-                <p style="color:#64728f; margin-bottom:0;">Odoo receives the payment result so your team can continue fulfillment with confidence.</p>
-              </div>
-            </div>
-          </div>
         </div>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══════════════ TRUST & SUPPORT ═══════════════ -->
-  <section aria-label="Trust and support" style="padding:76px 0; background-color:#fff7fb; border-top:1px solid #f3e4ec; border-bottom:1px solid #f3e4ec;">
-    <div class="container" style="max-width:1240px;">
-      <div class="row g-4 align-items-stretch">
-
-        <!-- Dark card -->
-        <div class="col-12 col-lg-6">
-          <div class="bk-trust-dark" style="background-color:#171321; color:#ffffff; border-radius:28px; padding:34px; position:relative; overflow:hidden; height:100%;">
-            <div aria-hidden="true" style="position:absolute; right:-70px; bottom:-70px; width:210px; height:210px; background:rgba(226,19,110,.30); border-radius:50%;"></div>
-            <h2 class="fw-bold" style="font-size:clamp(28px,4vw,42px); line-height:1.1; letter-spacing:-.04em; margin-bottom:14px; position:relative; z-index:1; color:#ffffff !important;">
-              Built for merchants who need reliability, clarity, and support.
-            </h2>
-            <p style="color:#d8d2dc !important; max-width:620px; margin-bottom:0; position:relative; z-index:1;">
-              This app is designed for businesses that sell through Odoo and want a Bangladesh-ready payment option.
-              Add bKash to your checkout, reduce payment friction, and keep your sales team focused on fulfillment instead of manual confirmation.
-            </p>
-          </div>
-        </div>
-
-        <!-- Badges -->
-        <div class="col-12 col-lg-6">
-          <div class="d-flex flex-column gap-3 h-100">
-            <div class="d-flex align-items-center gap-3" style="background:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:17px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-              <img src="images/badge-odoo.svg" alt="Odoo compatibility badge" style="width:42px; height:42px; flex-shrink:0;" />
-              <div>
-                <strong style="display:block;">Odoo eCommerce ready</strong>
-                <span style="color:#64728f; font-size:14px;">Designed for Odoo Website checkout workflows.</span>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-3" style="background:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:17px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-              <img src="images/badge-bangladesh.svg" alt="Bangladesh market badge" style="width:42px; height:42px; flex-shrink:0;" />
-              <div>
-                <strong style="display:block;">Bangladesh market fit</strong>
-                <span style="color:#64728f; font-size:14px;">Supports a popular local payment preference.</span>
-              </div>
-            </div>
-            <div class="d-flex align-items-center gap-3" style="background:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:17px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-              <img src="images/badge-support.svg" alt="Softeko support badge" style="width:42px; height:42px; flex-shrink:0;" />
-              <div>
-                <strong style="display:block;">Supported by Softeko</strong>
-                <span style="color:#64728f; font-size:14px;">Implementation support available via email.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ═══════════════ USER MANUAL ═══════════════ -->
-      <div style="margin-top:28px; background-color:#ffffff; border:1px solid #f0e1ea; border-left:5px solid #e2136e; border-radius:18px; padding:24px 28px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-        <div class="row g-3 align-items-center">
-          <div class="col-12 col-lg-7">
-            <span style="display:block; color:#e2136e; font-size:12px; font-weight:800; letter-spacing:.12em;">DETAILED USER MANUAL</span>
-            <h3 class="fw-bold" style="font-size:22px; letter-spacing:-.02em; margin:6px 0 6px;">Get the step-by-step guide, free</h3>
-            <p style="color:#64728f; font-size:15px; margin-bottom:0;">An illustrated manual covers setup, credentials, checkout flow, settings and troubleshooting. Email Softeko support and we will send it to you.</p>
-          </div>
-          <div class="col-12 col-lg-5">
-            <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-3">
-              <a href="mailto:contact@softeko.co?subject=bKash%20Payment%20Gateway%20User%20Manual%20Request" class="bk-btn-hover d-inline-flex align-items-center justify-content-center text-decoration-none fw-bold"
-                 style="min-height:48px; padding:13px 22px; border-radius:999px; background-color:#e2136e !important; color:#ffffff !important;">
-                Request the User Manual
-              </a>
-              <div class="text-center">
-                <img src="images/qr_support.png" alt="Scan to open the Softeko support page" style="width:86px; height:86px; margin:0 auto; border:1px solid #f0e1ea; border-radius:10px; padding:4px; background-color:#ffffff;" />
-                <strong style="display:block; font-size:12px; margin-top:4px;">Support page</strong>
-                <span style="display:block; color:#64728f; font-size:11px;">softeko.co/contact</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════ QR CODES ═══════════════ -->
-      <div class="text-center" style="margin-top:28px;">
-        <h3 class="fw-bold" style="font-size:22px; letter-spacing:-.02em; margin-bottom:6px;">Scan to connect with Softeko</h3>
-        <p style="color:#64728f; font-size:15px; margin-bottom:18px;">Scan a QR code with your phone to book a meeting, email us or open our website.</p>
-      </div>
-      <div class="row g-3">
-        <div class="col-6 col-lg-3">
-          <div class="text-center h-100" style="background-color:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:18px 12px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-            <strong style="display:block; font-size:15px; margin-bottom:10px;">Book a meeting</strong>
-            <img src="images/qr_meeting.png" alt="Scan to book a meeting with Softeko" style="width:140px; max-width:100%; height:auto; margin:0 auto;" />
-            <span style="display:block; color:#64728f; font-size:12px; margin-top:10px;">cal.com/softeko-odoo</span>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="text-center h-100" style="background-color:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:18px 12px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-            <strong style="display:block; font-size:15px; margin-bottom:10px;">Email support</strong>
-            <img src="images/qr_email.png" alt="Scan to email Softeko support" style="width:140px; max-width:100%; height:auto; margin:0 auto;" />
-            <span style="display:block; color:#64728f; font-size:12px; margin-top:10px;">contact@softeko.co</span>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="text-center h-100" style="background-color:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:18px 12px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-            <strong style="display:block; font-size:15px; margin-bottom:10px;">Visit our website</strong>
-            <img src="images/qr_website.png" alt="Scan to open the Softeko website" style="width:140px; max-width:100%; height:auto; margin:0 auto;" />
-            <span style="display:block; color:#64728f; font-size:12px; margin-top:10px;">www.softeko.co</span>
-          </div>
-        </div>
-        <div class="col-6 col-lg-3">
-          <div class="text-center h-100" style="background-color:#ffffff; border:1px solid #f0e1ea; border-radius:18px; padding:18px 12px; box-shadow:0 10px 26px rgba(31,41,55,.06);">
-            <strong style="display:block; font-size:15px; margin-bottom:10px;">Support page</strong>
-            <img src="images/qr_support.png" alt="Scan to open the Softeko support page" style="width:140px; max-width:100%; height:auto; margin:0 auto;" />
-            <span style="display:block; color:#64728f; font-size:12px; margin-top:10px;">softeko.co/contact</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══════════════ CTA ═══════════════ -->
-  <div class="container" style="max-width:1240px;">
-    <section id="odoo-app-store-purchase" aria-label="Call to action"
-             style="margin:76px 0 34px; border-radius:32px; padding:44px; background-color:#e2136e !important; color:#ffffff !important; border:1px solid #e2136e;">
-      <div class="row g-4 align-items-center">
-        <div class="col-12 col-lg-8">
-          <h2 class="fw-bold" style="font-size:clamp(28px,4vw,44px); line-height:1.08; letter-spacing:-.04em; margin-bottom:10px; color:#ffffff !important;">
-            Ready to accept bKash in Odoo?
-          </h2>
-          <p style="color:#ffe3ef !important; margin-bottom:0; font-size:18px;">
-            Install the module, add your merchant credentials, and give customers a checkout experience they already know.
-          </p>
-        </div>
-        <div class="col-12 col-lg-4 d-flex justify-content-lg-end">
-          <a href="mailto:contact@softeko.co" class="bk-btn-hover d-inline-flex align-items-center justify-content-center text-decoration-none fw-bold"
-             style="min-height:48px; padding:13px 22px; border-radius:999px; background-color:#ffffff !important; color:#7b0b3b !important; min-width:190px;">
-            Request Setup Help
-          </a>
-        </div>
-      </div>
     </section>
 
-    <p class="text-center" style="color:#64728f; font-size:13px; padding:0 0 36px;">
-      Note: bKash merchant account approval, API credentials, settlement terms, and applicable fees
-      are provided by bKash. Configure this module only with your authorized merchant credentials.
+    <!-- ===================== STICKY SECTION NAV ===================== -->
+    <section class="s_table_of_content" style="margin:0;padding:0;">
+    <div id="bk-nav" class="s_table_of_content_navbar_wrap s_table_of_content_navbar_sticky s_table_of_content_horizontal_navbar sticky-top d-none d-md-block" style="margin:26px 0 0;padding:8px 0;background-color:#F5F8FD;">
+        <div class="s_table_of_content_navbar d-flex flex-nowrap justify-content-lg-center overflow-auto" style="display:flex;padding:8px 10px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:18px;box-shadow:0 10px 26px rgba(0,23,106,.10);"><a class="table_of_content_link btn btn-outline-light text-nowrap" href="#bk-features" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Features</a><a class="table_of_content_link btn btn-outline-light text-nowrap" href="#bk-how" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">How It Works</a><a class="table_of_content_link btn btn-outline-light text-nowrap" href="#bk-why" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Why Softeko</a><a class="table_of_content_link btn btn-outline-light text-nowrap" href="#bk-support" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Support</a><a class="table_of_content_link btn btn-outline-light text-nowrap" href="#bk-start" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Get Started</a></div>
+    </div>
+    <div id="bk-nav-mobile" class="sticky-top d-md-none" style="margin:26px 0 0;padding:8px 0;background-color:#F5F8FD;">
+        <div class="d-flex flex-nowrap justify-content-lg-center overflow-auto" style="display:flex;padding:8px 10px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:18px;box-shadow:0 10px 26px rgba(0,23,106,.10);"><a class="btn btn-outline-light text-nowrap" href="#bk-features" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Features</a><a class="btn btn-outline-light text-nowrap" href="#bk-how" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">How It Works</a><a class="btn btn-outline-light text-nowrap" href="#bk-why" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Why Softeko</a><a class="btn btn-outline-light text-nowrap" href="#bk-support" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Support</a><a class="btn btn-outline-light text-nowrap" href="#bk-start" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;margin:4px 5px;padding:9px 18px;border-radius:12px;font-size:14px;font-weight:700;">Get Started</a></div>
+    </div>
+
+    <!-- ===================== FEATURES ===================== -->
+    <div id="bk-features" data-anchor="true" style="display:block;height:96px;margin:-96px 0 0;padding:0;"></div>
+    <section style="margin-top:22px;">
+        <div style="text-align:center;margin:0 0 24px;"><div style="display:inline-block;color:#3067FF;font-weight:800;font-size:12px;letter-spacing:1.6px;">FEATURES</div><h2 style="margin:6px 0 6px;color:#00176A;font-size:30px;line-height:1.25;font-weight:800;">Everything your store needs to collect local digital payments.</h2><p style="margin:0 auto;max-width:780px;color:#5E6B8C;font-size:15px;line-height:1.7;">Make checkout easier for customers and reduce manual payment confirmation work for your sales and finance teams.</p></div>
+        <div class="row" style="margin:0 -7px;">
+            <div class="col-lg-4 col-md-6 col-12" style="padding:7px;"><div style="height:100%;padding:24px 22px;border-top:4px solid #3067FF;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><div style="width:60px;height:60px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:12px 0 0;line-height:0;"><img src="images/icons/cart.png" alt="Smoother checkout icon" style="display:inline-block;width:34px;height:34px;margin:0;vertical-align:top;"/></div><h3 style="font-size:17px;color:#00176A;margin:14px 0 6px;font-weight:800;">Smoother checkout</h3><p style="font-size:14px;color:#5E6B8C;margin:0;line-height:1.65;">Let shoppers choose bKash at checkout and complete payment using a familiar payment method.</p></div></div>
+            <div class="col-lg-4 col-md-6 col-12" style="padding:7px;"><div style="height:100%;padding:24px 22px;border-top:4px solid #3067FF;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><div style="width:60px;height:60px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:12px 0 0;line-height:0;"><img src="images/icons/activity.png" alt="Payment status tracking icon" style="display:inline-block;width:34px;height:34px;margin:0;vertical-align:top;"/></div><h3 style="font-size:17px;color:#00176A;margin:14px 0 6px;font-weight:800;">Payment status tracking</h3><p style="font-size:14px;color:#5E6B8C;margin:0;line-height:1.65;">Help your team identify successful, pending, or failed transactions from the order workflow.</p></div></div>
+            <div class="col-lg-4 col-md-6 col-12" style="padding:7px;"><div style="height:100%;padding:24px 22px;border-top:4px solid #3067FF;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><div style="width:60px;height:60px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:12px 0 0;line-height:0;"><img src="images/icons/shield-check.png" alt="Security-focused flow icon" style="display:inline-block;width:34px;height:34px;margin:0;vertical-align:top;"/></div><h3 style="font-size:17px;color:#00176A;margin:14px 0 6px;font-weight:800;">Security-focused flow</h3><p style="font-size:14px;color:#5E6B8C;margin:0;line-height:1.65;">Use your official merchant credentials and avoid collecting sensitive wallet information inside Odoo.</p></div></div>
+            <div class="col-lg-4 col-md-6 col-12" style="padding:7px;"><div style="height:100%;padding:24px 22px;border-top:4px solid #3067FF;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><div style="width:60px;height:60px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:12px 0 0;line-height:0;"><img src="images/icons/settings.png" alt="Simple configuration icon" style="display:inline-block;width:34px;height:34px;margin:0;vertical-align:top;"/></div><h3 style="font-size:17px;color:#00176A;margin:14px 0 6px;font-weight:800;">Simple configuration</h3><p style="font-size:14px;color:#5E6B8C;margin:0;line-height:1.65;">Configure the provider from Odoo settings and connect it with your website checkout flow.</p></div></div>
+            <div class="col-lg-4 col-md-6 col-12" style="padding:7px;"><div style="height:100%;padding:24px 22px;border-top:4px solid #3067FF;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><div style="width:60px;height:60px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:12px 0 0;line-height:0;"><img src="images/icons/refresh.png" alt="Cleaner operations icon" style="display:inline-block;width:34px;height:34px;margin:0;vertical-align:top;"/></div><h3 style="font-size:17px;color:#00176A;margin:14px 0 6px;font-weight:800;">Cleaner operations</h3><p style="font-size:14px;color:#5E6B8C;margin:0;line-height:1.65;">Reduce manual follow-up by keeping payment confirmation aligned with sales orders.</p></div></div>
+            <div class="col-lg-4 col-md-6 col-12" style="padding:7px;"><div style="height:100%;padding:24px 22px;border-top:4px solid #3067FF;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><div style="width:60px;height:60px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:12px 0 0;line-height:0;"><img src="images/icons/headset.png" alt="Softeko support icon" style="display:inline-block;width:34px;height:34px;margin:0;vertical-align:top;"/></div><h3 style="font-size:17px;color:#00176A;margin:14px 0 6px;font-weight:800;">Softeko support</h3><p style="font-size:14px;color:#5E6B8C;margin:0;line-height:1.65;">Get implementation guidance from a team experienced with Odoo deployment and customization.</p></div></div>
+        </div>
+    </section>
+
+    <!-- ===================== HOW IT WORKS ===================== -->
+    <div id="bk-how" data-anchor="true" style="display:block;height:96px;margin:-96px 0 0;padding:0;"></div>
+    <section style="margin-top:44px;padding:30px 22px;border-radius:22px;background-color:#00176A;">
+        <div style="text-align:center;margin:0 0 24px;"><div style="display:inline-block;color:#39D9FE;font-weight:800;font-size:12px;letter-spacing:1.6px;">HOW IT WORKS</div><h2 style="margin:6px 0 6px;color:#FFFFFF;font-size:30px;line-height:1.25;font-weight:800;">A simple payment journey</h2><p style="margin:0 auto;max-width:780px;color:#C9D6FF;font-size:15px;line-height:1.7;">A simple payment journey for customers, with a clear operational flow for your team.</p></div>
+        <div class="row align-items-center" style="margin:0 -8px;">
+            <div class="col-lg-5 col-12" style="padding:8px;">
+                <div style="padding:10px;background-color:#FFFFFF;border-radius:20px;"><img src="images/how-it-works-softeko.svg" alt="Three-step bKash payment journey" style="display:block;width:100%;height:auto;border-radius:14px;"/></div>
+            </div>
+            <div class="col-lg-7 col-12" style="padding:8px;">
+                <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0;margin:0 0 12px;background-color:#FFFFFF;border-radius:16px;"><tr>
+                    <td style="width:76px;padding:18px 0 18px 18px;vertical-align:top;"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background-color:#3067FF;color:#FFFFFF;font-weight:800;font-size:18px;">1</div></td>
+                    <td style="padding:18px 20px 18px 6px;vertical-align:top;"><h3 style="margin:0 0 4px;font-size:17px;color:#00176A;font-weight:800;">Customer selects bKash</h3><p style="margin:0;color:#5E6B8C;font-size:14px;line-height:1.6;">At Odoo checkout, the customer chooses bKash as the payment method.</p></td>
+                </tr></table><table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0;margin:0 0 12px;background-color:#FFFFFF;border-radius:16px;"><tr>
+                    <td style="width:76px;padding:18px 0 18px 18px;vertical-align:top;"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background-color:#3067FF;color:#FFFFFF;font-weight:800;font-size:18px;">2</div></td>
+                    <td style="padding:18px 20px 18px 6px;vertical-align:top;"><h3 style="margin:0 0 4px;font-size:17px;color:#00176A;font-weight:800;">Payment is completed</h3><p style="margin:0;color:#5E6B8C;font-size:14px;line-height:1.6;">The customer follows the bKash payment flow using the merchant configuration you provide.</p></td>
+                </tr></table><table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0;margin:0 0 12px;background-color:#FFFFFF;border-radius:16px;"><tr>
+                    <td style="width:76px;padding:18px 0 18px 18px;vertical-align:top;"><div style="width:46px;height:46px;line-height:46px;text-align:center;border-radius:14px;background-color:#3067FF;color:#FFFFFF;font-weight:800;font-size:18px;">3</div></td>
+                    <td style="padding:18px 20px 18px 6px;vertical-align:top;"><h3 style="margin:0 0 4px;font-size:17px;color:#00176A;font-weight:800;">Order status is updated</h3><p style="margin:0;color:#5E6B8C;font-size:14px;line-height:1.6;">Odoo receives the payment result so your team can continue fulfillment with confidence.</p></td>
+                </tr></table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== WHY SOFTEKO ===================== -->
+    <div id="bk-why" data-anchor="true" style="display:block;height:96px;margin:-96px 0 0;padding:0;"></div>
+    <section style="margin-top:44px;">
+        <div style="text-align:center;margin:0 0 24px;"><div style="display:inline-block;color:#3067FF;font-weight:800;font-size:12px;letter-spacing:1.6px;">WHY SOFTEKO</div><h2 style="margin:6px 0 6px;color:#00176A;font-size:30px;line-height:1.25;font-weight:800;">Built for merchants who need reliability, clarity, and support.</h2></div>
+        <div class="row" style="margin:0 -7px;">
+            <div class="col-lg-6 col-12" style="padding:7px;">
+                <div style="height:100%;border-radius:20px;background-color:#00176A;padding:30px;">
+                    <div style="display:inline-block;color:#39D9FE;font-weight:800;font-size:12px;letter-spacing:1.6px;">FOR ODOO MERCHANTS IN BANGLADESH</div>
+                    <h3 style="color:#FFFFFF;font-size:24px;line-height:1.3;margin:10px 0 12px;font-weight:800;">A Bangladesh-ready payment option for Odoo</h3>
+                    <p style="color:#C9D6FF;font-size:15px;line-height:1.8;margin:0;">
+                        This app is designed for businesses that sell through Odoo and want a Bangladesh-ready payment option.
+                        Add bKash to your checkout, reduce payment friction, and keep your sales team focused on fulfillment instead of manual confirmation.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6 col-12" style="padding:7px;">
+                <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0;margin:0 0 12px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><tr>
+                    <td style="width:76px;padding:16px 0 16px 18px;vertical-align:middle;"><div style="width:48px;height:48px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:10px 0 0;line-height:0;"><img src="images/icons/store.png" alt="Odoo eCommerce ready" style="display:inline-block;width:26px;height:26px;margin:0;vertical-align:top;"/></div></td>
+                    <td style="padding:16px 18px 16px 4px;vertical-align:middle;"><strong style="display:block;color:#00176A;font-size:15px;">Odoo eCommerce ready</strong><span style="color:#5E6B8C;font-size:13px;">Designed for Odoo Website checkout workflows.</span></td>
+                </tr></table><table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0;margin:0 0 12px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><tr>
+                    <td style="width:76px;padding:16px 0 16px 18px;vertical-align:middle;"><div style="width:48px;height:48px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:10px 0 0;line-height:0;"><img src="images/icons/map-pin.png" alt="Bangladesh market fit" style="display:inline-block;width:26px;height:26px;margin:0;vertical-align:top;"/></div></td>
+                    <td style="padding:16px 18px 16px 4px;vertical-align:middle;"><strong style="display:block;color:#00176A;font-size:15px;">Bangladesh market fit</strong><span style="color:#5E6B8C;font-size:13px;">Supports a popular local payment preference.</span></td>
+                </tr></table><table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0;margin:0 0 12px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);"><tr>
+                    <td style="width:76px;padding:16px 0 16px 18px;vertical-align:middle;"><div style="width:48px;height:48px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:10px 0 0;line-height:0;"><img src="images/icons/headset.png" alt="Supported by Softeko" style="display:inline-block;width:26px;height:26px;margin:0;vertical-align:top;"/></div></td>
+                    <td style="padding:16px 18px 16px 4px;vertical-align:middle;"><strong style="display:block;color:#00176A;font-size:15px;">Supported by Softeko</strong><span style="color:#5E6B8C;font-size:13px;">Implementation support available via email.</span></td>
+                </tr></table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SUPPORT ===================== -->
+    <div id="bk-support" data-anchor="true" style="display:block;height:96px;margin:-96px 0 0;padding:0;"></div>
+    <section style="margin-top:44px;">
+        <div style="text-align:center;margin:0 0 24px;"><div style="display:inline-block;color:#3067FF;font-weight:800;font-size:12px;letter-spacing:1.6px;">SUPPORT</div><h2 style="margin:6px 0 6px;color:#00176A;font-size:30px;line-height:1.25;font-weight:800;">We are here to help</h2><p style="margin:0 auto;max-width:780px;color:#5E6B8C;font-size:15px;line-height:1.7;">Questions about setup or your merchant credentials? Reach the Softeko team directly.</p></div>
+        <div class="row" style="margin:0 -7px;">
+            <div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
+                <div style="height:100%;border-radius:20px;background-color:#00176A;padding:26px;">
+                    <div style="display:inline-block;color:#39D9FE;font-weight:800;font-size:12px;letter-spacing:1.6px;">DEVELOPED BY</div>
+                    <div><a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:14px 0 14px;text-decoration:none;"><img src="images/softeko_logo_white.png" alt="Softeko" style="display:block;height:44px;width:auto;"/></a></div>
+                    <p style="color:#FFFFFF;font-size:15px;margin:0;">Odoo development, customization and practical business solutions.</p>
+                    <p style="color:#C9D6FF;font-size:13px;margin:12px 0 0;">Module: <strong style="color:#39D9FE;">bKash Payment Gateway</strong></p>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12" style="padding:7px;">
+                <div style="height:100%;padding:26px;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);">
+                    <div style="display:inline-block;color:#3067FF;font-weight:800;font-size:12px;letter-spacing:1.6px;">GET IN TOUCH</div>
+                    <h3 style="color:#00176A;font-size:21px;margin:8px 0 14px;font-weight:800;">Need help with setup?</h3>
+                    <table role="presentation" style="border-collapse:collapse;margin:0 0 12px;"><tr><td style="padding:0 12px 0 0;vertical-align:middle;width:46px;"><div style="width:38px;height:38px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:8px 0 0;line-height:0;"><img src="images/icons/globe.png" alt="Website" style="display:inline-block;width:20px;height:20px;margin:0;vertical-align:top;"/></div></td><td style="padding:0;vertical-align:middle;font-size:14px;color:#3D4B70;">Website: <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="font-weight:700;color:#3067FF;text-decoration:underline;">www.softeko.co</a></td></tr></table>
+                    <table role="presentation" style="border-collapse:collapse;margin:0 0 12px;"><tr><td style="padding:0 12px 0 0;vertical-align:middle;width:46px;"><div style="width:38px;height:38px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:8px 0 0;line-height:0;"><img src="images/icons/message-circle.png" alt="Contact page" style="display:inline-block;width:20px;height:20px;margin:0;vertical-align:top;"/></div></td><td style="padding:0;vertical-align:middle;font-size:14px;color:#3D4B70;">Contact page: <a href="https://www.softeko.co/contact/" target="_blank" rel="noopener noreferrer" style="font-weight:700;color:#3067FF;text-decoration:underline;">www.softeko.co/contact/</a></td></tr></table>
+                    <table role="presentation" style="border-collapse:collapse;margin:0 0 0px;"><tr><td style="padding:0 12px 0 0;vertical-align:middle;width:46px;"><div style="width:38px;height:38px;border-radius:16px;background-color:#EEF3FF;border:1px solid #CFDDFF;text-align:center;padding:8px 0 0;line-height:0;"><img src="images/icons/mail.png" alt="Email" style="display:inline-block;width:20px;height:20px;margin:0;vertical-align:top;"/></div></td><td style="padding:0;vertical-align:middle;font-size:14px;color:#3D4B70;">Email: <a href="mailto:contact@softeko.co?subject=bKash%20Payment%20Gateway%20Support" style="font-weight:700;color:#3067FF;text-decoration:underline;">contact@softeko.co</a></td></tr></table>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:14px;padding:22px 26px;background-color:#DFEBF6;border:1px solid #D5E1F3;border-left:5px solid #3067FF;border-radius:14px;">
+            <div class="row align-items-center" style="margin:0;">
+                <div class="col-lg-7 col-12" style="padding:4px 8px;">
+                    <div style="color:#3067FF;font-size:12px;font-weight:800;letter-spacing:1.4px;">DETAILED USER MANUAL</div>
+                    <h3 style="color:#00176A;font-size:20px;margin:6px 0 6px;font-weight:800;">Get the step-by-step guide, free</h3>
+                    <p style="color:#3D4B70;font-size:14px;margin:0;line-height:1.7;">An illustrated manual covers setup, credentials, checkout flow, settings and troubleshooting. Email Softeko support and we will send it to you.</p>
+                </div>
+                <div class="col-lg-5 col-12" style="padding:12px 8px 4px;">
+                    <table role="presentation" style="border-collapse:collapse;margin-left:auto;"><tr>
+                        <td style="padding:0 18px 0 0;vertical-align:middle;"><a href="mailto:contact@softeko.co?subject=bKash%20Payment%20Gateway%20User%20Manual%20Request" style="display:inline-block;padding:12px 20px;border-radius:10px;background-color:#3067FF;color:#FFFFFF;font-size:15px;font-weight:800;text-decoration:none;">Request the User Manual</a></td>
+                        <td style="padding:0;vertical-align:middle;text-align:center;">
+                            <div style="display:inline-block;padding:6px;background-color:#FFFFFF;border-radius:10px;"><img src="images/qr_support.png" alt="Scan to open the Softeko support page" style="display:block;width:84px;height:84px;"/></div>
+                            <div style="margin-top:4px;color:#00176A;font-size:12px;font-weight:800;">Support page</div>
+                            <div style="color:#5E6B8C;font-size:11px;">softeko.co/contact</div></td>
+                    </tr></table>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:14px;padding:22px 24px;text-align:center;background-color:#FFFFFF;border:1px solid #D5E1F3;border-radius:20px;box-shadow:0 10px 28px rgba(0,23,106,.06);">
+            <h3 style="color:#00176A;font-size:20px;margin:0 0 6px;font-weight:800;">Scan to connect with Softeko</h3>
+            <p style="color:#3D4B70;font-size:14px;margin:0 0 12px;">Scan a QR code with your phone to book a meeting, email us or open our website.</p>
+            <div class="row" style="margin:0 -7px;">
+                <div class="col-lg-3 col-md-6 col-6" style="padding:7px;">
+                    <div style="height:100%;padding:16px 12px;background-color:#DFEBF6;border:1px solid #D5E1F3;border-radius:14px;">
+                        <h4 style="color:#00176A;font-size:15px;font-weight:800;margin:0 0 10px;">Book a meeting</h4>
+                        <div style="display:inline-block;padding:8px;background-color:#FFFFFF;border-radius:12px;"><img src="images/qr_meeting.png" alt="Scan to book a meeting with Softeko" style="display:block;width:140px;max-width:100%;height:auto;"/></div>
+                        <p style="margin:10px 0 0;font-size:12px;color:#3D4B70;">cal.com/softeko-odoo</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-6" style="padding:7px;">
+                    <div style="height:100%;padding:16px 12px;background-color:#DFEBF6;border:1px solid #D5E1F3;border-radius:14px;">
+                        <h4 style="color:#00176A;font-size:15px;font-weight:800;margin:0 0 10px;">Email support</h4>
+                        <div style="display:inline-block;padding:8px;background-color:#FFFFFF;border-radius:12px;"><img src="images/qr_email.png" alt="Scan to email Softeko support" style="display:block;width:140px;max-width:100%;height:auto;"/></div>
+                        <p style="margin:10px 0 0;font-size:12px;color:#3D4B70;">contact@softeko.co</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-6" style="padding:7px;">
+                    <div style="height:100%;padding:16px 12px;background-color:#DFEBF6;border:1px solid #D5E1F3;border-radius:14px;">
+                        <h4 style="color:#00176A;font-size:15px;font-weight:800;margin:0 0 10px;">Visit our website</h4>
+                        <div style="display:inline-block;padding:8px;background-color:#FFFFFF;border-radius:12px;"><img src="images/qr_website.png" alt="Scan to open the Softeko website" style="display:block;width:140px;max-width:100%;height:auto;"/></div>
+                        <p style="margin:10px 0 0;font-size:12px;color:#3D4B70;">www.softeko.co</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-6" style="padding:7px;">
+                    <div style="height:100%;padding:16px 12px;background-color:#DFEBF6;border:1px solid #D5E1F3;border-radius:14px;">
+                        <h4 style="color:#00176A;font-size:15px;font-weight:800;margin:0 0 10px;">Support page</h4>
+                        <div style="display:inline-block;padding:8px;background-color:#FFFFFF;border-radius:12px;"><img src="images/qr_support.png" alt="Scan to open the Softeko support page" style="display:block;width:140px;max-width:100%;height:auto;"/></div>
+                        <p style="margin:10px 0 0;font-size:12px;color:#3D4B70;">softeko.co/contact</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== GET STARTED ===================== -->
+    <div id="bk-start" data-anchor="true" style="display:block;height:96px;margin:-96px 0 0;padding:0;"></div>
+    <section style="margin-top:44px;padding:34px 34px;border-radius:22px;background-color:#3067FF;">
+        <div class="row align-items-center" style="margin:0;">
+            <div class="col-lg-8 col-12" style="padding:6px;">
+                <h2 style="color:#FFFFFF;font-size:30px;line-height:1.2;margin:0 0 8px;font-weight:800;">Ready to accept bKash in Odoo?</h2>
+                <p style="color:#E3ECFF;font-size:16px;margin:0;">Install the module, add your merchant credentials, and give customers a checkout experience they already know.</p>
+            </div>
+            <div class="col-lg-4 col-12" style="padding:12px 6px;text-align:right;">
+                <a href="mailto:contact@softeko.co?subject=bKash%20Payment%20Gateway%20Setup%20Help" style="display:inline-block;padding:13px 24px;border-radius:12px;background-color:#FFFFFF;color:#00176A;font-size:15px;font-weight:800;text-decoration:none;">Request Setup Help</a>
+            </div>
+        </div>
+    </section>
+    <p style="margin:16px 0 0;text-align:center;color:#5E6B8C;font-size:13px;">
+        Note: bKash merchant account approval, API credentials, settlement terms, and applicable fees
+        are provided by bKash. Configure this module only with your authorized merchant credentials.
     </p>
-  </div>
+    </section>
+    <!-- end of s_table_of_content -->
 
+    <!-- ===================== FOOTER ===================== -->
+    <div style="margin-top:36px;padding:22px 16px;border-top:1px solid #D5E1F3;text-align:center;">
+        <a href="https://www.softeko.co/" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;"><img src="images/Softeko-Logo.png" alt="Softeko" style="display:block;height:36px;width:auto;margin:0 auto;"/></a>
+        <div style="margin-top:10px;color:#5E6B8C;font-size:12px;letter-spacing:.6px;">BKASH PAYMENT GATEWAY &nbsp; • &nbsp; <a href="mailto:contact@softeko.co" style="color:#3067FF;text-decoration:none;">contact@softeko.co</a> &nbsp; • &nbsp; <a class="btn btn-outline-light text-nowrap" href="#bk-top" style="--btn-color:#3067FF;--btn-bg:#FFFFFF;--btn-border-color:#CFDDFF;--btn-hover-color:#3067FF;--btn-hover-bg:#DFEBF6;--btn-hover-border-color:#3067FF;--btn-active-color:#3067FF;--btn-active-bg:#DFEBF6;--btn-active-border-color:#3067FF;color:#3067FF;border:1px solid #CFDDFF;text-decoration:none;display:inline-block;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700;">↑ Back to top</a></div>
+    </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
