@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Earlier releases inherited approval.category and inserted dynamic_*
+        fields. The standalone module no longer defines those fields. Disable
+        every legacy approval.category view containing a dynamic_ reference so
+        OWL never tries to parse undefined fields such as dynamic_model_id.
+    -->
+    <function model="ir.ui.view" name="write">
+        <value model="ir.ui.view"
+               search="[('model', '=', 'approval.category'), ('arch_db', 'ilike', 'dynamic_')]"/>
+        <value eval="{'active': False}"/>
+    </function>
+
+    <!-- Disable broken experimental views from older module versions. -->
+    <function model="ir.ui.view" name="write">
+        <value model="ir.ui.view"
+               search="[('arch_db', 'ilike', 'professional_approval_visible')]"/>
+        <value eval="{'active': False}"/>
+    </function>
+    <function model="ir.ui.view" name="write">
+        <value model="ir.ui.view"
+               search="[('arch_db', 'ilike', 'professional_approval_method')]"/>
+        <value eval="{'active': False}"/>
+    </function>
+</odoo>
