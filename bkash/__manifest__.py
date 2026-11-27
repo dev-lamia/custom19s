@@ -31,10 +31,9 @@ This module requires a valid Bkash merchant account and API credentials.
         ],
     },
     'images': [
-        'static/description/banner.png',
+        'static/description/images/cover_animation.gif',
     ],
-    'price': 20.00,
-    'currency': 'USD',
+
     'license': 'OPL-1',
     'installable': True,
     'application': False,
