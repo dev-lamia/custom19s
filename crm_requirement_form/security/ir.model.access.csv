@@ -21,3 +21,5 @@ access_purchase_item_code_manager,purchase.item.code.manager,model_purchase_item
 access_crm_job_production_process,crm.job.production.process,model_crm_job_production_process,sales_team.group_sale_salesman,1,1,1,1
 access_crm_requirement_document_type_user,crm.requirement.document.type.user,model_crm_requirement_document_type,base.group_user,1,0,0,0
 access_crm_requirement_document_type_manager,crm.requirement.document.type.manager,model_crm_requirement_document_type,sales_team.group_sale_manager,1,1,1,1
+access_crm_requirement_layer_option_user,crm.requirement.layer.option.user,model_crm_requirement_layer_option,base.group_user,1,0,0,0
+access_crm_requirement_layer_option_manager,crm.requirement.layer.option.manager,model_crm_requirement_layer_option,sales_team.group_sale_manager,1,1,1,1

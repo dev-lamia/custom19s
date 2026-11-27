@@ -379,13 +379,14 @@ class CrmRequirementForm(models.Model):
                 f'layer_{layer_no}_product_tmpl_id'
             ]
             variant = specification[f'layer_{layer_no}_variant_id']
+            option = specification[f'layer_{layer_no}_option_id']
             material_name = specification[f'layer_{layer_no}_material']
 
             # Older/synced requirement records can retain the layer material
             # snapshot while the product-template relation is empty.  Resolve
             # the relation before creating the repeat-job copy so the layer
             # never turns into an "Unnamed" product in the new form.
-            if not product_tmpl and material_name:
+            if not option and not product_tmpl and material_name:
                 product_tmpl = self.env['product.template'].search([
                     ('name', '=', material_name),
                 ], limit=1)
@@ -398,15 +399,14 @@ class CrmRequirementForm(models.Model):
             if product_tmpl and not variant and len(product_tmpl.product_variant_ids) == 1:
                 variant = product_tmpl.product_variant_ids[:1]
 
-            if product_tmpl or material_name:
+            if option or product_tmpl or material_name:
                 highest_layer = layer_no
             values.update({
+                f'layer_{layer_no}_option_id': option.id or False,
                 f'layer_{layer_no}_product_tmpl_id': product_tmpl.id or False,
                 f'layer_{layer_no}_variant_id': variant.id or False,
                 f'layer_{layer_no}_material': (
-                    material_name
-                    or product_tmpl.display_name
-                    or False
+                    material_name or option.name or product_tmpl.display_name or False
                 ),
                 f'layer_{layer_no}_thickness': (
                     specification[f'layer_{layer_no}_thickness'] or 0.0
@@ -970,6 +970,8 @@ class CrmRequirementForm(models.Model):
         for layer_no in range(1, 11):
             template = specification[f'layer_{layer_no}_product_tmpl_id']
             variant = specification[f'layer_{layer_no}_variant_id']
+            option = specification[f'layer_{layer_no}_option_id']
+            values[f'req_layer_{layer_no}_option_id'] = option.id or False
             values[f'req_layer_{layer_no}_product_tmpl_id'] = template.id or False
             values[f'req_layer_{layer_no}_variant_id'] = variant.id or False
         return values
@@ -1867,7 +1869,10 @@ class CrmRequirementForm(models.Model):
                     missing.append(_('Product'))
                 if not specification.print_finish_id:
                     missing.append(_('Print and Finish'))
-                if not specification.layer_1_product_tmpl_id:
+                if not (
+                    specification.layer_1_option_id
+                    or specification.layer_1_product_tmpl_id
+                ):
                     missing.append(_('Layer 1'))
                 if missing:
                     raise ValidationError(

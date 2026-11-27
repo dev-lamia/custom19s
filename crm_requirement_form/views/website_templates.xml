@@ -192,22 +192,11 @@
                                 </select>
 
                                 <div class="d-none" id="layerSelectSources">
-                                    <select id="layerProductTemplateOptionsSource">
-                                        <option value="">-- Select Product --</option>
-                                        <t t-foreach="product_templates" t-as="product_tmpl">
-                                            <option t-att-value="product_tmpl.id"
-                                                    t-attf-data-thickness="#{product_tmpl.thickness_microns or 0.0}">
-                                                <t t-esc="product_tmpl.display_name"/>
-                                            </option>
-                                        </t>
-                                    </select>
-                                    <select id="layerVariantOptionsSource">
-                                        <option value="" data-template-id="" data-thickness="">-- Select Thickness --</option>
-                                        <t t-foreach="product_variants" t-as="variant">
-                                            <option t-att-value="variant.id"
-                                                    t-attf-data-template-id="#{variant.product_tmpl_id.id}"
-                                                    t-attf-data-thickness="#{variant._get_requirement_layer_thickness()}">
-                                                <t t-esc="variant.display_name"/>
+                                    <select id="layerOptionOptionsSource">
+                                        <option value="">-- Select Layer --</option>
+                                        <t t-foreach="layer_options" t-as="layer_option">
+                                            <option t-att-value="layer_option.id">
+                                                <t t-esc="layer_option.name"/>
                                             </option>
                                         </t>
                                     </select>
@@ -435,8 +424,7 @@
                 var container = document.getElementById('specsContainer');
                 if(!container) return;
 
-                var productSource = document.getElementById('layerProductTemplateOptionsSource');
-                var variantSource = document.getElementById('layerVariantOptionsSource');
+                var layerSource = document.getElementById('layerOptionOptionsSource');
                 var printFinishSource = document.getElementById('printFinishOptionsSource');
                 var featureSource = document.getElementById('featureOptionsSource');
                 var bagTypeSource = document.getElementById('fgProductOptionsSource');
@@ -1041,28 +1029,24 @@
                 function applySpecData(block, data){
                     for(var layerNo = 2; layerNo <= 10; layerNo++){
                         if(
-                            data['layer_' + layerNo + '_product_tmpl_id'] ||
-                            data['layer_' + layerNo + '_variant_id'] ||
+                            data['layer_' + layerNo + '_option_id'] ||
                             data['layer_' + layerNo + '_thickness']
                         ){
                             showExtraLayer(block, String(layerNo));
                         }
                     }
-                    var productKeys = [];
+                    var layerOptionKeys = [];
                     for(var productLayer = 1; productLayer <= 10; productLayer++){
-                        productKeys.push('layer_' + productLayer + '_product_tmpl_id');
+                        layerOptionKeys.push('layer_' + productLayer + '_option_id');
                     }
-                    productKeys.forEach(function(key){
+                    layerOptionKeys.forEach(function(key){
                         setFieldValue(block, key, data[key]);
                         var productSelect = block.querySelector('[name$="[' + key + ']"]');
                         if(productSelect){ productSelect.dispatchEvent(new Event('change', {bubbles: true})); }
                     });
                     Object.keys(data).forEach(function(key){
-                        if(key.indexOf('layer_') === 0 && key.indexOf('_product_tmpl_id') > 0){ return; }
+                        if(key.indexOf('layer_') === 0 && key.indexOf('_option_id') > 0){ return; }
                         setFieldValue(block, key, data[key]);
-                    });
-                    block.querySelectorAll('.layer-variant-select').forEach(function(select){
-                        select.dispatchEvent(new Event('change', {bubbles: true}));
                     });
                     block.querySelectorAll('.crm-multi-menu').forEach(function(menu){
                         menu.dispatchEvent(new Event('change', {bubbles: true}));
@@ -1097,25 +1081,8 @@
                 }
 
                 function setupLayerProductFields(block){
-                    block.querySelectorAll('.layer-product-select').forEach(function(productSelect){
-                        var layerNo = productSelect.dataset.layer;
-                        var thicknessInput = block.querySelector('.layer-thickness[data-layer="' + layerNo + '"]');
-                        var thicknessDisplay = block.querySelector('.layer-thickness-display[data-layer="' + layerNo + '"]');
-                        if(productSource){ setOptions(productSelect, productSource.innerHTML); }
-
-                        function updateThicknessFromProduct(){
-                            var selected = productSelect.options[productSelect.selectedIndex];
-                            var thickness = selected ? (selected.dataset.thickness || '') : '';
-                            var value = thickness && parseFloat(thickness) > 0
-                                ? parseFloat(thickness).toString()
-                                : '';
-                            if(thicknessInput){ thicknessInput.value = value; }
-                            if(thicknessDisplay){ thicknessDisplay.value = value; }
-                            updateTotalThickness(block);
-                        }
-
-                        productSelect.addEventListener('change', updateThicknessFromProduct);
-                        updateThicknessFromProduct();
+                    block.querySelectorAll('.layer-option-select').forEach(function(layerSelect){
+                        if(layerSource){ setOptions(layerSelect, layerSource.innerHTML); }
                     });
                 }
 
@@ -1151,7 +1118,7 @@
                         wrap.classList.toggle('d-none', !show);
                         wrap.querySelectorAll('input, select, textarea').forEach(function(field){
                             field.disabled = !show;
-                            if(field.classList.contains('layer-product-select')){
+                            if(field.classList.contains('layer-option-select')){
                                 field.required = show;
                             }
                             if(!show){
@@ -1181,7 +1148,7 @@
 
                 function showExtraLayer(block, layerNo){
                     setLayerVisibility(block, layerNo, true);
-                    var productSelect = block.querySelector('.layer-product-select[data-layer="' + layerNo + '"]');
+                    var productSelect = block.querySelector('.layer-option-select[data-layer="' + layerNo + '"]');
                     if(productSelect){
                         productSelect.dispatchEvent(new Event('change', {bubbles: true}));
                     }
@@ -1410,12 +1377,12 @@
                                     <div class="section-label">Bag Dimensions</div>
                                     <div class="row g-3">
                                         <div class="col-md-4">
-                                            <label>Bag Length (mm) <span class="text-danger">*</span></label>
-                                            <input type="number" step="0.01" min="0" name="spec[${idx}][length]" class="form-control bag-length-input" required>
-                                        </div>
-                                        <div class="col-md-4">
                                             <label>Bag Width (mm)</label>
                                             <input type="number" step="1" min="0" name="spec[${idx}][width]" class="form-control">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Bag Length (mm) <span class="text-danger">*</span></label>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][length]" class="form-control bag-length-input" required>
                                         </div>
                                         <div class="col-md-4 gusset-wrap">
                                             <label>Gusset (mm) <span class="text-danger">*</span></label>
@@ -1438,131 +1405,121 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <div class="section-label">Layers / Inventory Material</div>
+                                    <div class="section-label">Layers / Material</div>
                                     <div class="row g-3 layer-row">
                                         <div class="col-md-6">
                                             <label>Layer 1 <span class="text-danger">*</span></label>
-                                            <select name="spec[${idx}][layer_1_product_tmpl_id]" data-layer="1" class="form-select layer-product-select" required></select>
+                                            <select name="spec[${idx}][layer_1_option_id]" data-layer="1" class="form-select layer-option-select" required></select>
                                         </div>
                                         <div class="col-md-6">
-                                            <label>Thickness (Microns)</label>
-                                            <input type="text" data-layer="1" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_1_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_1_thickness]" data-layer="1" class="layer-thickness">
+                                            <label>Microns</label>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_1_thickness]" data-layer="1" class="form-control layer-thickness" placeholder="Enter Microns"/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="2">
                                             <label>Layer 2 <span class="text-danger">*</span></label>
-                                            <select name="spec[${idx}][layer_2_product_tmpl_id]" data-layer="2" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_2_option_id]" data-layer="2" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="2">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="2" title="Remove Layer 2" aria-label="Remove Layer 2"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="2" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product" disabled/><input type="hidden" name="spec[${idx}][layer_2_variant_id]" value="" disabled/>
-                                            <input type="hidden" name="spec[${idx}][layer_2_thickness]" data-layer="2" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_2_thickness]" data-layer="2" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="3">
                                             <label>Layer 3</label>
-                                            <select name="spec[${idx}][layer_3_product_tmpl_id]" data-layer="3" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_3_option_id]" data-layer="3" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="3">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="3" title="Remove Layer 3" aria-label="Remove Layer 3"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="3" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_3_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_3_thickness]" data-layer="3" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_3_thickness]" data-layer="3" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="4">
                                             <label>Layer 4</label>
-                                            <select name="spec[${idx}][layer_4_product_tmpl_id]" data-layer="4" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_4_option_id]" data-layer="4" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="4">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="4" title="Remove Layer 4" aria-label="Remove Layer 4"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="4" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_4_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_4_thickness]" data-layer="4" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_4_thickness]" data-layer="4" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="5">
                                             <label>Layer 5</label>
-                                            <select name="spec[${idx}][layer_5_product_tmpl_id]" data-layer="5" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_5_option_id]" data-layer="5" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="5">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="5" title="Remove Layer 5" aria-label="Remove Layer 5"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="5" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_5_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_5_thickness]" data-layer="5" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_5_thickness]" data-layer="5" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="6">
                                             <label>Layer 6</label>
-                                            <select name="spec[${idx}][layer_6_product_tmpl_id]" data-layer="6" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_6_option_id]" data-layer="6" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="6">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="6" title="Remove Layer 6" aria-label="Remove Layer 6"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="6" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_6_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_6_thickness]" data-layer="6" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_6_thickness]" data-layer="6" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="7">
                                             <label>Layer 7</label>
-                                            <select name="spec[${idx}][layer_7_product_tmpl_id]" data-layer="7" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_7_option_id]" data-layer="7" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="7">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="7" title="Remove Layer 7" aria-label="Remove Layer 7"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="7" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_7_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_7_thickness]" data-layer="7" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_7_thickness]" data-layer="7" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="8">
                                             <label>Layer 8</label>
-                                            <select name="spec[${idx}][layer_8_product_tmpl_id]" data-layer="8" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_8_option_id]" data-layer="8" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="8">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="8" title="Remove Layer 8" aria-label="Remove Layer 8"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="8" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_8_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_8_thickness]" data-layer="8" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_8_thickness]" data-layer="8" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="9">
                                             <label>Layer 9</label>
-                                            <select name="spec[${idx}][layer_9_product_tmpl_id]" data-layer="9" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_9_option_id]" data-layer="9" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="9">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="9" title="Remove Layer 9" aria-label="Remove Layer 9"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="9" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_9_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_9_thickness]" data-layer="9" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_9_thickness]" data-layer="9" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="10">
                                             <label>Layer 10</label>
-                                            <select name="spec[${idx}][layer_10_product_tmpl_id]" data-layer="10" class="form-select layer-product-select" disabled></select>
+                                            <select name="spec[${idx}][layer_10_option_id]" data-layer="10" class="form-select layer-option-select" disabled></select>
                                         </div>
                                         <div class="col-md-6 layer-extra d-none" data-layer="10">
                                             <div class="d-flex align-items-center justify-content-between gap-2">
-                                                <label class="mb-0">Thickness (Microns)</label>
+                                                <label class="mb-0">Microns</label>
                                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-layer-btn" data-layer="10" title="Remove Layer 10" aria-label="Remove Layer 10"><i class="fa fa-times"/></button>
                                             </div>
-                                            <input type="text" data-layer="10" class="form-control bg-white layer-thickness-display" readonly="readonly" placeholder="Auto from Product"/><input type="hidden" name="spec[${idx}][layer_10_variant_id]" value=""/>
-                                            <input type="hidden" name="spec[${idx}][layer_10_thickness]" data-layer="10" class="layer-thickness" disabled>
+                                            <input type="number" step="0.01" min="0" name="spec[${idx}][layer_10_thickness]" data-layer="10" class="form-control layer-thickness" placeholder="Enter Microns" disabled/>
                                         </div>
                                         <div class="col-12 extra-layer-control">
                                             <button type="button" class="btn req-action-btn btn-sm add-layer-btn">+ Add Layer</button>
                                             
                                         </div>
                                         <div class="col-md-4">
-                                            <label>Total Thickness (Microns)</label>
+                                            <label>Total Microns</label>
                                             <input type="text" class="form-control bg-white total-thickness" readonly>
                                         </div>
                                     </div>
@@ -1732,8 +1689,8 @@
                                                     <div class="col-md-3"><label class="form-label fw-semibold">Color Reference</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="dict(yes='Yes', no='No').get(spec.color_reference or '', '') + ((' - ' + dict(physical='Physical', pantone='Pantone').get(spec.color_reference_type or '', '')) if spec.color_reference_type else '')"/></div>
                                                     <div class="col-md-3"><label class="form-label fw-semibold">Quantity</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.quantity or 0"/></div>
                                                     <div class="col-md-3"><label class="form-label fw-semibold">Quantity UOM</label><input type="text" class="form-control bg-white" readonly="readonly" t-att-value="spec.quantity_uom_id.display_name if spec.quantity_uom_id else dict(pcs='PCS', kg='KG', lm='LM').get(spec.quantity_uom or '', '')"/></div>
-                                                    <div class="col-md-4" t-if="spec.fg_type != 'roll'"><label>Bag Length (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.length or 0.0"/></div>
                                                     <div class="col-md-4" t-if="spec.fg_type != 'roll'"><label>Bag Width (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.width or 0.0"/></div>
+                                                    <div class="col-md-4" t-if="spec.fg_type != 'roll'"><label>Bag Length (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.length or 0.0"/></div>
                                                     <div class="col-md-4" t-if="spec.fg_type != 'roll' and not spec.bag_type_hide_gusset"><label>Gusset (mm)</label><input type="number" step="0.01" class="form-control bg-white" readonly="readonly" t-att-value="spec.gusset or 0.0"/></div>
                                                     <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Coil Width (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.coil_width_mm or 0.0"/></div>
                                                     <div class="col-md-4" t-if="spec.fg_type == 'roll'"><label>Cutoff Length (mm)</label><input type="number" class="form-control bg-white" readonly="readonly" t-att-value="spec.cutoff_length_mm or 0.0"/></div>

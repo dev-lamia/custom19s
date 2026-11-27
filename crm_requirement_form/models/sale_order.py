@@ -406,6 +406,11 @@ class SaleGdnConfiguration(models.Model):
         string='Weight (g)',
         readonly=True,
     )
+    layer_1_option_id = fields.Many2one(
+        related='source_line_id.req_layer_1_option_id',
+        string='Layer 1',
+        readonly=True,
+    )
     layer_1_product_tmpl_id = fields.Many2one(
         related='source_line_id.req_layer_1_product_tmpl_id',
         string='Layer 1',
@@ -419,6 +424,11 @@ class SaleGdnConfiguration(models.Model):
     layer_1_thickness = fields.Float(
         related='source_line_id.requirement_specification_id.layer_1_thickness',
         string='Layer 1 Thickness (Microns)',
+        readonly=True,
+    )
+    layer_2_option_id = fields.Many2one(
+        related='source_line_id.req_layer_2_option_id',
+        string='Layer 2',
         readonly=True,
     )
     layer_2_product_tmpl_id = fields.Many2one(
@@ -436,6 +446,11 @@ class SaleGdnConfiguration(models.Model):
         string='Layer 2 Thickness (Microns)',
         readonly=True,
     )
+    layer_3_option_id = fields.Many2one(
+        related='source_line_id.req_layer_3_option_id',
+        string='Layer 3',
+        readonly=True,
+    )
     layer_3_product_tmpl_id = fields.Many2one(
         related='source_line_id.req_layer_3_product_tmpl_id',
         string='Layer 3',
@@ -449,6 +464,11 @@ class SaleGdnConfiguration(models.Model):
     layer_3_thickness = fields.Float(
         related='source_line_id.requirement_specification_id.layer_3_thickness',
         string='Layer 3 Thickness (Microns)',
+        readonly=True,
+    )
+    layer_4_option_id = fields.Many2one(
+        related='source_line_id.req_layer_4_option_id',
+        string='Layer 4',
         readonly=True,
     )
     layer_4_product_tmpl_id = fields.Many2one(
@@ -466,6 +486,11 @@ class SaleGdnConfiguration(models.Model):
         string='Layer 4 Thickness (Microns)',
         readonly=True,
     )
+    layer_5_option_id = fields.Many2one(
+        related='source_line_id.req_layer_5_option_id',
+        string='Layer 5',
+        readonly=True,
+    )
     layer_5_product_tmpl_id = fields.Many2one(
         related='source_line_id.req_layer_5_product_tmpl_id',
         string='Layer 5',
@@ -479,6 +504,11 @@ class SaleGdnConfiguration(models.Model):
     layer_5_thickness = fields.Float(
         related='source_line_id.requirement_specification_id.layer_5_thickness',
         string='Layer 5 Thickness (Microns)',
+        readonly=True,
+    )
+    layer_6_option_id = fields.Many2one(
+        related='source_line_id.req_layer_6_option_id',
+        string='Layer 6',
         readonly=True,
     )
     layer_6_product_tmpl_id = fields.Many2one(
@@ -496,6 +526,11 @@ class SaleGdnConfiguration(models.Model):
         string='Layer 6 Thickness (Microns)',
         readonly=True,
     )
+    layer_7_option_id = fields.Many2one(
+        related='source_line_id.req_layer_7_option_id',
+        string='Layer 7',
+        readonly=True,
+    )
     layer_7_product_tmpl_id = fields.Many2one(
         related='source_line_id.req_layer_7_product_tmpl_id',
         string='Layer 7',
@@ -509,6 +544,11 @@ class SaleGdnConfiguration(models.Model):
     layer_7_thickness = fields.Float(
         related='source_line_id.requirement_specification_id.layer_7_thickness',
         string='Layer 7 Thickness (Microns)',
+        readonly=True,
+    )
+    layer_8_option_id = fields.Many2one(
+        related='source_line_id.req_layer_8_option_id',
+        string='Layer 8',
         readonly=True,
     )
     layer_8_product_tmpl_id = fields.Many2one(
@@ -526,6 +566,11 @@ class SaleGdnConfiguration(models.Model):
         string='Layer 8 Thickness (Microns)',
         readonly=True,
     )
+    layer_9_option_id = fields.Many2one(
+        related='source_line_id.req_layer_9_option_id',
+        string='Layer 9',
+        readonly=True,
+    )
     layer_9_product_tmpl_id = fields.Many2one(
         related='source_line_id.req_layer_9_product_tmpl_id',
         string='Layer 9',
@@ -539,6 +584,11 @@ class SaleGdnConfiguration(models.Model):
     layer_9_thickness = fields.Float(
         related='source_line_id.requirement_specification_id.layer_9_thickness',
         string='Layer 9 Thickness (Microns)',
+        readonly=True,
+    )
+    layer_10_option_id = fields.Many2one(
+        related='source_line_id.req_layer_10_option_id',
+        string='Layer 10',
         readonly=True,
     )
     layer_10_product_tmpl_id = fields.Many2one(
@@ -1465,24 +1515,54 @@ class SaleOrderLine(models.Model):
     )
     req_core_type = fields.Char(string='Core Type', copy=False)
 
+    req_layer_1_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 1', copy=False
+    )
     req_layer_1_product_tmpl_id = fields.Many2one('product.template', string='Layer 1', copy=False)
     req_layer_1_variant_id = fields.Many2one('product.product', string='Layer 1 Thickness', copy=False)
+    req_layer_2_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 2', copy=False
+    )
     req_layer_2_product_tmpl_id = fields.Many2one('product.template', string='Layer 2', copy=False)
     req_layer_2_variant_id = fields.Many2one('product.product', string='Layer 2 Thickness', copy=False)
+    req_layer_3_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 3', copy=False
+    )
     req_layer_3_product_tmpl_id = fields.Many2one('product.template', string='Layer 3', copy=False)
     req_layer_3_variant_id = fields.Many2one('product.product', string='Layer 3 Thickness', copy=False)
+    req_layer_4_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 4', copy=False
+    )
     req_layer_4_product_tmpl_id = fields.Many2one('product.template', string='Layer 4', copy=False)
     req_layer_4_variant_id = fields.Many2one('product.product', string='Layer 4 Thickness', copy=False)
+    req_layer_5_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 5', copy=False
+    )
     req_layer_5_product_tmpl_id = fields.Many2one('product.template', string='Layer 5', copy=False)
     req_layer_5_variant_id = fields.Many2one('product.product', string='Layer 5 Thickness', copy=False)
+    req_layer_6_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 6', copy=False
+    )
     req_layer_6_product_tmpl_id = fields.Many2one('product.template', string='Layer 6', copy=False)
     req_layer_6_variant_id = fields.Many2one('product.product', string='Layer 6 Thickness', copy=False)
+    req_layer_7_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 7', copy=False
+    )
     req_layer_7_product_tmpl_id = fields.Many2one('product.template', string='Layer 7', copy=False)
     req_layer_7_variant_id = fields.Many2one('product.product', string='Layer 7 Thickness', copy=False)
+    req_layer_8_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 8', copy=False
+    )
     req_layer_8_product_tmpl_id = fields.Many2one('product.template', string='Layer 8', copy=False)
     req_layer_8_variant_id = fields.Many2one('product.product', string='Layer 8 Thickness', copy=False)
+    req_layer_9_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 9', copy=False
+    )
     req_layer_9_product_tmpl_id = fields.Many2one('product.template', string='Layer 9', copy=False)
     req_layer_9_variant_id = fields.Many2one('product.product', string='Layer 9 Thickness', copy=False)
+    req_layer_10_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 10', copy=False
+    )
     req_layer_10_product_tmpl_id = fields.Many2one('product.template', string='Layer 10', copy=False)
     req_layer_10_variant_id = fields.Many2one('product.product', string='Layer 10 Thickness', copy=False)
 

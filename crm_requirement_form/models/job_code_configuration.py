@@ -258,11 +258,17 @@ class SaleJobCodeConfiguration(models.Model):
     )
     core_type = fields.Char(string='Core Type', readonly=True)
 
+    layer_1_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 1', readonly=True
+    )
     layer_1_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 1', readonly=True
     )
     layer_1_variant_id = fields.Many2one(
         'product.product', string='Layer 1 Thickness', readonly=True
+    )
+    layer_2_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 2', readonly=True
     )
     layer_2_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 2', readonly=True
@@ -270,11 +276,17 @@ class SaleJobCodeConfiguration(models.Model):
     layer_2_variant_id = fields.Many2one(
         'product.product', string='Layer 2 Thickness', readonly=True
     )
+    layer_3_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 3', readonly=True
+    )
     layer_3_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 3', readonly=True
     )
     layer_3_variant_id = fields.Many2one(
         'product.product', string='Layer 3 Thickness', readonly=True
+    )
+    layer_4_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 4', readonly=True
     )
     layer_4_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 4', readonly=True
@@ -282,11 +294,17 @@ class SaleJobCodeConfiguration(models.Model):
     layer_4_variant_id = fields.Many2one(
         'product.product', string='Layer 4 Thickness', readonly=True
     )
+    layer_5_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 5', readonly=True
+    )
     layer_5_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 5', readonly=True
     )
     layer_5_variant_id = fields.Many2one(
         'product.product', string='Layer 5 Thickness', readonly=True
+    )
+    layer_6_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 6', readonly=True
     )
     layer_6_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 6', readonly=True
@@ -294,11 +312,17 @@ class SaleJobCodeConfiguration(models.Model):
     layer_6_variant_id = fields.Many2one(
         'product.product', string='Layer 6 Thickness', readonly=True
     )
+    layer_7_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 7', readonly=True
+    )
     layer_7_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 7', readonly=True
     )
     layer_7_variant_id = fields.Many2one(
         'product.product', string='Layer 7 Thickness', readonly=True
+    )
+    layer_8_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 8', readonly=True
     )
     layer_8_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 8', readonly=True
@@ -306,11 +330,17 @@ class SaleJobCodeConfiguration(models.Model):
     layer_8_variant_id = fields.Many2one(
         'product.product', string='Layer 8 Thickness', readonly=True
     )
+    layer_9_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 9', readonly=True
+    )
     layer_9_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 9', readonly=True
     )
     layer_9_variant_id = fields.Many2one(
         'product.product', string='Layer 9 Thickness', readonly=True
+    )
+    layer_10_option_id = fields.Many2one(
+        'crm.requirement.layer.option', string='Layer 10', readonly=True
     )
     layer_10_product_tmpl_id = fields.Many2one(
         'product.template', string='Layer 10', readonly=True
@@ -523,24 +553,34 @@ class SaleJobCodeConfiguration(models.Model):
                     sol.req_core_id_mm AS core_id_mm,
                     sol.req_core_thickness_mm AS core_thickness_mm,
                     sol.req_core_type AS core_type,
+                    sol.req_layer_1_option_id AS layer_1_option_id,
                     sol.req_layer_1_product_tmpl_id AS layer_1_product_tmpl_id,
                     sol.req_layer_1_variant_id AS layer_1_variant_id,
+                    sol.req_layer_2_option_id AS layer_2_option_id,
                     sol.req_layer_2_product_tmpl_id AS layer_2_product_tmpl_id,
                     sol.req_layer_2_variant_id AS layer_2_variant_id,
+                    sol.req_layer_3_option_id AS layer_3_option_id,
                     sol.req_layer_3_product_tmpl_id AS layer_3_product_tmpl_id,
                     sol.req_layer_3_variant_id AS layer_3_variant_id,
+                    sol.req_layer_4_option_id AS layer_4_option_id,
                     sol.req_layer_4_product_tmpl_id AS layer_4_product_tmpl_id,
                     sol.req_layer_4_variant_id AS layer_4_variant_id,
+                    sol.req_layer_5_option_id AS layer_5_option_id,
                     sol.req_layer_5_product_tmpl_id AS layer_5_product_tmpl_id,
                     sol.req_layer_5_variant_id AS layer_5_variant_id,
+                    sol.req_layer_6_option_id AS layer_6_option_id,
                     sol.req_layer_6_product_tmpl_id AS layer_6_product_tmpl_id,
                     sol.req_layer_6_variant_id AS layer_6_variant_id,
+                    sol.req_layer_7_option_id AS layer_7_option_id,
                     sol.req_layer_7_product_tmpl_id AS layer_7_product_tmpl_id,
                     sol.req_layer_7_variant_id AS layer_7_variant_id,
+                    sol.req_layer_8_option_id AS layer_8_option_id,
                     sol.req_layer_8_product_tmpl_id AS layer_8_product_tmpl_id,
                     sol.req_layer_8_variant_id AS layer_8_variant_id,
+                    sol.req_layer_9_option_id AS layer_9_option_id,
                     sol.req_layer_9_product_tmpl_id AS layer_9_product_tmpl_id,
                     sol.req_layer_9_variant_id AS layer_9_variant_id,
+                    sol.req_layer_10_option_id AS layer_10_option_id,
                     sol.req_layer_10_product_tmpl_id AS layer_10_product_tmpl_id,
                     sol.req_layer_10_variant_id AS layer_10_variant_id,
                     sol.req_total_thickness AS total_thickness,

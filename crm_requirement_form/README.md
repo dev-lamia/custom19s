@@ -9,7 +9,7 @@
 | Author | `Softeko_Lamia` |
 | Category | CRM |
 | License | LGPL-3 |
-| Documentation Updated | 2026-11-10 |
+| Documentation Updated | 2026-11-27 |
 | Latest Verified Release | Not verified — the ZIP contains historical upgrade notes, but no verified release date |
 | Documentation Status | Source-code reviewed; **not** runtime-tested on an Odoo instance |
 
@@ -73,6 +73,17 @@ Users commonly work from **Requirement Forms** to submit design/product specific
 | Website | Customer-facing requirement form display and submission with token routes | `controllers/main.py`, `views/website_templates.xml` |
 
 These are **source-code-verified features**; this documentation does not imply that all flows have been tested against a live database.
+
+### Product Specification layer names and manual Microns (2026-11-27)
+
+**Requirement Forms → Requirement Configuration → Layer Names** is the new configuration master (`crm.requirement.layer.option`): Sales Managers can create, reorder, edit, and archive Layer Names. Internal users can read configured options; the public/internal requirement form fetches active names securely through its existing controller. Each of the ten Product Specification layer dropdowns now selects `layer_N_option_id` from this master, **not** Product Inventory's `is_requirement_layer` checkbox. No inline creation is offered from the dropdown.
+
+**Product Specifications → Layers / Material:** select a Layer Name, then enter **Microns** as a manually editable numeric `Float` (`layer_N_thickness`). There is no product or variant lookup, hyperlink, auto-calculation of an individual layer's Microns, or inventory-derived default. Existing **Add Layer / Remove Layer** controls remain, and Total Thickness still sums individual numeric fields. The Bag Dimensions section displays **Bag Width** before **Bag Length**. These changes also apply to the customer/internal website form. Duplicate/repeat-job read-only restrictions are retained.
+
+**Compatibility:** Existing `layer_N_product_tmpl_id`, `layer_N_variant_id` and `layer_N_material` fields remain to preserve older data/integrations. `data/layer_option_migration.xml` invokes a repeatable migration mapping existing saved material names to configurable Layer Names on module upgrade, without deleting old product/variant relationships or overwriting saved micron values. New layers snapshot their configured name in `layer_N_material` and synchronize their option link through Sale Order Lines, GDNs and Job Code SQL-view fields; GDN shows the configured Layer Name (or historic product label if no option exists). Product Settings layer thickness configuration is retained for historical/independent inventory uses only; it no longer supplies new Requirement layers.
+
+**Modified areas:** `models/product_specification.py`, `models/requirement_form.py`, `models/sale_order.py`, `models/job_code_configuration.py`, `controllers/main.py`, `views/requirement_form_views.xml`, `views/requirement_option_views.xml`, `views/website_templates.xml`, `views/gdn_configuration_views.xml`, `static/src/js/layer_add_button.js`, `security/ir.model.access.csv`, `data/layer_option_migration.xml`, `__manifest__.py`. Static Python/XML/JavaScript checks passed; module upgrade and browser workflows require live Odoo 19 testing.
+
 
 
 ### Requirement Document Types configuration and inline upload (2026-10-18)
@@ -273,7 +284,7 @@ The above distinguishes Python-level checks from view-only visibility/readonly r
 | Requirement Configuration → Features | `crm.requirement.feature.option` | `name`, `code`, `sequence`, `active` | Configurable choices |
 | Requirement Configuration → Process Sequence | `crm.job.production.process` | `name`, `sequence` | Uses `data/job_production_process.xml` |
 | Requirement Configuration → Type of Category | `product.category.type` | `name`, `category_initial`, `sequence`, `active` | Managed with inventory/category access controls |
-| Product settings | `product.template` | `requirement_fg_type_id`, `requirement_fg_type`, `thickness_microns`, product/category flags | Used in FG filtering and layer thickness sourcing |
+| Product settings | `product.template` | `requirement_fg_type_id`, `requirement_fg_type`, `thickness_microns`, product/category flags | FG filtering and historic inventory/product fields; new configured specification layers do not use inventory thickness |
 
 ### Design Information: Print Type and No of Colors (GDN-only entry)
 
@@ -306,7 +317,7 @@ The above distinguishes Python-level checks from view-only visibility/readonly r
 | Design Information | Color Reference, Color Reference Type, **GDN-only editable Print Type and No of Colors**, Print Direction, weight, features |
 | Roll Details | Seven remaining linked roll attributes (Final Roll Direction, Weight, OD, Meters, Core ID, Core Thickness, Core Type); visible when FG Type is Roll |
 | GDN Documents | **Editable Add a line** and configured Document Type dropdown, multiple files per row; no six empty prefilled rows. Existing Requirement Form documents and legacy attachments remain synchronized/accessible; upgrade removes unused empty legacy placeholders only |
-| Layers / Material Structure | Layer 1–10 product fields and **numeric Thickness (Microns)** fields, shown only for populated layers |
+| Layers / Material Structure | Layer 1–10 **configured Layer Names**, fallback historical product names, and related numeric micron values, shown only for populated layers |
 
 ### Roll-specific field map
 
@@ -330,7 +341,7 @@ For each layer `N` from **1 to 10**:
 
 - **REQ Product Specification:** `crm.requirement.specification.layer_N_thickness` (`Float`, micron value).
 - **GDN:** `sale.gdn.configuration.layer_N_thickness` is a related field using `source_line_id.requirement_specification_id.layer_N_thickness`.
-- **GDN view:** `views/gdn_configuration_views.xml` shows `layer_N_product_tmpl_id` alongside `layer_N_thickness`. It does **not** show `layer_N_variant_id` as the numeric thickness.
+- **GDN view:** `views/gdn_configuration_views.xml` shows `layer_N_option_id` for newly configured layers, or the legacy `layer_N_product_tmpl_id` for older records, alongside numeric `layer_N_thickness`. It does **not** use a product variant as the numeric thickness.
 
 Example: if REQ layer thicknesses are `7.00` and `38.00`, the matching linked GDN shows `7.00` and `38.00` microns. For a GDN without a linked Requirement Specification, these related fields can be empty; **do not claim fallback behavior unless it is implemented**.
 

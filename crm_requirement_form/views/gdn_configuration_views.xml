@@ -142,44 +142,54 @@
                     </page><page string="Layers / Material Structure" name="gdn_layers_material_tab"><div class="o_crm_req_config_card">
                         <div class="o_crm_req_config_card_title"><i class="fa fa-clone"/> Layers / Material Structure</div>
                         <div class="o_crm_req_layers_grid">
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_1_product_tmpl_id">
-                                <field name="layer_1_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_1_option_id and not layer_1_product_tmpl_id">
+                                <field name="layer_1_option_id" invisible="not layer_1_option_id"/>
+                                <field name="layer_1_product_tmpl_id" invisible="layer_1_option_id"/>
                                 <field name="layer_1_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_2_product_tmpl_id">
-                                <field name="layer_2_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_2_option_id and not layer_2_product_tmpl_id">
+                                <field name="layer_2_option_id" invisible="not layer_2_option_id"/>
+                                <field name="layer_2_product_tmpl_id" invisible="layer_2_option_id"/>
                                 <field name="layer_2_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_3_product_tmpl_id">
-                                <field name="layer_3_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_3_option_id and not layer_3_product_tmpl_id">
+                                <field name="layer_3_option_id" invisible="not layer_3_option_id"/>
+                                <field name="layer_3_product_tmpl_id" invisible="layer_3_option_id"/>
                                 <field name="layer_3_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_4_product_tmpl_id">
-                                <field name="layer_4_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_4_option_id and not layer_4_product_tmpl_id">
+                                <field name="layer_4_option_id" invisible="not layer_4_option_id"/>
+                                <field name="layer_4_product_tmpl_id" invisible="layer_4_option_id"/>
                                 <field name="layer_4_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_5_product_tmpl_id">
-                                <field name="layer_5_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_5_option_id and not layer_5_product_tmpl_id">
+                                <field name="layer_5_option_id" invisible="not layer_5_option_id"/>
+                                <field name="layer_5_product_tmpl_id" invisible="layer_5_option_id"/>
                                 <field name="layer_5_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_6_product_tmpl_id">
-                                <field name="layer_6_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_6_option_id and not layer_6_product_tmpl_id">
+                                <field name="layer_6_option_id" invisible="not layer_6_option_id"/>
+                                <field name="layer_6_product_tmpl_id" invisible="layer_6_option_id"/>
                                 <field name="layer_6_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_7_product_tmpl_id">
-                                <field name="layer_7_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_7_option_id and not layer_7_product_tmpl_id">
+                                <field name="layer_7_option_id" invisible="not layer_7_option_id"/>
+                                <field name="layer_7_product_tmpl_id" invisible="layer_7_option_id"/>
                                 <field name="layer_7_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_8_product_tmpl_id">
-                                <field name="layer_8_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_8_option_id and not layer_8_product_tmpl_id">
+                                <field name="layer_8_option_id" invisible="not layer_8_option_id"/>
+                                <field name="layer_8_product_tmpl_id" invisible="layer_8_option_id"/>
                                 <field name="layer_8_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_9_product_tmpl_id">
-                                <field name="layer_9_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_9_option_id and not layer_9_product_tmpl_id">
+                                <field name="layer_9_option_id" invisible="not layer_9_option_id"/>
+                                <field name="layer_9_product_tmpl_id" invisible="layer_9_option_id"/>
                                 <field name="layer_9_thickness"/>
                             </group>
-                            <group class="o_crm_req_layer_config_row" invisible="not layer_10_product_tmpl_id">
-                                <field name="layer_10_product_tmpl_id"/>
+                            <group class="o_crm_req_layer_config_row" invisible="not layer_10_option_id and not layer_10_product_tmpl_id">
+                                <field name="layer_10_option_id" invisible="not layer_10_option_id"/>
+                                <field name="layer_10_product_tmpl_id" invisible="layer_10_option_id"/>
                                 <field name="layer_10_thickness"/>
                             </group>
                         </div>

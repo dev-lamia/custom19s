@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <function model="crm.requirement.layer.option" name="_bootstrap_legacy_layers"/>
+</odoo>

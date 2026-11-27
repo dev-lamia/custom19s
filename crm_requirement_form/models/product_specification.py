@@ -58,6 +58,68 @@ class RequirementFgType(models.Model):
 
 
 
+class RequirementLayerOption(models.Model):
+    _name = 'crm.requirement.layer.option'
+    _description = 'Requirement Layer Name'
+    _order = 'sequence asc, name asc, id asc'
+
+    name = fields.Char(string='Layer Name', required=True, translate=True)
+    sequence = fields.Integer(string='Sequence', default=10)
+    active = fields.Boolean(string='Active', default=True)
+
+    @api.constrains('name')
+    def _check_layer_name_unique(self):
+        for record in self:
+            name = (record.name or '').strip()
+            if not name:
+                raise ValidationError(_('Layer Name cannot be empty.'))
+            other = self.with_context(active_test=False).search([
+                ('id', '!=', record.id),
+                ('name', '=ilike', name),
+            ], limit=1)
+            if other:
+                raise ValidationError(_('Layer Name must be unique.'))
+
+    @api.model
+    def _bootstrap_legacy_layers(self):
+        """Preserve existing product-based designs when this version is installed.
+
+        Create configuration entries from previously saved material labels,
+        without removing/overwriting legacy product, variant or micron values.
+        Called once per module installation/upgrade by a data XML function.
+        """
+        Specification = self.env['crm.requirement.specification']
+        options = self.with_context(active_test=False).search([])
+        by_name = {
+            option.name.strip().casefold(): option for option in options
+            if option.name and option.name.strip()
+        }
+        for spec in Specification.search([]):
+            updates = {}
+            for layer_no in range(1, 11):
+                key = f'layer_{layer_no}_option_id'
+                if spec[key]:
+                    continue
+                name = (spec[f'layer_{layer_no}_material'] or '').strip()
+                old_product = spec[f'layer_{layer_no}_product_tmpl_id']
+                if not name and old_product:
+                    name = old_product.display_name.strip()
+                if not name:
+                    continue
+                existing = by_name.get(name.casefold())
+                if not existing:
+                    existing = self.create({'name': name})
+                    by_name[name.casefold()] = existing
+                updates[key] = existing.id
+            if updates:
+                spec.with_context(
+                    skip_requirement_audit=True,
+                    skip_requirement_resequence=True,
+                    bootstrap_requirement_layers=True,
+                ).write(updates)
+        return True
+
+
 class RequirementPrintFinishOption(models.Model):
     _name = 'crm.requirement.print.finish.option'
     _description = 'Requirement Print and Finish Option'
@@ -350,6 +412,12 @@ class ProductSpecification(models.Model):
     core_thickness_mm = fields.Float(string='Core Thickness (mm)')
     core_type = fields.Char(string='Core Type')
 
+    layer_1_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 1',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_1_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 1',
@@ -364,6 +432,12 @@ class ProductSpecification(models.Model):
     layer_1_material = fields.Char(string='Layer 1 Material')
     layer_1_thickness = fields.Float(string='Layer 1 Thickness (Microns)')
 
+    layer_2_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 2',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_2_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 2',
@@ -378,6 +452,12 @@ class ProductSpecification(models.Model):
     layer_2_material = fields.Char(string='Layer 2 Material')
     layer_2_thickness = fields.Float(string='Layer 2 Thickness (Microns)')
 
+    layer_3_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 3',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_3_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 3',
@@ -392,6 +472,12 @@ class ProductSpecification(models.Model):
     layer_3_material = fields.Char(string='Layer 3 Material')
     layer_3_thickness = fields.Float(string='Layer 3 Thickness (Microns)')
 
+    layer_4_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 4',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_4_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 4',
@@ -406,6 +492,12 @@ class ProductSpecification(models.Model):
     layer_4_material = fields.Char(string='Layer 4 Material')
     layer_4_thickness = fields.Float(string='Layer 4 Thickness (Microns)')
 
+    layer_5_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 5',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_5_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 5',
@@ -420,6 +512,12 @@ class ProductSpecification(models.Model):
     layer_5_material = fields.Char(string='Layer 5 Material')
     layer_5_thickness = fields.Float(string='Layer 5 Thickness (Microns)')
 
+    layer_6_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 6',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_6_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 6',
@@ -434,6 +532,12 @@ class ProductSpecification(models.Model):
     layer_6_material = fields.Char(string='Layer 6 Material')
     layer_6_thickness = fields.Float(string='Layer 6 Thickness (Microns)')
 
+    layer_7_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 7',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_7_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 7',
@@ -448,6 +552,12 @@ class ProductSpecification(models.Model):
     layer_7_material = fields.Char(string='Layer 7 Material')
     layer_7_thickness = fields.Float(string='Layer 7 Thickness (Microns)')
 
+    layer_8_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 8',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_8_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 8',
@@ -462,6 +572,12 @@ class ProductSpecification(models.Model):
     layer_8_material = fields.Char(string='Layer 8 Material')
     layer_8_thickness = fields.Float(string='Layer 8 Thickness (Microns)')
 
+    layer_9_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 9',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_9_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 9',
@@ -476,6 +592,12 @@ class ProductSpecification(models.Model):
     layer_9_material = fields.Char(string='Layer 9 Material')
     layer_9_thickness = fields.Float(string='Layer 9 Thickness (Microns)')
 
+    layer_10_option_id = fields.Many2one(
+        'crm.requirement.layer.option',
+        string='Layer 10',
+        domain=[('active', '=', True)],
+        ondelete='restrict',
+    )
     layer_10_product_tmpl_id = fields.Many2one(
         'product.template',
         string='Layer 10',
@@ -604,6 +726,26 @@ class ProductSpecification(models.Model):
         'layer_9_variant_id',
         'layer_10_product_tmpl_id',
         'layer_10_variant_id',
+        'layer_1_option_id',
+        'layer_1_material',
+        'layer_2_option_id',
+        'layer_2_material',
+        'layer_3_option_id',
+        'layer_3_material',
+        'layer_4_option_id',
+        'layer_4_material',
+        'layer_5_option_id',
+        'layer_5_material',
+        'layer_6_option_id',
+        'layer_6_material',
+        'layer_7_option_id',
+        'layer_7_material',
+        'layer_8_option_id',
+        'layer_8_material',
+        'layer_9_option_id',
+        'layer_9_material',
+        'layer_10_option_id',
+        'layer_10_material',
     )
     def _compute_requirement_summary_fields(self):
         for rec in self:
@@ -636,10 +778,13 @@ class ProductSpecification(models.Model):
             for layer_no in range(1, 11):
                 template = rec[f'layer_{layer_no}_product_tmpl_id']
                 variant = rec[f'layer_{layer_no}_variant_id']
-                if not template:
-                    continue
-                label = template.display_name
-                layers.append(label)
+                option = rec[f'layer_{layer_no}_option_id']
+                label = (
+                    option.name or rec[f'layer_{layer_no}_material']
+                    or template.display_name
+                )
+                if label:
+                    layers.append(label)
             rec.summary_material_structure = ' / '.join(layers)
 
     source_specification_id = fields.Many2one(
@@ -952,11 +1097,13 @@ class ProductSpecification(models.Model):
         vals_list = hydrated_vals_list
 
         self._prepare_bag_type_values(vals_list)
+        self._prepare_layer_option_values(vals_list)
         for vals in vals_list:
             populated_layers = [
                 layer_no
                 for layer_no in range(2, 11)
-                if vals.get(f'layer_{layer_no}_product_tmpl_id')
+                if (vals.get(f'layer_{layer_no}_option_id')
+                    or vals.get(f'layer_{layer_no}_product_tmpl_id'))
             ]
             minimum_visible = max(populated_layers, default=1)
             vals['layer_visible_count'] = max(
@@ -1022,10 +1169,12 @@ class ProductSpecification(models.Model):
             if all(record.fg_type == 'roll' for record in self):
                 vals['fg_type'] = 'roll'
         self._prepare_bag_type_values([vals])
+        self._prepare_layer_option_values([vals])
         populated_layers = [
             layer_no
             for layer_no in range(2, 11)
-            if vals.get(f'layer_{layer_no}_product_tmpl_id')
+            if (vals.get(f'layer_{layer_no}_option_id')
+                    or vals.get(f'layer_{layer_no}_product_tmpl_id'))
         ]
         if populated_layers:
             vals['layer_visible_count'] = max(
@@ -1160,12 +1309,37 @@ class ProductSpecification(models.Model):
         for rec in self:
             for layer_no in range(1, 11):
                 product_tmpl = rec[f'layer_{layer_no}_product_tmpl_id']
-                if product_tmpl and not product_tmpl.is_requirement_layer:
+                if (
+                    not rec[f'layer_{layer_no}_option_id']
+                    and product_tmpl and not product_tmpl.is_requirement_layer
+                ):
                     raise ValidationError(
                         _(
                             'Product "%s" is not enabled as a Layer product.'
                         ) % product_tmpl.display_name
                     )
+
+    def _prepare_layer_option_values(self, vals_list):
+        """Snapshot configured names; keep legacy inventory links separate."""
+        Options = self.env['crm.requirement.layer.option']
+        for vals in vals_list:
+            for layer_no in range(1, 11):
+                option_field = f'layer_{layer_no}_option_id'
+                if option_field not in vals:
+                    continue
+                option_id = vals[option_field]
+                option = Options.browse(option_id).exists() if option_id else Options
+                if option_id and not option:
+                    raise ValidationError(_('Selected Layer does not exist.'))
+                vals[f'layer_{layer_no}_material'] = option.name if option else False
+                # Old inventory links must never be set for newly selected
+                # configuration layers. Do not disturb existing legacy rows
+                # during the upgrade bootstrap or on unrelated edits.
+                if not self.env.context.get('bootstrap_requirement_layers'):
+                    vals[f'layer_{layer_no}_product_tmpl_id'] = False
+                    vals[f'layer_{layer_no}_variant_id'] = False
+                if not option:
+                    vals[f'layer_{layer_no}_thickness'] = 0.0
 
     def _prepare_bag_type_values(self, vals_list):
         """Normalize the selected FG product while keeping legacy fields usable."""
@@ -1341,8 +1515,71 @@ class ProductSpecification(models.Model):
                     skip_requirement_audit=True,
                 ).write(updates)
 
+    def _set_layer_from_option(self, layer_no):
+        self.ensure_one()
+        option = self[f'layer_{layer_no}_option_id']
+        self[f'layer_{layer_no}_material'] = option.name if option else False
+        # Do not copy the product variant or automatically fill microns.
+        if option:
+            self[f'layer_{layer_no}_product_tmpl_id'] = False
+            self[f'layer_{layer_no}_variant_id'] = False
+        else:
+            self[f'layer_{layer_no}_thickness'] = 0.0
+
+    @api.onchange('layer_1_option_id')
+    def _onchange_layer_1_option(self):
+        for rec in self:
+            rec._set_layer_from_option(1)
+
+    @api.onchange('layer_2_option_id')
+    def _onchange_layer_2_option(self):
+        for rec in self:
+            rec._set_layer_from_option(2)
+
+    @api.onchange('layer_3_option_id')
+    def _onchange_layer_3_option(self):
+        for rec in self:
+            rec._set_layer_from_option(3)
+
+    @api.onchange('layer_4_option_id')
+    def _onchange_layer_4_option(self):
+        for rec in self:
+            rec._set_layer_from_option(4)
+
+    @api.onchange('layer_5_option_id')
+    def _onchange_layer_5_option(self):
+        for rec in self:
+            rec._set_layer_from_option(5)
+
+    @api.onchange('layer_6_option_id')
+    def _onchange_layer_6_option(self):
+        for rec in self:
+            rec._set_layer_from_option(6)
+
+    @api.onchange('layer_7_option_id')
+    def _onchange_layer_7_option(self):
+        for rec in self:
+            rec._set_layer_from_option(7)
+
+    @api.onchange('layer_8_option_id')
+    def _onchange_layer_8_option(self):
+        for rec in self:
+            rec._set_layer_from_option(8)
+
+    @api.onchange('layer_9_option_id')
+    def _onchange_layer_9_option(self):
+        for rec in self:
+            rec._set_layer_from_option(9)
+
+    @api.onchange('layer_10_option_id')
+    def _onchange_layer_10_option(self):
+        for rec in self:
+            rec._set_layer_from_option(10)
+
     def _set_layer_from_product(self, layer_no):
         self.ensure_one()
+        if self[f'layer_{layer_no}_option_id']:
+            return
         product_tmpl = self[f'layer_{layer_no}_product_tmpl_id']
         variant = self[f'layer_{layer_no}_variant_id']
 

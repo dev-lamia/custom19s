@@ -2,7 +2,7 @@
     'name': 'CRM Requirement Form',
     'version': '19.0.0.0',
     'category': 'CRM',
-    'summary': 'CRm requirement form with generated customer and REQ IDs',
+    'summary': 'CRM requirement form with generated customer and REQ IDs',
     'author': 'Softeko_Lamia',
     'depends': ['crm', 'sale_crm', 'website', 'mail', 'product', 'uom', 'account', 'stock', 'purchase'],
     'assets': {
@@ -19,6 +19,7 @@
         'data/requirement_options_data.xml',
         'data/requirement_document_type_data.xml',
         'data/fg_type_data.xml',
+        'data/layer_option_migration.xml',
         'data/fg_type_migration.xml',
         'data/gdn_sequence.xml',
         'data/documents_sales_sync.xml',

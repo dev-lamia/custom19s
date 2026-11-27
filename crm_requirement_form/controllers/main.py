@@ -95,16 +95,8 @@ class RequirementFormController(http.Controller):
         }
 
         for layer_no in range(1, 11):
-            product = specification[
-                f'layer_{layer_no}_product_tmpl_id'
-            ]
-            variant = specification[f'layer_{layer_no}_variant_id']
-            data[f'layer_{layer_no}_product_tmpl_id'] = (
-                product.id if product else ''
-            )
-            data[f'layer_{layer_no}_variant_id'] = (
-                variant.id if variant else ''
-            )
+            option = specification[f'layer_{layer_no}_option_id']
+            data[f'layer_{layer_no}_option_id'] = option.id if option else ''
             data[f'layer_{layer_no}_thickness'] = (
                 specification[f'layer_{layer_no}_thickness'] or 0
             )
@@ -113,28 +105,12 @@ class RequirementFormController(http.Controller):
 
     def _get_product_context(self):
         ProductTemplate = request.env['product.template'].sudo()
-        ProductVariant = request.env['product.product'].sudo()
+        LayerOptions = request.env['crm.requirement.layer.option'].sudo()
         PaymentTerm = request.env['account.payment.term'].sudo()
         PrintFinishOption = request.env['crm.requirement.print.finish.option'].sudo()
         FeatureOption = request.env['crm.requirement.feature.option'].sudo()
         Uom = request.env['uom.uom'].sudo()
 
-        product_templates = ProductTemplate.search(
-            [
-                ('active', '=', True),
-                ('is_requirement_layer', '=', True),
-            ],
-            order='name, id',
-            limit=1000,
-        )
-        product_variants = ProductVariant.search(
-            [
-                ('active', '=', True),
-                ('product_tmpl_id', 'in', product_templates.ids),
-            ],
-            order='product_tmpl_id, name, id',
-            limit=3000,
-        )
         fg_products = ProductTemplate.search(
             [
                 ('active', '=', True),
@@ -143,8 +119,9 @@ class RequirementFormController(http.Controller):
             order='name, id',
         )
         return {
-            'product_templates': product_templates,
-            'product_variants': product_variants,
+            'layer_options': LayerOptions.search(
+                [('active', '=', True)], order='sequence, name, id'
+            ),
             'payment_terms': PaymentTerm.search([], order='name, id'),
             'print_finish_options': PrintFinishOption.search(
                 [('active', '=', True)], order='sequence, name, id'
@@ -238,32 +215,16 @@ class RequirementFormController(http.Controller):
                 form.write({'document_attachment_ids': commands})
 
     def _layer_values(self, data, layer_no):
-        tmpl = self._get_record(
-            'product.template', data.get(f'layer_{layer_no}_product_tmpl_id')
+        option = self._get_record(
+            'crm.requirement.layer.option', data.get(f'layer_{layer_no}_option_id')
         )
-        variant = self._get_record(
-            'product.product', data.get(f'layer_{layer_no}_variant_id')
-        )
-
-        if tmpl and not tmpl.is_requirement_layer:
-            tmpl = request.env['product.template'].sudo().browse()
-            variant = request.env['product.product'].sudo().browse()
-
-        if variant and not variant.product_tmpl_id.is_requirement_layer:
-            variant = request.env['product.product'].sudo().browse()
-
-        if variant and tmpl and variant.product_tmpl_id != tmpl:
-            variant = request.env['product.product'].sudo().browse()
-
-        material = tmpl.display_name if tmpl else False
-        thickness = tmpl.thickness_microns if tmpl else 0.0
-        variant = request.env['product.product'].sudo().browse()
-
+        if option and not option.active:
+            option = request.env['crm.requirement.layer.option'].sudo().browse()
+        microns = self._to_float(data.get(f'layer_{layer_no}_thickness'))
         return {
-            f'layer_{layer_no}_product_tmpl_id': tmpl.id if tmpl else False,
-            f'layer_{layer_no}_variant_id': variant.id if variant else False,
-            f'layer_{layer_no}_material': material or '',
-            f'layer_{layer_no}_thickness': thickness,
+            f'layer_{layer_no}_option_id': option.id if option else False,
+            f'layer_{layer_no}_material': option.name if option else False,
+            f'layer_{layer_no}_thickness': microns if option else 0.0,
         }
 
     @http.route(

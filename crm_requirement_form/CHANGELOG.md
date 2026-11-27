@@ -2,7 +2,17 @@
 
 > This file is maintained with the module. Dates are ISO 8601. Feature implementation dates are **not inferred** from documentation dates or ZIP/file timestamps.
 
-## [Unreleased] — Documentation Updated: 2026-11-10
+## [Unreleased] — Documentation Updated: 2026-11-27
+
+### [Changed] — Configurable specification Layer Names and Microns (2026-11-27)
+- [2026-11-27] Requirement Form Product Specification now displays **Bag Width** before **Bag Length**. Layer 1–10 selections come from new **Requirement Configuration → Layer Names** (`crm.requirement.layer.option`) rather than Inventory product layer checkboxes. New layer names are created by Sales Managers in the configuration menu.
+- [2026-11-27] Replaced read-only product-linked Thickness (Microns) display with editable **Microns** numeric `Float` fields, including in the customer/internal website form; total numeric thickness still sums the entered values. Existing duplicate/repeat-job read-only behavior is preserved.
+- [2026-11-27] Added editable master-data views and read/management ACLs, compatibility fields for old product/variant links, repeat-job copy support, and layer-option propagation to Sale Order Lines, GDN and Job Code configuration. The idempotent `data/layer_option_migration.xml` backfills saved legacy layer names without deleting old links or changing saved Microns.
+- [2026-11-27] Existing manifest version `19.0.0.0` unchanged. Static syntax/XML and package integrity checks run; live Odoo installation/upgrade/browser testing not verified.
+
+### [Docs] — Layer configuration update (2026-11-27)
+- [2026-11-27] Recorded the specification field order, independent Layer Names master data, editable Microns, legacy-data backfill, and downstream compatibility changes in this changelog. Historical entries are preserved.
+- [2026-11-27] This packaging update changes only `CHANGELOG.md` relative to the preceding layer-configuration ZIP. No additional executable changes or version bump. Live Odoo testing remains not verified.
 
 ### [Changed] — Source REQ Form column in Product Specifications (2026-11-10)
 - [2026-11-10] Display the existing `crm.requirement.specification.previous_req_form` field as a read-only **Source REQ Form** column immediately after Design Name in the Requirement Form Product Specifications One2many list (`views/requirement_form_views.xml`). Preserve `force_save="1"`; the existing hidden popup field remains unchanged.

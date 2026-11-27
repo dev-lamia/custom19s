@@ -11,7 +11,7 @@ export class RequirementLayerAddButton extends Component {
     async addLayer() {
         let highestPopulated = 1;
         for (let layerNo = 2; layerNo <= 10; layerNo++) {
-            if (this.props.record.data[`layer_${layerNo}_product_tmpl_id`]) {
+            if (this.props.record.data[`layer_${layerNo}_option_id`]) {
                 highestPopulated = layerNo;
             }
         }
@@ -44,18 +44,18 @@ export class RequirementLayerRemoveButton extends Component {
 
         const changes = {};
         if (currentVisible === 1) {
-            changes.layer_1_product_tmpl_id = false;
-            changes.layer_1_variant_id = false;
+            changes.layer_1_option_id = false;
+            changes.layer_1_thickness = 0;
         } else {
             for (let target = layerNo; target < currentVisible; target++) {
                 const source = target + 1;
-                changes[`layer_${target}_product_tmpl_id`] =
-                    record.data[`layer_${source}_product_tmpl_id`] || false;
-                changes[`layer_${target}_variant_id`] =
-                    record.data[`layer_${source}_variant_id`] || false;
+                changes[`layer_${target}_option_id`] =
+                    record.data[`layer_${source}_option_id`] || false;
+                changes[`layer_${target}_thickness`] =
+                    record.data[`layer_${source}_thickness`] || 0;
             }
-            changes[`layer_${currentVisible}_product_tmpl_id`] = false;
-            changes[`layer_${currentVisible}_variant_id`] = false;
+            changes[`layer_${currentVisible}_option_id`] = false;
+            changes[`layer_${currentVisible}_thickness`] = 0;
             changes[this.props.name] = currentVisible - 1;
         }
         await record.update(changes);
